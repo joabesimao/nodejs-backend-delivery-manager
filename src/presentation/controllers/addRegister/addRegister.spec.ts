@@ -4,6 +4,7 @@ import {
 } from "../../../domain/usescases/addRegister/add-register";
 import { AddRegisterController } from "../../controllers/addRegister/addRegister";
 import { HttpRequest } from "../../protocols/http";
+import { serverError } from "../../helpers/http/http-helper";
 const makeFakeRequest = (): HttpRequest => ({
   body: {
     name: "any_name",
