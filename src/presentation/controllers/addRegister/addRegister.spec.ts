@@ -4,7 +4,7 @@ import {
 } from "../../../domain/usescases/addRegister/add-register";
 import { AddRegisterController } from "../../controllers/addRegister/addRegister";
 import { HttpRequest } from "../../protocols/http";
-import { serverError } from "../../helpers/http/http-helper";
+import { noContent, ok, serverError } from "../../helpers/http/http-helper";
 const makeFakeRequest = (): HttpRequest => ({
   body: {
     name: "any_name",
@@ -59,5 +59,11 @@ describe("addRegister Controller", () => {
     const fakeRequest = makeFakeRequest();
     const httpResponse = await sut.handle(fakeRequest);
     expect(httpResponse).toEqual(serverError(new Error()));
+  });
+
+  test("Should return 200 on sucess", async () => {
+    const { sut } = makeSut();
+    const httpResponse = await sut.handle(makeFakeRequest());
+    expect(httpResponse).toEqual(noContent());
   });
 });
