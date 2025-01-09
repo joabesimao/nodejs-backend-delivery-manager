@@ -4,7 +4,13 @@ import {
 } from "../../../domain/usescases/addRegister/add-register";
 import { AddRegisterController } from "../../controllers/addRegister/addRegister";
 import { HttpRequest } from "../../protocols/http";
-import { noContent, ok, serverError } from "../../helpers/http/http-helper";
+import {
+  badRequest,
+  noContent,
+  serverError,
+} from "../../helpers/http/http-helper";
+import { Validation } from "../../protocols/validation";
+
 const makeFakeRequest = (): HttpRequest => ({
   body: {
     name: "any_name",
@@ -17,6 +23,7 @@ const makeFakeRequest = (): HttpRequest => ({
 interface SutTypes {
   sut: AddRegisterController;
   addRegisterStub: AddRegister;
+  validationStub: Validation;
 }
 const makeAddRegisterStub = (): AddRegister => {
   class AddRegisterStub implements AddRegister {
@@ -27,12 +34,23 @@ const makeAddRegisterStub = (): AddRegister => {
   return new AddRegisterStub();
 };
 
+const makeValidation = (): Validation => {
+  class ValidationStub implements Validation {
+    validate(input: any): Error {
+      return null as any;
+    }
+  }
+  return new ValidationStub();
+};
+
 const makeSut = (): SutTypes => {
   const addRegisterStub = makeAddRegisterStub();
-  const sut = new AddRegisterController(addRegisterStub);
+  const validationStub = makeValidation();
+  const sut = new AddRegisterController(addRegisterStub, validationStub);
   return {
     sut,
     addRegisterStub,
+    validationStub,
   };
 };
 describe("addRegister Controller", () => {
@@ -47,6 +65,27 @@ describe("addRegister Controller", () => {
       phone: "any_phone",
       quantity: "any_quantity",
     });
+  });
+
+  test("Should call Validation with correct values", async () => {
+    const { sut, validationStub } = makeSut();
+    const validationSpy = jest.spyOn(validationStub, "validate");
+    const fakeRequest = makeFakeRequest();
+    await sut.handle(fakeRequest);
+    expect(validationSpy).toHaveBeenCalledWith({
+      name: "any_name",
+      address: "any_address",
+      phone: "any_phone",
+      quantity: "any_quantity",
+    });
+  });
+
+  test("Should return 400 if Validation fails", async () => {
+    const { sut, validationStub } = makeSut();
+    jest.spyOn(validationStub, "validate").mockReturnValueOnce(new Error());
+    const fakeRequest = makeFakeRequest();
+    const promise = await sut.handle(fakeRequest);
+    expect(promise).toEqual(badRequest(new Error()));
   });
 
   test("Should return 500 if AddRegister throws", async () => {
