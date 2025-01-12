@@ -1,3 +1,4 @@
+import { RegisterModel } from "../../../domain/models/register/register-model";
 import {
   AddRegister,
   AddRegisterModel,
@@ -6,7 +7,8 @@ import { AddRegisterRepository } from "../../protocols/db/register/add-register-
 
 export class DbAddRegister implements AddRegister {
   constructor(private readonly registerRepository: AddRegisterRepository) {}
-  async add(data: AddRegisterModel): Promise<void> {
-    await this.registerRepository.add(data);
+  async add(data: AddRegisterModel): Promise<RegisterModel> {
+    const result = await this.registerRepository.add(data);
+    return result;
   }
 }
