@@ -20,9 +20,14 @@ export class AddRegisterController implements Controller {
       if (error) {
         return badRequest(error);
       }
-      const { name, address, phone, quantity } = httpRequest.body;
-      await this.addRegister.add({ name, address, phone, quantity });
-      return noContent();
+      const { client, address, quantity, amount } = httpRequest.body;
+      await this.addRegister.add({
+        client: client,
+        address: address,
+        quantity: quantity,
+        amount: amount,
+      });
+      return noContent()
     } catch (error) {
       return serverError(error);
     }
