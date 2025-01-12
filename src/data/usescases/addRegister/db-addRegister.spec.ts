@@ -1,16 +1,35 @@
 import { DbAddRegister } from "./db-addRegister";
 import { AddRegisterRepository } from "../../protocols/db/register/add-register-repository";
 import { AddRegisterModel } from "../../../domain/usescases/addRegister/add-register";
+import { RegisterModel } from "../../../domain/models/register/register-model";
 
 interface SutTypes {
   sut: DbAddRegister;
   registerRepositoryStub: AddRegisterRepository;
 }
 
+const makeRegister = (): RegisterModel => ({
+  id: 1,
+  client: {
+    id: 1,
+    name: "any_name",
+    lastName: "any_last_name",
+    phone: "any_phone",
+  },
+  address: {
+    street: "any_street",
+    neighborhood: "any_neighborhood",
+    numberHouse: 123,
+    reference: "any_reference",
+  },
+  quantity: "any_quantity",
+  amount: 200,
+});
+
 const makeRegisterRepository = (): AddRegisterRepository => {
   class RegisterRepositoryStub implements AddRegisterRepository {
-    async add(registerData: AddRegisterModel): Promise<void> {
-      return new Promise((resolve) => resolve());
+    async add(data: AddRegisterModel): Promise<RegisterModel> {
+      return new Promise((resolve) => resolve(makeRegister()));
     }
   }
   return new RegisterRepositoryStub();
@@ -25,23 +44,37 @@ const makeSut = (): SutTypes => {
   };
 };
 
-const makeRegister = (): AddRegisterModel => ({
-  name: "any_name",
-  address: "any_endereco",
-  phone: "any_number",
+const makeAddRegister = (): AddRegisterModel => ({
+  client: { name: "any_name", lastName: "any_last_name", phone: "any_phone" },
+  address: {
+    street: "any_street",
+    neighborhood: "any_neighborhood",
+    numberHouse: 123,
+    reference: "any_reference",
+  },
   quantity: "any_quantity",
+  amount: 1,
 });
 
 describe("DbAddRegister Usecase", () => {
   test("Should call AddRegisterRepository with correct values", async () => {
     const { sut, registerRepositoryStub } = makeSut();
     const addSpy = jest.spyOn(registerRepositoryStub, "add");
-    await sut.add(makeRegister());
+    await sut.add(makeAddRegister());
     expect(addSpy).toHaveBeenCalledWith({
-      name: "any_name",
-  address: "any_endereco",
-  phone: "any_number",
-  quantity: "any_quantity",
+      client: {
+        name: "any_name",
+        lastName: "any_last_name",
+        phone: "any_phone",
+      },
+      address: {
+        street: "any_street",
+        neighborhood: "any_neighborhood",
+        numberHouse: 123,
+        reference: "any_reference",
+      },
+      quantity: "any_quantity",
+      amount: 1,
     });
   });
 });

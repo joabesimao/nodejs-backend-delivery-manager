@@ -11,15 +11,43 @@ import {
 } from "../../helpers/http/http-helper";
 import { Validation } from "../../protocols/validation";
 
+import { RegisterModel } from "../../../domain/models/register/register-model";
+
 const makeFakeRequest = (): HttpRequest => ({
   body: {
-    name: "any_name",
-    address: "any_address",
-    phone: "any_phone",
+    client: {
+      id: 1,
+      name: "any_name",
+      lastName: "any_last_name",
+      phone: "any_phone",
+    },
+    address: {
+      street: "any_street",
+      neighborhood: "any_neighborhood",
+      numberHouse: 123,
+      reference: "any_reference",
+    },
     quantity: "any_quantity",
+    amount: 1,
   },
 });
-
+const makeFakeRegisterModel = (): RegisterModel => ({
+  id: 1,
+  client: {
+    id: 1,
+    name: "any_name",
+    lastName: "any_last_name",
+    phone: "any_phone",
+  },
+  address: {
+    street: "any_street",
+    neighborhood: "any_neighborhood",
+    numberHouse: 123,
+    reference: "any_reference",
+  },
+  quantity: "any_quantity",
+  amount: 1,
+});
 interface SutTypes {
   sut: AddRegisterController;
   addRegisterStub: AddRegister;
@@ -27,8 +55,8 @@ interface SutTypes {
 }
 const makeAddRegisterStub = (): AddRegister => {
   class AddRegisterStub implements AddRegister {
-    async add(data: AddRegisterModel): Promise<void> {
-      return new Promise((resolve) => resolve());
+    async add(data: AddRegisterModel): Promise<RegisterModel> {
+      return new Promise((resolve) => resolve(makeFakeRegisterModel()));
     }
   }
   return new AddRegisterStub();
@@ -60,10 +88,20 @@ describe("addRegister Controller", () => {
     const fakeRequest = makeFakeRequest();
     await sut.handle(fakeRequest);
     expect(addRegisterSpy).toHaveBeenCalledWith({
-      name: "any_name",
-      address: "any_address",
-      phone: "any_phone",
+      client: {
+        id: 1,
+        name: "any_name",
+        lastName: "any_last_name",
+        phone: "any_phone",
+      },
+      address: {
+        street: "any_street",
+        neighborhood: "any_neighborhood",
+        numberHouse: 123,
+        reference: "any_reference",
+      },
       quantity: "any_quantity",
+      amount: 1,
     });
   });
 
@@ -73,10 +111,20 @@ describe("addRegister Controller", () => {
     const fakeRequest = makeFakeRequest();
     await sut.handle(fakeRequest);
     expect(validationSpy).toHaveBeenCalledWith({
-      name: "any_name",
-      address: "any_address",
-      phone: "any_phone",
+      client: {
+        id: 1,
+        name: "any_name",
+        lastName: "any_last_name",
+        phone: "any_phone",
+      },
+      address: {
+        street: "any_street",
+        neighborhood: "any_neighborhood",
+        numberHouse: 123,
+        reference: "any_reference",
+      },
       quantity: "any_quantity",
+      amount: 1,
     });
   });
 
