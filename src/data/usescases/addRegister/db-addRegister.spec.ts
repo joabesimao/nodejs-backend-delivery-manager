@@ -77,4 +77,15 @@ describe("DbAddRegister Usecase", () => {
       amount: 1,
     });
   });
+
+  test("Should throw if AddRegisterRepository throws", async () => {
+    const { sut, registerRepositoryStub } = makeSut();
+    jest
+      .spyOn(registerRepositoryStub, "add")
+      .mockReturnValueOnce(
+        new Promise((resolve, reject) => reject(new Error()))
+      );
+    const promise = sut.add(makeAddRegister());
+    await expect(promise).rejects.toThrow();
+  });
 });
