@@ -1,7 +1,9 @@
 import { DbAddRegister } from "./db-addRegister";
 import { AddRegisterRepository } from "../../protocols/db/register/add-register-repository";
-import { AddRegisterModel } from "../../../domain/usescases/addRegister/add-register";
-import { RegisterModel } from "../../../domain/models/register/register-model";
+import {
+  RegisterModel,
+  AddRegisterModel,
+} from "../addRegister/db-addRegister-protocols";
 
 interface SutTypes {
   sut: DbAddRegister;

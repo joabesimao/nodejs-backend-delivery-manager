@@ -1,8 +1,9 @@
-import { RegisterModel } from "../../../domain/models/register/register-model";
 import {
+  RegisterModel,
   AddRegister,
   AddRegisterModel,
-} from "../../../domain/usescases/addRegister/add-register";
+} from "../addRegister/db-addRegister-protocols";
+
 import { AddRegisterRepository } from "../../protocols/db/register/add-register-repository";
 
 export class DbAddRegister implements AddRegister {
