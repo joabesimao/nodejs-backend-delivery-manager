@@ -90,4 +90,11 @@ describe("DbAddRegister Usecase", () => {
     const promise = sut.add(makeAddRegister());
     await expect(promise).rejects.toThrow();
   });
+
+  test("Should return an Register on success", async () => {
+    const { sut } = makeSut();
+
+    const register = await sut.add(makeAddRegister());
+    expect(register).toEqual(makeRegister());
+  });
 });
