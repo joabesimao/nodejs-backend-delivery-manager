@@ -1,3 +1,4 @@
+import { async } from "fast-glob";
 import { MongoHelper } from "../helpers/mongo-helper";
 import { RegisterMongoRepository } from "./register";
 
@@ -9,8 +10,18 @@ describe("Register Mongo Repository", () => {
   afterAll(async () => {
     await MongoHelper.disconect();
   });
+
+  beforeEach(async () => {
+    const regCollection = MongoHelper.getCollection("registers");
+    await regCollection.deleteMany();
+  });
+
+  const makeSut = (): RegisterMongoRepository => {
+    return new RegisterMongoRepository();
+  };
+
   test("Should return an Register on success", async () => {
-    const sut = new RegisterMongoRepository();
+    const sut = makeSut();
     const register = await sut.add({
       client: {
         name: "any_name",
