@@ -1,4 +1,3 @@
-import { async } from "fast-glob";
 import { MongoHelper } from "../helpers/mongo-helper";
 import { RegisterMongoRepository } from "./register";
 
