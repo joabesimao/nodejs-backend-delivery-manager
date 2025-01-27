@@ -1,8 +1,21 @@
 import request from "supertest";
 import app from "../config/app";
+import { MongoHelper } from "../../infra/db/mongodb/helpers/mongo-helper";
 
 describe("Register Routes", () => {
   test("Should return an register on success", async () => {
+    beforeAll(async () => {
+      await MongoHelper.connect(process.env.MONGO_URL as string);
+    });
+
+    afterAll(async () => {
+      await MongoHelper.disconect();
+    });
+
+    beforeEach(async () => {
+      const regCollection = MongoHelper.getCollection("registers");
+      await regCollection.deleteMany();
+    });
     await request(app)
       .post("/api/register")
       .send({
