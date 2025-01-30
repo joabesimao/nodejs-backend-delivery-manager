@@ -11,7 +11,7 @@ describe("Register Mongo Repository", () => {
   });
 
   beforeEach(async () => {
-    const regCollection = MongoHelper.getCollection("registers");
+    const regCollection = await MongoHelper.getCollection("registers");
     await regCollection.deleteMany();
   });
 
