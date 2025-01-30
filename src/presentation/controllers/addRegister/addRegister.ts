@@ -1,13 +1,7 @@
 import { AddRegister } from "../../../domain/usescases/addRegister/add-register";
-import {
-  badRequest,
-  noContent,
-  ok,
-  serverError,
-} from "../../helpers/http/http-helper";
+import { ok, serverError } from "../../helpers/http/http-helper";
 import { Controller } from "../../protocols/controller";
 import { HttpRequest, HttpResponse } from "../../protocols/http";
-import { Validation } from "../../protocols/validation";
 
 export class AddRegisterController implements Controller {
   constructor(
