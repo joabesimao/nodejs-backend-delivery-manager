@@ -11,23 +11,19 @@ import { Validation } from "../../protocols/validation";
 
 export class AddRegisterController implements Controller {
   constructor(
-    private readonly addRegister: AddRegister,
-    private readonly validation: Validation
+    private readonly addRegister: AddRegister //  private readonly validation: Validation
   ) {}
   async handle(httpRequest: HttpRequest): Promise<HttpResponse> {
     try {
-      const error = this.validation.validate(httpRequest.body);
-      if (error) {
-        return badRequest(error);
-      }
       const { client, address, quantity, amount } = httpRequest.body;
-      await this.addRegister.add({
+      const result = await this.addRegister.add({
         client: client,
         address: address,
         quantity: quantity,
         amount: amount,
       });
-      return noContent()
+
+      return ok(result);
     } catch (error) {
       return serverError(error);
     }
