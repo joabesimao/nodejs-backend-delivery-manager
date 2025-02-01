@@ -3,7 +3,7 @@ import {
   AddRegisterModel,
 } from "../../../domain/usescases/addRegister/add-register";
 import { AddRegisterController } from "../../controllers/addRegister/addRegister";
-import { HttpRequest } from "../../protocols/http";
+import { HttpRequest, HttpResponse } from "../../protocols/http";
 import {
   badRequest,
   noContent,
@@ -13,6 +13,7 @@ import {
 import { Validation } from "../../protocols/validation";
 
 import { RegisterModel } from "../../../domain/models/register/register-model";
+import { MissingParamError } from "../../errors";
 
 const makeFakeRequest = (): HttpRequest => ({
   body: {
@@ -104,6 +105,95 @@ describe("addRegister Controller", () => {
       quantity: "any_quantity",
       amount: 1,
     });
+  });
+
+  test("Should return 400 if not client provided", async () => {
+    const { sut } = makeSut();
+
+    const fakeRequest: HttpRequest = {
+      body: {
+        address: {
+          street: "any_street",
+          neighborhood: "any_neighborhood",
+          numberHouse: 123,
+          reference: "any_reference",
+        },
+        quantity: "any_quantity",
+        amount: 1,
+      },
+    };
+    const httpResponse = await sut.handle(fakeRequest);
+    expect(httpResponse.statusCode).toBe(400);
+    expect(httpResponse.body).toEqual(new MissingParamError("client"));
+  });
+  test("Should return 400 if not address provided", async () => {
+    const { sut } = makeSut();
+
+    const fakeRequest: HttpRequest = {
+      body: {
+        client: {
+          id: 1,
+          name: "any_name",
+          lastName: "any_last_name",
+          phone: "any_phone",
+        },
+        quantity: "any_quantity",
+        amount: 1,
+      },
+    };
+    const httpResponse = await sut.handle(fakeRequest);
+    expect(httpResponse.statusCode).toBe(400);
+    expect(httpResponse.body).toEqual(new MissingParamError("address"));
+  });
+
+  test("Should return 400 if not quantity provided", async () => {
+    const { sut } = makeSut();
+
+    const fakeRequest: HttpRequest = {
+      body: {
+        client: {
+          id: 1,
+          name: "any_name",
+          lastName: "any_last_name",
+          phone: "any_phone",
+        },
+        address: {
+          street: "any_street",
+          neighborhood: "any_neighborhood",
+          numberHouse: 123,
+          reference: "any_reference",
+        },
+        amount: 1,
+      },
+    };
+    const httpResponse = await sut.handle(fakeRequest);
+    expect(httpResponse.statusCode).toBe(400);
+    expect(httpResponse.body).toEqual(new MissingParamError("quantity"));
+  });
+
+  test("Should return 400 if not amount provided", async () => {
+    const { sut } = makeSut();
+
+    const fakeRequest: HttpRequest = {
+      body: {
+        client: {
+          id: 1,
+          name: "any_name",
+          lastName: "any_last_name",
+          phone: "any_phone",
+        },
+        address: {
+          street: "any_street",
+          neighborhood: "any_neighborhood",
+          numberHouse: 123,
+          reference: "any_reference",
+        },
+        quantity: "any_quantity",
+      },
+    };
+    const httpResponse = await sut.handle(fakeRequest);
+    expect(httpResponse.statusCode).toBe(400);
+    expect(httpResponse.body).toEqual(new MissingParamError("amount"));
   });
   /* 
   test("Should call Validation with correct values", async () => {
