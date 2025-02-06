@@ -195,37 +195,6 @@ describe("addRegister Controller", () => {
     expect(httpResponse.statusCode).toBe(400);
     expect(httpResponse.body).toEqual(new MissingParamError("amount"));
   });
-  /* 
-  test("Should call Validation with correct values", async () => {
-    const { sut, validationStub } = makeSut();
-    const validationSpy = jest.spyOn(validationStub, "validate");
-    const fakeRequest = makeFakeRequest();
-    await sut.handle(fakeRequest);
-    expect(validationSpy).toHaveBeenCalledWith({
-      client: {
-        id: 1,
-        name: "any_name",
-        lastName: "any_last_name",
-        phone: "any_phone",
-      },
-      address: {
-        street: "any_street",
-        neighborhood: "any_neighborhood",
-        numberHouse: 123,
-        reference: "any_reference",
-      },
-      quantity: "any_quantity",
-      amount: 1,
-    });
-  }); */
-
-  /* test("Should return 400 if Validation fails", async () => {
-    const { sut, validationStub } = makeSut();
-    jest.spyOn(validationStub, "validate").mockReturnValueOnce(new Error());
-    const fakeRequest = makeFakeRequest();
-    const promise = await sut.handle(fakeRequest);
-    expect(promise).toEqual(badRequest(new Error()));
-  }); */
 
   test("Should return 500 if AddRegister throws", async () => {
     const { sut, addRegisterStub } = makeSut();
