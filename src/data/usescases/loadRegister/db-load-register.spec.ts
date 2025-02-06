@@ -41,16 +41,33 @@ const makeFakeRegisters = (): LoadRegisterModel[] => {
   ];
 };
 
+interface SutTypes {
+  sut: DbLoadRegisters;
+  loadRegisterRepositoryStub: LoadRegisterRepository;
+}
+
+const makeLoadRegisterRepository = (): LoadRegisterRepository => {
+  class LoadRegisterRepositoryStub implements LoadRegisterRepository {
+    async loadAll(): Promise<LoadRegisterModel[]> {
+      return new Promise((resolve) => resolve(makeFakeRegisters()));
+    }
+  }
+  return new LoadRegisterRepositoryStub();
+};
+
+const makeSut = (): SutTypes => {
+  const loadRegisterRepositoryStub = makeLoadRegisterRepository();
+  const sut = new DbLoadRegisters(loadRegisterRepositoryStub);
+  return {
+    sut,
+    loadRegisterRepositoryStub,
+  };
+};
+
 describe("DbLoadRegisters", () => {
   test("Should call LoadRegisterRepository", async () => {
-    class LoadRegisterRepositoryStub implements LoadRegisterRepository {
-      async loadAll(): Promise<LoadRegisterModel[]> {
-        return new Promise((resolve) => resolve(makeFakeRegisters()));
-      }
-    }
-    const loadRegisterRepositoryStub = new LoadRegisterRepositoryStub();
+    const { sut, loadRegisterRepositoryStub } = makeSut();
     const loadAllSpy = jest.spyOn(loadRegisterRepositoryStub, "loadAll");
-    const sut = new DbLoadRegisters(loadRegisterRepositoryStub);
     await sut.load();
     expect(loadAllSpy).toHaveBeenCalled();
   });
