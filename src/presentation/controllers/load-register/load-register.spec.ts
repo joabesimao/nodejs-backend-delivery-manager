@@ -41,16 +41,33 @@ const makeFakeRegisters = (): LoadRegisterModel[] => {
   ];
 };
 
+interface SutTypes {
+  sut: LoadRegistersController;
+  loadRegisterStub: LoadRegisters;
+}
+
+const makeLoadRegisters = (): LoadRegisters => {
+  class LoadRegisterStub implements LoadRegisters {
+    async load(): Promise<LoadRegisterModel[]> {
+      return new Promise((resolve) => resolve(makeFakeRegisters()));
+    }
+  }
+  return new LoadRegisterStub();
+};
+
+const makeSut = (): SutTypes => {
+  const loadRegisterStub = makeLoadRegisters();
+  const sut = new LoadRegistersController(loadRegisterStub);
+  return {
+    sut,
+    loadRegisterStub,
+  };
+};
+
 describe("Load Register Controller", () => {
   test("Should call LoadRegister", async () => {
-    class LoadRegisterStub implements LoadRegisters {
-      async load(): Promise<LoadRegisterModel[]> {
-        return new Promise((resolve) => resolve(makeFakeRegisters()));
-      }
-    }
-    const loadRegisterStub = new LoadRegisterStub();
+    const { sut, loadRegisterStub } = makeSut();
     const loadSpy = jest.spyOn(loadRegisterStub, "load");
-    const sut = new LoadRegistersController(loadRegisterStub);
     await sut.handle({});
     expect(loadSpy).toHaveBeenCalled();
   });
