@@ -7,7 +7,7 @@ export class DbLoadRegisters implements LoadRegisters {
     private readonly loadRegisterRepository: LoadRegisterRepository
   ) {}
   async load(): Promise<LoadRegisterModel[]> {
-    await this.loadRegisterRepository.loadAll();
-    return [];
+    const registersList = await this.loadRegisterRepository.loadAll();
+    return registersList;
   }
 }
