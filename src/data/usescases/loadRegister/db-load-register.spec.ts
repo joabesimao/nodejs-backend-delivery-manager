@@ -77,4 +77,15 @@ describe("DbLoadRegisters", () => {
     const registers = await sut.load();
     expect(registers).toEqual(makeFakeRegisters());
   });
+
+  test("Should throw if LoadRegisterRepository throws", async () => {
+    const { sut, loadRegisterRepositoryStub } = makeSut();
+    jest
+      .spyOn(loadRegisterRepositoryStub, "loadAll")
+      .mockReturnValueOnce(
+        new Promise((resolve, reject) => reject(new Error()))
+      );
+    const promise = sut.load();
+    await expect(promise).rejects.toThrow();
+  });
 });
