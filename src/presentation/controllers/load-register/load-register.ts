@@ -1,5 +1,5 @@
 import { LoadRegisters } from "../../../domain/usescases/loadRegister/load-register";
-import { ok, serverError } from "../../helpers/http/http-helper";
+import { noContent, ok, serverError } from "../../helpers/http/http-helper";
 import { Controller } from "../../protocols/controller";
 import { HttpRequest, HttpResponse } from "../../protocols/http";
 
@@ -9,10 +9,9 @@ export class LoadRegistersController implements Controller {
   async handle(httpRequest: HttpRequest): Promise<HttpResponse> {
     try {
       const registers = await this.loadRegister.load();
-      return ok(registers);
+      return registers.length ? ok(registers) : noContent();
     } catch (error) {
       return serverError(error);
     }
   }
 }
-
