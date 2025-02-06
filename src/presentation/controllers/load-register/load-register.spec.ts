@@ -1,7 +1,7 @@
 import { LoadRegistersController } from "./load-register";
 import { LoadRegisters } from "../../../domain/usescases/loadRegister/load-register";
 import { LoadRegisterModel } from "../../../domain/models/register/register-load-model";
-import { ok, serverError } from "../../helpers/http/http-helper";
+import { noContent, ok, serverError } from "../../helpers/http/http-helper";
 
 const makeFakeRegisters = (): LoadRegisterModel[] => {
   return [
@@ -78,6 +78,15 @@ describe("Load Register Controller", () => {
 
     const httpResponse = await sut.handle({});
     expect(httpResponse).toEqual(ok(makeFakeRegisters()));
+  });
+
+  test("Should return 204 if LoadRegister returns empty", async () => {
+    const { sut, loadRegisterStub } = makeSut();
+    jest
+      .spyOn(loadRegisterStub, "load")
+      .mockReturnValueOnce(new Promise((resolve) => resolve([])));
+    const httpResponse = await sut.handle({});
+    expect(httpResponse).toEqual(noContent());
   });
 
   test("Should return 500 if LoadRegister throws", async () => {
