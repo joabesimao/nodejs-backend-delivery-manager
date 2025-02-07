@@ -107,4 +107,10 @@ describe("LoadAll()", () => {
     expect(registers[0].client.name).toBe("any_name");
     expect(registers[1].client.name).toBe("other_name");
   });
+
+  test("Should load empty list", async () => {
+    const sut = makeSut();
+    const registers = await sut.loadAll();
+    expect(registers.length).toBe(0);
+  });
 });

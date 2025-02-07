@@ -26,7 +26,7 @@ export class RegisterMongoRepository
 
   async loadAll(): Promise<LoadRegisterModel[]> {
     const registerCollection = await MongoHelper.getCollection("registers");
-    const reg: any[] = await registerCollection.find().toArray();
-    return reg;
+    const reg = await registerCollection.find().toArray();
+    return reg as any as RegisterModel[];
   }
 }
