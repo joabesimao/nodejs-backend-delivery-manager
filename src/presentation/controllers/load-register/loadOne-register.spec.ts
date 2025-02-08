@@ -80,16 +80,17 @@ describe("Load one Register Controller", () => {
     const httpResponse = await sut.handle(fakehttpRequest());
     expect(httpResponse).toEqual(ok(makeFakeRegisters()));
   });
-  /*
-  test("Should return 204 if LoadRegister returns empty", async () => {
+
+  test("Should return 204 if LoadOneRegister returns empty", async () => {
     const { sut, loadOneRegisterStub } = makeSut();
     jest
       .spyOn(loadOneRegisterStub, "loadById")
       .mockReturnValueOnce(new Promise((resolve) => resolve(null as any)));
-    const httpResponse = await sut.handle({});
+    const httpResponse = await sut.handle(fakehttpRequest());
     expect(httpResponse).toEqual(noContent());
   });
 
+  /*
   test("Should return 500 if LoadRegister throws", async () => {
     const { sut, loadOneRegisterStub } = makeSut();
     jest
