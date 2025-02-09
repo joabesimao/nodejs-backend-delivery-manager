@@ -90,8 +90,7 @@ describe("Load one Register Controller", () => {
     expect(httpResponse).toEqual(noContent());
   });
 
-  /*
-  test("Should return 500 if LoadRegister throws", async () => {
+  test("Should return 500 if LoadOneRegister throws", async () => {
     const { sut, loadOneRegisterStub } = makeSut();
     jest
       .spyOn(loadOneRegisterStub, "loadById")
@@ -99,7 +98,7 @@ describe("Load one Register Controller", () => {
         new Promise((resolve, reject) => reject(new Error()))
       );
 
-    const httpResponse = await sut.handle({});
+    const httpResponse = await sut.handle(fakehttpRequest());
     expect(httpResponse).toEqual(serverError(new Error()));
-  }); */
+  });
 });
