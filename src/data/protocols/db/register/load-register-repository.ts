@@ -3,3 +3,7 @@ import { LoadRegisterModel } from "../../../../domain/models/register/register-l
 export interface LoadRegisterRepository {
   loadAll(): Promise<LoadRegisterModel[]>;
 }
+
+export interface LoadRegisterByIdRepository {
+  loadById(id: number): Promise<LoadRegisterModel>;
+}
