@@ -1,12 +1,18 @@
 import { AddRegisterRepository } from "../../../../data/protocols/db/register/add-register-repository";
-import { LoadRegisterRepository } from "../../../../data/protocols/db/register/load-register-repository";
+import {
+  LoadRegisterRepository,
+  LoadRegisterByIdRepository,
+} from "../../../../data/protocols/db/register/load-register-repository";
 import { LoadRegisterModel } from "../../../../domain/models/register/register-load-model";
 import { RegisterModel } from "../../../../domain/models/register/register-model";
 import { AddRegisterModel } from "../../../../domain/usescases/addRegister/add-register";
 import { MongoHelper } from "../helpers/mongo-helper";
 
 export class RegisterMongoRepository
-  implements AddRegisterRepository, LoadRegisterRepository
+  implements
+    AddRegisterRepository,
+    LoadRegisterRepository,
+    LoadRegisterByIdRepository
 {
   async add(data: AddRegisterModel): Promise<RegisterModel> {
     const registerCollection = await MongoHelper.getCollection("registers");
@@ -28,5 +34,21 @@ export class RegisterMongoRepository
     const registerCollection = await MongoHelper.getCollection("registers");
     const reg = await registerCollection.find().toArray();
     return reg as any as RegisterModel[];
+  }
+
+  async loadById(id: number): Promise<LoadRegisterModel> {
+    const regCollection = await MongoHelper.getCollection("registers");
+    const result = await regCollection.findOne({ $where: String(id) });
+    const object = await regCollection.findOne(result._id);
+    const {client, address, amount, quantity } = object;
+    const register: LoadRegisterModel = {
+      id,
+      client: client,
+      address: address,
+      amount: amount,
+      quantity: quantity,
+    };
+
+    return register;
   }
 }
