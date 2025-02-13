@@ -1,12 +1,19 @@
+import { ObjectId } from "mongodb";
 import { AddRegisterRepository } from "../../../../data/protocols/db/register/add-register-repository";
-import { LoadRegisterRepository } from "../../../../data/protocols/db/register/load-register-repository";
+import {
+  LoadRegisterRepository,
+  LoadRegisterByIdRepository,
+} from "../../../../data/protocols/db/register/load-register-repository";
 import { LoadRegisterModel } from "../../../../domain/models/register/register-load-model";
 import { RegisterModel } from "../../../../domain/models/register/register-model";
 import { AddRegisterModel } from "../../../../domain/usescases/addRegister/add-register";
 import { MongoHelper } from "../helpers/mongo-helper";
 
 export class RegisterMongoRepository
-  implements AddRegisterRepository, LoadRegisterRepository
+  implements
+    AddRegisterRepository,
+    LoadRegisterRepository,
+    LoadRegisterByIdRepository
 {
   async add(data: AddRegisterModel): Promise<RegisterModel> {
     const registerCollection = await MongoHelper.getCollection("registers");
@@ -26,7 +33,18 @@ export class RegisterMongoRepository
 
   async loadAll(): Promise<LoadRegisterModel[]> {
     const registerCollection = await MongoHelper.getCollection("registers");
-    const reg = await registerCollection.find().toArray();
-    return reg as any as RegisterModel[];
+    const allRegister = await registerCollection.find().toArray();
+    return allRegister as unknown as RegisterModel[];
+  }
+
+  async loadById(id: number): Promise<LoadRegisterModel> {
+    const objId = new ObjectId(id);
+
+    const registerCollection = await MongoHelper.getCollection("registers");
+    const reg = await registerCollection.findOne({
+      _id: objId,
+    });
+
+    return reg as any;
   }
 }
