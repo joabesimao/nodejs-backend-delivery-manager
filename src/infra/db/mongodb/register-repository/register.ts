@@ -1,3 +1,4 @@
+import { ObjectId } from "mongodb";
 import { AddRegisterRepository } from "../../../../data/protocols/db/register/add-register-repository";
 import {
   LoadRegisterRepository,
@@ -37,17 +38,12 @@ export class RegisterMongoRepository
   }
 
   async loadById(id: number): Promise<LoadRegisterModel> {
+    const objId = new ObjectId(id);
+
     const registerCollection = await MongoHelper.getCollection("registers");
-    const reg = await registerCollection.findOne(
-      {
-        id,
-      },
-      {
-        projection: {
-          _id: 0,
-        },
-      }
-    );
+    const reg = await registerCollection.findOne({
+      _id: objId,
+    });
 
     return reg as any;
   }
