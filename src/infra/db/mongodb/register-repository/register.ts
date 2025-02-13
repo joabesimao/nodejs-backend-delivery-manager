@@ -32,23 +32,23 @@ export class RegisterMongoRepository
 
   async loadAll(): Promise<LoadRegisterModel[]> {
     const registerCollection = await MongoHelper.getCollection("registers");
-    const reg = await registerCollection.find().toArray();
-    return reg as any as RegisterModel[];
+    const allRegister = await registerCollection.find().toArray();
+    return allRegister as unknown as RegisterModel[];
   }
 
   async loadById(id: number): Promise<LoadRegisterModel> {
-    const regCollection = await MongoHelper.getCollection("registers");
-    const result = await regCollection.findOne({ $where: String(id) });
-    const object = await regCollection.findOne(result._id);
-    const {client, address, amount, quantity } = object;
-    const register: LoadRegisterModel = {
-      id,
-      client: client,
-      address: address,
-      amount: amount,
-      quantity: quantity,
-    };
+    const registerCollection = await MongoHelper.getCollection("registers");
+    const reg = await registerCollection.findOne(
+      {
+        id,
+      },
+      {
+        projection: {
+          _id: 0,
+        },
+      }
+    );
 
-    return register;
+    return reg as any;
   }
 }

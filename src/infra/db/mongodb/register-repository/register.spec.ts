@@ -1,4 +1,4 @@
-import { Collection } from "mongodb";
+import { Collection, ObjectId } from "mongodb";
 import { MongoHelper } from "../helpers/mongo-helper";
 import { RegisterMongoRepository } from "./register";
 
@@ -130,11 +130,9 @@ describe("LoadById()", () => {
   });
 
   test("Should load one Register on success", async () => {
-    const id = 1;
     await regCollection.insertOne({
-      id: 1,
       client: {
-        id: 2,
+        id: 1,
         name: "any_name",
         lastName: "any_last_name",
         phone: "any_number",
@@ -149,11 +147,11 @@ describe("LoadById()", () => {
       quantity: "any_quantity",
     });
     const sut = makeSut();
-    const register = await sut.loadById(id);
+    const register = await sut.loadById(1);
     expect(register).toEqual({
       id: 1,
       client: {
-        id: 2,
+        id: 1,
         name: "any_name",
         lastName: "any_last_name",
         phone: "any_number",
