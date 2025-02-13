@@ -41,6 +41,9 @@ const fakehttpRequest = (): HttpRequest => ({
     amount: 10,
     quantity: "1",
   },
+  params: {
+    id: 1,
+  },
 });
 
 interface SutTypes {

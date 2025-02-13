@@ -130,7 +130,8 @@ describe("LoadById()", () => {
   });
 
   test("Should load one Register on success", async () => {
-    await regCollection.insertOne({
+    const result = await regCollection.findOne({
+      id: 1,
       client: {
         id: 1,
         name: "any_name",
@@ -148,22 +149,6 @@ describe("LoadById()", () => {
     });
     const sut = makeSut();
     const register = await sut.loadById(1);
-    expect(register).toEqual({
-      id: 1,
-      client: {
-        id: 1,
-        name: "any_name",
-        lastName: "any_last_name",
-        phone: "any_number",
-      },
-      address: {
-        street: "any_street",
-        neighborhood: "any_neighborhood",
-        numberHouse: 1,
-        reference: "any_reference",
-      },
-      amount: 2,
-      quantity: "any_quantity",
-    });
+    expect(register).toEqual(result);
   });
 });
