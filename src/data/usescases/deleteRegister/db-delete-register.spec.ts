@@ -1,7 +1,7 @@
 import { DeleteRegisterByIdRepository } from "../../../data/protocols/db/register/delete-register-repository";
-import { DbDeleteRegisterByIdRepository } from "./db-delete-register";
+import { DbDeleteRegisterById } from "./db-delete-register";
 interface SutTypes {
-  sut: DbDeleteRegisterByIdRepository;
+  sut: DbDeleteRegisterById;
   deleteRegisterByIdRepositoryStub: DeleteRegisterByIdRepository;
 }
 const makeDeleteRegisterByIdRepository = (): DeleteRegisterByIdRepository => {
@@ -17,9 +17,7 @@ const makeDeleteRegisterByIdRepository = (): DeleteRegisterByIdRepository => {
 
 const makeSut = (): SutTypes => {
   const deleteRegisterByIdRepositoryStub = makeDeleteRegisterByIdRepository();
-  const sut = new DbDeleteRegisterByIdRepository(
-    deleteRegisterByIdRepositoryStub
-  );
+  const sut = new DbDeleteRegisterById(deleteRegisterByIdRepositoryStub);
   return {
     sut,
     deleteRegisterByIdRepositoryStub,
