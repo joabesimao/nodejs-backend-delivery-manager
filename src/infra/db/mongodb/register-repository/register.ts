@@ -1,5 +1,6 @@
 import { ObjectId } from "mongodb";
 import { AddRegisterRepository } from "../../../../data/protocols/db/register/add-register-repository";
+import { DeleteRegisterByIdRepository } from "../../../../data/protocols/db/register/delete-register-repository";
 import {
   LoadRegisterRepository,
   LoadRegisterByIdRepository,
@@ -13,7 +14,8 @@ export class RegisterMongoRepository
   implements
     AddRegisterRepository,
     LoadRegisterRepository,
-    LoadRegisterByIdRepository
+    LoadRegisterByIdRepository,
+    DeleteRegisterByIdRepository
 {
   async add(data: AddRegisterModel): Promise<RegisterModel> {
     const registerCollection = await MongoHelper.getCollection("registers");
@@ -46,5 +48,15 @@ export class RegisterMongoRepository
     });
 
     return reg as any;
+  }
+
+  async deleteById(id: number): Promise<string> {
+    const objId = new ObjectId(id);
+    const registerCollection = await MongoHelper.getCollection("registers");
+    const deleteRegister = await registerCollection.deleteOne({ _id: objId });
+    const result = deleteRegister.acknowledged;
+    if (result) {
+      return "Deletado com sucesso!";
+    }
   }
 }
