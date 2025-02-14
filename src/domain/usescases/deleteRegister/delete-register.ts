@@ -1,3 +1,3 @@
 export interface DeleteRegister {
-  delete(id: Number): Promise<string>;
+  delete(id: number): Promise<string>;
 }
