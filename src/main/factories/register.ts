@@ -1,4 +1,4 @@
-import { AddRegisterController } from "../../presentation/controllers/addRegister/addRegister";
+import { AddRegisterController } from "../../presentation/controllers/add-register/addRegister";
 import { DbAddRegister } from "../../data/usescases/addRegister/db-addRegister";
 import { RegisterMongoRepository } from "../../infra/db/mongodb/register-repository/register";
 import { LogMongoRepository } from "../../infra/db/mongodb/log-repository/log-mongo-repository";
