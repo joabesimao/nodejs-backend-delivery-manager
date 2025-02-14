@@ -1,7 +1,7 @@
 import { DeleteRegister } from "../../../domain/usescases/deleteRegister/delete-register";
 import { DeleteRegisterByIdRepository } from "../../protocols/db/register/delete-register-repository";
 
-export class DbDeleteRegisterByIdRepository implements DeleteRegister {
+export class DbDeleteRegisterById implements DeleteRegister {
   constructor(
     private readonly deleteByIdRepository: DeleteRegisterByIdRepository
   ) {}
