@@ -35,4 +35,32 @@ describe("DbDeleteRegistersById", () => {
     await sut.delete(1);
     expect(deleteByIdSpy).toHaveBeenCalledWith(1);
   });
+
+  test("Should call DeleteRegisterByIdRepository", async () => {
+    const { sut, deleteRegisterByIdRepositoryStub } = makeSut();
+    const deleteByIdSpy = jest.spyOn(
+      deleteRegisterByIdRepositoryStub,
+      "deleteById"
+    );
+    await sut.delete(1);
+    expect(deleteByIdSpy).toHaveBeenCalled();
+  });
+
+  test("Should call DeleteRegisterByIdRepository on success", async () => {
+    const { sut } = makeSut();
+
+    const deletedRegister = await sut.delete(1);
+    expect(deletedRegister).toEqual("Deletado com sucesso!");
+  });
+
+  test("Should throw if DeleteRegisterByIdRepository throws", async () => {
+    const { sut, deleteRegisterByIdRepositoryStub } = makeSut();
+    jest
+      .spyOn(deleteRegisterByIdRepositoryStub, "deleteById")
+      .mockReturnValueOnce(
+        new Promise((resolve, reject) => reject(new Error()))
+      );
+    const promise = sut.delete(1);
+    await expect(promise).rejects.toThrow();
+  });
 });
