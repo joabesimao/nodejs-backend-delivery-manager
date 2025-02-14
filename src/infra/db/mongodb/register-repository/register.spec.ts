@@ -151,4 +151,14 @@ describe("LoadById()", () => {
     const register = await sut.loadById(1);
     expect(register).toEqual(result);
   });
+
+  test("Should delete one Register on success", async () => {
+    await regCollection.deleteOne({
+      id: 1,
+    });
+
+    const sut = makeSut();
+    const register = await sut.deleteById(1);
+    expect(register).toEqual("Deletado com sucesso!");
+  });
 });
