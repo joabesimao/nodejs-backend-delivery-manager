@@ -2,6 +2,7 @@ import { UpdateRegisterController } from "./update-register";
 import { HttpRequest } from "../../protocols/http";
 import { RegisterModel } from "../../../domain/models/register/register-model";
 import { UpdateRegister } from "../../../domain/usescases/updateRegister/update-register";
+import { ok, serverError } from "../../helpers/http/http-helper";
 
 interface SutTypes {
   sut: UpdateRegisterController;
@@ -54,7 +55,7 @@ const makeUpdateRegister = (): UpdateRegister => {
     async update(
       id: number,
       info: Partial<RegisterModel>
-    ): Promise<RegisterModel> {
+    ): Promise<Promise<RegisterModel>> {
       return new Promise((resolve) => resolve(makeFakeRegisters()));
     }
   }
@@ -71,10 +72,37 @@ const makeSut = (): SutTypes => {
 };
 
 describe("Update one Register Controller", () => {
-  test("Should call UpdateOneRegister", async () => {
+  test("Should call update", async () => {
     const { sut, updateRegisterStub } = makeSut();
-    const loadSpy = jest.spyOn(updateRegisterStub, "update");
+    const updateSpy = jest.spyOn(updateRegisterStub, "update");
     await sut.handle(fakehttpRequest());
-    expect(loadSpy).toHaveBeenCalled();
+    expect(updateSpy).toHaveBeenCalled();
+  });
+
+  test("Should call update with correct values", async () => {
+    const { sut, updateRegisterStub } = makeSut();
+    const updateSpy = jest.spyOn(updateRegisterStub, "update");
+
+    await sut.handle(fakehttpRequest());
+    expect(updateSpy).toHaveBeenCalledWith(1, makeFakeRegisters());
+  });
+
+  test("Should call UpdateRegisterController on success", async () => {
+    const { sut } = makeSut();
+
+    const updateData = await sut.handle(fakehttpRequest());
+    expect(updateData).toEqual(ok(makeFakeRegisters()));
+  });
+
+  test("Should return 500 if UpdateRegisterController throws", async () => {
+    const { sut, updateRegisterStub } = makeSut();
+    jest
+      .spyOn(updateRegisterStub, "update")
+      .mockReturnValueOnce(
+        new Promise((resolve, reject) => reject(new Error()))
+      );
+
+    const httpResponse = await sut.handle(fakehttpRequest());
+    expect(httpResponse).toEqual(serverError(new Error()));
   });
 });
