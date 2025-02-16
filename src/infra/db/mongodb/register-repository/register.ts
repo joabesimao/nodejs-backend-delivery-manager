@@ -5,6 +5,7 @@ import {
   LoadRegisterRepository,
   LoadRegisterByIdRepository,
 } from "../../../../data/protocols/db/register/load-register-repository";
+import { UpdateRegisterRepository } from "../../../../data/protocols/db/register/update-register-repository";
 import { LoadRegisterModel } from "../../../../domain/models/register/register-load-model";
 import { RegisterModel } from "../../../../domain/models/register/register-model";
 import { AddRegisterModel } from "../../../../domain/usescases/addRegister/add-register";
@@ -15,6 +16,7 @@ export class RegisterMongoRepository
     AddRegisterRepository,
     LoadRegisterRepository,
     LoadRegisterByIdRepository,
+    UpdateRegisterRepository,
     DeleteRegisterByIdRepository
 {
   async add(data: AddRegisterModel): Promise<RegisterModel> {
@@ -48,6 +50,19 @@ export class RegisterMongoRepository
     });
 
     return reg as any;
+  }
+
+  async updateOneRegisterById(
+    id: number,
+    info: Partial<RegisterModel>
+  ): Promise<LoadRegisterModel> {
+    const objId = new ObjectId(id);
+    const registerCollection = await MongoHelper.getCollection("registers");
+    const result = await registerCollection.updateOne(
+      { _id: objId },
+      { $set: { ...info } }
+    );
+    return result as any;
   }
 
   async deleteById(id: number): Promise<string> {
