@@ -151,4 +151,58 @@ describe("LoadById()", () => {
     const register = await sut.loadById(1);
     expect(register).toEqual(result);
   });
+
+  test("Should delete one Register on success", async () => {
+    await regCollection.deleteOne({
+      id: 1,
+    });
+
+    const sut = makeSut();
+    const register = await sut.deleteById(1);
+    expect(register).toEqual("Deletado com sucesso!");
+  });
+
+  test("Should update one Register on success", async () => {
+    const resultCreate = await regCollection.insertOne({
+      id: 1,
+      client: {
+        id: 1,
+        name: "any_name",
+        lastName: "any_last_name",
+        phone: "any_number",
+      },
+      address: {
+        street: "any_street",
+        neighborhood: "any_neighborhood",
+        numberHouse: 1,
+        reference: "any_reference",
+      },
+      amount: 2,
+      quantity: "any_quantity",
+    });
+    const sut = makeSut();
+    const register = await sut.updateOneRegisterById(1, {
+      client: {
+        id: 1,
+        name: "any_name",
+        lastName: "any_last_name",
+        phone: "number",
+      },
+      address: {
+        street: "any_street",
+        neighborhood: "any_neighborhood",
+        numberHouse: 1,
+        reference: "any_reference",
+      },
+      amount: 2,
+      quantity: "any_quantity",
+    });
+    expect(register).toEqual({
+      acknowledged: true,
+      matchedCount: 0,
+      modifiedCount: 0,
+      upsertedCount: 0,
+      upsertedId: null,
+    });
+  });
 });

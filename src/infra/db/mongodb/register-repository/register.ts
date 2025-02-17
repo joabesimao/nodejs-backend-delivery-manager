@@ -1,9 +1,11 @@
 import { ObjectId } from "mongodb";
 import { AddRegisterRepository } from "../../../../data/protocols/db/register/add-register-repository";
+import { DeleteRegisterByIdRepository } from "../../../../data/protocols/db/register/delete-register-repository";
 import {
   LoadRegisterRepository,
   LoadRegisterByIdRepository,
 } from "../../../../data/protocols/db/register/load-register-repository";
+import { UpdateRegisterRepository } from "../../../../data/protocols/db/register/update-register-repository";
 import { LoadRegisterModel } from "../../../../domain/models/register/register-load-model";
 import { RegisterModel } from "../../../../domain/models/register/register-model";
 import { AddRegisterModel } from "../../../../domain/usescases/addRegister/add-register";
@@ -13,7 +15,9 @@ export class RegisterMongoRepository
   implements
     AddRegisterRepository,
     LoadRegisterRepository,
-    LoadRegisterByIdRepository
+    LoadRegisterByIdRepository,
+    UpdateRegisterRepository,
+    DeleteRegisterByIdRepository
 {
   async add(data: AddRegisterModel): Promise<RegisterModel> {
     const registerCollection = await MongoHelper.getCollection("registers");
@@ -46,5 +50,26 @@ export class RegisterMongoRepository
     });
 
     return reg as any;
+  }
+
+  async updateOneRegisterById(
+    id: number,
+    info: Partial<RegisterModel>
+  ): Promise<LoadRegisterModel> {
+    const objId = new ObjectId(id);
+    const registerCollection = await MongoHelper.getCollection("registers");
+    await registerCollection.updateOne({ _id: objId }, { $set: { ...info } });
+    const result = await registerCollection.findOne({ _id: objId });
+    return result as unknown as LoadRegisterModel;
+  }
+
+  async deleteById(id: number): Promise<string> {
+    const objId = new ObjectId(id);
+    const registerCollection = await MongoHelper.getCollection("registers");
+    const deleteRegister = await registerCollection.deleteOne({ _id: objId });
+    const result = deleteRegister.acknowledged;
+    if (result) {
+      return "Deletado com sucesso!";
+    }
   }
 }
