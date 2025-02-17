@@ -38,7 +38,10 @@ export class RegisterMongoRepository
   async loadAll(): Promise<LoadRegisterModel[]> {
     const registerCollection = await MongoHelper.getCollection("registers");
     const allRegister = await registerCollection.find().toArray();
-    return allRegister as unknown as RegisterModel[];
+    const numberOfRegisters = await this.countRegister();
+    return allRegister.concat(
+      `${numberOfRegisters} registros` as any
+    ) as unknown as RegisterModel[];
   }
 
   async loadById(id: number): Promise<LoadRegisterModel> {
@@ -49,7 +52,7 @@ export class RegisterMongoRepository
       _id: objId,
     });
 
-    return reg as any;
+    return reg as unknown as LoadRegisterModel;
   }
 
   async updateOneRegisterById(
@@ -71,5 +74,11 @@ export class RegisterMongoRepository
     if (result) {
       return "Deletado com sucesso!";
     }
+  }
+
+  async countRegister(): Promise<number> {
+    const registerCollection = await MongoHelper.getCollection("registers");
+    const numberRegisters = registerCollection.countDocuments();
+    return numberRegisters;
   }
 }
