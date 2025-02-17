@@ -58,11 +58,9 @@ export class RegisterMongoRepository
   ): Promise<LoadRegisterModel> {
     const objId = new ObjectId(id);
     const registerCollection = await MongoHelper.getCollection("registers");
-    const result = await registerCollection.updateOne(
-      { _id: objId },
-      { $set: { ...info } }
-    );
-    return result as any;
+    await registerCollection.updateOne({ _id: objId }, { $set: { ...info } });
+    const result = await registerCollection.findOne({ _id: objId });
+    return result as unknown as LoadRegisterModel;
   }
 
   async deleteById(id: number): Promise<string> {
