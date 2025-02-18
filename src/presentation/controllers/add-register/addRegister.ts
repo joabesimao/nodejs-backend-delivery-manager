@@ -15,6 +15,26 @@ export class AddRegisterController implements Controller {
           return badRequest(new MissingParamError(field));
         }
       }
+
+      const requireFieldsOfClient = ["name", "lastName", "phone"];
+      for (const field of requireFieldsOfClient) {
+        if (!httpRequest.body.client[field]) {
+          return badRequest(new MissingParamError(field));
+        }
+      }
+
+      const requireFieldsOfAddress = [
+        "street",
+        "neighborhood",
+        "numberHouse",
+        "reference",
+      ];
+      for (const field of requireFieldsOfAddress) {
+        if (!httpRequest.body.address[field]) {
+          return badRequest(new MissingParamError(field));
+        }
+      }
+
       const result = await this.addRegister.add({
         client: client,
         address: address,
