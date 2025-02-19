@@ -4,6 +4,7 @@ import { DeleteRegisterByIdRepository } from "../../../../data/protocols/db/regi
 import {
   LoadRegisterRepository,
   LoadRegisterByIdRepository,
+  LoadRegisterByNameRepository,
 } from "../../../../data/protocols/db/register/load-register-repository";
 import { UpdateRegisterRepository } from "../../../../data/protocols/db/register/update-register-repository";
 import { LoadRegisterModel } from "../../../../domain/models/register/register-load-model";
@@ -16,6 +17,7 @@ export class RegisterMongoRepository
     AddRegisterRepository,
     LoadRegisterRepository,
     LoadRegisterByIdRepository,
+    LoadRegisterByNameRepository,
     UpdateRegisterRepository,
     DeleteRegisterByIdRepository
 {
@@ -53,6 +55,12 @@ export class RegisterMongoRepository
     });
 
     return reg as unknown as LoadRegisterModel;
+  }
+
+  async findByName(name: string): Promise<LoadRegisterModel> {
+    const registerCollection = await MongoHelper.getCollection("registers");
+    const result = await registerCollection.findOne({ client: { name: name } });
+    return result as unknown as LoadRegisterModel;
   }
 
   async updateOneRegisterById(
