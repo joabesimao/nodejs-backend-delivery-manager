@@ -59,7 +59,10 @@ export class RegisterMongoRepository
 
   async findByName(name: string): Promise<LoadRegisterModel> {
     const registerCollection = await MongoHelper.getCollection("registers");
-    const result = await registerCollection.findOne({ client: { name: name } });
+    const result = await registerCollection.findOne({
+      client: { name: name },
+    });
+
     return result as unknown as LoadRegisterModel;
   }
 
