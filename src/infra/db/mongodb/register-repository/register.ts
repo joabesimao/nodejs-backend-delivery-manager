@@ -1,4 +1,5 @@
 import { ObjectId } from "mongodb";
+import { emitWarning } from "process";
 import { AddRegisterRepository } from "../../../../data/protocols/db/register/add-register-repository";
 import { DeleteRegisterByIdRepository } from "../../../../data/protocols/db/register/delete-register-repository";
 import {
@@ -59,11 +60,10 @@ export class RegisterMongoRepository
 
   async findByName(name: string): Promise<LoadRegisterModel> {
     const registerCollection = await MongoHelper.getCollection("registers");
-    const result = await registerCollection.findOne({
-      client: { name: name },
+    const register = await registerCollection.findOne({
+      "client.name": name,
     });
-
-    return result as unknown as LoadRegisterModel;
+    return register as any;
   }
 
   async updateOneRegisterById(
