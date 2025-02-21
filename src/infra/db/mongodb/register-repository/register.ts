@@ -4,11 +4,12 @@ import { DeleteRegisterByIdRepository } from "../../../../data/protocols/db/regi
 import {
   LoadRegisterRepository,
   LoadRegisterByIdRepository,
+  LoadRegisterByNameRepository,
 } from "../../../../data/protocols/db/register/load-register-repository";
 import { UpdateRegisterRepository } from "../../../../data/protocols/db/register/update-register-repository";
 import { LoadRegisterModel } from "../../../../domain/models/register/register-load-model";
 import { RegisterModel } from "../../../../domain/models/register/register-model";
-import { AddRegisterModel } from "../../../../domain/usescases/addRegister/add-register";
+import { AddRegisterModel } from "../../../../domain/usescases/add-register/add-register";
 import { MongoHelper } from "../helpers/mongo-helper";
 
 export class RegisterMongoRepository
@@ -16,6 +17,7 @@ export class RegisterMongoRepository
     AddRegisterRepository,
     LoadRegisterRepository,
     LoadRegisterByIdRepository,
+    LoadRegisterByNameRepository,
     UpdateRegisterRepository,
     DeleteRegisterByIdRepository
 {
@@ -38,7 +40,10 @@ export class RegisterMongoRepository
   async loadAll(): Promise<LoadRegisterModel[]> {
     const registerCollection = await MongoHelper.getCollection("registers");
     const allRegister = await registerCollection.find().toArray();
-    return allRegister as unknown as RegisterModel[];
+    const numberOfRegisters = await this.countRegister();
+    return allRegister.concat(
+      `${numberOfRegisters} registros` as any
+    ) as unknown as RegisterModel[];
   }
 
   async loadById(id: number): Promise<LoadRegisterModel> {
@@ -49,7 +54,15 @@ export class RegisterMongoRepository
       _id: objId,
     });
 
-    return reg as any;
+    return reg as unknown as LoadRegisterModel;
+  }
+
+  async findByName(name: string): Promise<LoadRegisterModel> {
+    const registerCollection = await MongoHelper.getCollection("registers");
+    const register = await registerCollection.findOne({
+      "client.name": name,
+    });
+    return register as any;
   }
 
   async updateOneRegisterById(
@@ -71,5 +84,11 @@ export class RegisterMongoRepository
     if (result) {
       return "Deletado com sucesso!";
     }
+  }
+
+  async countRegister(): Promise<number> {
+    const registerCollection = await MongoHelper.getCollection("registers");
+    const numberRegisters = registerCollection.countDocuments();
+    return numberRegisters;
   }
 }

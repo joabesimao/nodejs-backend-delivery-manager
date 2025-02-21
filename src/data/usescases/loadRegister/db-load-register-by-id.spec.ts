@@ -46,7 +46,7 @@ const makeSut = (): SutTypes => {
 describe("DbLoadRegistersById", () => {
   const id = 7;
 
-  test("Should call LoadRegisterByIdRepository", async () => {
+  test("Should call LoadRegisterByIdRepository with correct values", async () => {
     const { sut, loadRegisterByIdRepositoryStub } = makeSut();
     const loadByIdSpy = jest.spyOn(loadRegisterByIdRepositoryStub, "loadById");
     await sut.loadById(id);

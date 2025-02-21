@@ -1,6 +1,6 @@
 import { Controller } from "../../protocols/controller";
 import { HttpRequest, HttpResponse } from "../../protocols/http";
-import { DeleteRegister } from "../../../domain/usescases/deleteRegister/delete-register";
+import { DeleteRegister } from "../../../domain/usescases/delete-register/delete-register";
 import { ok, serverError } from "../../helpers/http/http-helper";
 
 export class DeleteRegisterController implements Controller {

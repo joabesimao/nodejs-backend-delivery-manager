@@ -1,15 +1,10 @@
 import {
   AddRegister,
   AddRegisterModel,
-} from "../../../domain/usescases/addRegister/add-register";
-import { AddRegisterController } from "../../controllers/addRegister/addRegister";
-import { HttpRequest, HttpResponse } from "../../protocols/http";
-import {
-  badRequest,
-  noContent,
-  ok,
-  serverError,
-} from "../../helpers/http/http-helper";
+} from "../../../domain/usescases/add-register/add-register";
+import { AddRegisterController } from "./add-register";
+import { HttpRequest } from "../../protocols/http";
+import { ok, serverError } from "../../helpers/http/http-helper";
 import { Validation } from "../../protocols/validation";
 
 import { RegisterModel } from "../../../domain/models/register/register-model";

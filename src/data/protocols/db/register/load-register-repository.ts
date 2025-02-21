@@ -7,3 +7,7 @@ export interface LoadRegisterRepository {
 export interface LoadRegisterByIdRepository {
   loadById(id: number): Promise<LoadRegisterModel>;
 }
+
+export interface LoadRegisterByNameRepository {
+  findByName(name: string): Promise<LoadRegisterModel>;
+}
