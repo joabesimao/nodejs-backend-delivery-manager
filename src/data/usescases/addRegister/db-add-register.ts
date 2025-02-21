@@ -3,9 +3,7 @@ import {
   AddRegister,
   AddRegisterModel,
 } from "./db-add-register-protocols";
-
 import { AddRegisterRepository } from "../../protocols/db/register/add-register-repository";
-
 export class DbAddRegister implements AddRegister {
   constructor(private readonly registerRepository: AddRegisterRepository) {}
   async add(data: AddRegisterModel): Promise<RegisterModel> {
