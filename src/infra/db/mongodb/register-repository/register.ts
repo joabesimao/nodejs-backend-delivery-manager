@@ -1,5 +1,4 @@
 import { ObjectId } from "mongodb";
-import { emitWarning } from "process";
 import { AddRegisterRepository } from "../../../../data/protocols/db/register/add-register-repository";
 import { DeleteRegisterByIdRepository } from "../../../../data/protocols/db/register/delete-register-repository";
 import {
