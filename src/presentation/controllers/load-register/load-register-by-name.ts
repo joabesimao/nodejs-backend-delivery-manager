@@ -1,4 +1,4 @@
-import { LoadOneRegistersByName } from "../../../domain/usescases/loadRegister/loadOne-register";
+import { LoadOneRegistersByName } from "../../../domain/usescases/load-register/load-one-register";
 import { ok, serverError } from "../../helpers/http/http-helper";
 import { Controller } from "../../protocols/controller";
 import { HttpRequest, HttpResponse } from "../../protocols/http";

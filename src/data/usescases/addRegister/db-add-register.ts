@@ -2,7 +2,7 @@ import {
   RegisterModel,
   AddRegister,
   AddRegisterModel,
-} from "../addRegister/db-addRegister-protocols";
+} from "./db-add-register-protocols";
 
 import { AddRegisterRepository } from "../../protocols/db/register/add-register-repository";
 

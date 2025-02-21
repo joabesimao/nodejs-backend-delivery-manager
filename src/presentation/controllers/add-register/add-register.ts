@@ -1,4 +1,4 @@
-import { AddRegister } from "../../../domain/usescases/addRegister/add-register";
+import { AddRegister } from "../../../domain/usescases/add-register/add-register";
 import { MissingParamError } from "../../errors";
 import { badRequest, ok, serverError } from "../../helpers/http/http-helper";
 import { Controller } from "../../protocols/controller";

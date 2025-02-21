@@ -1,6 +1,6 @@
 import { LoadRegisterByNameController } from "./load-register-by-name";
 import { LoadRegisterModel } from "../../../domain/models/register/register-load-model";
-import { LoadOneRegistersByName } from "../../../domain/usescases/loadRegister/loadOne-register";
+import { LoadOneRegistersByName } from "../../../domain/usescases/load-register/load-one-register";
 import { HttpRequest } from "../../protocols/http";
 import { ok, serverError } from "../../helpers/http/http-helper";
 

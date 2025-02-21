@@ -1,6 +1,6 @@
-import { UpdateRegister } from "../../../domain/usescases/updateRegister/update-register";
+import { UpdateRegister } from "../../../domain/usescases/update-register/update-register";
 import { UpdateRegisterRepository } from "../../protocols/db/register/update-register-repository";
-import { RegisterModel } from "../addRegister/db-addRegister-protocols";
+import { RegisterModel } from "../addRegister/db-add-register-protocols";
 
 export class DbUpdateRegister implements UpdateRegister {
   constructor(

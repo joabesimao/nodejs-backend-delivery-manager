@@ -1,8 +1,8 @@
 import {
   AddRegister,
   AddRegisterModel,
-} from "../../../domain/usescases/addRegister/add-register";
-import { AddRegisterController } from "../../controllers/add-register/addRegister";
+} from "../../../domain/usescases/add-register/add-register";
+import { AddRegisterController } from "./add-register";
 import { HttpRequest } from "../../protocols/http";
 import { ok, serverError } from "../../helpers/http/http-helper";
 import { Validation } from "../../protocols/validation";

@@ -1,5 +1,5 @@
 import { LoadRegisterModel } from "../../../domain/models/register/register-load-model";
-import { LoadOneRegisters } from "../../../domain/usescases/loadRegister/loadOne-register";
+import { LoadOneRegisters } from "../../../domain/usescases/load-register/load-one-register";
 import { LoadRegisterByIdRepository } from "../../protocols/db/register/load-register-repository";
 
 export class DbLoadRegistersById implements LoadOneRegisters {
