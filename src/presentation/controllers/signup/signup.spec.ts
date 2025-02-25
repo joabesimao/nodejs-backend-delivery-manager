@@ -172,4 +172,16 @@ describe("Signup Controller", () => {
     const httpResponse = await sut.handle(makeRequest());
     expect(httpResponse).toEqual(badRequest(new InvalidParamError("email")));
   });
+
+  test("Should return 500 if emailValidator throws", async () => {
+    const { sut, emailValidatorStub } = makeSut();
+    jest
+      .spyOn(emailValidatorStub, "isValid")
+      .mockReturnValueOnce(
+        new Promise((resolve, reject) => reject(new Error()))
+      );
+
+    const httpResponse = await sut.handle(makeRequest());
+    expect(httpResponse).toEqual(serverError(new Error()));
+  });
 });
