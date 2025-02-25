@@ -157,6 +157,14 @@ describe("Signup Controller", () => {
     expect(httpResponse).toEqual(serverError(new Error()));
   });
 
+  test("Should call emailValidator with correct value", async () => {
+    const { sut, emailValidatorStub } = makeSut();
+    const isValidSpy = jest.spyOn(emailValidatorStub, "isValid");
+
+    await sut.handle(makeRequest());
+    expect(isValidSpy).toHaveBeenCalledWith("any_email@email.com");
+  });
+
   test("Should return 400 if validator not be valid", async () => {
     const { sut, emailValidatorStub } = makeSut();
     jest.spyOn(emailValidatorStub, "isValid").mockReturnValueOnce(false as any);
