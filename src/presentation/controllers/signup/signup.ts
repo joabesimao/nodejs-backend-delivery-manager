@@ -35,7 +35,6 @@ export class SignupController implements Controller {
         name: name,
         email: email,
         password: password,
-        passwordConfirmation: passwordConfirmation,
       });
       return ok(account);
     } catch (error) {

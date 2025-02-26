@@ -14,7 +14,6 @@ const makeFakeAccountModel = (): AccountModel => ({
   name: "any_name",
   email: "any_email@email.com",
   password: "any_password",
-  passwordConfirmation: "any_password",
 });
 
 const makeAddAccount = (): AddAccount => {
@@ -133,7 +132,6 @@ describe("Signup Controller", () => {
       name: "any_name",
       email: "any_email@email.com",
       password: "any_password",
-      passwordConfirmation: "any_password",
     });
   });
 
