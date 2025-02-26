@@ -1,4 +1,4 @@
-import { DbLoadRegistersById } from "../../data/usescases/loadRegister/db-load-register-by-id";
+import { DbLoadRegistersById } from "../../data/usescases/load-register/db-load-register-by-id";
 import { LogMongoRepository } from "../../infra/db/mongodb/log-repository/log-mongo-repository";
 import { RegisterMongoRepository } from "../../infra/db/mongodb/register-repository/register";
 import { LoadOneRegistersController } from "../../presentation/controllers/load-register/load-one-register";

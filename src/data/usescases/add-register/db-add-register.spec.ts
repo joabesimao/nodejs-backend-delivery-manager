@@ -3,7 +3,7 @@ import { AddRegisterRepository } from "../../protocols/db/register/add-register-
 import {
   RegisterModel,
   AddRegisterModel,
-} from "../addRegister/db-add-register-protocols";
+} from "../add-register/db-add-register-protocols";
 
 interface SutTypes {
   sut: DbAddRegister;

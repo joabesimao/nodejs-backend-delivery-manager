@@ -1,4 +1,4 @@
-import { DbUpdateRegister } from "../../data/usescases/updateRegister/db-update-register";
+import { DbUpdateRegister } from "../../data/usescases/update-register/db-update-register";
 import { LogMongoRepository } from "../../infra/db/mongodb/log-repository/log-mongo-repository";
 import { RegisterMongoRepository } from "../../infra/db/mongodb/register-repository/register";
 import { UpdateRegisterController } from "../../presentation/controllers/update-register/update-register";
