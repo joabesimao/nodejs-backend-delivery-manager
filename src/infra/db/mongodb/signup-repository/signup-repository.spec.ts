@@ -1,14 +1,13 @@
 import { Collection } from "mongodb";
 import { MongoHelper } from "../helpers/mongo-helper";
 import { AddAccountMongoRepository } from "./signup-repository";
-import { AddAccountRepository } from "../../../../data/protocols/db/account/add-account-repository";
 
 const makeSut = (): AddAccountMongoRepository => {
   const sut = new AddAccountMongoRepository();
   return sut;
 };
 
-let regCollection: Collection;
+let accountCollection: Collection;
 
 describe("Account Mongo Repository", () => {
   beforeAll(async () => {
@@ -20,8 +19,8 @@ describe("Account Mongo Repository", () => {
   });
 
   beforeEach(async () => {
-    regCollection = await MongoHelper.getCollection("registers");
-    await regCollection.deleteMany();
+    accountCollection = await MongoHelper.getCollection("accounts");
+    await accountCollection.deleteMany();
   });
 
   test("Should return an Account  on success", async () => {

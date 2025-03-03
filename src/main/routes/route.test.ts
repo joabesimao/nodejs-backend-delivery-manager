@@ -3,7 +3,7 @@ import app from "../config/app";
 import { MongoHelper } from "../../infra/db/mongodb/helpers/mongo-helper";
 import { Collection } from "mongodb";
 
-let regCollection: Collection;
+let collection: Collection;
 
 describe("Register Routes POST/registers", () => {
   beforeAll(async () => {
@@ -15,8 +15,8 @@ describe("Register Routes POST/registers", () => {
   });
 
   beforeEach(async () => {
-    regCollection = await MongoHelper.getCollection("registers");
-    await regCollection.deleteMany({});
+    collection = await MongoHelper.getCollection("registers");
+    await collection.deleteMany({});
   });
 
   test("Should return an register on success", async () => {
@@ -52,12 +52,12 @@ describe("GET /Register", () => {
   });
 
   beforeEach(async () => {
-    regCollection = await MongoHelper.getCollection("registers");
-    await regCollection.deleteMany({});
+    collection = await MongoHelper.getCollection("registers");
+    await collection.deleteMany({});
   });
 
   test("Should return 200 on load registers", async () => {
-    await regCollection.insertOne({
+    await collection.insertOne({
       id: 1,
       client: {
         id: 2,
@@ -75,6 +75,35 @@ describe("GET /Register", () => {
       quantity: "any_quantity",
     });
     await request(app).get("/api/register").expect(200);
+  });
+});
+
+describe("signup Routes POST/signup", () => {
+  beforeAll(async () => {
+    await MongoHelper.connect(process.env.MONGO_URL as string);
+  });
+
+  afterAll(async () => {
+    await MongoHelper.disconect();
+  });
+
+  beforeEach(async () => {
+    collection = await MongoHelper.getCollection("accounts");
+    await collection.deleteMany({});
+  });
+
+  describe("signup route", () => {
+    test("Should return an account on success", async () => {
+      await request(app)
+        .post("/api/signup")
+        .send({
+          name: "joabe",
+          email: "any_email@email.com",
+          password: "any_password",
+          passwordConfirmation: "any_password",
+        })
+        .expect(200);
+    });
   });
 });
 
