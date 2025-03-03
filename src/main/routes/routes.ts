@@ -1,11 +1,12 @@
 import { Router } from "express";
 import { makeRegisterController } from "../factories/register";
-import { adaptRoute } from "../../main/adapters/express-route-adapter";
+import { adaptRoute } from "../adapters/express-route-adapter";
 import { makeLoadRegisterController } from "../factories/load-register";
 import { makeLoadRegisterByIdController } from "../factories/load-by-id-register";
 import { makeDeleteRegisterByIdController } from "../factories/delete-register-by-id";
 import { makeUpdateRegisterController } from "../factories/update-register";
 import { makeLoadRegisterByNameController } from "../factories/load-by-name-register";
+import { makeSignupController } from "../factories/signup";
 
 export default (router: Router): void => {
   router.get("/register", adaptRoute(makeLoadRegisterController()));
@@ -20,4 +21,5 @@ export default (router: Router): void => {
     "/register/:id",
     adaptRoute(makeDeleteRegisterByIdController())
   );
+  router.post("/signup", adaptRoute(makeSignupController()));
 };
