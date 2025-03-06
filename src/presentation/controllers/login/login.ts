@@ -3,6 +3,7 @@ import { HttpRequest, HttpResponse } from "../../protocols/http";
 import { EmailValidator } from "../../protocols/email-validator";
 import {
   badRequest,
+  ok,
   serverError,
   unauthorized,
 } from "../../helpers/http/http-helper";
@@ -33,6 +34,7 @@ export class LoginController implements Controller {
       if (!accessToken) {
         return unauthorized();
       }
+      return ok({accessToken});
     } catch (error) {
       return serverError(error);
     }
