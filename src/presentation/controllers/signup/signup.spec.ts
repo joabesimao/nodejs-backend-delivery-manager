@@ -37,7 +37,7 @@ const makeEmailValidator = (): EmailValidator => {
 
 const makeValidation = (): Validation => {
   class ValidationStub implements Validation {
-    async validate(input: any): Promise<Error> {
+    validate(input: any): Error {
       return null as unknown as any;
     }
   }
@@ -216,11 +216,23 @@ describe("Signup Controller", () => {
     expect(httpResponse).toEqual(serverError(new Error()));
   });
 
-  test("Should call Validator with correct value", async () => {
+  test("Should call Validation with correct value", async () => {
     const { sut, validationStub } = makeSut();
     const validationSpy = jest.spyOn(validationStub, "validate");
     const httpRequest = makeRequest();
     await sut.handle(httpRequest);
     expect(validationSpy).toHaveBeenCalledWith(httpRequest.body);
+  });
+
+  test("Should return 500 if Validation return an Error", async () => {
+    const { sut, validationStub } = makeSut();
+    jest
+      .spyOn(validationStub, "validate")
+      .mockReturnValueOnce(new MissingParamError("any_field"));
+
+    const httpResponse = await sut.handle(makeRequest());
+    expect(httpResponse).toEqual(
+      badRequest(new MissingParamError("any_field"))
+    );
   });
 });
