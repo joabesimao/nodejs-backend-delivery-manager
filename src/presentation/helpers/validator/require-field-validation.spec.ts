@@ -9,4 +9,12 @@ describe("Require fields validation", () => {
     });
     expect(error).toEqual(new MissingParamError("field"));
   });
+
+  test("Should not return if validation succeeds", async () => {
+    const sut = new RequireFieldsValidation("field");
+    const error = sut.validate({
+      field: "any_name",
+    });
+    expect(error).toBeFalsy();
+  });
 });
