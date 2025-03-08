@@ -2,8 +2,7 @@ import { MissingParamError } from "../../errors";
 import { RequireFieldsValidation } from "./require-field-validation";
 
 const makeSut = (): RequireFieldsValidation => {
-  const sut = new RequireFieldsValidation("field");
-  return sut;
+  return new RequireFieldsValidation("field");
 };
 
 describe("Require fields validation", () => {
