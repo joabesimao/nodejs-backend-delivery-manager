@@ -1,9 +1,14 @@
 import { MissingParamError } from "../../errors";
 import { RequireFieldsValidation } from "./require-field-validation";
 
+const makeSut = (): RequireFieldsValidation => {
+  const sut = new RequireFieldsValidation("field");
+  return sut;
+};
+
 describe("Require fields validation", () => {
   test("Should return a MissingParamError if validation fails ", async () => {
-    const sut = new RequireFieldsValidation("field");
+    const sut = makeSut();
     const error = sut.validate({
       name: "any_name",
     });
@@ -11,7 +16,7 @@ describe("Require fields validation", () => {
   });
 
   test("Should not return if validation succeeds", async () => {
-    const sut = new RequireFieldsValidation("field");
+    const sut = makeSut();
     const error = sut.validate({
       field: "any_name",
     });
