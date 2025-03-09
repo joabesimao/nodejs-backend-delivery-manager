@@ -4,11 +4,13 @@ import {
 } from "../../../domain/usescases/authentication/authentication";
 import { LoadAccountByEmailRepository } from "../../protocols/authentication/load-account-by-email-repository";
 import { HashComparer } from "../../protocols/encrypter/hash-comparer";
+import { TokenGenerator } from "../../protocols/encrypter/token-generator";
 
 export class DbAuthentication implements Authentication {
   constructor(
     private readonly loadAccountByEmailRepository: LoadAccountByEmailRepository,
-    private readonly hashCompare: HashComparer
+    private readonly hashCompare: HashComparer,
+    private readonly tokenGenerator: TokenGenerator
   ) {}
   async auth(authentication: AuthenticationModel): Promise<string> {
     const accountBd = await this.loadAccountByEmailRepository.load(
@@ -19,6 +21,7 @@ export class DbAuthentication implements Authentication {
         authentication.password,
         accountBd.password
       );
+      await this.tokenGenerator.generate(accountBd.id);
     }
 
     return null;
