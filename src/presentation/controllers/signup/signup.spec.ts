@@ -4,10 +4,10 @@ import {
   AddAccountModel,
 } from "../../../domain/usescases/signup/add-account";
 import { HttpRequest } from "../../protocols/http";
-import { InvalidParamError, MissingParamError } from "../../errors";
+import { MissingParamError } from "../../errors";
 import { badRequest, ok, serverError } from "../../helpers/http/http-helper";
 import { AccountModel } from "../../../domain/models/account/account-model";
-import { EmailValidator } from "../../protocols/email-validator";
+import { Validation } from "../../helpers/validator/validation";
 
 const makeFakeAccountModel = (): AccountModel => ({
   id: 1,
@@ -25,28 +25,30 @@ const makeAddAccount = (): AddAccount => {
   return new AddAccountStub();
 };
 
-const makeEmailValidator = (): EmailValidator => {
-  class EmailValidatorStub implements EmailValidator {
-    async isValid(email: string): Promise<boolean> {
-      return new Promise((resolve) => resolve(true));
+const makeValidation = (): Validation => {
+  class ValidationStub implements Validation {
+    validate(input: any): Error {
+      return null as unknown as any;
     }
   }
-  return new EmailValidatorStub();
+  return new ValidationStub();
 };
 interface SutTypes {
   sut: SignupController;
   addAccountStub: AddAccount;
-  emailValidatorStub: EmailValidator;
+  validationStub: Validation;
 }
 
 const makeSut = (): SutTypes => {
   const addAccountStub = makeAddAccount();
-  const emailValidatorStub = makeEmailValidator();
-  const sut = new SignupController(addAccountStub, emailValidatorStub);
+
+  const validationStub = makeValidation();
+  const sut = new SignupController(addAccountStub, validationStub);
   return {
     sut,
     addAccountStub,
-    emailValidatorStub,
+
+    validationStub,
   };
 };
 
@@ -60,68 +62,6 @@ const makeRequest = (): HttpRequest => ({
 });
 
 describe("Signup Controller", () => {
-  test("Should return 400 if no name is provided", async () => {
-    const { sut } = makeSut();
-    const httpMissingParamName = {
-      body: {
-        email: "any_email@email.com",
-        password: "any_password",
-        passwordConfirmation: "any_password",
-      },
-    };
-
-    const httpResponse = await sut.handle(httpMissingParamName);
-
-    expect(httpResponse).toEqual(badRequest(new MissingParamError("name")));
-  });
-
-  test("Should return 400 if no email is provided", async () => {
-    const { sut } = makeSut();
-    const httpMissingParamEmail = {
-      body: {
-        name: "any_name",
-        password: "any_password",
-        passwordConfirmation: "any_password",
-      },
-    };
-
-    const httpResponse = await sut.handle(httpMissingParamEmail);
-
-    expect(httpResponse).toEqual(badRequest(new MissingParamError("email")));
-  });
-
-  test("Should return 400 if no password is provided", async () => {
-    const { sut } = makeSut();
-    const httpMissingParamEmail = {
-      body: {
-        name: "any_name",
-        email: "any_email@email.com",
-        passwordConfirmation: "any_password",
-      },
-    };
-
-    const httpResponse = await sut.handle(httpMissingParamEmail);
-
-    expect(httpResponse).toEqual(badRequest(new MissingParamError("password")));
-  });
-
-  test("Should return 400 if no passwordConfirmation is provided", async () => {
-    const { sut } = makeSut();
-    const httpMissingParamEmail = {
-      body: {
-        name: "any_name",
-        email: "any_email@email.com",
-        password: "any_password",
-      },
-    };
-
-    const httpResponse = await sut.handle(httpMissingParamEmail);
-
-    expect(httpResponse).toEqual(
-      badRequest(new MissingParamError("passwordConfirmation"))
-    );
-  });
-
   test("Should call addAccount with correct values", async () => {
     const { sut, addAccountStub } = makeSut();
     const spy = jest.spyOn(addAccountStub, "add");
@@ -155,47 +95,23 @@ describe("Signup Controller", () => {
     expect(httpResponse).toEqual(serverError(new Error()));
   });
 
-  test("Should call emailValidator with correct value", async () => {
-    const { sut, emailValidatorStub } = makeSut();
-    const isValidSpy = jest.spyOn(emailValidatorStub, "isValid");
-
-    await sut.handle(makeRequest());
-    expect(isValidSpy).toHaveBeenCalledWith("any_email@email.com");
+  test("Should call Validation with correct value", async () => {
+    const { sut, validationStub } = makeSut();
+    const validationSpy = jest.spyOn(validationStub, "validate");
+    const httpRequest = makeRequest();
+    await sut.handle(httpRequest);
+    expect(validationSpy).toHaveBeenCalledWith(httpRequest.body);
   });
 
-  test("Should return 400 if passwordConfirmation fails", async () => {
-    const { sut } = makeSut();
-
-    const httpResponse = await sut.handle({
-      body: {
-        name: "any_name",
-        email: "any_email@email.com",
-        password: "any_password",
-        passwordConfirmation: "invalid_password",
-      },
-    });
-    expect(httpResponse).toEqual(
-      badRequest(new InvalidParamError("passwordConfirmation"))
-    );
-  });
-
-  test("Should return 400 if validator not be valid", async () => {
-    const { sut, emailValidatorStub } = makeSut();
-    jest.spyOn(emailValidatorStub, "isValid").mockReturnValueOnce(false as any);
-
-    const httpResponse = await sut.handle(makeRequest());
-    expect(httpResponse).toEqual(badRequest(new InvalidParamError("email")));
-  });
-
-  test("Should return 500 if emailValidator throws", async () => {
-    const { sut, emailValidatorStub } = makeSut();
+  test("Should return 500 if Validation return an Error", async () => {
+    const { sut, validationStub } = makeSut();
     jest
-      .spyOn(emailValidatorStub, "isValid")
-      .mockReturnValueOnce(
-        new Promise((resolve, reject) => reject(new Error()))
-      );
+      .spyOn(validationStub, "validate")
+      .mockReturnValueOnce(new MissingParamError("any_field"));
 
     const httpResponse = await sut.handle(makeRequest());
-    expect(httpResponse).toEqual(serverError(new Error()));
+    expect(httpResponse).toEqual(
+      badRequest(new MissingParamError("any_field"))
+    );
   });
 });

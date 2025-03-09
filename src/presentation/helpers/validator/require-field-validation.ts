@@ -1,9 +1,8 @@
-import { MissingParamError } from "../presentation/errors";
-import { Validation } from "../presentation/protocols/validation";
+import { MissingParamError } from "../../errors";
+import { Validation } from "./validation";
 
-export class FieldValidation implements Validation {
+export class RequireFieldsValidation implements Validation {
   constructor(private readonly fieldName: string) {}
-
   validate(input: any): Error {
     if (!input[this.fieldName]) {
       return new MissingParamError(this.fieldName);
