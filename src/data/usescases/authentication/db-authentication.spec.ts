@@ -3,6 +3,7 @@ import { AccountModel } from "../../../domain/models/account/account-model";
 import { LoadAccountByEmailRepository } from "../../../data/protocols/authentication/load-account-by-email-repository";
 import { HashComparer } from "../../../data/protocols/encrypter/hash-comparer";
 import { AuthenticationModel } from "../../../domain/usescases/authentication/authentication";
+import { TokenGenerator } from "../../../data/protocols/encrypter/token-generator";
 
 const fakeAccount = () => {
   const account: AccountModel = {
@@ -39,23 +40,35 @@ const makeHashCompare = (): HashComparer => {
   return new HashCompareStub();
 };
 
+const makeTokenGenerator = (): TokenGenerator => {
+  class TokenGeneratorStub implements TokenGenerator {
+    async generate(id: number): Promise<string> {
+      return new Promise((resolve) => resolve("any_token"));
+    }
+  }
+  return new TokenGeneratorStub();
+};
 interface SutTypes {
   sut: DbAuthentication;
   loadAccountByEmailRepositoryStub: LoadAccountByEmailRepository;
   hashCompareStub: HashComparer;
+  tokenGeneratorStub: TokenGenerator;
 }
 
 const makeSut = (): SutTypes => {
   const loadAccountByEmailRepositoryStub = makeLoadAccountByEmailRepository();
   const hashCompareStub = makeHashCompare();
+  const tokenGeneratorStub = makeTokenGenerator();
   const sut = new DbAuthentication(
     loadAccountByEmailRepositoryStub,
-    hashCompareStub
+    hashCompareStub,
+    tokenGeneratorStub
   );
   return {
     sut,
     loadAccountByEmailRepositoryStub,
     hashCompareStub,
+    tokenGeneratorStub,
   };
 };
 
@@ -103,5 +116,12 @@ describe("DbAuthentication UseCase", () => {
       );
     const promise = sut.auth(makeFakeAuthentication());
     await expect(promise).rejects.toThrow();
+  });
+
+  test("Should call TokenGenerator with correct id", async () => {
+    const { sut, tokenGeneratorStub } = makeSut();
+    const generateSpy = jest.spyOn(tokenGeneratorStub, "generate");
+    await sut.auth(makeFakeAuthentication());
+    expect(generateSpy).toHaveBeenCalledWith(1);
   });
 });
