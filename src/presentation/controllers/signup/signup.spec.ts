@@ -7,7 +7,7 @@ import { HttpRequest } from "../../protocols/http";
 import { MissingParamError } from "../../errors";
 import { badRequest, ok, serverError } from "../../helpers/http/http-helper";
 import { AccountModel } from "../../../domain/models/account/account-model";
-import { Validation } from "../../helpers/validator/validation";
+import { Validation } from "../../protocols/validation";
 
 const makeFakeAccountModel = (): AccountModel => ({
   id: 1,

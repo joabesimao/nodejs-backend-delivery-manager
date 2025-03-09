@@ -1,11 +1,8 @@
 import { AddAccount } from "../../../domain/usescases/signup/add-account";
-import { InvalidParamError } from "../../errors";
 import { badRequest, ok, serverError } from "../../helpers/http/http-helper";
 import { Controller } from "../../protocols/controller";
 import { HttpRequest, HttpResponse } from "../../protocols/http";
-
-import { Validation } from "../../helpers/validator/validation";
-
+import { Validation } from "../../protocols/validation";
 export class SignupController implements Controller {
   constructor(
     private readonly addAccount: AddAccount,

@@ -7,7 +7,7 @@ import {
 } from "../../helpers/http/http-helper";
 import { MissingParamError } from "../../errors";
 import { Authentication } from "../../../domain/usescases/authentication/authentication";
-import { Validation } from "../../helpers/validator/validation";
+import { Validation } from "../../protocols/validation";
 
 interface SutTypes {
   sut: LoginController;
