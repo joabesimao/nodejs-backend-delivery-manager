@@ -3,8 +3,8 @@ import {
   AuthenticationModel,
 } from "../../../domain/usescases/authentication/authentication";
 import { LoadAccountByEmailRepository } from "../../protocols/authentication/load-account-by-email-repository";
-import { HashComparer } from "../../protocols/encrypter/hash-comparer";
-import { TokenGenerator } from "../../protocols/encrypter/token-generator";
+import { HashComparer } from "../../protocols/criptography/hash-comparer";
+import { TokenGenerator } from "../../protocols/criptography/token-generator";
 import { UpdateAccessTokenRepository } from "../../../data/protocols/db/access-token-repository/update-access-token-repository";
 
 export class DbAuthentication implements Authentication {

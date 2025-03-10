@@ -3,16 +3,16 @@ import {
   AddAccount,
   AddAccountModel,
 } from "../../../domain/usescases/signup/add-account";
-import { Encrypter } from "../../protocols/encrypter/encrypter";
+import { Hasher } from "../../protocols/criptography/hasher";
 import { AddAccountRepository } from "../../../data/protocols/db/account/add-account-repository";
 
 export class DbAddAccount implements AddAccount {
   constructor(
-    private readonly encrypter: Encrypter,
+    private readonly hasher: Hasher,
     private readonly addAccountRepository: AddAccountRepository
   ) {}
   async add(account: AddAccountModel): Promise<AccountModel> {
-    const passwordHashed = await this.encrypter.encrypt(account.password);
+    const passwordHashed = await this.hasher.hash(account.password);
     const newAccount = await this.addAccountRepository.add(
       Object.assign({}, account, { password: passwordHashed })
     );
