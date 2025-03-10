@@ -4,14 +4,14 @@ import {
 } from "../../../domain/usescases/authentication/authentication";
 import { LoadAccountByEmailRepository } from "../../protocols/authentication/load-account-by-email-repository";
 import { HashComparer } from "../../protocols/criptography/hash-comparer";
-import { TokenGenerator } from "../../protocols/criptography/token-generator";
+import { Encrypter } from "../../protocols/criptography/encrypter";
 import { UpdateAccessTokenRepository } from "../../../data/protocols/db/access-token-repository/update-access-token-repository";
 
 export class DbAuthentication implements Authentication {
   constructor(
     private readonly loadAccountByEmailRepository: LoadAccountByEmailRepository,
     private readonly hashCompare: HashComparer,
-    private readonly tokenGenerator: TokenGenerator,
+    private readonly encrypter: Encrypter,
     private readonly updateAccessTokenRepository: UpdateAccessTokenRepository
   ) {}
   async auth(authentication: AuthenticationModel): Promise<string> {
@@ -24,7 +24,7 @@ export class DbAuthentication implements Authentication {
         accountBd.password
       );
       if (isValid) {
-        const token = await this.tokenGenerator.generate(accountBd.id);
+        const token = await this.encrypter.encrypt(String(accountBd.id));
         await this.updateAccessTokenRepository.update(accountBd.id, token);
         return token;
       }
