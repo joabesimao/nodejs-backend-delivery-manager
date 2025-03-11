@@ -62,7 +62,7 @@ export class RegisterMongoRepository
     const register = await registerCollection.findOne({
       "client.name": name,
     });
-    return register as any;
+    return register as unknown as LoadRegisterModel;
   }
 
   async updateOneRegisterById(
