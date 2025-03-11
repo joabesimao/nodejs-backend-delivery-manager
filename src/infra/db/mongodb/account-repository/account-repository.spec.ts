@@ -1,15 +1,15 @@
 import { Collection } from "mongodb";
 import { MongoHelper } from "../helpers/mongo-helper";
-import { AddAccountMongoRepository } from "./signup-repository";
+import { AccountMongoRepository } from "../account-repository/account-repository";
 
-const makeSut = (): AddAccountMongoRepository => {
-  const sut = new AddAccountMongoRepository();
+const makeSut = (): AccountMongoRepository => {
+  const sut = new AccountMongoRepository();
   return sut;
 };
 
 let accountCollection: Collection;
 
-describe("AddAccount Mongo Repository", () => {
+describe("Account Mongo Repository", () => {
   beforeAll(async () => {
     await MongoHelper.connect(process.env.MONGO_URL as string);
   });
@@ -23,20 +23,18 @@ describe("AddAccount Mongo Repository", () => {
     await accountCollection.deleteMany();
   });
 
-  test("Should return an Account  on success", async () => {
+  test("Should find and return an Account on LoadByEmail on success", async () => {
     const sut = makeSut();
-    const account = await sut.add({
+    await accountCollection.insertOne({
       name: "any_name",
       email: "any_email@email.com",
       password: "any_password",
     });
+    const account = await sut.loadAccountByEmail("any_email@email.com");
     expect(account).toBeTruthy();
     expect(account.id).toBeTruthy();
-    expect(account.name).toBeTruthy();
-    expect(account.email).toBeTruthy();
-    expect(account.password).toBeTruthy();
+    expect(account.name).toBe("any_name");
     expect(account.email).toBe("any_email@email.com");
     expect(account.password).toBe("any_password");
-    expect(account.name).toBe("any_name");
   });
 });
