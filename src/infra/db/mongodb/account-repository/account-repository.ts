@@ -9,6 +9,9 @@ export class AccountMongoRepository implements FindAccountByEmailRepository {
     const account = await accountCollection.findOne({
       email: email,
     });
+    if (!account) {
+      return null;
+    }
     return map(account);
   }
 }
