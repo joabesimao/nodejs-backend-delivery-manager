@@ -2,6 +2,7 @@ import request from "supertest";
 import app from "../config/app";
 import { MongoHelper } from "../../infra/db/mongodb/helpers/mongo-helper";
 import { Collection } from "mongodb";
+import { hash } from "bcrypt";
 
 let collection: Collection;
 
@@ -101,6 +102,24 @@ describe("signup Routes POST/signup", () => {
           email: "any_email@email.com",
           password: "any_password",
           passwordConfirmation: "any_password",
+        })
+        .expect(200);
+    });
+  });
+
+  describe("login route", () => {
+    test("Should return 200 on login", async () => {
+      const password = await hash("123", 12);
+      await collection.insertOne({
+        name: "joabe",
+        email: "any_email@email.com",
+        password,
+      });
+      await request(app)
+        .post("/api/login")
+        .send({
+          email: "any_email@email.com",
+          password: "123",
         })
         .expect(200);
     });
