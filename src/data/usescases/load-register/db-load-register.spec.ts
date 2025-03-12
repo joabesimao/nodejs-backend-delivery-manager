@@ -16,6 +16,7 @@ const makeFakeRegisters = (): LoadRegisterModel[] => {
         neighborhood: "any_neighborhood",
         numberHouse: 1,
         reference: "any_reference",
+        city: "any_city",
       },
     },
     {
@@ -30,6 +31,7 @@ const makeFakeRegisters = (): LoadRegisterModel[] => {
         neighborhood: "other_neighborhood",
         numberHouse: 1,
         reference: "other_reference",
+        city: "any_city",
       },
     },
   ];

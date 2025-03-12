@@ -36,6 +36,7 @@ const makeFakeRegisterModel = (): RegisterModel => ({
     neighborhood: "any_neighborhood",
     numberHouse: 123,
     reference: "any_reference",
+    city: "any_city",
   },
 });
 interface SutTypes {

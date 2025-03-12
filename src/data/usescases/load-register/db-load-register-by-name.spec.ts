@@ -14,6 +14,7 @@ const makeFakeRegister = (): LoadRegisterModel => ({
     neighborhood: "any_neighborhood",
     numberHouse: 1,
     reference: "any_reference",
+    city: "any_city",
   },
 });
 
