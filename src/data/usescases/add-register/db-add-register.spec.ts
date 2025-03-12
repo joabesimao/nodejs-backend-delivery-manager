@@ -22,6 +22,7 @@ const makeRegister = (): RegisterModel => ({
     neighborhood: "any_neighborhood",
     numberHouse: 123,
     reference: "any_reference",
+    city: "any_city",
   },
 });
 
@@ -50,6 +51,7 @@ const makeAddRegister = (): AddRegisterModel => ({
     neighborhood: "any_neighborhood",
     numberHouse: 123,
     reference: "any_reference",
+    city: "any_city",
   },
 });
 
@@ -69,6 +71,7 @@ describe("DbAddRegister Usecase", () => {
         neighborhood: "any_neighborhood",
         numberHouse: 123,
         reference: "any_reference",
+        city: "any_city",
       },
     });
   });
