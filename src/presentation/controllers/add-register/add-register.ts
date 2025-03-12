@@ -8,8 +8,8 @@ export class AddRegisterController implements Controller {
   constructor(private readonly addRegister: AddRegister) {}
   async handle(httpRequest: HttpRequest): Promise<HttpResponse> {
     try {
-      const { client, address, quantity, amount } = httpRequest.body;
-      const requireFields = ["client", "address", "quantity", "amount"];
+      const { client, address } = httpRequest.body;
+      const requireFields = ["client", "address"];
       for (const field of requireFields) {
         if (!httpRequest.body[field]) {
           return badRequest(new MissingParamError(field));
@@ -38,8 +38,6 @@ export class AddRegisterController implements Controller {
       const result = await this.addRegister.add({
         client: client,
         address: address,
-        quantity: quantity,
-        amount: amount,
       });
 
       return ok(result);

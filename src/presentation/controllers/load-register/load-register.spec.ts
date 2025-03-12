@@ -8,7 +8,6 @@ const makeFakeRegisters = (): LoadRegisterModel[] => {
     {
       id: 1,
       client: {
-        id: 2,
         name: "any_name",
         lastName: "any_last_name",
         phone: "any_number",
@@ -19,13 +18,10 @@ const makeFakeRegisters = (): LoadRegisterModel[] => {
         numberHouse: 1,
         reference: "any_reference",
       },
-      amount: 2,
-      quantity: "any_quantity",
     },
     {
       id: 2,
       client: {
-        id: 3,
         name: "other_name",
         lastName: "other_last_name",
         phone: "other_number",
@@ -36,8 +32,6 @@ const makeFakeRegisters = (): LoadRegisterModel[] => {
         numberHouse: 1,
         reference: "other_reference",
       },
-      amount: 2,
-      quantity: "other_quantity",
     },
   ];
 };

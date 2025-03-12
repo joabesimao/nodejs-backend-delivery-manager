@@ -36,8 +36,6 @@ describe("Register Mongo Repository", () => {
         numberHouse: 123,
         reference: "any_reference",
       },
-      quantity: "any_quantity",
-      amount: 1,
     });
     expect(register).toBeTruthy();
     expect(register.id).toBeTruthy();
@@ -46,7 +44,6 @@ describe("Register Mongo Repository", () => {
     expect(register.address.numberHouse).toBe(123);
     expect(register.client.name).toBe("any_name");
     expect(register.address.street).toBe("any_street");
-    expect(register.amount).toBe(1);
   });
 });
 
@@ -183,7 +180,6 @@ describe("LoadById()", () => {
     const sut = makeSut();
     const register = await sut.updateOneRegisterById(1, {
       client: {
-        id: 1,
         name: "any_name",
         lastName: "any_last_name",
         phone: "number",
@@ -194,8 +190,6 @@ describe("LoadById()", () => {
         numberHouse: 1,
         reference: "any_reference",
       },
-      amount: 2,
-      quantity: "any_quantity",
     });
     expect(register).toEqual({
       acknowledged: true,

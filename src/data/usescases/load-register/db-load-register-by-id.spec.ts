@@ -5,7 +5,6 @@ import { LoadRegisterByIdRepository } from "../../../data/protocols/db/register/
 const makeFakeRegister = (): LoadRegisterModel => ({
   id: 1,
   client: {
-    id: 2,
     name: "any_name",
     lastName: "any_last_name",
     phone: "any_number",
@@ -16,8 +15,6 @@ const makeFakeRegister = (): LoadRegisterModel => ({
     numberHouse: 1,
     reference: "any_reference",
   },
-  amount: 2,
-  quantity: "any_quantity",
 });
 
 interface SutTypes {

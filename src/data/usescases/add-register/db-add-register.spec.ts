@@ -13,7 +13,6 @@ interface SutTypes {
 const makeRegister = (): RegisterModel => ({
   id: 1,
   client: {
-    id: 1,
     name: "any_name",
     lastName: "any_last_name",
     phone: "any_phone",
@@ -24,8 +23,6 @@ const makeRegister = (): RegisterModel => ({
     numberHouse: 123,
     reference: "any_reference",
   },
-  quantity: "any_quantity",
-  amount: 200,
 });
 
 const makeRegisterRepository = (): AddRegisterRepository => {
@@ -54,8 +51,6 @@ const makeAddRegister = (): AddRegisterModel => ({
     numberHouse: 123,
     reference: "any_reference",
   },
-  quantity: "any_quantity",
-  amount: 1,
 });
 
 describe("DbAddRegister Usecase", () => {
@@ -75,8 +70,6 @@ describe("DbAddRegister Usecase", () => {
         numberHouse: 123,
         reference: "any_reference",
       },
-      quantity: "any_quantity",
-      amount: 1,
     });
   });
 

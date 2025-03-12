@@ -12,7 +12,6 @@ import { MissingParamError } from "../../errors";
 const makeFakeRequest = (): HttpRequest => ({
   body: {
     client: {
-      id: 1,
       name: "any_name",
       lastName: "any_last_name",
       phone: "any_phone",
@@ -23,14 +22,11 @@ const makeFakeRequest = (): HttpRequest => ({
       numberHouse: 123,
       reference: "any_reference",
     },
-    quantity: "any_quantity",
-    amount: 1,
   },
 });
 const makeFakeRegisterModel = (): RegisterModel => ({
   id: 1,
   client: {
-    id: 1,
     name: "any_name",
     lastName: "any_last_name",
     phone: "any_phone",
@@ -41,8 +37,6 @@ const makeFakeRegisterModel = (): RegisterModel => ({
     numberHouse: 123,
     reference: "any_reference",
   },
-  quantity: "any_quantity",
-  amount: 1,
 });
 interface SutTypes {
   sut: AddRegisterController;
@@ -85,7 +79,6 @@ describe("addRegister Controller", () => {
     await sut.handle(fakeRequest);
     expect(addRegisterSpy).toHaveBeenCalledWith({
       client: {
-        id: 1,
         name: "any_name",
         lastName: "any_last_name",
         phone: "any_phone",
@@ -96,8 +89,6 @@ describe("addRegister Controller", () => {
         numberHouse: 123,
         reference: "any_reference",
       },
-      quantity: "any_quantity",
-      amount: 1,
     });
   });
 
@@ -112,8 +103,6 @@ describe("addRegister Controller", () => {
           numberHouse: 123,
           reference: "any_reference",
         },
-        quantity: "any_quantity",
-        amount: 1,
       },
     };
     const httpResponse = await sut.handle(fakeRequest);
@@ -126,13 +115,10 @@ describe("addRegister Controller", () => {
     const fakeRequest: HttpRequest = {
       body: {
         client: {
-          id: 1,
           name: "any_name",
           lastName: "any_last_name",
           phone: "any_phone",
         },
-        quantity: "any_quantity",
-        amount: 1,
       },
     };
     const httpResponse = await sut.handle(fakeRequest);
@@ -140,62 +126,12 @@ describe("addRegister Controller", () => {
     expect(httpResponse.body).toEqual(new MissingParamError("address"));
   });
 
-  test("Should return 400 if not quantity provided", async () => {
-    const { sut } = makeSut();
-
-    const fakeRequest: HttpRequest = {
-      body: {
-        client: {
-          id: 1,
-          name: "any_name",
-          lastName: "any_last_name",
-          phone: "any_phone",
-        },
-        address: {
-          street: "any_street",
-          neighborhood: "any_neighborhood",
-          numberHouse: 123,
-          reference: "any_reference",
-        },
-        amount: 1,
-      },
-    };
-    const httpResponse = await sut.handle(fakeRequest);
-    expect(httpResponse.statusCode).toBe(400);
-    expect(httpResponse.body).toEqual(new MissingParamError("quantity"));
-  });
-
-  test("Should return 400 if not amount provided", async () => {
-    const { sut } = makeSut();
-
-    const fakeRequest: HttpRequest = {
-      body: {
-        client: {
-          id: 1,
-          name: "any_name",
-          lastName: "any_last_name",
-          phone: "any_phone",
-        },
-        address: {
-          street: "any_street",
-          neighborhood: "any_neighborhood",
-          numberHouse: 123,
-          reference: "any_reference",
-        },
-        quantity: "any_quantity",
-      },
-    };
-    const httpResponse = await sut.handle(fakeRequest);
-    expect(httpResponse.statusCode).toBe(400);
-    expect(httpResponse.body).toEqual(new MissingParamError("amount"));
-  });
-
   test("Should return 500 if AddRegister throws", async () => {
     const { sut, addRegisterStub } = makeSut();
     jest
       .spyOn(addRegisterStub, "add")
       .mockReturnValueOnce(
-        new Promise((resolve, reject) => reject(new Error()))
+        new Promise((resolve, reject) => reject(new Error()) as any)
       );
     const fakeRequest = makeFakeRequest();
     const httpResponse = await sut.handle(fakeRequest);
