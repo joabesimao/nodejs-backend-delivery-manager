@@ -1,6 +1,6 @@
 import { RegisterModel } from "../register/register-model";
 
-export interface OrderDelivery {
+export interface OrderDeliveryModel {
   id: string;
   register: RegisterModel;
   quantity: string;
