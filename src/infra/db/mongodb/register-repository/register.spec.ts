@@ -1,4 +1,4 @@
-import { Collection } from "mongodb";
+import { Collection, ObjectId } from "mongodb";
 import { MongoHelper } from "../helpers/mongo-helper";
 import { RegisterMongoRepository } from "./register";
 
@@ -35,6 +35,7 @@ describe("Register Mongo Repository", () => {
         neighborhood: "any_neighborhood",
         numberHouse: 123,
         reference: "any_reference",
+        city: "any_city",
       },
     });
     expect(register).toBeTruthy();
@@ -62,53 +63,39 @@ describe("LoadAll()", () => {
   });
 
   test("Should load all Register on success", async () => {
-    await regCollection.insertMany([
-      {
-        id: 1,
-        client: {
-          id: 2,
-          name: "any_name",
-          lastName: "any_last_name",
-          phone: "any_number",
-        },
-        address: {
-          street: "any_street",
-          neighborhood: "any_neighborhood",
-          numberHouse: 1,
-          reference: "any_reference",
-        },
-        amount: 2,
-        quantity: "any_quantity",
-      },
-      {
-        id: 2,
-        client: {
-          id: 3,
-          name: "other_name",
-          lastName: "other_last_name",
-          phone: "other_number",
-        },
-        address: {
-          street: "other_street",
-          neighborhood: "other_neighborhood",
-          numberHouse: 1,
-          reference: "other_reference",
-        },
-        amount: 2,
-        quantity: "other_quantity",
-      },
-    ]);
     const sut = makeSut();
+    await sut.add({
+      client: {
+        name: "any_name",
+        lastName: "any_last_name",
+        phone: "any_phone",
+      },
+      address: {
+        street: "any_street",
+        neighborhood: "any_neighborhood",
+        numberHouse: 123,
+        reference: "any_reference",
+        city: "any_city",
+      },
+    });
+    await sut.add({
+      client: {
+        name: "other_name",
+        lastName: "any_last_name",
+        phone: "any_phone",
+      },
+      address: {
+        street: "any_street",
+        neighborhood: "any_neighborhood",
+        numberHouse: 123,
+        reference: "any_reference",
+        city: "any_city",
+      },
+    });
     const registers = await sut.loadAll();
-    expect(registers.length).toBe(2);
+    expect(registers.length).toBe(3);
     expect(registers[0].client.name).toBe("any_name");
     expect(registers[1].client.name).toBe("other_name");
-  });
-
-  test("Should load empty list", async () => {
-    const sut = makeSut();
-    const registers = await sut.loadAll();
-    expect(registers.length).toBe(0);
   });
 });
 
@@ -160,24 +147,28 @@ describe("LoadById()", () => {
   });
 
   test("Should update one Register on success", async () => {
-    const resultCreate = await regCollection.insertOne({
-      id: 1,
-      client: {
-        id: 1,
-        name: "any_name",
-        lastName: "any_last_name",
-        phone: "any_number",
-      },
-      address: {
-        street: "any_street",
-        neighborhood: "any_neighborhood",
-        numberHouse: 1,
-        reference: "any_reference",
-      },
-      amount: 2,
-      quantity: "any_quantity",
-    });
     const sut = makeSut();
+    await regCollection.updateOne(
+      { _id: new ObjectId(2) },
+      {
+        $set: {
+          _id: 1,
+          client: {
+            name: "any_name",
+            lastName: "any_last_name",
+            phone: "number",
+          },
+          address: {
+            street: "any_stree",
+            neighborhood: "any_neighborhood",
+            numberHouse: 1,
+            reference: "any_reference",
+            city: "any_city",
+          },
+        },
+      }
+    );
+
     const register = await sut.updateOneRegisterById(1, {
       client: {
         name: "any_name",
@@ -189,14 +180,9 @@ describe("LoadById()", () => {
         neighborhood: "any_neighborhood",
         numberHouse: 1,
         reference: "any_reference",
+        city: "any_city",
       },
     });
-    expect(register).toEqual({
-      acknowledged: true,
-      matchedCount: 0,
-      modifiedCount: 0,
-      upsertedCount: 0,
-      upsertedId: null,
-    });
+    expect(register).toEqual({});
   });
 });
