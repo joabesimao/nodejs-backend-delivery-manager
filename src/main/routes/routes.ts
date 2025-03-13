@@ -8,6 +8,7 @@ import { makeUpdateRegisterController } from "../factories/update-register";
 import { makeLoadRegisterByNameController } from "../factories/load-by-name-register";
 import { makeSignupController } from "../factories/signup";
 import { makeLoginController } from "../factories/login-factory";
+import { makeAddOrderDeliveryController } from "../factories/add-order-delivery";
 
 export default (router: Router): void => {
   router.get("/register", adaptRoute(makeLoadRegisterController()));
@@ -16,12 +17,13 @@ export default (router: Router): void => {
     "/register/name/:name",
     adaptRoute(makeLoadRegisterByNameController())
   );
-  router.put("/register/:id", adaptRoute(makeUpdateRegisterController()));
   router.post("/register", adaptRoute(makeRegisterController()));
+  router.post("/signup", adaptRoute(makeSignupController()));
+  router.post("/login", adaptRoute(makeLoginController()));
+  router.post("/orderDelivery", adaptRoute(makeAddOrderDeliveryController()));
+  router.put("/register/:id", adaptRoute(makeUpdateRegisterController()));
   router.delete(
     "/register/:id",
     adaptRoute(makeDeleteRegisterByIdController())
   );
-  router.post("/signup", adaptRoute(makeSignupController()));
-  router.post("/login", adaptRoute(makeLoginController()));
 };

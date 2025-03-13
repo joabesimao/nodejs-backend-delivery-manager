@@ -3,5 +3,5 @@ export interface Address {
   neighborhood: string;
   numberHouse: number;
   reference: string;
-  
+  city: string;
 }

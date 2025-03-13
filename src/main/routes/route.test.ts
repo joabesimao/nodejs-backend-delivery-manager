@@ -136,8 +136,8 @@ describe("signup Routes POST/signup", () => {
   });
 });
 
-/* 
-describe("GET /Register/:id", () => {
+
+describe("OrderDelivery Routes POST/orderDelivery", () => {
   beforeAll(async () => {
     await MongoHelper.connect(process.env.MONGO_URL as string);
   });
@@ -147,30 +147,35 @@ describe("GET /Register/:id", () => {
   });
 
   beforeEach(async () => {
-    regCollection = await MongoHelper.getCollection("registers");
-    await regCollection.deleteMany({});
-  }); */
-/* 
-   test("Should return 200 on load  one register", async () => {
-    await regCollection.insertOne({
-      _id: new ObjectId("679ab39d7d59d0bb5e243ec8"),
-      id: 1,
-      client: {
-        id: 2,
-        name: "any_name",
-        lastName: "any_last_name",
-        phone: "any_number",
-      },
-      address: {
-        street: "any_street",
-        neighborhood: "any_neighborhood",
-        numberHouse: 1,
-        reference: "any_reference",
-      },
-      amount: 2,
-      quantity: "any_quantity",
-    });
-    await regCollection.findOne(new ObjectId("679ab39d7d59d0bb5e243ec8"));
+    collection = await MongoHelper.getCollection("orderDeliverys");
+    await collection.deleteMany({});
+  });
 
-    await request(app).get("/api/register/:id").expect(200);
-  });  */
+  describe("orderDelivery route", () => {
+    test("Should return an order on success", async () => {
+      await request(app)
+        .post("/api/orderDelivery")
+        .send({
+          register: {
+            id: 1,
+            client: {
+              name: "any_name",
+              lastName: "any_last_name",
+              phone: "any_phone",
+            },
+            address: {
+              street: "any_street",
+              neighborhood: "any_neighborhood",
+              numberHouse: 123,
+              reference: "any_reference",
+              city: "any_city",
+            },
+          },
+          amount: 1,
+          data: new Date("2022-10-10"),
+          quantity: "12",
+        })
+        .expect(200);
+    });
+  });
+});

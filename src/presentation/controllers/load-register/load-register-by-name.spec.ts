@@ -7,7 +7,6 @@ import { ok, serverError } from "../../helpers/http/http-helper";
 const makeFakeRegisters = (): LoadRegisterModel => ({
   id: 1,
   client: {
-    id: 2,
     name: "any_name",
     lastName: "any_last_name",
     phone: "any_number",
@@ -17,14 +16,12 @@ const makeFakeRegisters = (): LoadRegisterModel => ({
     neighborhood: "any_neighborhood",
     numberHouse: 1,
     reference: "any_reference",
+    city: "any_city",
   },
-  amount: 2,
-  quantity: "any_quantity",
 });
 
 const fakehttpRequest = (): HttpRequest => ({
   body: {
-    id: 1,
     client: {
       id: 1,
       lastName: "ultimo_nome",
@@ -37,8 +34,6 @@ const fakehttpRequest = (): HttpRequest => ({
       numberHouse: 1,
       reference: "any_referencia",
     },
-    amount: 10,
-    quantity: "1",
   },
   params: {
     name: "joabe",

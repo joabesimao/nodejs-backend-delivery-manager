@@ -13,7 +13,6 @@ const fakehttpRequest = (): HttpRequest => ({
   body: {
     id: 1,
     client: {
-      id: 1,
       lastName: "ultimo_nome",
       name: "any_name",
       phone: "123456747",
@@ -23,9 +22,8 @@ const fakehttpRequest = (): HttpRequest => ({
       neighborhood: "any_bairro",
       numberHouse: 1,
       reference: "any_referencia",
+      city: "any_city",
     },
-    amount: 10,
-    quantity: "1",
   },
   params: {
     id: 1,
@@ -35,7 +33,6 @@ const fakehttpRequest = (): HttpRequest => ({
 const makeFakeRegisters = (): RegisterModel => ({
   id: 1,
   client: {
-    id: 1,
     lastName: "ultimo_nome",
     name: "any_name",
     phone: "123456747",
@@ -45,9 +42,8 @@ const makeFakeRegisters = (): RegisterModel => ({
     neighborhood: "any_bairro",
     numberHouse: 1,
     reference: "any_referencia",
+    city: "any_city",
   },
-  amount: 10,
-  quantity: "1",
 });
 
 const makeUpdateRegister = (): UpdateRegister => {

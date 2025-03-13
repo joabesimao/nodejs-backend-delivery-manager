@@ -25,14 +25,12 @@ export class RegisterMongoRepository
     const registerCollection = await MongoHelper.getCollection("registers");
     const result = await registerCollection.insertOne(data);
     const object = await registerCollection.findOne(result.insertedId);
-    const { _id, client, address, amount, quantity } = object;
+    const { _id, client, address } = object;
 
     const register: RegisterModel = {
       id: _id as any,
       client: client,
       address: address,
-      amount: amount,
-      quantity: quantity,
     };
     return register;
   }
