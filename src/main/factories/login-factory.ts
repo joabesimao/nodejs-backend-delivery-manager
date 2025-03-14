@@ -7,18 +7,10 @@ import { LogMongoRepository } from "../../infra/db/mongodb/log-repository/log-mo
 import { LoginController } from "../../presentation/controllers/login/login";
 import { LogControllerDecorator } from "../decorators/log";
 import { makeLoginValidation } from "./login-validation";
+import { makeDbAuthentication } from "./db-authentication-factory";
 
 export const makeLoginController = (): LogControllerDecorator => {
-  const salt = 12;
-  const bcryptAdapter = new BcryptAdapter(salt);
-  const jwt = new JwtAdapter(env.jwtSecret);
-  const accountMongoRepository = new AccountMongoRepository();
-  const authentication = new DbAuthentication(
-    accountMongoRepository,
-    bcryptAdapter,
-    jwt,
-    accountMongoRepository
-  );
+  const authentication = makeDbAuthentication();
   const validation = makeLoginValidation();
   const loginController = new LoginController(authentication, validation);
   const logMongoRepository = new LogMongoRepository();
