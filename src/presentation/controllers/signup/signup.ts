@@ -1,7 +1,9 @@
 import { Authentication } from "../../../domain/usescases/authentication/authentication";
 import { AddAccount } from "../../../domain/usescases/signup/add-account";
+import { EmailInUseError } from "../../errors";
 import {
   badRequest,
+  forbidden,
   ok,
   serverError,
   unauthorized,
@@ -28,6 +30,9 @@ export class SignupController implements Controller {
         email: email,
         password: password,
       });
+      if (!account) {
+        return forbidden(new EmailInUseError());
+      }
       const accessToken = await this.authentication.auth({ email, password });
       return ok({ accessToken });
     } catch (error) {
