@@ -87,4 +87,16 @@ describe("DbLoadAccountByToken", () => {
     const result = await sut.load("any_token");
     expect(result).toBeNull();
   });
+
+  test("Should return an account on success", async () => {
+    const { sut } = makeSut();
+
+    const account = await sut.load("any_token");
+    expect(account).toEqual({
+      id: 1,
+      name: "valid_name",
+      email: "valid_email",
+      password: "hashed_password",
+    });
+  });
 });
