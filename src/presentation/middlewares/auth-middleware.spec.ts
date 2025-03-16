@@ -1,9 +1,10 @@
 import { AuthMiddleware } from "./auth-middleware";
 import { HttpRequest } from "../protocols/http";
-import { forbidden, ok } from "../helpers/http/http-helper";
+import { forbidden, ok, serverError } from "../helpers/http/http-helper";
 import { AccessDeniedError } from "../errors/access-denied-error";
 import { LoadAccountByToken } from "../../domain/usescases/auth-middleware/load-account-by-token";
 import { AccountModel } from "../../domain/models/account/account-model";
+import { MissingParamError } from "../errors";
 
 const makeLoadAccountByToken = (): LoadAccountByToken => {
   class LoadAccountByTokenStub implements LoadAccountByToken {
@@ -75,6 +76,20 @@ describe("Auth Middleware", () => {
       headers: { "x-access-token": "any_token" },
     };
     const httpResponse = await sut.handle(httpRequest);
-    expect(httpResponse).toEqual (ok({ accountId: 1 }));
+    expect(httpResponse).toEqual(ok({ accountId: 1 }));
+  });
+
+  test("Should return 500 if LoadAccountByToken throws", async () => {
+    const { sut, loadAccountByTokenStub } = makeSut();
+    jest
+      .spyOn(loadAccountByTokenStub, "load")
+      .mockReturnValueOnce(
+        new Promise((resolve, reject) => reject(new Error()))
+      );
+    const httpRequest: HttpRequest = {
+      headers: { "x-access-token": "any_token" },
+    };
+    const httpResponse = await sut.handle(httpRequest);
+    expect(httpResponse).toEqual(serverError(new Error()));
   });
 });
