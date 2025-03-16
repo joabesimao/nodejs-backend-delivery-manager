@@ -4,7 +4,6 @@ import { forbidden, ok, serverError } from "../helpers/http/http-helper";
 import { AccessDeniedError } from "../errors/access-denied-error";
 import { LoadAccountByToken } from "../../domain/usescases/auth-middleware/load-account-by-token";
 import { AccountModel } from "../../domain/models/account/account-model";
-import { MissingParamError } from "../errors";
 
 const makeLoadAccountByToken = (): LoadAccountByToken => {
   class LoadAccountByTokenStub implements LoadAccountByToken {
@@ -29,9 +28,9 @@ interface SutTypes {
   loadAccountByTokenStub: LoadAccountByToken;
 }
 
-const makeSut = (): SutTypes => {
+const makeSut = (role?: string): SutTypes => {
   const loadAccountByTokenStub = makeLoadAccountByToken();
-  const sut = new AuthMiddleware(loadAccountByTokenStub);
+  const sut = new AuthMiddleware(loadAccountByTokenStub, role);
   return {
     sut,
     loadAccountByTokenStub,
@@ -46,16 +45,6 @@ describe("Auth Middleware", () => {
     };
     const httpResponse = await sut.handle(httpRequest);
     expect(httpResponse).toEqual(forbidden(new AccessDeniedError()));
-  });
-
-  test("Should call LoadAccountByToken with correct accessToken", async () => {
-    const { sut, loadAccountByTokenStub } = makeSut();
-    const loadSpy = jest.spyOn(loadAccountByTokenStub, "load");
-    const httpRequest: HttpRequest = {
-      headers: { "x-access-token": "any_token" },
-    };
-    await sut.handle(httpRequest);
-    expect(loadSpy).toHaveBeenCalledWith("any_token");
   });
 
   test("Should return 403 if LoadAccountByToken returns null", async () => {
@@ -91,5 +80,16 @@ describe("Auth Middleware", () => {
     };
     const httpResponse = await sut.handle(httpRequest);
     expect(httpResponse).toEqual(serverError(new Error()));
+  });
+
+  test("Should call LoadAccountByToken with correct accessToken and role", async () => {
+    const role = "any_role";
+    const { sut, loadAccountByTokenStub } = makeSut(role);
+    const loadSpy = jest.spyOn(loadAccountByTokenStub, "load");
+    const httpRequest: HttpRequest = {
+      headers: { "x-access-token": "any_token" },
+    };
+    await sut.handle(httpRequest);
+    expect(loadSpy).toHaveBeenCalledWith("any_token", role);
   });
 });
