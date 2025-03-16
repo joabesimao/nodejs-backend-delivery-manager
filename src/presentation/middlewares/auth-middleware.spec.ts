@@ -37,6 +37,10 @@ const makeSut = (role?: string): SutTypes => {
   };
 };
 
+const makeFakeHttpRequest = (): HttpRequest => ({
+  headers: { "x-access-token": "any_token" },
+});
+
 describe("Auth Middleware", () => {
   test("Should return 403 if no x-access-token exists in headers", async () => {
     const { sut } = makeSut();
@@ -61,10 +65,8 @@ describe("Auth Middleware", () => {
 
   test("Should return account on success", async () => {
     const { sut } = makeSut();
-    const httpRequest: HttpRequest = {
-      headers: { "x-access-token": "any_token" },
-    };
-    const httpResponse = await sut.handle(httpRequest);
+
+    const httpResponse = await sut.handle(makeFakeHttpRequest());
     expect(httpResponse).toEqual(ok({ accountId: 1 }));
   });
 
@@ -75,10 +77,7 @@ describe("Auth Middleware", () => {
       .mockReturnValueOnce(
         new Promise((resolve, reject) => reject(new Error()))
       );
-    const httpRequest: HttpRequest = {
-      headers: { "x-access-token": "any_token" },
-    };
-    const httpResponse = await sut.handle(httpRequest);
+    const httpResponse = await sut.handle(makeFakeHttpRequest());
     expect(httpResponse).toEqual(serverError(new Error()));
   });
 
@@ -86,10 +85,7 @@ describe("Auth Middleware", () => {
     const role = "any_role";
     const { sut, loadAccountByTokenStub } = makeSut(role);
     const loadSpy = jest.spyOn(loadAccountByTokenStub, "load");
-    const httpRequest: HttpRequest = {
-      headers: { "x-access-token": "any_token" },
-    };
-    await sut.handle(httpRequest);
+    await sut.handle(makeFakeHttpRequest());
     expect(loadSpy).toHaveBeenCalledWith("any_token", role);
   });
 });
