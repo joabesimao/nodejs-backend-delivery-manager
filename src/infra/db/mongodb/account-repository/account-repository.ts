@@ -13,10 +13,10 @@ export class AccountMongoRepository
     LoadAccountByTokenRepository
 {
   async loadByToken(token: string, role?: string): Promise<AccountModel> {
+    const id = new ObjectId(token);
     const accountCollection = await MongoHelper.getCollection("accounts");
     const account = await accountCollection.findOne({
-      accessToken: token,
-      role,
+      _id: id,
     });
     if (!account) {
       return null;
