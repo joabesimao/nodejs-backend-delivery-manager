@@ -28,6 +28,7 @@ export class AddRegisterController implements Controller {
         "neighborhood",
         "numberHouse",
         "reference",
+        "city"
       ];
       for (const field of requireFieldsOfAddress) {
         if (!httpRequest.body.address[field]) {
