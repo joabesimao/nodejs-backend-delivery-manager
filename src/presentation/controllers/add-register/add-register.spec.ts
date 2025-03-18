@@ -21,6 +21,7 @@ const makeFakeRequest = (): HttpRequest => ({
       neighborhood: "any_neighborhood",
       numberHouse: 123,
       reference: "any_reference",
+      city: "any_city",
     },
   },
 });
@@ -89,6 +90,7 @@ describe("addRegister Controller", () => {
         neighborhood: "any_neighborhood",
         numberHouse: 123,
         reference: "any_reference",
+        city: "any_city",
       },
     });
   });
@@ -103,6 +105,7 @@ describe("addRegister Controller", () => {
           neighborhood: "any_neighborhood",
           numberHouse: 123,
           reference: "any_reference",
+          city: "any_city",
         },
       },
     };
