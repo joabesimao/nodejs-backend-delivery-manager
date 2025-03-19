@@ -1,5 +1,5 @@
 import { idText } from "typescript";
-import { AddOrderDelivery } from "../../../domain/usescases/order-delivery/order-delivery";
+import { AddOrderDelivery } from "../../../domain/usescases/order-delivery/add-order-delivery";
 import { MissingParamError } from "../../errors";
 import { badRequest, ok, serverError } from "../../helpers/http/http-helper";
 import { Controller } from "../../protocols/controller";
