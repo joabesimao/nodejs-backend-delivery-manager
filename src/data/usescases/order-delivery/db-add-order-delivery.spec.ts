@@ -1,7 +1,7 @@
 import { DbAddOrderDelivery } from "./db-add-order-delivery";
 import { AddOrderDeliveryRepository } from "../../protocols/db/order-delivery/add-order-delivery";
 import { OrderDeliveryModel } from "../../../domain/models/order-delivery/order-delivery";
-import { AddOrderDeliveryModel } from "../../../domain/usescases/order-delivery/order-delivery";
+import { AddOrderDeliveryModel } from "../../../domain/usescases/order-delivery/add-order-delivery";
 
 interface SutTypes {
   sut: DbAddOrderDelivery;

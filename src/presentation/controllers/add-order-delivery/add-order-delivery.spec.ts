@@ -1,7 +1,7 @@
 import {
   AddOrderDelivery,
   AddOrderDeliveryModel,
-} from "../../../domain/usescases/order-delivery/order-delivery";
+} from "../../../domain/usescases/order-delivery/add-order-delivery";
 import { AddOrderDeliveryController } from "./add-order-delivery";
 import { HttpRequest } from "../../protocols/http";
 import { ok, serverError } from "../../helpers/http/http-helper";
