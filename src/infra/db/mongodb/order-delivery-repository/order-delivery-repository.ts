@@ -1,6 +1,6 @@
 import { AddOrderDeliveryRepository } from "../../../../data/protocols/db/order-delivery/add-order-delivery";
 import { OrderDeliveryModel } from "../../../../domain/models/order-delivery/order-delivery";
-import { AddOrderDeliveryModel } from "../../../../domain/usescases/order-delivery/order-delivery";
+import { AddOrderDeliveryModel } from "../../../../domain/usescases/order-delivery/add-order-delivery";
 import { MongoHelper } from "../helpers/mongo-helper";
 
 export class OrderDeliveryMongoRepository
