@@ -77,6 +77,7 @@ const makeOrdersDelivery = (): OrderDeliveryModel[] => [
 interface SutTypes {
   sut: LoadOrderDeliveryController;
   loadOrderDeliveryStub: LoadOrderDelivery;
+  validationStub: Validation;
 }
 const makeLoadOrderDeliveryStub = (): LoadOrderDelivery => {
   class LoadOrderStub implements LoadOrderDelivery {
@@ -98,12 +99,18 @@ const makeValidation = (): Validation => {
 
 const makeSut = (): SutTypes => {
   const loadOrderDeliveryStub = makeLoadOrderDeliveryStub();
-  const sut = new LoadOrderDeliveryController(loadOrderDeliveryStub);
+  const validationStub = makeValidation();
+  const sut = new LoadOrderDeliveryController(
+    loadOrderDeliveryStub,
+    validationStub
+  );
   return {
     sut,
     loadOrderDeliveryStub,
+    validationStub,
   };
 };
+
 describe("LoadOrderDelivery Controller", () => {
   test("Should call LoadOrderDelivery with correct values", async () => {
     const { sut, loadOrderDeliveryStub } = makeSut();
@@ -111,5 +118,35 @@ describe("LoadOrderDelivery Controller", () => {
     const fakeRequest = makeFakeRequest();
     await sut.handle(fakeRequest);
     expect(loadRegisterSpy).toHaveBeenCalled();
+  });
+
+  test("Should call Validation with correct value", async () => {
+    const { sut, validationStub } = makeSut();
+    const validationSpy = jest.spyOn(validationStub, "validate");
+    const httpRequest = {
+      body: {
+        id: "1",
+        register: {
+          id: 1,
+          client: {
+            name: "any_name",
+            lastName: "any_last_name",
+            phone: "any_phone",
+          },
+          address: {
+            street: "any_street",
+            neighborhood: "any_neighborhood",
+            numberHouse: 123,
+            reference: "any_reference",
+            city: "any_city",
+          },
+        },
+        amount: 1,
+        data: new Date("2022-10-10"),
+        quantity: "12",
+      },
+    };
+    await sut.handle(httpRequest);
+    expect(validationSpy).toHaveBeenCalledWith(httpRequest.body);
   });
 });
