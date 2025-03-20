@@ -221,7 +221,7 @@ describe("addOrderDelivery Controller", () => {
     expect(httpResponse.body).toEqual(new MissingParamError("quantity"));
   });
 
-  test("Should return 500 if AddRegister throws", async () => {
+  test("Should return 500 if AddOrdersDelivery throws", async () => {
     const { sut, addOrderDeliveryStub } = makeSut();
     jest
       .spyOn(addOrderDeliveryStub, "addOrderDelivery")
