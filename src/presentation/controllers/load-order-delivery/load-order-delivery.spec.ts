@@ -149,4 +149,16 @@ describe("LoadOrderDelivery Controller", () => {
     await sut.handle(httpRequest);
     expect(validationSpy).toHaveBeenCalledWith(httpRequest.body);
   });
+
+  test("Should return 500 if loadDeliverys throws", async () => {
+    const { sut, loadOrderDeliveryStub } = makeSut();
+    jest
+      .spyOn(loadOrderDeliveryStub, "loadAll")
+      .mockReturnValueOnce(
+        new Promise((resolve, reject) => reject(new Error()) as any)
+      );
+    const fakeRequest = makeFakeRequest();
+    const httpResponse = await sut.handle(fakeRequest);
+    expect(httpResponse).toEqual(serverError(new Error()));
+  });
 });
