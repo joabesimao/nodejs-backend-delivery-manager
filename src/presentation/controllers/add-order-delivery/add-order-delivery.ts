@@ -1,21 +1,21 @@
-import { idText } from "typescript";
 import { AddOrderDelivery } from "../../../domain/usescases/order-delivery/add-order-delivery";
-import { MissingParamError } from "../../errors";
 import { badRequest, ok, serverError } from "../../helpers/http/http-helper";
 import { Controller } from "../../protocols/controller";
 import { HttpRequest, HttpResponse } from "../../protocols/http";
+import { Validation } from "../../protocols/validation";
 
 export class AddOrderDeliveryController implements Controller {
-  constructor(private readonly addOrderDelivery: AddOrderDelivery) {}
+  constructor(
+    private readonly addOrderDelivery: AddOrderDelivery,
+    private readonly validation: Validation
+  ) {}
   async handle(httpRequest: HttpRequest): Promise<HttpResponse> {
     try {
-      const { register, amount, data, quantity } = httpRequest.body;
-      const requireFields = ["register", "amount", "data", "quantity"];
-      for (const field of requireFields) {
-        if (!httpRequest.body[field]) {
-          return badRequest(new MissingParamError(field));
-        }
+      const error = await this.validation.validate(httpRequest.body);
+      if (error) {
+        return badRequest(error);
       }
+      const { register, amount, data, quantity } = httpRequest.body;
       const orderDelivery = await this.addOrderDelivery.addOrderDelivery({
         register: register,
         amount: amount,
