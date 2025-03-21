@@ -2,6 +2,7 @@ import { DbAddOrderDelivery } from "./db-add-order-delivery";
 import { AddOrderDeliveryRepository } from "../../protocols/db/order-delivery/add-order-delivery";
 import { OrderDeliveryModel } from "../../../domain/models/order-delivery/order-delivery";
 import { AddOrderDeliveryModel } from "../../../domain/usescases/order-delivery/add-order-delivery";
+import Mockdate from "mockdate";
 
 interface SutTypes {
   sut: DbAddOrderDelivery;
@@ -26,7 +27,7 @@ const makeOrder = (): OrderDeliveryModel => ({
     },
   },
   amount: 10,
-  data: new Date(),
+  data: new Date("2022-10-10"),
   quantity: "6",
 });
 
@@ -67,11 +68,19 @@ const makeAddOrderDelivery = (): AddOrderDeliveryModel => ({
     },
   },
   amount: 10,
-  data: new Date("2012-10-21"),
+  data: new Date("2022-10-10"),
   quantity: "6",
 });
 
 describe("DbAddOrderDelivery Usecase", () => {
+  beforeAll(() => {
+    Mockdate.set(new Date("2022-10-10"));
+  });
+
+  beforeAll(() => {
+    Mockdate.reset();
+  });
+
   test("Should call AddOrderDeliveryRepository with correct values", async () => {
     const { sut, addOrderDeliveryRepositoryStub } = makeSut();
     const addSpy = jest.spyOn(

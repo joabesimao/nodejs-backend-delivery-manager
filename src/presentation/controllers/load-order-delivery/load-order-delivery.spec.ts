@@ -1,11 +1,10 @@
 import { LoadOrderDelivery } from "../../../domain/usescases/order-delivery/load-order-delivery";
 import { LoadOrderDeliveryController } from "./load-order-delivery";
 import { HttpRequest } from "../../protocols/http";
-import { ok, serverError } from "../../helpers/http/http-helper";
+import { serverError } from "../../helpers/http/http-helper";
 import { Validation } from "../../protocols/validation";
-import { RegisterModel } from "../../../domain/models/register/register-model";
-import { MissingParamError } from "../../errors";
 import { OrderDeliveryModel } from "../../../domain/models/order-delivery/order-delivery";
+import Mockdate from "mockdate";
 
 const makeFakeRequest = (): HttpRequest => ({
   body: {
@@ -112,6 +111,14 @@ const makeSut = (): SutTypes => {
 };
 
 describe("LoadOrderDelivery Controller", () => {
+  beforeAll(() => {
+    Mockdate.set(new Date());
+  });
+
+  beforeAll(() => {
+    Mockdate.reset();
+  });
+
   test("Should call LoadOrderDelivery with correct values", async () => {
     const { sut, loadOrderDeliveryStub } = makeSut();
     const loadRegisterSpy = jest.spyOn(loadOrderDeliveryStub, "loadAll");

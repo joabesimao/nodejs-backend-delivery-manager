@@ -1,6 +1,7 @@
 import { DbLoadOrderDelivery } from "./db-load-order-delivery";
 import { OrderDeliveryModel } from "../../../domain/models/order-delivery/order-delivery";
 import { LoadOrderDeliveryRepository } from "../../protocols/db/order-delivery/load-order-delivery";
+import Mockdate from "mockdate";
 
 interface SutTypes {
   sut: DbLoadOrderDelivery;
@@ -26,7 +27,7 @@ const makeOrders = (): OrderDeliveryModel[] => [
       },
     },
     amount: 10,
-    data: new Date(),
+    data: new Date("2022-10-10"),
     quantity: "6",
   },
   {
@@ -47,7 +48,7 @@ const makeOrders = (): OrderDeliveryModel[] => [
       },
     },
     amount: 11,
-    data: new Date(),
+    data: new Date("2022-10-10"),
     quantity: "7",
   },
 ];
@@ -71,6 +72,14 @@ const makeSut = (): SutTypes => {
 };
 
 describe("DbLoadOrderDelivery Usecase", () => {
+  beforeAll(() => {
+    Mockdate.set(new Date("2022-10-10"));
+  });
+
+  beforeAll(() => {
+    Mockdate.reset();
+  });
+
   test("Should call LoadOrderDeliveryRepository with correct values", async () => {
     const { sut, loadOrderDeliveryRepositoryStub } = makeSut();
     const loadSpy = jest.spyOn(

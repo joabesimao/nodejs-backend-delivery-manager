@@ -6,9 +6,9 @@ import { AddOrderDeliveryController } from "./add-order-delivery";
 import { HttpRequest } from "../../protocols/http";
 import { ok, serverError } from "../../helpers/http/http-helper";
 import { Validation } from "../../protocols/validation";
-import { RegisterModel } from "../../../domain/models/register/register-model";
 import { MissingParamError } from "../../errors";
 import { OrderDeliveryModel } from "../../../domain/models/order-delivery/order-delivery";
+import Mockdate from "mockdate";
 
 const makeFakeRequest = (): HttpRequest => ({
   body: {
@@ -88,6 +88,14 @@ const makeSut = (): SutTypes => {
   };
 };
 describe("addOrderDelivery Controller", () => {
+  beforeAll(() => {
+    Mockdate.set(new Date());
+  });
+
+  beforeAll(() => {
+    Mockdate.reset();
+  });
+
   test("Should call addOrderDelivery with correct values", async () => {
     const { sut, addOrderDeliveryStub } = makeSut();
     const addRegisterSpy = jest.spyOn(addOrderDeliveryStub, "addOrderDelivery");
