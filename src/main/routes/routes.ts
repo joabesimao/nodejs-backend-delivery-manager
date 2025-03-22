@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { makeRegisterController } from "../factories/register";
+import { makeAddRegisterController } from "../factories/add-register";
 import { adaptRoute } from "../adapters/express-route-adapter";
 import { makeLoadRegisterController } from "../factories/load-register";
 import { makeLoadRegisterByIdController } from "../factories/load-by-id-register";
@@ -25,7 +25,7 @@ export default (router: Router): void => {
     adminAuth,
     adaptRoute(makeLoadRegisterByNameController())
   );
-  router.post("/register", adminAuth, adaptRoute(makeRegisterController()));
+  router.post("/register", adminAuth, adaptRoute(makeAddRegisterController()));
   router.post("/signup", adaptRoute(makeSignupController()));
   router.post("/login", adaptRoute(makeLoginController()));
   router.post(
