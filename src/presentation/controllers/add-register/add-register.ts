@@ -3,37 +3,19 @@ import { MissingParamError } from "../../errors";
 import { badRequest, ok, serverError } from "../../helpers/http/http-helper";
 import { Controller } from "../../protocols/controller";
 import { HttpRequest, HttpResponse } from "../../protocols/http";
+import { Validation } from "../../protocols/validation";
 
 export class AddRegisterController implements Controller {
-  constructor(private readonly addRegister: AddRegister) {}
+  constructor(
+    private readonly addRegister: AddRegister,
+    private readonly validation: Validation
+  ) {}
   async handle(httpRequest: HttpRequest): Promise<HttpResponse> {
     try {
       const { client, address } = httpRequest.body;
-      const requireFields = ["client", "address"];
-      for (const field of requireFields) {
-        if (!httpRequest.body[field]) {
-          return badRequest(new MissingParamError(field));
-        }
-      }
-
-      const requireFieldsOfClient = ["name", "lastName", "phone"];
-      for (const field of requireFieldsOfClient) {
-        if (!httpRequest.body.client[field]) {
-          return badRequest(new MissingParamError(field));
-        }
-      }
-
-      const requireFieldsOfAddress = [
-        "street",
-        "neighborhood",
-        "numberHouse",
-        "reference",
-        "city"
-      ];
-      for (const field of requireFieldsOfAddress) {
-        if (!httpRequest.body.address[field]) {
-          return badRequest(new MissingParamError(field));
-        }
+      await this.validation.validate(httpRequest.body);
+      for (let field of ["client", "address"]) {
+        await this.validation.validate(httpRequest.body[field]);
       }
 
       const result = await this.addRegister.add({
