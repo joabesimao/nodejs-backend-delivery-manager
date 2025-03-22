@@ -13,9 +13,9 @@ export class AddRegisterController implements Controller {
   async handle(httpRequest: HttpRequest): Promise<HttpResponse> {
     try {
       const { client, address } = httpRequest.body;
-      await this.validation.validate(httpRequest.body);
-      for (let field of ["client", "address"]) {
-        await this.validation.validate(httpRequest.body[field]);
+      const error = await this.validation.validate(httpRequest.body);
+      if (error) {
+        return badRequest(error);
       }
 
       const result = await this.addRegister.add({
