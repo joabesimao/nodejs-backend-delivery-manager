@@ -1,6 +1,6 @@
 import { DeleteOrderDeliveryController } from "./delete-order-delivery";
 import { DeleteOrderDelivery } from "../../../domain/usescases/order-delivery/delete-order-delivery";
-import { ok } from "../../helpers/http/http-helper";
+import { ok, serverError } from "../../helpers/http/http-helper";
 
 interface SutTypes {
   sut: DeleteOrderDeliveryController;
@@ -41,8 +41,18 @@ describe("DeleteOrderDelivery Controller", () => {
 
   test("Should return the message with DeleteOrderDelivery on success", async () => {
     const { sut } = makeSut();
-
     const deletedOrder = await sut.handle(id);
     expect(deletedOrder).toEqual(ok("Pedido de Entrega Apagado com Sucesso"));
+  });
+
+  test("Should return 500 if DeleteRegister throws", async () => {
+    const { sut, deleteOrderDeliveryStub } = makeSut();
+    jest
+      .spyOn(deleteOrderDeliveryStub, "delete")
+      .mockReturnValueOnce(
+        new Promise((resolve, reject) => reject(new Error()))
+      );
+    const deletedRegister = await sut.handle(id);
+    expect(deletedRegister).toEqual(serverError(new Error("")));
   });
 });
