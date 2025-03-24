@@ -11,10 +11,12 @@ import { makeLoginController } from "../factories/login-factory";
 import { makeAddOrderDeliveryController } from "../factories/add-order-delivery";
 import { adaptMiddleware } from "../adapters/express-middleware-adapter";
 import { makeAuthMiddleware } from "../factories/auth-middleware-factory";
+import { makeLoadOrdersDeliveryController } from "../factories/load-order-delivery";
 
 export default (router: Router): void => {
   const adminAuth = adaptMiddleware(makeAuthMiddleware("admin"));
   router.get("/register", adminAuth, adaptRoute(makeLoadRegisterController()));
+  router.get("/orderDelivery", adaptRoute(makeLoadOrdersDeliveryController()));
   router.get(
     "/register/:id",
     adminAuth,
