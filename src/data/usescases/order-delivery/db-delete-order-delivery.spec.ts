@@ -43,4 +43,15 @@ describe("DbDeleteOrderDelivery Usecase", () => {
     const deletedOrder = await sut.delete(id);
     expect(deletedOrder).toBe("Pedido de Entrega,Deletado com Sucesso!");
   });
+
+  test("Should throw if DbDeleteOrderDelivery throws", async () => {
+    const { sut, deleteOrderDeliveryRepositoryStub } = makeSut();
+    jest
+      .spyOn(deleteOrderDeliveryRepositoryStub, "deleteById")
+      .mockReturnValueOnce(
+        new Promise((resolve, reject) => reject(new Error()))
+      );
+    const promise = sut.delete(id);
+    await expect(promise).rejects.toThrow();
+  });
 });
