@@ -102,4 +102,12 @@ describe("OrderDelivery Mongo Repository", () => {
     expect(orderOfDelivery[1].register.client.name).toBe("other_name");
     expect(orderOfDelivery.length).toBe(2);
   });
+
+  test("Should delete order delivery by id on success", async () => {
+    const id = 7;
+    const sut = makeSut();
+    const orderOfDelivery = await sut.deleteById(id);
+    expect(orderOfDelivery).toBeTruthy();
+    expect(orderOfDelivery).toBe("Pedido de Entrega Deletado com sucesso!");
+  });
 });
