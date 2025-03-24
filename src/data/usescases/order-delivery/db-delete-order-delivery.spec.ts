@@ -37,4 +37,10 @@ describe("DbDeleteOrderDelivery Usecase", () => {
     await sut.delete(id);
     expect(addSpy).toHaveBeenCalledWith(8);
   });
+
+  test("Should DbDeleteOrderDelivery return on success", async () => {
+    const { sut } = makeSut();
+    const deletedOrder = await sut.delete(id);
+    expect(deletedOrder).toBe("Pedido de Entrega,Deletado com Sucesso!");
+  });
 });
