@@ -38,4 +38,11 @@ describe("DeleteOrderDelivery Controller", () => {
     await sut.handle(id);
     expect(deleteRegisterSpy).toHaveBeenCalled();
   });
+
+  test("Should return the message with DeleteOrderDelivery on success", async () => {
+    const { sut } = makeSut();
+
+    const deletedOrder = await sut.handle(id);
+    expect(deletedOrder).toEqual(ok("Pedido de Entrega Apagado com Sucesso"));
+  });
 });
