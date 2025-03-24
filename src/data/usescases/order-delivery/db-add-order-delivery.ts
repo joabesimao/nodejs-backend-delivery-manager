@@ -2,7 +2,7 @@ import { OrderDeliveryModel } from "../../../domain/models/order-delivery/order-
 import {
   AddOrderDelivery,
   AddOrderDeliveryModel,
-} from "../../../domain/usescases/order-delivery/order-delivery";
+} from "../../../domain/usescases/order-delivery/add-order-delivery";
 import { AddOrderDeliveryRepository } from "../../protocols/db/order-delivery/add-order-delivery";
 
 export class DbAddOrderDelivery implements AddOrderDelivery {

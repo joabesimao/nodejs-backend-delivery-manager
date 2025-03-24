@@ -42,7 +42,6 @@ const makeSut = (): SutTypes => {
   const sut = new LoginController(authenticationStub, validationStub);
   return {
     sut,
-
     authenticationStub,
     validationStub,
   };
