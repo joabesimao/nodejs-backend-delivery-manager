@@ -1,4 +1,4 @@
-import { Collection } from "mongodb";
+import { Collection, ObjectId } from "mongodb";
 import { MongoHelper } from "../helpers/mongo-helper";
 import { AccountMongoRepository } from "../account-repository/account-repository";
 
@@ -47,12 +47,13 @@ describe("Account Mongo Repository", () => {
   test("Should return an account on loadByToken without role", async () => {
     const sut = makeSut();
     await accountCollection.insertOne({
+      _id: new ObjectId("67e1ee819d149752b1d4ba16"),
       name: "any_name",
       email: "any_email@email.com",
       password: "any_password",
       accessToken: "any_token",
     });
-    const account = await sut.loadByToken("any_token");
+    const account = await sut.loadByToken("67e1ee819d149752b1d4ba16");
     expect(account).toBeTruthy();
     expect(account.id).toBeTruthy();
     expect(account.name).toBe("any_name");
@@ -63,13 +64,17 @@ describe("Account Mongo Repository", () => {
   test("Should return an account on loadByToken with role", async () => {
     const sut = makeSut();
     await accountCollection.insertOne({
+      _id: new ObjectId("67e1ee819d149752b1d4ba16"),
       name: "any_name",
       email: "any_email@email.com",
       password: "any_password",
       accessToken: "any_token",
       role: "any_role",
     });
-    const account = await sut.loadByToken("any_token", "any_role");
+    const account = await sut.loadByToken(
+      "67e1ee819d149752b1d4ba16",
+      "any_role"
+    );
     expect(account).toBeTruthy();
     expect(account.id).toBeTruthy();
     expect(account.name).toBe("any_name");
@@ -79,7 +84,7 @@ describe("Account Mongo Repository", () => {
 
   test("Should return null if loadByToken fails", async () => {
     const sut = makeSut();
-    const account = await sut.loadByToken("any_token");
+    const account = await sut.loadByToken("67e1ee819d149752b1d4ba16");
     expect(account).toBeFalsy();
   });
 });

@@ -2,7 +2,6 @@ import { LoadOrderDelivery } from "../../../domain/usescases/order-delivery/load
 import { LoadOrderDeliveryController } from "./load-order-delivery";
 import { HttpRequest } from "../../protocols/http";
 import { serverError } from "../../helpers/http/http-helper";
-import { Validation } from "../../protocols/validation";
 import { OrderDeliveryModel } from "../../../domain/models/order-delivery/order-delivery";
 import Mockdate from "mockdate";
 
