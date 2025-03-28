@@ -1,6 +1,7 @@
-import { Collection, ObjectId } from "mongodb";
+import { Collection } from "mongodb";
 import { MongoHelper } from "../helpers/mongo-helper";
 import { RegisterMongoRepository } from "./register";
+import { ObjectId } from "mongodb";
 
 const makeSut = (): RegisterMongoRepository => {
   return new RegisterMongoRepository();
@@ -127,9 +128,8 @@ describe("LoadById()", () => {
         neighborhood: "any_neighborhood",
         numberHouse: 1,
         reference: "any_reference",
+        city: "any_city",
       },
-      amount: 2,
-      quantity: "any_quantity",
     });
     const sut = makeSut();
     const register = await sut.loadById(1);
@@ -148,32 +148,27 @@ describe("LoadById()", () => {
 
   test("Should update one Register on success", async () => {
     const sut = makeSut();
-    await regCollection.updateOne(
-      { _id: new ObjectId(2) },
-      {
-        $set: {
-          _id: 1,
-          client: {
-            name: "any_name",
-            lastName: "any_last_name",
-            phone: "number",
-          },
-          address: {
-            street: "any_stree",
-            neighborhood: "any_neighborhood",
-            numberHouse: 1,
-            reference: "any_reference",
-            city: "any_city",
-          },
-        },
-      }
-    );
-
-    const register = await sut.updateOneRegisterById(1, {
+    const a = await sut.add({
       client: {
         name: "any_name",
         lastName: "any_last_name",
-        phone: "number",
+        phone: "any_phone",
+      },
+      address: {
+        street: "any_street",
+        neighborhood: "any_neighborhood",
+        numberHouse: 123,
+        reference: "any_reference",
+        city: "any_city",
+      },
+    });
+
+    await regCollection.findOne({
+      _id: new ObjectId(1),
+      client: {
+        name: "any_name",
+        lastName: "any_last_name",
+        phone: "any_number",
       },
       address: {
         street: "any_street",
@@ -183,6 +178,22 @@ describe("LoadById()", () => {
         city: "any_city",
       },
     });
+
+    const register = await sut.updateOneRegisterById(1, {
+      client: {
+        name: "any_name",
+        lastName: "any_last_name",
+        phone: "any_number",
+      },
+      address: {
+        street: "other_street",
+        neighborhood: "any_neighborhood",
+        numberHouse: 1,
+        reference: "any_reference",
+        city: "any_city",
+      },
+    });
+
     expect(register).toEqual({});
   });
 });
