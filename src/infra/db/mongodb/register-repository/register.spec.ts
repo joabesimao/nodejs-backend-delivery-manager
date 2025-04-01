@@ -1,11 +1,6 @@
 import { Collection } from "mongodb";
 import { MongoHelper } from "../helpers/mongo-helper";
 import { RegisterMongoRepository } from "./register";
-import { ObjectId } from "mongodb";
-import { RegisterModel } from "../../../../domain/models/register/register-model";
-import { UpdateRegisterRepository } from "../../../../data/protocols/db/register/update-register-repository";
-import { LoadRegisterModel } from "../../../../domain/models/register/register-load-model";
-import { LoadRegisterByIdRepository } from "../../../../data/protocols/db/register/load-register-repository";
 
 const makeSut = (): RegisterMongoRepository => {
   return new RegisterMongoRepository();
@@ -115,19 +110,6 @@ describe("Register Mongo Repository", () => {
   });
 
   describe("LoadAll()", () => {
-    beforeAll(async () => {
-      await MongoHelper.connect(process.env.MONGO_URL as string);
-    });
-
-    afterAll(async () => {
-      await MongoHelper.disconect();
-    });
-
-    beforeEach(async () => {
-      regCollection = await MongoHelper.getCollection("registers");
-      await regCollection.deleteMany();
-    });
-
     test("Should load all Register on success", async () => {
       const sut = makeSut();
       await sut.add({
@@ -166,19 +148,6 @@ describe("Register Mongo Repository", () => {
   });
 
   describe("LoadById()", () => {
-    beforeAll(async () => {
-      await MongoHelper.connect(process.env.MONGO_URL as string);
-    });
-
-    afterAll(async () => {
-      await MongoHelper.disconect();
-    });
-
-    beforeEach(async () => {
-      regCollection = await MongoHelper.getCollection("registers");
-      await regCollection.deleteMany();
-    });
-
     test("Should load one Register on success", async () => {
       const result = await regCollection.findOne({
         id: 1,
@@ -203,19 +172,6 @@ describe("Register Mongo Repository", () => {
   });
 
   describe("Delete()", () => {
-    beforeAll(async () => {
-      await MongoHelper.connect(process.env.MONGO_URL as string);
-    });
-
-    afterAll(async () => {
-      await MongoHelper.disconect();
-    });
-
-    beforeEach(async () => {
-      regCollection = await MongoHelper.getCollection("registers");
-      await regCollection.deleteMany();
-    });
-
     test("Should delete one Register on success", async () => {
       await regCollection.findOne({
         id: 1,
