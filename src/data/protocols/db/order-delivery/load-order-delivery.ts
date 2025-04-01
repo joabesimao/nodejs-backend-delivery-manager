@@ -3,3 +3,7 @@ import { OrderDeliveryModel } from "../../../../domain/models/order-delivery/ord
 export interface LoadOrderDeliveryRepository {
   getAllOrderOfDelivery(): Promise<OrderDeliveryModel[]>;
 }
+
+export interface LoadOrderDeliveryByIdRepository {
+  getOneOrderOfDelivery(id: number): Promise<OrderDeliveryModel>;
+}
