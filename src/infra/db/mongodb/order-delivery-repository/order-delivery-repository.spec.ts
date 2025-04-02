@@ -7,6 +7,27 @@ const makeSut = (): OrderDeliveryMongoRepository => {
   return sut;
 };
 
+const makeOrderDelivery = {
+  register: {
+    id: 1,
+    client: {
+      name: "any_name",
+      lastName: "any_last_name",
+      phone: "any_number",
+    },
+    address: {
+      street: "any_street",
+      neighborhood: "any_neighborhood",
+      numberHouse: 1,
+      reference: "any_reference",
+      city: "any_city",
+    },
+  },
+  amount: 2,
+  quantity: "any_quantity",
+  data: new Date("2000-01-10"),
+};
+
 let ordemDeliveryCollection: Collection;
 
 describe("OrderDelivery Mongo Repository", () => {
@@ -25,7 +46,15 @@ describe("OrderDelivery Mongo Repository", () => {
 
   test("Should add an OrderDelivery on success", async () => {
     const sut = makeSut();
-    const orderOfDelivery = await sut.addOrderOfDelivery({
+    const orderOfDelivery = await sut.addOrderOfDelivery(makeOrderDelivery);
+    expect(orderOfDelivery).toBeTruthy();
+    expect(orderOfDelivery.register).toBeTruthy();
+    expect(orderOfDelivery.register.client.name).toBe("any_name");
+  });
+
+  test("Should return  an list of  OrderDelivery on success", async () => {
+    const sut = makeSut();
+    await sut.addOrderOfDelivery({
       register: {
         id: 1,
         client: {
@@ -45,22 +74,40 @@ describe("OrderDelivery Mongo Repository", () => {
       quantity: "any_quantity",
       data: new Date("2000-01-10"),
     });
+
+    await sut.addOrderOfDelivery({
+      register: {
+        id: 1,
+        client: {
+          name: "other_name",
+          lastName: "other_last_name",
+          phone: "other_number",
+        },
+        address: {
+          street: "other_street",
+          neighborhood: "other_neighborhood",
+          numberHouse: 1,
+          reference: "other_reference",
+          city: "other_city",
+        },
+      },
+      amount: 2,
+      quantity: "other_quantity",
+      data: new Date("2000-01-10"),
+    });
+
+    const orderOfDelivery = await sut.getAllOrderOfDelivery();
     expect(orderOfDelivery).toBeTruthy();
-    expect(orderOfDelivery.register).toBeTruthy();
-    expect(orderOfDelivery.register.client.name).toBe("any_name");
+    expect(orderOfDelivery[0].register.client.name).toBe("any_name");
+    expect(orderOfDelivery[1].register.client.name).toBe("other_name");
+    expect(orderOfDelivery.length).toBe(2);
+  });
+
+  test("Should delete order delivery by id on success", async () => {
+    const id = 7;
+    const sut = makeSut();
+    const orderOfDelivery = await sut.deleteById(id);
+    expect(orderOfDelivery).toBeTruthy();
+    expect(orderOfDelivery).toBe("Pedido de Entrega Deletado com sucesso!");
   });
 });
-
-/*   test("Should update the account accessToken on updateAccessToken on success", async () => {
-    const sut = makeSut();
-    const res = await accountCollection.insertOne({
-      name: "any_name",
-      email: "any_email@email.com",
-      password: "any_password",
-    });
-    expect(res).toBeTruthy();
-    await sut.updateAccessToken(Number(res.insertedId), "any_token");
-    const account = await accountCollection.findOne({ _id: res.insertedId });
-    expect(account).toBeTruthy();
-    expect(account.accessToken).toBe("any_token");
-  }); */

@@ -1,11 +1,27 @@
+import { ObjectId } from "mongodb";
 import { AddOrderDeliveryRepository } from "../../../../data/protocols/db/order-delivery/add-order-delivery";
+import { DeleteOrderDeliveryByIdRepository } from "../../../../data/protocols/db/order-delivery/delete-order-delivery";
+import { LoadOrderDeliveryRepository } from "../../../../data/protocols/db/order-delivery/load-order-delivery";
 import { OrderDeliveryModel } from "../../../../domain/models/order-delivery/order-delivery";
 import { AddOrderDeliveryModel } from "../../../../domain/usescases/order-delivery/add-order-delivery";
 import { MongoHelper } from "../helpers/mongo-helper";
 
 export class OrderDeliveryMongoRepository
-  implements AddOrderDeliveryRepository
+  implements
+    AddOrderDeliveryRepository,
+    LoadOrderDeliveryRepository,
+    DeleteOrderDeliveryByIdRepository
 {
+  async getAllOrderOfDelivery(): Promise<OrderDeliveryModel[]> {
+    const listOfOrdersOfDeliveryCollection = await MongoHelper.getCollection(
+      "orderDeliverys"
+    );
+    const allListOfOrdersOfDelivery = await listOfOrdersOfDeliveryCollection
+      .find()
+      .toArray();
+    return allListOfOrdersOfDelivery as unknown as OrderDeliveryModel[];
+  }
+
   async addOrderOfDelivery(
     orderOfDelivery: AddOrderDeliveryModel
   ): Promise<OrderDeliveryModel> {
@@ -24,5 +40,19 @@ export class OrderDeliveryMongoRepository
       data: data,
     };
     return orderDeliveryCreated;
+  }
+
+  async deleteById(id: number): Promise<string> {
+    const objectId = new ObjectId(id);
+    const orderDeliveryCollection = await MongoHelper.getCollection(
+      "orderDeliverys"
+    );
+    const deleteOrder = await orderDeliveryCollection.deleteOne({
+      _id: objectId,
+    });
+    const result = deleteOrder.acknowledged;
+    if (result) {
+      return "Pedido de Entrega Deletado com sucesso!";
+    }
   }
 }
