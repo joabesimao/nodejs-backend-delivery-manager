@@ -1,7 +1,10 @@
 import { ObjectId } from "mongodb";
 import { AddOrderDeliveryRepository } from "../../../../data/protocols/db/order-delivery/add-order-delivery";
 import { DeleteOrderDeliveryByIdRepository } from "../../../../data/protocols/db/order-delivery/delete-order-delivery";
-import { LoadOrderDeliveryRepository } from "../../../../data/protocols/db/order-delivery/load-order-delivery";
+import {
+  LoadOrderDeliveryByIdRepository,
+  LoadOrderDeliveryRepository,
+} from "../../../../data/protocols/db/order-delivery/load-order-delivery";
 import { OrderDeliveryModel } from "../../../../domain/models/order-delivery/order-delivery";
 import { AddOrderDeliveryModel } from "../../../../domain/usescases/order-delivery/add-order-delivery";
 import { MongoHelper } from "../helpers/mongo-helper";
@@ -10,6 +13,7 @@ export class OrderDeliveryMongoRepository
   implements
     AddOrderDeliveryRepository,
     LoadOrderDeliveryRepository,
+    LoadOrderDeliveryByIdRepository,
     DeleteOrderDeliveryByIdRepository
 {
   async getAllOrderOfDelivery(): Promise<OrderDeliveryModel[]> {
@@ -20,6 +24,17 @@ export class OrderDeliveryMongoRepository
       .find()
       .toArray();
     return allListOfOrdersOfDelivery as unknown as OrderDeliveryModel[];
+  }
+
+  async getOneOrderOfDelivery(id: number): Promise<OrderDeliveryModel> {
+    const objId = new ObjectId(id);
+    const orderDeliveryCollection = await MongoHelper.getCollection(
+      "orderDeliverys"
+    );
+    const order = await orderDeliveryCollection.findOne({
+      _id: objId,
+    });
+    return order as unknown as OrderDeliveryModel;
   }
 
   async addOrderOfDelivery(

@@ -13,6 +13,7 @@ import { adaptMiddleware } from "../adapters/express-middleware-adapter";
 import { makeAuthMiddleware } from "../factories/auth-middleware-factory";
 import { makeLoadOrdersDeliveryController } from "../factories/load-order-delivery";
 import { makeDeleteOrderDeliveryController } from "../factories/delete-order-delivery";
+import { makeLoadOrderByIdController } from "../factories/load-order-delivery-by-id";
 
 export default (router: Router): void => {
   const adminAuth = adaptMiddleware(makeAuthMiddleware("admin"));
@@ -27,6 +28,11 @@ export default (router: Router): void => {
     "/register/name/:name",
     adminAuth,
     adaptRoute(makeLoadRegisterByNameController())
+  );
+  router.get(
+    "/orderDelivery/:id",
+
+    adaptRoute(makeLoadOrderByIdController())
   );
   router.post("/register", adminAuth, adaptRoute(makeAddRegisterController()));
   router.post("/signup", adaptRoute(makeSignupController()));
