@@ -1,6 +1,7 @@
 import { DeleteAccountController } from "./delete-account";
 import { DeleteAccount } from "../../../domain/usescases/delete-account/delete-account";
 import { HttpRequest } from "../../protocols/http";
+import { ok } from "../../helpers/http/http-helper";
 
 const makeDeleteAccountStub = (): DeleteAccount => {
   class DeleteAccountStub implements DeleteAccount {
@@ -51,5 +52,12 @@ describe("DeleteAccount Controller", () => {
     const deleteAccountSpy = jest.spyOn(deleteAccountStub, "deleteAccountById");
     await sut.handle(fakehttpRequest());
     expect(deleteAccountSpy).toHaveBeenCalledWith(1);
+  });
+
+  test("Should return a message when DeleteAccount on success", async () => {
+    const { sut } = makeSut();
+
+    const deletedAccount = await sut.handle(fakehttpRequest());
+    expect(deletedAccount).toEqual(ok("conta apagada com sucesso"));
   });
 });
