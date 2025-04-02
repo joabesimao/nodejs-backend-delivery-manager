@@ -1,5 +1,6 @@
 import { ObjectId } from "mongodb";
 import { UpdateAccessTokenRepository } from "../../../../data/protocols/db/access-token-repository/update-access-token-repository";
+import { DeleteAccountRepository } from "../../../../data/protocols/db/account/delete-account-repository";
 import { FindAccountByEmailRepository } from "../../../../data/protocols/db/account/find-account-by-email-repository";
 import { LoadAccountByTokenRepository } from "../../../../data/protocols/db/account/load-account-by-token-repository";
 import { AccountModel } from "../../../../domain/models/account/account-model";
@@ -10,7 +11,8 @@ export class AccountMongoRepository
   implements
     FindAccountByEmailRepository,
     UpdateAccessTokenRepository,
-    LoadAccountByTokenRepository
+    LoadAccountByTokenRepository,
+    DeleteAccountRepository
 {
   async loadByToken(token: string, role?: string): Promise<AccountModel> {
     const id = new ObjectId(token);
@@ -47,5 +49,14 @@ export class AccountMongoRepository
       return null;
     }
     return map(account);
+  }
+
+  async deleteById(id: number): Promise<string> {
+    const idObjId = new ObjectId(id);
+    const accountCollection = await MongoHelper.getCollection("accounts");
+    const accountDeleted = await accountCollection.deleteOne({ _id: idObjId });
+    if (accountDeleted.acknowledged) {
+      return "Conta deletada com sucesso!";
+    }
   }
 }
