@@ -14,6 +14,7 @@ import { makeAuthMiddleware } from "../factories/auth-middleware-factory";
 import { makeLoadOrdersDeliveryController } from "../factories/load-order-delivery";
 import { makeDeleteOrderDeliveryController } from "../factories/delete-order-delivery";
 import { makeLoadOrderByIdController } from "../factories/load-order-delivery-by-id";
+import { makeDeleteAccountController } from "../factories/delete-account";
 
 export default (router: Router): void => {
   const adminAuth = adaptMiddleware(makeAuthMiddleware("admin"));
@@ -52,5 +53,11 @@ export default (router: Router): void => {
     "/orderDelivery/:id",
 
     adaptRoute(makeDeleteOrderDeliveryController())
+  );
+
+  router.delete(
+    "/account/:id",
+
+    adaptRoute(makeDeleteAccountController())
   );
 };
