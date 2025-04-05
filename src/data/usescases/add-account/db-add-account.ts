@@ -5,13 +5,16 @@ import {
 } from "../../../domain/usescases/signup/add-account";
 import { Hasher } from "../../protocols/criptography/hasher";
 import { AddAccountRepository } from "../../../data/protocols/db/account/add-account-repository";
+import { FindAccountByEmailRepository } from "../../protocols/db/account/find-account-by-email-repository";
 
 export class DbAddAccount implements AddAccount {
   constructor(
     private readonly hasher: Hasher,
-    private readonly addAccountRepository: AddAccountRepository
+    private readonly addAccountRepository: AddAccountRepository,
+    private readonly loadAccountRepository: FindAccountByEmailRepository
   ) {}
   async add(account: AddAccountModel): Promise<AccountModel> {
+    await this.loadAccountRepository.loadAccountByEmail(account.email);
     const passwordHashed = await this.hasher.hash(account.password);
     const newAccount = await this.addAccountRepository.add(
       Object.assign({}, account, { password: passwordHashed })
