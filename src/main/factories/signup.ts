@@ -7,12 +7,18 @@ import { Controller } from "../../presentation/protocols/controller";
 import { LogControllerDecorator } from "../decorators/log";
 import { makeDbAuthentication } from "./db-authentication-factory";
 import { makeSignupValidation } from "./signup-validation";
+import { AccountMongoRepository } from "../../infra/db/mongodb/account-repository/account-repository";
 
 export const makeSignupController = (): Controller => {
   const salt = 12;
   const encrypt = new BcryptAdapter(salt);
   const accountRepository = new AddAccountMongoRepository();
-  const addAccount = new DbAddAccount(encrypt, accountRepository);
+  const findAccountByEmailRepository = new AccountMongoRepository();
+  const addAccount = new DbAddAccount(
+    encrypt,
+    accountRepository,
+    findAccountByEmailRepository
+  );
   const authentication = makeDbAuthentication();
   const signupController = new SignupController(
     addAccount,
