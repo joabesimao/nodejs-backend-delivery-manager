@@ -12,8 +12,13 @@ export class DbAddRegister implements AddRegister {
   ) {}
 
   async add(data: AddRegisterModel): Promise<RegisterModel> {
-    await this.registerByNameRepository.findByName(data.client.name);
-    const result = await this.registerRepository.add(data);
-    return result;
+    const register = await this.registerByNameRepository.findByName(
+      data.client.name
+    );
+    if (!register) {
+      const result = await this.registerRepository.add(data);
+      return result;
+    }
+    return null;
   }
 }
