@@ -41,7 +41,7 @@ const makeRegisterRepository = (): AddRegisterRepository => {
 const makeRegisterByNameRepository = (): LoadRegisterByNameRepository => {
   class RegisterByNameRepositoryStub implements LoadRegisterByNameRepository {
     async findByName(name: string): Promise<LoadRegisterModel> {
-      return new Promise((resolve) => resolve(makeRegister()));
+      return new Promise((resolve) => resolve(null as any));
     }
   }
   return new RegisterByNameRepositoryStub();
@@ -113,5 +113,15 @@ describe("DbAddRegister Usecase", () => {
     const addSpy = jest.spyOn(registerByNameStub, "findByName");
     await sut.add(makeAddRegister());
     expect(addSpy).toHaveBeenCalledWith("any_name");
+  });
+
+  test("Should return an Register when RegisterByNameRepository not be null", async () => {
+    const { sut, registerByNameStub } = makeSut();
+    jest
+      .spyOn(registerByNameStub, "findByName")
+      .mockReturnValueOnce(new Promise((resolve) => resolve(makeRegister())));
+
+    const register = await sut.add(makeAddRegister());
+    expect(register).toBeNull();
   });
 });
