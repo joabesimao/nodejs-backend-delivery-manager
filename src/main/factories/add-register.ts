@@ -8,7 +8,7 @@ import { makeAddRegisterValidation } from "./add-register-validation";
 
 export const makeAddRegisterController = (): Controller => {
   const registerRepository = new RegisterMongoRepository();
-  const addRegister = new DbAddRegister(registerRepository);
+  const addRegister = new DbAddRegister(registerRepository, registerRepository);
   const validation = makeAddRegisterValidation();
   const registerController = new AddRegisterController(addRegister, validation);
   const logErrorRepository = new LogMongoRepository();

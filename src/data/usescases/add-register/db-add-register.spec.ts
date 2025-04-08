@@ -1,13 +1,16 @@
 import { DbAddRegister } from "./db-add-register";
 import { AddRegisterRepository } from "../../protocols/db/register/add-register-repository";
+import { LoadRegisterByNameRepository } from "../../protocols/db/register/load-register-repository";
 import {
   RegisterModel,
   AddRegisterModel,
 } from "../add-register/db-add-register-protocols";
+import { LoadRegisterModel } from "../../../domain/models/register/register-load-model";
 
 interface SutTypes {
   sut: DbAddRegister;
   registerRepositoryStub: AddRegisterRepository;
+  registerByNameStub: LoadRegisterByNameRepository;
 }
 
 const makeRegister = (): RegisterModel => ({
@@ -35,12 +38,23 @@ const makeRegisterRepository = (): AddRegisterRepository => {
   return new RegisterRepositoryStub();
 };
 
+const makeRegisterByNameRepository = (): LoadRegisterByNameRepository => {
+  class RegisterByNameRepositoryStub implements LoadRegisterByNameRepository {
+    async findByName(name: string): Promise<LoadRegisterModel> {
+      return new Promise((resolve) => resolve(null as any));
+    }
+  }
+  return new RegisterByNameRepositoryStub();
+};
+
 const makeSut = (): SutTypes => {
   const registerRepositoryStub = makeRegisterRepository();
-  const sut = new DbAddRegister(registerRepositoryStub);
+  const registerByNameStub = makeRegisterByNameRepository();
+  const sut = new DbAddRegister(registerRepositoryStub, registerByNameStub);
   return {
     sut,
     registerRepositoryStub,
+    registerByNameStub,
   };
 };
 
@@ -92,5 +106,22 @@ describe("DbAddRegister Usecase", () => {
 
     const register = await sut.add(makeAddRegister());
     expect(register).toEqual(makeRegister());
+  });
+
+  test("Should call RegisterByNameRepository with correct values", async () => {
+    const { sut, registerByNameStub } = makeSut();
+    const addSpy = jest.spyOn(registerByNameStub, "findByName");
+    await sut.add(makeAddRegister());
+    expect(addSpy).toHaveBeenCalledWith("any_name");
+  });
+
+  test("Should return an Register when RegisterByNameRepository not be null", async () => {
+    const { sut, registerByNameStub } = makeSut();
+    jest
+      .spyOn(registerByNameStub, "findByName")
+      .mockReturnValueOnce(new Promise((resolve) => resolve(makeRegister())));
+
+    const register = await sut.add(makeAddRegister());
+    expect(register).toBeNull();
   });
 });
