@@ -3,6 +3,7 @@ import { AddOrderDeliveryModel } from "../../../../domain/usescases/order-delive
 
 export interface AddOrderDeliveryRepository {
   addOrderOfDelivery(
-    orderOfDelivery: AddOrderDeliveryModel
+    orderOfDelivery: AddOrderDeliveryModel,
+    id: number
   ): Promise<OrderDeliveryModel>;
 }

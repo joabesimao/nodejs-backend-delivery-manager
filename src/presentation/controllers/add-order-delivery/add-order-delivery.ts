@@ -11,17 +11,20 @@ export class AddOrderDeliveryController implements Controller {
   ) {}
   async handle(httpRequest: HttpRequest): Promise<HttpResponse> {
     try {
-      const error = await this.validation.validate(httpRequest.body);
+      /* const error = await this.validation.validate(httpRequest.body);
       if (error) {
         return badRequest(error);
-      }
-      const { register, amount, data, quantity } = httpRequest.body;
-      const orderDelivery = await this.addOrderDelivery.addOrderDelivery({
-        register: register,
-        amount: amount,
-        data: data,
-        quantity: quantity,
-      });
+      } */
+      const { id } = httpRequest.params;
+      const { amount, data, quantity } = httpRequest.body;
+      const orderDelivery = await this.addOrderDelivery.addOrderDelivery(
+        {
+          amount: amount,
+          data: data,
+          quantity: quantity,
+        },
+        id
+      );
       return ok(orderDelivery);
     } catch (error) {
       return serverError(error);
