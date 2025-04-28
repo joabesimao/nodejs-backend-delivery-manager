@@ -14,28 +14,38 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Post {
-  id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  title     String   @db.VarChar(255)
-  content   String?
-  published Boolean  @default(false)
-  author    User     @relation(fields: [authorId], references: [id])
-  authorId  Int
+model Client {
+  id       Int        @id @default(autoincrement())
+  name     String
+  lastName String
+  phone    String
+  Register Register[]
 }
 
-model Profile {
-  id     Int     @id @default(autoincrement())
-  bio    String?
-  user   User    @relation(fields: [userId], references: [id])
-  userId Int     @unique
+model Address {
+  id           Int        @id @default(autoincrement())
+  street       String
+  neighborhood String
+  numberHouse  Int
+  reference    String
+  city         String
+  Register     Register[]
 }
 
-model User {
-  id      Int      @id @default(autoincrement())
-  email   String   @unique
-  name    String?
-  posts   Post[]
-  profile Profile?
+model Register {
+  id            Int            @id @default(autoincrement())
+  clientId      Int
+  client        Client         @relation(fields: [clientId], references: [id])
+  addressId     Int
+  Address       Address        @relation(fields: [addressId], references: [id])
+  OrderDelivery OrderDelivery?
+}
+
+model OrderDelivery {
+  id         Int      @id @default(autoincrement())
+  registerId Int      @unique
+  register   Register @relation(fields: [registerId], references: [id])
+  quantity   String
+  amount     Float
+  data       DateTime
 }
