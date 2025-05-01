@@ -1,4 +1,4 @@
-import { MongoHelper } from "../infra/db/mongodb/helpers/mongo-helper";
+/* import { MongoHelper } from "../infra/db/mongodb/helpers/mongo-helper";
 import env from "../env";
 
 MongoHelper.connect(env.mongoUrl)
@@ -9,3 +9,4 @@ MongoHelper.connect(env.mongoUrl)
     );
   })
   .catch(console.error);
+ */
