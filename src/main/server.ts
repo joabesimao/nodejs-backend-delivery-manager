@@ -10,3 +10,17 @@ MongoHelper.connect(env.mongoUrl)
   })
   .catch(console.error);
  */
+
+import { pool } from "../infra/db/mysql/helpers/index";
+
+pool
+  .getConnection()
+  .then(async () => {
+    const app = (await import("./config/app")).default;
+    app.listen(3000, () =>
+      console.log(`Server running at http://localhost:3000`)
+    );
+  })
+  .catch((err) => {
+    console.error("erro ao conectar", err);
+  });

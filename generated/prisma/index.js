@@ -191,16 +191,17 @@ const config = {
     "db"
   ],
   "activeProvider": "mysql",
+  "postinstall": false,
   "inlineDatasources": {
     "db": {
       "url": {
         "fromEnvVar": "DATABASE_URL",
-        "value": "mysql://root:123456@localhost:3306/CadClient"
+        "value": null
       }
     }
   },
-  "inlineSchema": "// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\n// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?\n// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init\n\ngenerator client {\n  provider = \"prisma-client-js\"\n  output   = \"../generated/prisma\"\n}\n\ndatasource db {\n  provider = \"mysql\"\n  url      = env(\"DATABASE_URL\")\n}\n\nmodel Address {\n  id           Int        @id @default(autoincrement())\n  street       String\n  neighborhood String\n  numberHouse  Int\n  reference    String\n  city         String\n  register     Register[]\n}\n\nmodel Client {\n  id       Int        @id @default(autoincrement())\n  name     String\n  lastName String\n  phone    String\n  register Register[]\n}\n\nmodel Orderdelivery {\n  id         Int      @id @default(autoincrement())\n  registerId Int      @unique(map: \"OrderDelivery_registerId_key\")\n  quantity   String\n  amount     Float\n  data       DateTime\n  register   Register @relation(fields: [registerId], references: [id], map: \"OrderDelivery_registerId_fkey\")\n}\n\nmodel Register {\n  id            Int            @id @default(autoincrement())\n  clientId      Int\n  addressId     Int\n  orderdelivery Orderdelivery?\n  address       Address        @relation(fields: [addressId], references: [id], map: \"Register_addressId_fkey\")\n  client        Client         @relation(fields: [clientId], references: [id], map: \"Register_clientId_fkey\")\n\n  @@index([addressId], map: \"Register_addressId_fkey\")\n  @@index([clientId], map: \"Register_clientId_fkey\")\n}\n",
-  "inlineSchemaHash": "a8371e297a7968874523a2134a12714949ab6bca82a1d833f309137d973a4218",
+  "inlineSchema": "generator client {\n  provider = \"prisma-client-js\"\n  output   = \"../generated/prisma\"\n}\n\ndatasource db {\n  provider = \"mysql\"\n  url      = env(\"DATABASE_URL\")\n}\n\nmodel Address {\n  id           Int        @id @default(autoincrement())\n  street       String\n  neighborhood String\n  numberHouse  Int\n  reference    String\n  city         String\n  register     Register[]\n}\n\nmodel Client {\n  id       Int        @id @default(autoincrement())\n  name     String\n  lastName String\n  phone    String\n  register Register[]\n}\n\nmodel Orderdelivery {\n  id         Int      @id @default(autoincrement())\n  registerId Int      @unique(map: \"OrderDelivery_registerId_key\")\n  quantity   String\n  amount     Float\n  data       DateTime\n  register   Register @relation(fields: [registerId], references: [id], map: \"OrderDelivery_registerId_fkey\")\n}\n\nmodel Register {\n  id            Int            @id @default(autoincrement())\n  clientId      Int\n  addressId     Int\n  orderdelivery Orderdelivery?\n  address       Address        @relation(fields: [addressId], references: [id], map: \"Register_addressId_fkey\")\n  client        Client         @relation(fields: [clientId], references: [id], map: \"Register_clientId_fkey\")\n\n  @@index([addressId], map: \"Register_addressId_fkey\")\n  @@index([clientId], map: \"Register_clientId_fkey\")\n}\n",
+  "inlineSchemaHash": "663a21a47ae0be7b63d284ba6a44faaf1bfe6b9e72507901b881579da5be50c6",
   "copyEngine": true
 }
 

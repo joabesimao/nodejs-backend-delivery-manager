@@ -1,7 +1,7 @@
 import { PrismaClient } from "@prisma/client";
-import mysql from "mysql2";
+import mysql from "mysql2/promise";
 
-export const prisma = PrismaClient();
+export const prisma = new PrismaClient()
 
 export const pool = mysql.createPool({
   host: "localhost",
