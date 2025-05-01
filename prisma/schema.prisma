@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
   output   = "../generated/prisma"
@@ -14,14 +8,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Client {
-  id       Int        @id @default(autoincrement())
-  name     String
-  lastName String
-  phone    String
-  Register Register[]
-}
-
 model Address {
   id           Int        @id @default(autoincrement())
   street       String
@@ -29,23 +15,34 @@ model Address {
   numberHouse  Int
   reference    String
   city         String
-  Register     Register[]
+  register     Register[]
+}
+
+model Client {
+  id       Int        @id @default(autoincrement())
+  name     String
+  lastName String
+  phone    String
+  register Register[]
+}
+
+model Orderdelivery {
+  id         Int      @id @default(autoincrement())
+  registerId Int      @unique(map: "OrderDelivery_registerId_key")
+  quantity   String
+  amount     Float
+  data       DateTime
+  register   Register @relation(fields: [registerId], references: [id], map: "OrderDelivery_registerId_fkey")
 }
 
 model Register {
   id            Int            @id @default(autoincrement())
   clientId      Int
-  client        Client         @relation(fields: [clientId], references: [id])
   addressId     Int
-  Address       Address        @relation(fields: [addressId], references: [id])
-  OrderDelivery OrderDelivery?
-}
+  orderdelivery Orderdelivery?
+  address       Address        @relation(fields: [addressId], references: [id], map: "Register_addressId_fkey")
+  client        Client         @relation(fields: [clientId], references: [id], map: "Register_clientId_fkey")
 
-model OrderDelivery {
-  id         Int      @id @default(autoincrement())
-  registerId Int      @unique
-  register   Register @relation(fields: [registerId], references: [id])
-  quantity   String
-  amount     Float
-  data       DateTime
+  @@index([addressId], map: "Register_addressId_fkey")
+  @@index([clientId], map: "Register_clientId_fkey")
 }
