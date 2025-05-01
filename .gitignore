@@ -5,4 +5,4 @@ data
 !src/data
 .vscode
 env.ts
-
+.env
