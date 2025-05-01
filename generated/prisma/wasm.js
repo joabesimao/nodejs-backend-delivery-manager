@@ -120,9 +120,64 @@ exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
   Serializable: 'Serializable'
 });
 
+exports.Prisma.AddressScalarFieldEnum = {
+  id: 'id',
+  street: 'street',
+  neighborhood: 'neighborhood',
+  numberHouse: 'numberHouse',
+  reference: 'reference',
+  city: 'city'
+};
+
+exports.Prisma.ClientScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  lastName: 'lastName',
+  phone: 'phone'
+};
+
+exports.Prisma.OrderdeliveryScalarFieldEnum = {
+  id: 'id',
+  registerId: 'registerId',
+  quantity: 'quantity',
+  amount: 'amount',
+  data: 'data'
+};
+
+exports.Prisma.RegisterScalarFieldEnum = {
+  id: 'id',
+  clientId: 'clientId',
+  addressId: 'addressId'
+};
+
+exports.Prisma.SortOrder = {
+  asc: 'asc',
+  desc: 'desc'
+};
+
+exports.Prisma.AddressOrderByRelevanceFieldEnum = {
+  street: 'street',
+  neighborhood: 'neighborhood',
+  reference: 'reference',
+  city: 'city'
+};
+
+exports.Prisma.ClientOrderByRelevanceFieldEnum = {
+  name: 'name',
+  lastName: 'lastName',
+  phone: 'phone'
+};
+
+exports.Prisma.OrderdeliveryOrderByRelevanceFieldEnum = {
+  quantity: 'quantity'
+};
+
 
 exports.Prisma.ModelName = {
-
+  Address: 'Address',
+  Client: 'Client',
+  Orderdelivery: 'Orderdelivery',
+  Register: 'Register'
 };
 
 /**
