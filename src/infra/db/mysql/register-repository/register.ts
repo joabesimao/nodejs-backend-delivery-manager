@@ -9,7 +9,7 @@ import { UpdateRegisterRepository } from "../../../../data/protocols/db/register
 import { LoadRegisterModel } from "../../../../domain/models/register/register-load-model";
 import { RegisterModel } from "../../../../domain/models/register/register-model";
 import { AddRegisterModel } from "../../../../domain/usescases/add-register/add-register";
-//import { prisma } from "../helpers";
+import { prisma } from "../helpers";
 
 export class RegisterMySqlRepository
   implements
@@ -21,11 +21,29 @@ export class RegisterMySqlRepository
     DeleteRegisterByIdRepository
 {
   async add(data: AddRegisterModel): Promise<RegisterModel> {
-    /* const createRegister = await prisma.register.create({
-      data: { client: {}, address: {} },
-    }); */
-    return null
+    const createRegister = await prisma.register.create({
+      data: {
+        client: {
+          create: {
+            name: data.client.name,
+            lastName: data.client.lastName,
+            phone: data.client.phone,
+          },
+        },
+        address: {
+          create: {
+            street: data.address.street,
+            neighborhood: data.address.neighborhood,
+            numberHouse: data.address.numberHouse,
+            reference: data.address.reference,
+            city: data.address.city,
+          },
+        },
+      },
+    });
+    return createRegister as unknown as RegisterModel;
   }
+
   loadById(id: number): Promise<LoadRegisterModel> {
     throw new Error("Method not implemented.");
   }
@@ -42,6 +60,8 @@ export class RegisterMySqlRepository
     return null;
   }
   async loadAll(): Promise<LoadRegisterModel[]> {
-    return null;
+    const loadRegisters = await prisma.register.findMany();
+
+    return loadRegisters as unknown as LoadRegisterModel[];
   }
 }
