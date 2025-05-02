@@ -1,14 +1,12 @@
 import mysql from "mysql2/promise";
-/* import { PrismaClient } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
 
-export const prisma = new PrismaClient();
+export let prisma = new PrismaClient();
 
 async function connection() {
-  await prisma.$connect();
+  await prisma.user.findMany({});
 }
-connection(); */
-
-export async function get() {}
+connection();
 
 export const pool = mysql.createPool({
   host: "localhost",
