@@ -1,5 +1,14 @@
 import mysql from "mysql2/promise";
-import { PrismaClient } from "../../../../../generated/prisma";
+/* import { PrismaClient } from "@prisma/client";
+
+export const prisma = new PrismaClient();
+
+async function connection() {
+  await prisma.$connect();
+}
+connection(); */
+
+export async function get() {}
 
 export const pool = mysql.createPool({
   host: "localhost",
@@ -8,5 +17,3 @@ export const pool = mysql.createPool({
   password: "123456",
   database: "CadClient",
 });
-
-export const prisma = new PrismaClient();

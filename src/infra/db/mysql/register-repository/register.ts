@@ -9,7 +9,7 @@ import { UpdateRegisterRepository } from "../../../../data/protocols/db/register
 import { LoadRegisterModel } from "../../../../domain/models/register/register-load-model";
 import { RegisterModel } from "../../../../domain/models/register/register-model";
 import { AddRegisterModel } from "../../../../domain/usescases/add-register/add-register";
-import { prisma } from "../helpers";
+//import { prisma } from "../helpers";
 
 export class RegisterMySqlRepository
   implements
@@ -21,10 +21,10 @@ export class RegisterMySqlRepository
     DeleteRegisterByIdRepository
 {
   async add(data: AddRegisterModel): Promise<RegisterModel> {
-    const createRegister = await prisma.register.create({
-      data: { client: {},address: {} }
-    });
-    return createRegister as any;
+    /* const createRegister = await prisma.register.create({
+      data: { client: {}, address: {} },
+    }); */
+    return null
   }
   loadById(id: number): Promise<LoadRegisterModel> {
     throw new Error("Method not implemented.");
