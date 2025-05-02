@@ -6,6 +6,7 @@
     "start": "node dist/main/server.js ",
     "build": "rimraf dist && tsc",
     "dev": "sucrase-node src/main/server.ts",
+    "n": "nodemon src/main/server.ts",
     "test": "jest --passWithNoTests --watch --silent --noStackTrace --runInBand",
     "test:unit": "npm test -- --watch -c jest-unit-config.js",
     "test:integration": "jest --watch -c jest-integration-config.js",
@@ -54,6 +55,7 @@
     "mockdate": "^3.0.5",
     "mongodb": "^6.8.1",
     "mysql2": "^3.14.1",
+    "nodemon": "^3.1.10",
     "pirates": "^4.0.7",
     "ts-node": "^10.9.2",
     "validator": "^13.12.0"
