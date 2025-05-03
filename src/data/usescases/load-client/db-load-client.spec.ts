@@ -1,4 +1,4 @@
-import { DbLoadClients } from "./db-load-register";
+import { DbLoadClients } from "./db-load-client";
 import { LoadRegisterModel } from "../../../domain/models/register/register-load-model";
 import { LoadClientRepository } from "../../protocols/db/client-repository/load-client";
 import { ClientModel } from "../../../domain/models/client/client-model";
@@ -49,10 +49,21 @@ describe("DbLoadClients", () => {
     await sut.load();
     expect(loadAllSpy).toHaveBeenCalled();
   });
-  
+
   test("Should return a list of client on success", async () => {
     const { sut } = makeSut();
     const registers = await sut.load();
     expect(registers).toEqual(makeFakeClientList());
+  });
+
+  test("Should throw if LoadClientRepository throws", async () => {
+    const { sut, loadClientRepositoryStub } = makeSut();
+    jest
+      .spyOn(loadClientRepositoryStub, "loadAll")
+      .mockReturnValueOnce(
+        new Promise((resolve, reject) => reject(new Error()))
+      );
+    const promise = sut.load();
+    await expect(promise).rejects.toThrow();
   });
 });
