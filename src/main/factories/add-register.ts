@@ -5,10 +5,9 @@ import { LogMongoRepository } from "../../infra/db/mongodb/log-repository/log-mo
 import { LogControllerDecorator } from "../decorators/log";
 import { Controller } from "../../presentation/protocols/controller";
 import { makeAddRegisterValidation } from "./add-register-validation";
-import { RegisterMySqlRepository } from "../../infra/db/mysql/register-repository/register";
 
 export const makeAddRegisterController = (): Controller => {
-  const registerRepository = new RegisterMySqlRepository();
+  const registerRepository = new RegisterMongoRepository();
   const addRegister = new DbAddRegister(registerRepository, registerRepository);
   const validation = makeAddRegisterValidation();
   const registerController = new AddRegisterController(addRegister, validation);

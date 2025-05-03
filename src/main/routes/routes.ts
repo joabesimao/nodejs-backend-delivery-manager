@@ -15,6 +15,7 @@ import { makeLoadOrdersDeliveryController } from "../factories/load-order-delive
 import { makeDeleteOrderDeliveryController } from "../factories/delete-order-delivery";
 import { makeLoadOrderByIdController } from "../factories/load-order-delivery-by-id";
 import { makeDeleteAccountController } from "../factories/delete-account";
+import { makeAddClientController } from "../factories/add-client-mysql";
 
 export default (router: Router): void => {
   const adminAuth = adaptMiddleware(makeAuthMiddleware("admin"));
@@ -36,6 +37,7 @@ export default (router: Router): void => {
     adaptRoute(makeLoadOrderByIdController())
   );
   router.post("/register", adminAuth, adaptRoute(makeAddRegisterController()));
+  router.post("/client", adaptRoute(makeAddClientController()));
   router.post("/signup", adaptRoute(makeSignupController()));
   router.post("/login", adaptRoute(makeLoginController()));
   router.post(
