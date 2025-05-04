@@ -16,10 +16,12 @@ import { makeDeleteOrderDeliveryController } from "../factories/delete-order-del
 import { makeLoadOrderByIdController } from "../factories/load-order-delivery-by-id";
 import { makeDeleteAccountController } from "../factories/delete-account";
 import { makeAddClientController } from "../factories/add-client-mysql";
+import { makeLoadClientController } from "../factories/load-client-mysql";
 
 export default (router: Router): void => {
   const adminAuth = adaptMiddleware(makeAuthMiddleware("admin"));
   router.get("/register", adminAuth, adaptRoute(makeLoadRegisterController()));
+  router.get("/client", adaptRoute(makeLoadClientController()));
   router.get("/orderDelivery", adaptRoute(makeLoadOrdersDeliveryController()));
   router.get(
     "/register/:id",
