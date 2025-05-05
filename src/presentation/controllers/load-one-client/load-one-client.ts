@@ -1,0 +1,16 @@
+import { Controller } from "../../protocols/controller";
+import { LoadOneClient } from "../../../domain/usescases/load-client/load-client";
+import { HttpRequest, HttpResponse } from "../../protocols/http";
+import { noContent, ok, serverError } from "../../helpers/http/http-helper";
+
+export class LoadOneClientController implements Controller {
+  constructor(private readonly loadClient: LoadOneClient) {}
+  async handle(httpRequest: HttpRequest): Promise<HttpResponse> {
+    try {
+      const oneClient = await this.loadClient.loadOne(httpRequest.body.id);
+      return ok(oneClient);
+    } catch (error) {
+      return serverError(error);
+    }
+  }
+}

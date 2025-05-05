@@ -1,8 +1,8 @@
 import { ClientModel } from "../../../domain/models/client/client-model";
-import { LoadClient } from "../../../domain/usescases/load-client/load-client";
+import { LoadOneClient } from "../../../domain/usescases/load-client/load-client";
 import { LoadOneClientRepository } from "../../protocols/db/client-repository/load-client";
 
-export class DbLoadOneClient implements LoadClient {
+export class DbLoadOneClient implements LoadOneClient {
   constructor(
     private readonly loadOneClientRepository: LoadOneClientRepository
   ) {}

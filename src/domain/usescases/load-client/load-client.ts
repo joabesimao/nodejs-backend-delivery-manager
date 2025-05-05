@@ -4,6 +4,6 @@ export interface LoadClients {
   load(): Promise<ClientModel[]>;
 }
 
-export interface LoadClient {
-  loadOne(id:number): Promise<ClientModel>;
+export interface LoadOneClient {
+  loadOne(id: number): Promise<ClientModel>;
 }
