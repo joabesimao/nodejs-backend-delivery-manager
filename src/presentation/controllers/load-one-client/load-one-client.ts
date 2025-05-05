@@ -7,7 +7,7 @@ export class LoadOneClientController implements Controller {
   constructor(private readonly loadClient: LoadOneClient) {}
   async handle(httpRequest: HttpRequest): Promise<HttpResponse> {
     try {
-      const oneClient = await this.loadClient.loadOne(httpRequest.body.id);
+      const oneClient = await this.loadClient.loadOne(httpRequest.params.id);
       return ok(oneClient);
     } catch (error) {
       return serverError(error);
