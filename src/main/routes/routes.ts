@@ -19,12 +19,14 @@ import { makeAddClientController } from "../factories/add-client-mysql";
 import { makeLoadClientController } from "../factories/load-client-mysql";
 import { makeLoadOneClientController } from "../factories/load-one-client-mysql";
 import { makeAddAddressController } from "../factories/add-address-mysql";
+import { makeLoadAddressController } from "../factories/load-address";
 
 export default (router: Router): void => {
   const adminAuth = adaptMiddleware(makeAuthMiddleware("admin"));
   router.get("/register", adminAuth, adaptRoute(makeLoadRegisterController()));
   router.get("/client", adaptRoute(makeLoadClientController()));
   router.get("/orderDelivery", adaptRoute(makeLoadOrdersDeliveryController()));
+  router.get("/address", adaptRoute(makeLoadAddressController()));
   router.get(
     "/register/:id",
     adminAuth,
