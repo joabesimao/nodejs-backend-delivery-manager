@@ -17,6 +17,9 @@ const fakehttpRequest = (): HttpRequest => ({
     lastName: "any_last_name",
     phone: "any_number",
   },
+  params: {
+    id: 1,
+  },
 });
 
 interface SutTypes {
@@ -26,7 +29,7 @@ interface SutTypes {
 
 const makeLoadOneClient = (): LoadOneClient => {
   class LoadOneClientStub implements LoadOneClient {
-    loadOne(id: number): Promise<ClientModel> {
+    async loadOne(id: number): Promise<ClientModel> {
       return new Promise((resolve) => resolve(makeFakeOneClient()));
     }
   }
@@ -63,7 +66,7 @@ describe("Load one CLient Controller", () => {
     expect(httpResponse).toEqual(ok(makeFakeOneClient()));
   });
 
-  test("Should return 500 if LoadOneRegister throws", async () => {
+  test("Should return 500 if LoadOneClient throws", async () => {
     const { sut, loadOneClientStub } = makeSut();
     jest
       .spyOn(loadOneClientStub, "loadOne")
