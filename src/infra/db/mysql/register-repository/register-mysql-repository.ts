@@ -20,28 +20,29 @@ export class RegisterMySqlRepository
     UpdateRegisterRepository,
     DeleteRegisterByIdRepository
 {
-  async add(data: AddRegisterModel): Promise<RegisterModel> {
-    const createRegister = await prisma.register.create({
+  async add(dataInfo: AddRegisterModel): Promise<RegisterModel> {
+    const register = await prisma.register.create({
       data: {
         client: {
           create: {
-            name: data.client.name,
-            lastName: data.client.lastName,
-            phone: data.client.phone,
-          },
-        },
-        address: {
-          create: {
-            street: data.address.street,
-            neighborhood: data.address.neighborhood,
-            numberHouse: data.address.numberHouse,
-            reference: data.address.reference,
-            city: data.address.city,
+            name: dataInfo.client.name,
+            lastName: dataInfo.client.lastName,
+            phone: dataInfo.client.phone,
+            address: {
+              create: {
+                street: dataInfo.address.street,
+                neighborhood: dataInfo.address.neighborhood,
+                city: dataInfo.address.city,
+                numberHouse: dataInfo.address.numberHouse,
+                reference: dataInfo.address.reference,
+              },
+            },
           },
         },
       },
     });
-    return createRegister as unknown as RegisterModel;
+
+    return register as any;
   }
 
   loadById(id: number): Promise<LoadRegisterModel> {

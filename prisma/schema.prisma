@@ -16,38 +16,37 @@ model Account {
 }
 
 model Client {
-  id       Int       @id @default(autoincrement())
-  name     String
-  lastName String
-  phone    String
-  Register Register?
+  id        Int       @id @default(autoincrement())
+  name      String
+  lastName  String
+  phone     String
+  address   Address   @relation(fields: [addressId], references: [id])
+  addressId Int       @unique
+  Register  Register?
 }
 
 model OrderDelivery {
   id         Int      @id @default(autoincrement())
-  register   Register @relation(fields: [registerId], references: [id])
   quantity   String
   amount     Int
   data       DateTime
+  register   Register @relation(fields: [registerId], references: [id])
   registerId Int      @unique
 }
 
 model Address {
-  id           Int       @id @default(autoincrement())
+  id           Int     @id @default(autoincrement())
   street       String
   neighborhood String
   numberHouse  Int
   reference    String
   city         String
-  registerId   Int?
-  Register     Register?
+  client       Client?
 }
 
 model Register {
   id            Int            @id @default(autoincrement())
   client        Client         @relation(fields: [clientId], references: [id])
-  address       Address        @relation(fields: [addressId], references: [id])
   clientId      Int            @unique
   OrderDelivery OrderDelivery?
-  addressId     Int @unique
 }

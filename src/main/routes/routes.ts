@@ -43,7 +43,7 @@ export default (router: Router): void => {
     adaptRoute(makeLoadOrderByIdController())
   );
   router.get("/client/:id", adaptRoute(makeLoadOneClientController()));
-  router.post("/register", adminAuth, adaptRoute(makeAddRegisterController()));
+  router.post("/register", adaptRoute(makeAddRegisterController()));
   router.post("/address", adaptRoute(makeAddAddressController()));
   router.post("/client", adaptRoute(makeAddClientController()));
   router.post("/signup", adaptRoute(makeSignupController()));
