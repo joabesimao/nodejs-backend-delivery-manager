@@ -50,7 +50,7 @@ const makeRegisterByNameRepository = (): LoadRegisterByNameRepository => {
 const makeSut = (): SutTypes => {
   const registerRepositoryStub = makeRegisterRepository();
   const registerByNameStub = makeRegisterByNameRepository();
-  const sut = new DbAddRegister(registerRepositoryStub, registerByNameStub);
+  const sut = new DbAddRegister(registerRepositoryStub);
   return {
     sut,
     registerRepositoryStub,

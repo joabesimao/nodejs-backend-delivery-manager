@@ -10,7 +10,6 @@ interface SutTypes {
 }
 
 const makeOrder = (): OrderDeliveryModel => ({
-  id: "1",
   register: {
     id: 1,
     client: {
@@ -52,21 +51,7 @@ const makeSut = (): SutTypes => {
 };
 
 const makeAddOrderDelivery = (): AddOrderDeliveryModel => ({
-  register: {
-    id: 1,
-    client: {
-      name: "any_name",
-      lastName: "any_last_name",
-      phone: "any_phone",
-    },
-    address: {
-      street: "any_street",
-      neighborhood: "any_neighborhood",
-      numberHouse: 123,
-      reference: "any_reference",
-      city: "any_city",
-    },
-  },
+  registerId: 1,
   amount: 10,
   data: new Date("2022-10-10"),
   quantity: "6",

@@ -31,7 +31,6 @@ const makeSut = (): SutTypes => {
 };
 
 const makeOrder = (): OrderDeliveryModel => ({
-  id: "1",
   register: {
     id: 1,
     client: {

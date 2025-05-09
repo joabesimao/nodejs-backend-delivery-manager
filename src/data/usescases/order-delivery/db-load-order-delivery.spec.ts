@@ -10,7 +10,6 @@ interface SutTypes {
 
 const makeOrders = (): OrderDeliveryModel[] => [
   {
-    id: "1",
     register: {
       id: 1,
       client: {
@@ -31,7 +30,6 @@ const makeOrders = (): OrderDeliveryModel[] => [
     quantity: "6",
   },
   {
-    id: "10",
     register: {
       id: 3,
       client: {

@@ -16,6 +16,7 @@ export class ClientMysqlRepository
         name: client.name,
         lastName: client.lastName,
         phone: client.phone,
+        address: {},
       },
     });
 

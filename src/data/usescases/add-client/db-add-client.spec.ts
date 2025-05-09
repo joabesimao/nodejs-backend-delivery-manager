@@ -1,12 +1,6 @@
 import { DbAddClient } from "./db-add-client";
 import { AddClientRepository } from "../../protocols/db/client-repository/add-client";
-import { LoadRegisterByNameRepository } from "../../protocols/db/register/load-register-repository";
-import {
-  RegisterModel,
-  AddRegisterModel,
-} from "../add-register/db-add-register-protocols";
 import { ClientModel } from "../../../domain/models/client/client-model";
-import { LoadRegisterModel } from "../../../domain/models/register/register-load-model";
 import { AddClientModel } from "../../../domain/usescases/add-client/add-client";
 
 interface SutTypes {
