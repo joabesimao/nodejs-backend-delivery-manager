@@ -10,14 +10,10 @@ export class DbAddOrderDelivery implements AddOrderDelivery {
     private readonly addOrderDeliveryRepository: AddOrderDeliveryRepository
   ) {}
   async addOrderDelivery(
-    orderDelivery: AddOrderDeliveryModel,
-    id: number
+    orderDelivery: AddOrderDeliveryModel
   ): Promise<OrderDeliveryModel> {
     const newOrderDelivery =
-      await this.addOrderDeliveryRepository.addOrderOfDelivery(
-        orderDelivery,
-        id
-      );
+      await this.addOrderDeliveryRepository.addOrderOfDelivery(orderDelivery);
     return newOrderDelivery;
   }
 }

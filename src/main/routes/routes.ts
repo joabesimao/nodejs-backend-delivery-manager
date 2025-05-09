@@ -49,6 +49,11 @@ export default (router: Router): void => {
   router.post("/signup", adaptRoute(makeSignupController()));
   router.post("/login", adaptRoute(makeLoginController()));
   router.post(
+    "/orderDelivery",
+
+    adaptRoute(makeAddOrderDeliveryController())
+  );
+  router.post(
     "/orderDelivery/:id",
 
     adaptRoute(makeAddOrderDeliveryController())

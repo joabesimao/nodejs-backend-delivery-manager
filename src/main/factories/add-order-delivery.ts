@@ -5,18 +5,15 @@ import { OrderDeliveryMongoRepository } from "../../infra/db/mongodb/order-deliv
 import { DbAddOrderDelivery } from "../../data/usescases/order-delivery/db-add-order-delivery";
 import { AddOrderDeliveryController } from "../../presentation/controllers/add-order-delivery/add-order-delivery";
 import { makeAddOrderDeliveryValidation } from "./add-order-delivery-validation";
+import { OrderDeliveryMySqlRepository } from "../../infra/db/mysql/order-delivery-repository/order-delivery-mysql-repository";
 
 export const makeAddOrderDeliveryController = (): Controller => {
-  const orderDeliveryRepository = new OrderDeliveryMongoRepository();
+  const orderDeliveryRepository = new OrderDeliveryMySqlRepository();
   const addOrderDelivery = new DbAddOrderDelivery(orderDeliveryRepository);
-  const validation = makeAddOrderDeliveryValidation();
+
   const addOrderDeliveryController = new AddOrderDeliveryController(
-    addOrderDelivery,
-    validation
+    addOrderDelivery
   );
-  const logErrorRepository = new LogMongoRepository();
-  return new LogControllerDecorator(
-    addOrderDeliveryController,
-    logErrorRepository
-  );
+
+  return addOrderDeliveryController;
 };

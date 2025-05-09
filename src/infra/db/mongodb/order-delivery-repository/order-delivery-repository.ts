@@ -38,24 +38,20 @@ export class OrderDeliveryMongoRepository
   }
 
   async addOrderOfDelivery(
-    orderOfDelivery: AddOrderDeliveryModel,
-    id: number
+    orderOfDelivery: AddOrderDeliveryModel
   ): Promise<OrderDeliveryModel> {
     const orderDeliveryCollection = await MongoHelper.getCollection(
       "orderDeliverys"
     );
-    const objId = new ObjectId(id);
+
     const registerCollection = await MongoHelper.getCollection("registers");
-    const reg = await registerCollection.findOne({
-      _id: objId,
-    });
+    const reg = await registerCollection.findOne({});
     const result = await orderDeliveryCollection.insertOne({
       register: reg,
       info: orderOfDelivery,
     });
 
     const orderDeliveryCreated: OrderDeliveryModel = {
-      id: result.insertedId as any,
       register: reg as any,
       quantity: orderOfDelivery.quantity,
       amount: orderOfDelivery.amount,
