@@ -4,13 +4,15 @@ import { Controller } from "../../presentation/protocols/controller";
 import { OrderDeliveryMongoRepository } from "../../infra/db/mongodb/order-delivery-repository/order-delivery-repository";
 import { DbLoadOrderDelivery } from "../../data/usescases/order-delivery/db-load-order-delivery";
 import { LoadOrderDeliveryController } from "../../presentation/controllers/load-order-delivery/load-order-delivery";
+import { OrderDeliveryMySqlRepository } from "../../infra/db/mysql/order-delivery-repository/order-delivery-mysql-repository";
 
 export const makeLoadOrdersDeliveryController = (): Controller => {
-  const loadOrderDeliveryRepository = new OrderDeliveryMongoRepository();
+  const loadOrderDeliveryRepository = new OrderDeliveryMySqlRepository();
   const listOrdersOfDelivery = new DbLoadOrderDelivery(
     loadOrderDeliveryRepository
   );
   const controller = new LoadOrderDeliveryController(listOrdersOfDelivery);
+  return controller; /* 
   const logErrorRepository = new LogMongoRepository();
-  return new LogControllerDecorator(controller, logErrorRepository);
+  return new LogControllerDecorator(controller, logErrorRepository); */
 };
