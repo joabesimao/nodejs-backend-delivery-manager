@@ -1,4 +1,5 @@
 import { AddOrderDeliveryRepository } from "../../../../data/protocols/db/order-delivery/add-order-delivery";
+import { DeleteOrderDeliveryByIdRepository } from "../../../../data/protocols/db/order-delivery/delete-order-delivery";
 import {
   LoadOrderDeliveryByIdRepository,
   LoadOrderDeliveryRepository,
@@ -11,7 +12,8 @@ export class OrderDeliveryMySqlRepository
   implements
     AddOrderDeliveryRepository,
     LoadOrderDeliveryRepository,
-    LoadOrderDeliveryByIdRepository
+    LoadOrderDeliveryByIdRepository,
+    DeleteOrderDeliveryByIdRepository
 {
   async getAllOrderOfDelivery(): Promise<OrderDeliveryModel[]> {
     const allOrderDelivery = await prisma.orderDelivery.findMany({
@@ -64,5 +66,12 @@ export class OrderDeliveryMySqlRepository
       },
     });
     return orderById as unknown as OrderDeliveryModel;
+  }
+
+  async deleteById(id: number): Promise<string> {
+    const deleteOneOrderDelivery = await prisma.orderDelivery.delete({
+      where: { id: Number(id) },
+    });
+    return "Deletado com Sucesso";
   }
 }
