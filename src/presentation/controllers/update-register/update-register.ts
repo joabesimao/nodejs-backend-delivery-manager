@@ -14,6 +14,7 @@ export class UpdateRegisterController implements Controller {
 
       return ok(updateData);
     } catch (error) {
+      console.log(error);
       return serverError(error);
     }
   }

@@ -16,7 +16,6 @@ export class RegisterMySqlRepository
     AddRegisterRepository,
     LoadRegisterRepository,
     LoadRegisterByIdRepository,
-    LoadRegisterByNameRepository,
     UpdateRegisterRepository,
     DeleteRegisterByIdRepository
 {
@@ -45,23 +44,64 @@ export class RegisterMySqlRepository
     return register as any;
   }
 
-  loadById(id: number): Promise<LoadRegisterModel> {
-    throw new Error("Method not implemented.");
+  async loadById(id: number): Promise<LoadRegisterModel> {
+    const loadRegisterById = await prisma.register.findUnique({
+      where: { id: id },
+    });
+    return loadRegisterById as unknown as LoadRegisterModel;
   }
-  findByName(name: string): Promise<LoadRegisterModel> {
-    throw new Error("Method not implemented.");
-  }
-  updateOneRegisterById(
+
+  async updateOneRegisterById(
     id: number,
     info: Partial<RegisterModel>
   ): Promise<LoadRegisterModel> {
-    throw new Error("Method not implemented.");
+    const { client, address } = info;
+    const updateRegister = await prisma.register.update({
+      where: {
+        id: Number(id),
+      },
+      data: {
+        client: {
+          update: {
+            data: {
+              ...client,
+            },
+          },
+        },
+        address: {
+          update: {
+            data: {
+              ...address,
+            },
+          },
+        },
+      },
+    });
+    return updateRegister as unknown as LoadRegisterModel;
   }
+
   async deleteById(id: number): Promise<string> {
-    return null;
+    await prisma.register.delete({
+      where: { id: Number(id) },
+    });
+    return "Deletado com sucesso!";
   }
+
   async loadAll(): Promise<LoadRegisterModel[]> {
-    const loadRegisters = await prisma.register.findMany();
+    const loadRegisters = await prisma.register.findMany({
+      include: {
+        client: {
+          include: {
+            Register: {
+              include: {
+                client: true,
+                address: true,
+              },
+            },
+          },
+        },
+      },
+    });
 
     return loadRegisters as unknown as LoadRegisterModel[];
   }
