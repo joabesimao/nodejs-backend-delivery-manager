@@ -16,13 +16,11 @@ model Account {
 }
 
 model Client {
-  id        Int       @id @default(autoincrement())
-  name      String
-  lastName  String
-  phone     String
-  address   Address   @relation(fields: [addressId], references: [id])
-  addressId Int       @unique
-  Register  Register?
+  id       Int       @id @default(autoincrement())
+  name     String
+  lastName String
+  phone    String
+  Register Register?
 }
 
 model OrderDelivery {
@@ -35,18 +33,20 @@ model OrderDelivery {
 }
 
 model Address {
-  id           Int     @id @default(autoincrement())
+  id           Int       @id @default(autoincrement())
   street       String
   neighborhood String
   numberHouse  Int
   reference    String
   city         String
-  client       Client?
+  register     Register?
 }
 
 model Register {
   id            Int            @id @default(autoincrement())
   client        Client         @relation(fields: [clientId], references: [id])
   clientId      Int            @unique
+  address       Address        @relation(fields: [addressId], references: [id])
+  addressId     Int            @unique
   OrderDelivery OrderDelivery?
 }

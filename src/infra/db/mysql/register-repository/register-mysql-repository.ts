@@ -28,15 +28,15 @@ export class RegisterMySqlRepository
             name: dataInfo.client.name,
             lastName: dataInfo.client.lastName,
             phone: dataInfo.client.phone,
-            address: {
-              create: {
-                street: dataInfo.address.street,
-                neighborhood: dataInfo.address.neighborhood,
-                city: dataInfo.address.city,
-                numberHouse: dataInfo.address.numberHouse,
-                reference: dataInfo.address.reference,
-              },
-            },
+          },
+        },
+        address: {
+          create: {
+            street: dataInfo.address.street,
+            city: dataInfo.address.city,
+            neighborhood: dataInfo.address.neighborhood,
+            numberHouse: dataInfo.address.numberHouse,
+            reference: dataInfo.address.reference,
           },
         },
       },
