@@ -28,8 +28,8 @@ model OrderDelivery {
   quantity   String
   amount     Int
   data       DateTime
-  register   Register @relation(fields: [registerId], references: [id])
-  registerId Int      @unique
+  Register   Register @relation(fields: [registerId], references: [id])
+  registerId Int
 }
 
 model Address {
@@ -43,10 +43,11 @@ model Address {
 }
 
 model Register {
-  id            Int            @id @default(autoincrement())
-  client        Client         @relation(fields: [clientId], references: [id])
-  clientId      Int            @unique
-  address       Address        @relation(fields: [addressId], references: [id])
-  addressId     Int            @unique
-  OrderDelivery OrderDelivery?
+  id              Int             @id @default(autoincrement())
+  client          Client          @relation(fields: [clientId], references: [id])
+  clientId        Int             @unique
+  address         Address         @relation(fields: [addressId], references: [id])
+  addressId       Int             @unique
+  orderDeliveryId Int?
+  OrderDelivery   OrderDelivery[]
 }

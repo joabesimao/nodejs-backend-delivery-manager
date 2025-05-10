@@ -18,13 +18,10 @@ export class OrderDeliveryMySqlRepository
   async getAllOrderOfDelivery(): Promise<OrderDeliveryModel[]> {
     const allOrderDelivery = await prisma.orderDelivery.findMany({
       include: {
-        register: {
+        Register: {
           include: {
-            client: {
-              include: {
-                address: true,
-              },
-            },
+            client: true,
+            address: true,
           },
         },
       },
@@ -37,11 +34,7 @@ export class OrderDeliveryMySqlRepository
   ): Promise<OrderDeliveryModel> {
     const order = await prisma.orderDelivery.create({
       data: {
-        register: {
-          connect: {
-            id: orderOfDelivery.registerId,
-          },
-        },
+        registerId: orderOfDelivery.registerId,
         amount: orderOfDelivery.amount,
         data: new Date(),
         quantity: orderOfDelivery.quantity,
@@ -54,13 +47,10 @@ export class OrderDeliveryMySqlRepository
     const orderById = await prisma.orderDelivery.findUnique({
       where: { id: Number(id) },
       include: {
-        register: {
+        Register: {
           include: {
-            client: {
-              include: {
-                address: true,
-              },
-            },
+            client: true,
+            address: true,
           },
         },
       },

@@ -21,7 +21,7 @@ import { makeLoadAddressController } from "../factories/load-address";
 
 export default (router: Router): void => {
   const adminAuth = adaptMiddleware(makeAuthMiddleware("admin"));
-  router.get("/register", adminAuth, adaptRoute(makeLoadRegisterController()));
+  router.get("/register", adaptRoute(makeLoadRegisterController()));
   router.get("/client", adaptRoute(makeLoadClientController()));
   router.get("/orderDelivery", adaptRoute(makeLoadOrdersDeliveryController()));
   router.get("/address", adaptRoute(makeLoadAddressController()));
