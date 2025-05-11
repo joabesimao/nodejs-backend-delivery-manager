@@ -9,7 +9,7 @@ import { RegisterMySqlRepository } from "../../infra/db/mysql/register-repositor
 
 export const makeAddRegisterController = (): Controller => {
   const registerRepository = new RegisterMySqlRepository();
-  const addRegister = new DbAddRegister(registerRepository, registerRepository);
+  const addRegister = new DbAddRegister(registerRepository);
   /* const validation = makeAddRegisterValidation(); */
   const registerController = new AddRegisterController(addRegister);
 
