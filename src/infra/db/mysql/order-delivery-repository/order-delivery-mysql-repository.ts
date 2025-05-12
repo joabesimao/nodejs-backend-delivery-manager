@@ -4,7 +4,9 @@ import {
   LoadOrderDeliveryByIdRepository,
   LoadOrderDeliveryRepository,
 } from "../../../../data/protocols/db/order-delivery/load-order-delivery";
+import { UpdateOrderDeliveryRepository } from "../../../../data/protocols/db/order-delivery/update-order-delivery";
 import { OrderDeliveryModel } from "../../../../domain/models/order-delivery/order-delivery";
+import { UpdateOrderDeliveryModel } from "../../../../domain/models/order-delivery/update-order-delivery";
 import { AddOrderDeliveryModel } from "../../../../domain/usescases/order-delivery/add-order-delivery";
 import { prisma } from "../helpers";
 
@@ -13,6 +15,7 @@ export class OrderDeliveryMySqlRepository
     AddOrderDeliveryRepository,
     LoadOrderDeliveryRepository,
     LoadOrderDeliveryByIdRepository,
+    UpdateOrderDeliveryRepository,
     DeleteOrderDeliveryByIdRepository
 {
   async getAllOrderOfDelivery(): Promise<OrderDeliveryModel[]> {
@@ -56,6 +59,17 @@ export class OrderDeliveryMySqlRepository
       },
     });
     return orderById as unknown as OrderDeliveryModel;
+  }
+
+  async updateOrder(
+    id: number,
+    info: UpdateOrderDeliveryModel
+  ): Promise<OrderDeliveryModel> {
+    const updateOrder = await prisma.orderDelivery.update({
+      where: { id: Number(id) },
+      data: { ...info },
+    });
+    return updateOrder as unknown as OrderDeliveryModel;
   }
 
   async deleteById(id: number): Promise<string> {
