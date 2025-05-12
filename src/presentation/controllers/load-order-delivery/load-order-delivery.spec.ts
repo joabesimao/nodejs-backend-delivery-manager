@@ -30,7 +30,6 @@ const makeFakeRequest = (): HttpRequest => ({
 });
 const makeOrdersDelivery = (): OrderDeliveryModel[] => [
   {
-    id: "1",
     register: {
       id: 1,
       client: {
@@ -51,7 +50,6 @@ const makeOrdersDelivery = (): OrderDeliveryModel[] => [
     quantity: "12",
   },
   {
-    id: "1",
     register: {
       id: 1,
       client: {

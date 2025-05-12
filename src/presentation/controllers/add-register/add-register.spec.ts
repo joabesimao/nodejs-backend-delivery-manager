@@ -65,7 +65,7 @@ const makeValidation = (): Validation => {
 const makeSut = (): SutTypes => {
   const addRegisterStub = makeAddRegisterStub();
   const validationStub = makeValidation();
-  const sut = new AddRegisterController(addRegisterStub, validationStub);
+  const sut = new AddRegisterController(addRegisterStub);
   return {
     sut,
     addRegisterStub,

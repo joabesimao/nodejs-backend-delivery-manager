@@ -34,7 +34,6 @@ const makeFakeRequest = (): HttpRequest => ({
   },
 });
 const makeOrdemDelivery = (): OrderDeliveryModel => ({
-  id: "1",
   register: {
     id: 1,
     client: {
