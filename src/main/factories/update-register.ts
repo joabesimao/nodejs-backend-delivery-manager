@@ -2,7 +2,7 @@ import { DbUpdateRegister } from "../../data/usescases/update-register/db-update
 import { LogMongoRepository } from "../../infra/db/mongodb/log-repository/log-mongo-repository";
 import { RegisterMongoRepository } from "../../infra/db/mongodb/register-repository/register";
 import { RegisterMySqlRepository } from "../../infra/db/mysql/register-repository/register-mysql-repository";
-import { UpdateRegisterController } from "../../presentation/controllers/update-register/update-register";
+import { UpdateRegisterController } from "../../presentation/controllers/register-controllers/update-register/update-register";
 import { Controller } from "../../presentation/protocols/controller";
 import { LogControllerDecorator } from "../decorators/log";
 

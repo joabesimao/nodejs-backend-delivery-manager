@@ -3,7 +3,7 @@ import { LogControllerDecorator } from "../decorators/log";
 import { Controller } from "../../presentation/protocols/controller";
 import { OrderDeliveryMongoRepository } from "../../infra/db/mongodb/order-delivery-repository/order-delivery-repository";
 import { DbLoadOrderDelivery } from "../../data/usescases/order-delivery/db-load-order-delivery";
-import { LoadOrderDeliveryController } from "../../presentation/controllers/load-order-delivery/load-order-delivery";
+import { LoadOrderDeliveryController } from "../../presentation/controllers/order-delivery-controllers/load-order-delivery/load-order-delivery";
 import { OrderDeliveryMySqlRepository } from "../../infra/db/mysql/order-delivery-repository/order-delivery-mysql-repository";
 
 export const makeLoadOrdersDeliveryController = (): Controller => {

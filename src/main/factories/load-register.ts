@@ -2,7 +2,7 @@ import { RegisterMongoRepository } from "../../infra/db/mongodb/register-reposit
 import { LogMongoRepository } from "../../infra/db/mongodb/log-repository/log-mongo-repository";
 import { LogControllerDecorator } from "../decorators/log";
 import { Controller } from "../../presentation/protocols/controller";
-import { LoadRegistersController } from "../../presentation/controllers/load-register/load-register";
+import { LoadRegistersController } from "../../presentation/controllers/register-controllers/load-register/load-register";
 import { DbLoadRegisters } from "../../data/usescases/load-register/db-load-register";
 import { RegisterMySqlRepository } from "../../infra/db/mysql/register-repository/register-mysql-repository";
 

@@ -1,7 +1,7 @@
 import { DbLoadRegistersByName } from "../../data/usescases/load-register/db-load-register-by-name";
 import { LogMongoRepository } from "../../infra/db/mongodb/log-repository/log-mongo-repository";
 import { RegisterMongoRepository } from "../../infra/db/mongodb/register-repository/register";
-import { LoadRegisterByNameController } from "../../presentation/controllers/load-register/load-register-by-name";
+import { LoadRegisterByNameController } from "../../presentation/controllers/register-controllers/load-register/load-register-by-name";
 import { Controller } from "../../presentation/protocols/controller";
 import { LogControllerDecorator } from "../decorators/log";
 

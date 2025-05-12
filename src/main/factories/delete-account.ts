@@ -3,7 +3,7 @@ import { LogControllerDecorator } from "../decorators/log";
 import { Controller } from "../../presentation/protocols/controller";
 import { AccountMongoRepository } from "../../infra/db/mongodb/account-repository/account-repository";
 import { DbDeleteAccountById } from "../../data/usescases/delete-account/db-delete-account";
-import { DeleteAccountController } from "../../presentation/controllers/delete-account/delete-account";
+import { DeleteAccountController } from "../../presentation/controllers/account-controllers/delete-account/delete-account";
 
 export const makeDeleteAccountController = (): Controller => {
   const deleteAccountRepository = new AccountMongoRepository();

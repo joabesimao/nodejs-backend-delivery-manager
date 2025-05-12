@@ -1,4 +1,4 @@
-import { AddAddressController } from "../../presentation/controllers/add-address/add-address";
+import { AddAddressController } from "../../presentation/controllers/address-controllers/add-address/add-address";
 import { DbAddAddress } from "../../data/usescases/add-address/db-add-address";
 import { Controller } from "../../presentation/protocols/controller";
 import { AddressMysqlRepository } from "../../infra/db/mysql/address-repository/address-repository";

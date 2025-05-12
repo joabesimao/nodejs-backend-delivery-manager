@@ -1,4 +1,4 @@
-import { AddClientController } from "../../presentation/controllers/add-client/add-client";
+import { AddClientController } from "../../presentation/controllers/client-controllers/add-client/add-client";
 import { DbAddClient } from "../../data/usescases/add-client/db-add-client";
 import { LogMongoRepository } from "../../infra/db/mongodb/log-repository/log-mongo-repository";
 import { LogControllerDecorator } from "../decorators/log";
