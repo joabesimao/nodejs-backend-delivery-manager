@@ -1,12 +1,12 @@
 import {
   AddRegister,
   AddRegisterModel,
-} from "../../../domain/usescases/add-register/add-register";
+} from "../../../../domain/usescases/add-register/add-register";
 import { AddRegisterController } from "./add-register";
-import { HttpRequest } from "../../protocols/http";
-import { ok, serverError } from "../../helpers/http/http-helper";
-import { Validation } from "../../protocols/validation";
-import { RegisterModel } from "../../../domain/models/register/register-model";
+import { HttpRequest } from "../../../protocols/http";
+import { ok, serverError } from "../../../helpers/http/http-helper";
+import { Validation } from "../../../protocols/validation";
+import { RegisterModel } from "../../../../domain/models/register/register-model";
 
 const makeFakeRequest = (): HttpRequest => ({
   body: {

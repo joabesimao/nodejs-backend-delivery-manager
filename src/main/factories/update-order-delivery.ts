@@ -1,4 +1,4 @@
-import { DbUpdateOrderDelivery } from "../../data/usescases/update-order-delivery/db--update-order-delivery";
+import { DbUpdateOrderDelivery } from "../../data/usescases/order-delivery/update-order-delivery/db--update-order-delivery";
 import { LogMongoRepository } from "../../infra/db/mongodb/log-repository/log-mongo-repository";
 import { RegisterMongoRepository } from "../../infra/db/mongodb/register-repository/register";
 import { OrderDeliveryMySqlRepository } from "../../infra/db/mysql/order-delivery-repository/order-delivery-mysql-repository";

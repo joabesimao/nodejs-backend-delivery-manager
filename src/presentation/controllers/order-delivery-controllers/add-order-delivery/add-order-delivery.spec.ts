@@ -1,13 +1,13 @@
 import {
   AddOrderDelivery,
   AddOrderDeliveryModel,
-} from "../../../domain/usescases/order-delivery/add-order-delivery";
+} from "../../../../domain/usescases/order-delivery/add-order-delivery";
 import { AddOrderDeliveryController } from "./add-order-delivery";
-import { HttpRequest } from "../../protocols/http";
-import { badRequest, ok, serverError } from "../../helpers/http/http-helper";
-import { Validation } from "../../protocols/validation";
-import { MissingParamError } from "../../errors";
-import { OrderDeliveryModel } from "../../../domain/models/order-delivery/order-delivery";
+import { HttpRequest } from "../../../protocols/http";
+import { badRequest, ok, serverError } from "../../../helpers/http/http-helper";
+import { Validation } from "../../../protocols/validation";
+import { MissingParamError } from "../../../errors";
+import { OrderDeliveryModel } from "../../../../domain/models/order-delivery/order-delivery";
 import Mockdate from "mockdate";
 
 const makeFakeRequest = (): HttpRequest => ({
@@ -33,7 +33,7 @@ const makeFakeRequest = (): HttpRequest => ({
     quantity: "12",
   },
 });
-const makeOrdemDelivery = (): OrderDeliveryModel => ({
+const makeOrderDelivery = (): OrderDeliveryModel => ({
   register: {
     id: 1,
     client: {
@@ -49,6 +49,7 @@ const makeOrdemDelivery = (): OrderDeliveryModel => ({
       city: "any_city",
     },
   },
+
   amount: 1,
   data: new Date("2022-10-10"),
   quantity: "12",
@@ -63,7 +64,7 @@ const makeAddOrderDeliveryStub = (): AddOrderDelivery => {
     async addOrderDelivery(
       data: AddOrderDeliveryModel
     ): Promise<OrderDeliveryModel> {
-      return new Promise((resolve) => resolve(makeOrdemDelivery()));
+      return new Promise((resolve) => resolve(makeOrderDelivery()));
     }
   }
   return new AddOrderStub();
@@ -106,6 +107,7 @@ describe("addOrderDelivery Controller", () => {
     const fakeRequest = makeFakeRequest();
     await sut.handle(fakeRequest);
     expect(addRegisterSpy).toHaveBeenCalledWith({
+      registerId: 1,
       amount: 1,
       data: new Date("2022-10-10T00:00:00.000Z"),
       quantity: "12",
@@ -172,6 +174,6 @@ describe("addOrderDelivery Controller", () => {
   test("Should return 200 on success", async () => {
     const { sut } = makeSut();
     const httpResponse = await sut.handle(makeFakeRequest());
-    expect(httpResponse).toEqual(ok(makeOrdemDelivery()));
+    expect(httpResponse).toEqual(ok(makeOrderDelivery()));
   });
 });

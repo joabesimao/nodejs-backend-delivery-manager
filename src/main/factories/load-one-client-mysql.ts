@@ -1,4 +1,4 @@
-import { DbLoadOneClient } from "../../data/usescases/load-client/db-load-one-client";
+import { DbLoadOneClient } from "../../data/usescases/client-usecases/load-client/db-load-one-client";
 import { ClientMysqlRepository } from "../../infra/db/mysql/client-repository/client-repository";
 import { LoadOneClientController } from "../../presentation/controllers/client-controllers/load-one-client/load-one-client";
 import { Controller } from "../../presentation/protocols/controller";

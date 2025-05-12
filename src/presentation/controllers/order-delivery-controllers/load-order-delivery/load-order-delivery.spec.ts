@@ -1,8 +1,8 @@
-import { LoadOrderDelivery } from "../../../domain/usescases/order-delivery/load-order-delivery";
+import { LoadOrderDelivery } from "../../../../domain/usescases/order-delivery/load-order-delivery";
 import { LoadOrderDeliveryController } from "./load-order-delivery";
-import { HttpRequest } from "../../protocols/http";
-import { serverError } from "../../helpers/http/http-helper";
-import { OrderDeliveryModel } from "../../../domain/models/order-delivery/order-delivery";
+import { HttpRequest } from "../../../protocols/http";
+import { serverError } from "../../../helpers/http/http-helper";
+import { OrderDeliveryModel } from "../../../../domain/models/order-delivery/order-delivery";
 import Mockdate from "mockdate";
 
 const makeFakeRequest = (): HttpRequest => ({

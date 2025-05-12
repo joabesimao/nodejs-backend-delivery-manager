@@ -1,4 +1,4 @@
-import { DbDeleteRegisterById } from "../../data/usescases/delete-register/db-delete-register";
+import { DbDeleteRegisterById } from "../../data/usescases/register-usecases/delete-register/db-delete-register";
 import { LogMongoRepository } from "../../infra/db/mongodb/log-repository/log-mongo-repository";
 import { RegisterMySqlRepository } from "../../infra/db/mysql/register-repository/register-mysql-repository";
 import { DeleteRegisterController } from "../../presentation/controllers/register-controllers/delete-register/delete-register";

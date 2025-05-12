@@ -1,6 +1,6 @@
 import { DeleteOrderDeliveryController } from "./delete-order-delivery";
-import { DeleteOrderDelivery } from "../../../domain/usescases/order-delivery/delete-order-delivery";
-import { ok, serverError } from "../../helpers/http/http-helper";
+import { DeleteOrderDelivery } from "../../../../domain/usescases/order-delivery/delete-order-delivery";
+import { ok, serverError } from "../../../helpers/http/http-helper";
 
 interface SutTypes {
   sut: DeleteOrderDeliveryController;

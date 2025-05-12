@@ -1,9 +1,9 @@
 import { LoadClientController } from "./load-client";
-import { LoadRegisters } from "../../../domain/usescases/load-register/load-register";
-import { LoadRegisterModel } from "../../../domain/models/register/register-load-model";
-import { noContent, ok, serverError } from "../../helpers/http/http-helper";
-import { ClientModel } from "../../../domain/models/client/client-model";
-import { LoadClients } from "../../../domain/usescases/load-client/load-client";
+import { LoadRegisters } from "../../../../domain/usescases/load-register/load-register";
+import { LoadRegisterModel } from "../../../../domain/models/register/register-load-model";
+import { noContent, ok, serverError } from "../../../helpers/http/http-helper";
+import { ClientModel } from "../../../../domain/models/client/client-model";
+import { LoadClients } from "../../../../domain/usescases/load-client/load-client";
 
 const makeFakeClientList = (): ClientModel[] => {
   return [

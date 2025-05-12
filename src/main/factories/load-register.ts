@@ -3,7 +3,7 @@ import { LogMongoRepository } from "../../infra/db/mongodb/log-repository/log-mo
 import { LogControllerDecorator } from "../decorators/log";
 import { Controller } from "../../presentation/protocols/controller";
 import { LoadRegistersController } from "../../presentation/controllers/register-controllers/load-register/load-register";
-import { DbLoadRegisters } from "../../data/usescases/load-register/db-load-register";
+import { DbLoadRegisters } from "../../data/usescases/register-usecases/load-register/db-load-register";
 import { RegisterMySqlRepository } from "../../infra/db/mysql/register-repository/register-mysql-repository";
 
 export const makeLoadRegisterController = (): Controller => {

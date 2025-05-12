@@ -2,21 +2,21 @@ import { SignupController } from "./signup";
 import {
   AddAccount,
   AddAccountModel,
-} from "../../../domain/usescases/signup/add-account";
-import { HttpRequest } from "../../protocols/http";
-import { EmailInUseError, MissingParamError } from "../../errors";
+} from "../../../../domain/usescases/signup/add-account";
+import { HttpRequest } from "../../../protocols/http";
+import { EmailInUseError, MissingParamError } from "../../../errors";
 import {
   badRequest,
   forbidden,
   ok,
   serverError,
-} from "../../helpers/http/http-helper";
-import { AccountModel } from "../../../domain/models/account/account-model";
-import { Validation } from "../../protocols/validation";
+} from "../../../helpers/http/http-helper";
+import { AccountModel } from "../../../../domain/models/account/account-model";
+import { Validation } from "../../../protocols/validation";
 import {
   Authentication,
   AuthenticationModel,
-} from "../../../domain/usescases/authentication/authentication";
+} from "../../../../domain/usescases/authentication/authentication";
 
 const makeFakeAccountModel = (): AccountModel => ({
   id: 1,

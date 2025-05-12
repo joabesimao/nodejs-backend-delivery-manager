@@ -1,25 +1,25 @@
 import {
   AddRegister,
   AddRegisterModel,
-} from "../../../domain/usescases/add-register/add-register";
+} from "../../../../domain/usescases/add-register/add-register";
 import { AddAddressController } from "./add-address";
-import { HttpRequest } from "../../protocols/http";
-import { ok, serverError } from "../../helpers/http/http-helper";
-import { Validation } from "../../protocols/validation";
-import { RegisterModel } from "../../../domain/models/register/register-model";
+import { HttpRequest } from "../../../protocols/http";
+import { ok, serverError } from "../../../helpers/http/http-helper";
+import { Validation } from "../../../protocols/validation";
+import { RegisterModel } from "../../../../domain/models/register/register-model";
 import {
   Client,
   ClientModel,
-} from "../../../domain/models/client/client-model";
+} from "../../../../domain/models/client/client-model";
 import {
   AddClient,
   AddClientModel,
-} from "../../../domain/usescases/add-client/add-client";
-import { Address } from "../../../domain/models/register/address-model";
+} from "../../../../domain/usescases/add-client/add-client";
+import { Address } from "../../../../domain/models/register/address-model";
 import {
   AddAddress,
   AddAddressModel,
-} from "../../../domain/usescases/add-address/add-address";
+} from "../../../../domain/usescases/add-address/add-address";
 
 const makeFakeRequest = (): HttpRequest => ({
   body: {
@@ -79,7 +79,7 @@ describe("addAddress Controller", () => {
   });
 
   test("Should return 500 if AddClient throws", async () => {
-    const { sut,  addAddressStub } = makeSut();
+    const { sut, addAddressStub } = makeSut();
     jest
       .spyOn(addAddressStub, "add")
       .mockReturnValueOnce(

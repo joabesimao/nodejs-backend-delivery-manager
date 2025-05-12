@@ -1,20 +1,20 @@
 import {
   AddRegister,
   AddRegisterModel,
-} from "../../../domain/usescases/add-register/add-register";
+} from "../../../../domain/usescases/add-register/add-register";
 import { AddClientController } from "./add-client";
-import { HttpRequest } from "../../protocols/http";
-import { ok, serverError } from "../../helpers/http/http-helper";
-import { Validation } from "../../protocols/validation";
-import { RegisterModel } from "../../../domain/models/register/register-model";
+import { HttpRequest } from "../../../protocols/http";
+import { ok, serverError } from "../../../helpers/http/http-helper";
+import { Validation } from "../../../protocols/validation";
+import { RegisterModel } from "../../../../domain/models/register/register-model";
 import {
   Client,
   ClientModel,
-} from "../../../domain/models/client/client-model";
+} from "../../../../domain/models/client/client-model";
 import {
   AddClient,
   AddClientModel,
-} from "../../../domain/usescases/add-client/add-client";
+} from "../../../../domain/usescases/add-client/add-client";
 
 const makeFakeRequest = (): HttpRequest => ({
   body: {

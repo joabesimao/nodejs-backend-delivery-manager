@@ -1,8 +1,8 @@
 import { LoadOneClientController } from "./load-one-client";
-import { LoadOneClient } from "../../../domain/usescases/load-client/load-client";
-import { noContent, ok, serverError } from "../../helpers/http/http-helper";
-import { ClientModel } from "../../../domain/models/client/client-model";
-import { HttpRequest } from "../../protocols/http";
+import { LoadOneClient } from "../../../../domain/usescases/load-client/load-client";
+import { noContent, ok, serverError } from "../../../helpers/http/http-helper";
+import { ClientModel } from "../../../../domain/models/client/client-model";
+import { HttpRequest } from "../../../protocols/http";
 
 const makeFakeOneClient = (): ClientModel => ({
   name: "any_name",

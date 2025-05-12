@@ -1,7 +1,7 @@
 import { LoadRegistersController } from "./load-register";
-import { LoadRegisters } from "../../../domain/usescases/load-register/load-register";
-import { LoadRegisterModel } from "../../../domain/models/register/register-load-model";
-import { noContent, ok, serverError } from "../../helpers/http/http-helper";
+import { LoadRegisters } from "../../../../domain/usescases/load-register/load-register";
+import { LoadRegisterModel } from "../../../../domain/models/register/register-load-model";
+import { noContent, ok, serverError } from "../../../helpers/http/http-helper";
 
 const makeFakeRegisters = (): LoadRegisterModel[] => {
   return [

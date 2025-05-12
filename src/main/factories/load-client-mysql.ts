@@ -1,4 +1,4 @@
-import { DbLoadClients } from "../../data/usescases/load-client/db-load-client";
+import { DbLoadClients } from "../../data/usescases/client-usecases/load-client/db-load-client";
 import { ClientMysqlRepository } from "../../infra/db/mysql/client-repository/client-repository";
 import { LoadClientController } from "../../presentation/controllers/client-controllers/load-client/load-client";
 import { Controller } from "../../presentation/protocols/controller";
