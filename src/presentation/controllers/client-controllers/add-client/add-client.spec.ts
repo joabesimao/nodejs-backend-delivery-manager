@@ -1,7 +1,7 @@
 import {
   AddRegister,
   AddRegisterModel,
-} from "../../../../domain/usescases/add-register/add-register";
+} from "../../../../domain/usescases/register/add-register";
 import { AddClientController } from "./add-client";
 import { HttpRequest } from "../../../protocols/http";
 import { ok, serverError } from "../../../helpers/http/http-helper";
@@ -14,7 +14,7 @@ import {
 import {
   AddClient,
   AddClientModel,
-} from "../../../../domain/usescases/add-client/add-client";
+} from "../../../../domain/usescases/client/add-client";
 
 const makeFakeRequest = (): HttpRequest => ({
   body: {

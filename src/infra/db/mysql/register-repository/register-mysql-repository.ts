@@ -8,7 +8,7 @@ import {
 import { UpdateRegisterRepository } from "../../../../data/protocols/db/register/update-register-repository";
 import { LoadRegisterModel } from "../../../../domain/models/register/register-load-model";
 import { RegisterModel } from "../../../../domain/models/register/register-model";
-import { AddRegisterModel } from "../../../../domain/usescases/add-register/add-register";
+import { AddRegisterModel } from "../../../../domain/usescases/register/add-register";
 import { prisma } from "../helpers";
 
 export class RegisterMySqlRepository

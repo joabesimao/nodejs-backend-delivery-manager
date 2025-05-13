@@ -1,5 +1,5 @@
 import { LoadRegistersController } from "./load-register";
-import { LoadRegisters } from "../../../../domain/usescases/load-register/load-register";
+import { LoadRegisters } from "../../../../domain/usescases/register/load-register";
 import { LoadRegisterModel } from "../../../../domain/models/register/register-load-model";
 import { noContent, ok, serverError } from "../../../helpers/http/http-helper";
 

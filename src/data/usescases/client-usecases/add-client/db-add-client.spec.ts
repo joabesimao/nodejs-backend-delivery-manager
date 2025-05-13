@@ -1,7 +1,7 @@
 import { DbAddClient } from "./db-add-client";
-import { AddClientRepository } from "../../../protocols/db/client-repository/add-client";
+import { AddClientRepository } from "../../../protocols/db/client/add-client";
 import { ClientModel } from "../../../../domain/models/client/client-model";
-import { AddClientModel } from "../../../../domain/usescases/add-client/add-client";
+import { AddClientModel } from "../../../../domain/usescases/client/add-client";
 
 interface SutTypes {
   sut: DbAddClient;

@@ -1,4 +1,4 @@
-import { UpdateRegister } from "../../../../domain/usescases/update-register/update-register";
+import { UpdateRegister } from "../../../../domain/usescases/register/update-register";
 import { UpdateRegisterRepository } from "../../../protocols/db/register/update-register-repository";
 import { RegisterModel } from "../add-register/db-add-register-protocols";
 

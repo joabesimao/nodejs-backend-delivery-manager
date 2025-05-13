@@ -1,7 +1,7 @@
 import { UpdateRegisterController } from "./update-register";
 import { HttpRequest } from "../../../protocols/http";
 import { RegisterModel } from "../../../../domain/models/register/register-model";
-import { UpdateRegister } from "../../../../domain/usescases/update-register/update-register";
+import { UpdateRegister } from "../../../../domain/usescases/register/update-register";
 import { ok, serverError } from "../../../helpers/http/http-helper";
 
 interface SutTypes {

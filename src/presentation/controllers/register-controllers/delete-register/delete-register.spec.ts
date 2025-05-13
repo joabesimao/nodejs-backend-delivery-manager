@@ -1,5 +1,5 @@
 import { DeleteRegisterController } from "./delete-register";
-import { DeleteRegister } from "../../../../domain/usescases/delete-register/delete-register";
+import { DeleteRegister } from "../../../../domain/usescases/register/delete-register";
 import { ok, serverError } from "../../../helpers/http/http-helper";
 
 const makeDeleteRegisterStub = (): DeleteRegister => {

@@ -1,9 +1,9 @@
 import { UpdateOrderDeliveryController } from "./update-order-delivery";
 import { HttpRequest } from "../../../protocols/http";
 import { UpdateOrderDeliveryModel } from "../../../../domain/models/order-delivery/update-order-delivery";
-import { UpdateRegister } from "../../../../domain/usescases/update-register/update-register";
+import { UpdateRegister } from "../../../../domain/usescases/register/update-register";
 import { ok, serverError } from "../../../helpers/http/http-helper";
-import { UpdateOrderDelivery } from "../../../../domain/usescases/update-order-delivery/update-order-delivery";
+import { UpdateOrderDelivery } from "../../../../domain/usescases/order-delivery/update-order-delivery";
 import { OrderDeliveryModel } from "../../../../domain/models/order-delivery/order-delivery";
 
 interface SutTypes {

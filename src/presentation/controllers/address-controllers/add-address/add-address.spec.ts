@@ -1,7 +1,7 @@
 import {
   AddRegister,
   AddRegisterModel,
-} from "../../../../domain/usescases/add-register/add-register";
+} from "../../../../domain/usescases/register/add-register";
 import { AddAddressController } from "./add-address";
 import { HttpRequest } from "../../../protocols/http";
 import { ok, serverError } from "../../../helpers/http/http-helper";
@@ -14,12 +14,12 @@ import {
 import {
   AddClient,
   AddClientModel,
-} from "../../../../domain/usescases/add-client/add-client";
+} from "../../../../domain/usescases/client/add-client";
 import { Address } from "../../../../domain/models/register/address-model";
 import {
   AddAddress,
   AddAddressModel,
-} from "../../../../domain/usescases/add-address/add-address";
+} from "../../../../domain/usescases/address/add-address";
 
 const makeFakeRequest = (): HttpRequest => ({
   body: {

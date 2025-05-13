@@ -1,4 +1,4 @@
-import { UpdateOrderDelivery } from "../../../../domain/usescases/update-order-delivery/update-order-delivery";
+import { UpdateOrderDelivery } from "../../../../domain/usescases/order-delivery/update-order-delivery";
 import { ok, serverError } from "../../../helpers/http/http-helper";
 import { Controller } from "../../../protocols/controller";
 import { HttpRequest, HttpResponse } from "../../../protocols/http";

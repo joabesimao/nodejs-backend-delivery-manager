@@ -1,5 +1,5 @@
 import { DbLoadOneClient } from "./db-load-one-client";
-import { LoadOneClientRepository } from "../../../protocols/db/client-repository/load-client";
+import { LoadOneClientRepository } from "../../../protocols/db/client/load-client";
 import { ClientModel } from "../../../../domain/models/client/client-model";
 
 const makeFakeClient = (): ClientModel => ({

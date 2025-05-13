@@ -2,7 +2,7 @@ import { Address } from "../../../../domain/models/register/address-model";
 import {
   AddAddress,
   AddAddressModel,
-} from "../../../../domain/usescases/add-address/add-address";
+} from "../../../../domain/usescases/address/add-address";
 import { AddAddressRepository } from "../../../protocols/db/address/add-address";
 
 export class DbAddAddress implements AddAddress {

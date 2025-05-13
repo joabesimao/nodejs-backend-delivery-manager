@@ -1,4 +1,4 @@
-import { DeleteRegister } from "../../../../domain/usescases/delete-register/delete-register";
+import { DeleteRegister } from "../../../../domain/usescases/register/delete-register";
 import { DeleteRegisterByIdRepository } from "../../../protocols/db/register/delete-register-repository";
 
 export class DbDeleteRegisterById implements DeleteRegister {

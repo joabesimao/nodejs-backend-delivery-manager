@@ -1,6 +1,6 @@
 import { DbLoadClients } from "./db-load-client";
 import { LoadRegisterModel } from "../../../../domain/models/register/register-load-model";
-import { LoadClientRepository } from "../../../protocols/db/client-repository/load-client";
+import { LoadClientRepository } from "../../../protocols/db/client/load-client";
 import { ClientModel } from "../../../../domain/models/client/client-model";
 
 const makeFakeClientList = (): ClientModel[] => {

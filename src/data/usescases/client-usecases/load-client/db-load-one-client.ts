@@ -1,6 +1,6 @@
 import { ClientModel } from "../../../../domain/models/client/client-model";
-import { LoadOneClient } from "../../../../domain/usescases/load-client/load-client";
-import { LoadOneClientRepository } from "../../../protocols/db/client-repository/load-client";
+import { LoadOneClient } from "../../../../domain/usescases/client/load-client";
+import { LoadOneClientRepository } from "../../../protocols/db/client/load-client";
 
 export class DbLoadOneClient implements LoadOneClient {
   constructor(

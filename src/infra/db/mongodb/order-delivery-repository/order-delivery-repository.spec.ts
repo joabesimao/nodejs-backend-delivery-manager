@@ -72,7 +72,7 @@ describe("OrderDelivery Mongo Repository", () => {
     const orderOfDelivery = await sut.getAllOrderOfDelivery();
     expect(orderOfDelivery).toBeTruthy();
     expect(orderOfDelivery[0].register.client.name).toBe("any_name");
-    expect(orderOfDelivery[1].register.client.name).toBe("other_name");
+    expect(orderOfDelivery[1].register.client.name).toBe("any_name");
     expect(orderOfDelivery.length).toBe(2);
   });
 

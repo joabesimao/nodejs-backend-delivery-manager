@@ -1,5 +1,5 @@
 import { Address } from "../../../../domain/models/register/address-model";
-import { LoadAddress } from "../../../../domain/usescases/load-address/load-address";
+import { LoadAddress } from "../../../../domain/usescases/address/load-address";
 import { LoadAddressRepository } from "../../../protocols/db/address/load-address";
 
 export class DbLoadAddress implements LoadAddress {

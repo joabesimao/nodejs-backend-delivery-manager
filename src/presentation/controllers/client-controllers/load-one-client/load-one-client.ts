@@ -1,5 +1,5 @@
 import { Controller } from "../../../protocols/controller";
-import { LoadOneClient } from "../../../../domain/usescases/load-client/load-client";
+import { LoadOneClient } from "../../../../domain/usescases/client/load-client";
 import { HttpRequest, HttpResponse } from "../../../protocols/http";
 import { noContent, ok, serverError } from "../../../helpers/http/http-helper";
 

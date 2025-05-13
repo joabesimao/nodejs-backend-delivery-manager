@@ -1,4 +1,4 @@
-import { DeleteAccount } from "../../../../domain/usescases/delete-account/delete-account";
+import { DeleteAccount } from "../../../../domain/usescases/signup/delete-account";
 import { DeleteAccountRepository } from "../../../protocols/db/account/delete-account-repository";
 
 export class DbDeleteAccountById implements DeleteAccount {

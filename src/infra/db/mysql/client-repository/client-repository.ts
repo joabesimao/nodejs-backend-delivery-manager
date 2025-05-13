@@ -1,10 +1,10 @@
-import { AddClientRepository } from "../../../../data/protocols/db/client-repository/add-client";
+import { AddClientRepository } from "../../../../data/protocols/db/client/add-client";
 import {
   LoadClientRepository,
   LoadOneClientRepository,
-} from "../../../../data/protocols/db/client-repository/load-client";
+} from "../../../../data/protocols/db/client/load-client";
 import { ClientModel } from "../../../../domain/models/client/client-model";
-import { AddClientModel } from "../../../../domain/usescases/add-client/add-client";
+import { AddClientModel } from "../../../../domain/usescases/client/add-client";
 import { prisma } from "../helpers";
 
 export class ClientMysqlRepository
