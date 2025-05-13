@@ -1,17 +1,17 @@
 import { AddAddressRepository } from "../../../../data/protocols/db/address/add-address";
 import { LoadAddressRepository } from "../../../../data/protocols/db/address/load-address";
+import { UpdateAddressRepository } from "../../../../data/protocols/db/address/update-address";
 import { Address } from "../../../../domain/models/register/address-model";
 import { AddAddressModel } from "../../../../domain/usescases/address/add-address";
+import { UpdateAddressModel } from "../../../../domain/usescases/address/update-address";
 import { prisma } from "../helpers";
 
 export class AddressMysqlRepository
-  implements AddAddressRepository, LoadAddressRepository
+  implements
+    AddAddressRepository,
+    LoadAddressRepository,
+    UpdateAddressRepository
 {
-  async loadAll(): Promise<Address[]> {
-    const loadAllAddress = await prisma.address.findMany();
-    return loadAllAddress;
-  }
-
   async add(address: AddAddressModel): Promise<Address> {
     const createAddress = await prisma.address.create({
       data: {
@@ -25,5 +25,18 @@ export class AddressMysqlRepository
     return createAddress;
   }
 
+  async loadAll(): Promise<Address[]> {
+    const loadAllAddress = await prisma.address.findMany();
+    return loadAllAddress;
+  }
 
+  async update(id: number, infoToUpdate: UpdateAddressModel): Promise<Address> {
+    const updateAddress = await prisma.address.update({
+      where: { id: Number(id) },
+      data: {
+        ...infoToUpdate,
+      },
+    });
+    return updateAddress;
+  }
 }
