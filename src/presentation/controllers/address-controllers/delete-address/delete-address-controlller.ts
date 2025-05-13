@@ -12,6 +12,7 @@ export class DeleteAddressController implements Controller {
       );
       return ok(deleteAddress);
     } catch (error) {
+      console.log(error);
       return serverError(error);
     }
   }

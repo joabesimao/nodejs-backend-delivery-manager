@@ -43,9 +43,9 @@ export class AddressMysqlRepository
   }
 
   async deleteOne(id: number): Promise<string> {
-    const deletedAddress = await prisma.address.delete({
+    await prisma.address.delete({
       where: { id: Number(id) },
     });
-    return deletedAddress as unknown as any;
+    return "Deletado com sucesso!";
   }
 }

@@ -10,8 +10,9 @@ export class DeleteClientController implements Controller {
       const deletedClient = await this.deleteClient.delete(
         httpRequest.params.id
       );
-      return ok(deletedClient)
+      return ok(deletedClient);
     } catch (error) {
+      console.log(error);
       return serverError(error);
     }
   }

@@ -21,6 +21,7 @@ import { makeLoadAddressController } from "../factories/load-address";
 import { makeUpdateOrderDeliveryController } from "../factories/update-order-delivery";
 import { makeUpdateAddressController } from "../factories/update-address";
 import { makeDeleteAddressController } from "../factories/delete-address";
+import { makeDeleteClientController } from "../factories/delete-client-mysql";
 
 export default (router: Router): void => {
   const adminAuth = adaptMiddleware(makeAuthMiddleware("admin"));
@@ -84,5 +85,11 @@ export default (router: Router): void => {
     "/address/:id",
 
     adaptRoute(makeDeleteAddressController())
+  );
+
+  router.delete(
+    "/client/:id",
+
+    adaptRoute(makeDeleteClientController())
   );
 };
