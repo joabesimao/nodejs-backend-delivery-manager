@@ -1,4 +1,5 @@
 import { AddAddressRepository } from "../../../../data/protocols/db/address/add-address";
+import { DeleteAddressRepository } from "../../../../data/protocols/db/address/delete-address";
 import { LoadAddressRepository } from "../../../../data/protocols/db/address/load-address";
 import { UpdateAddressRepository } from "../../../../data/protocols/db/address/update-address";
 import { Address } from "../../../../domain/models/register/address-model";
@@ -10,7 +11,8 @@ export class AddressMysqlRepository
   implements
     AddAddressRepository,
     LoadAddressRepository,
-    UpdateAddressRepository
+    UpdateAddressRepository,
+    DeleteAddressRepository
 {
   async add(address: AddAddressModel): Promise<Address> {
     const createAddress = await prisma.address.create({
@@ -38,5 +40,12 @@ export class AddressMysqlRepository
       },
     });
     return updateAddress;
+  }
+
+  async deleteOne(id: number): Promise<string> {
+    const deletedAddress = await prisma.address.delete({
+      where: { id: Number(id) },
+    });
+    return deletedAddress as unknown as any;
   }
 }
