@@ -1,8 +1,8 @@
-import { DbAddAccount } from "../../data/usescases/add-account/db-add-account";
+import { DbAddAccount } from "../../data/usescases/account-usescases/add-account/db-add-account";
 import { BcryptAdapter } from "../../infra/cryptography/bcrypt-adapter/bcrypt-adapter";
 import { LogMongoRepository } from "../../infra/db/mongodb/log-repository/log-mongo-repository";
 import { AddAccountMongoRepository } from "../../infra/db/mongodb/signup-repository/signup-repository";
-import { SignupController } from "../../presentation/controllers/signup/signup";
+import { SignupController } from "../../presentation/controllers/account-controllers/signup/signup";
 import { Controller } from "../../presentation/protocols/controller";
 import { LogControllerDecorator } from "../decorators/log";
 import { makeDbAuthentication } from "./db-authentication-factory";

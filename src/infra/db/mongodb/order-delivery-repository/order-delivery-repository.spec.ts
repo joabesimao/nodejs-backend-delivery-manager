@@ -26,6 +26,7 @@ const makeOrderDelivery = {
   amount: 2,
   quantity: "any_quantity",
   data: new Date("2000-01-10"),
+  registerId: 1,
 };
 
 let ordemDeliveryCollection: Collection;
@@ -55,42 +56,14 @@ describe("OrderDelivery Mongo Repository", () => {
   test("Should return  an list of  OrderDelivery on success", async () => {
     const sut = makeSut();
     await sut.addOrderOfDelivery({
-      register: {
-        id: 1,
-        client: {
-          name: "any_name",
-          lastName: "any_last_name",
-          phone: "any_number",
-        },
-        address: {
-          street: "any_street",
-          neighborhood: "any_neighborhood",
-          numberHouse: 1,
-          reference: "any_reference",
-          city: "any_city",
-        },
-      },
+      registerId: 1,
       amount: 2,
       quantity: "any_quantity",
       data: new Date("2000-01-10"),
     });
 
     await sut.addOrderOfDelivery({
-      register: {
-        id: 1,
-        client: {
-          name: "other_name",
-          lastName: "other_last_name",
-          phone: "other_number",
-        },
-        address: {
-          street: "other_street",
-          neighborhood: "other_neighborhood",
-          numberHouse: 1,
-          reference: "other_reference",
-          city: "other_city",
-        },
-      },
+      registerId: 1,
       amount: 2,
       quantity: "other_quantity",
       data: new Date("2000-01-10"),
@@ -99,7 +72,7 @@ describe("OrderDelivery Mongo Repository", () => {
     const orderOfDelivery = await sut.getAllOrderOfDelivery();
     expect(orderOfDelivery).toBeTruthy();
     expect(orderOfDelivery[0].register.client.name).toBe("any_name");
-    expect(orderOfDelivery[1].register.client.name).toBe("other_name");
+    expect(orderOfDelivery[1].register.client.name).toBe("any_name");
     expect(orderOfDelivery.length).toBe(2);
   });
 

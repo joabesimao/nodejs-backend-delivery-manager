@@ -25,11 +25,11 @@ model Client {
 
 model OrderDelivery {
   id         Int      @id @default(autoincrement())
-  register   Register @relation(fields: [registerId], references: [id])
   quantity   String
   amount     Int
   data       DateTime
-  registerId Int      @unique
+  Register   Register @relation(fields: [registerId], references: [id])
+  registerId Int
 }
 
 model Address {
@@ -39,15 +39,15 @@ model Address {
   numberHouse  Int
   reference    String
   city         String
-  registerId   Int?
-  Register     Register?
+  register     Register?
 }
 
 model Register {
-  id            Int            @id @default(autoincrement())
-  client        Client         @relation(fields: [clientId], references: [id])
-  address       Address        @relation(fields: [addressId], references: [id])
-  clientId      Int            @unique
-  OrderDelivery OrderDelivery?
-  addressId     Int @unique
+  id              Int             @id @default(autoincrement())
+  client          Client          @relation(fields: [clientId], references: [id])
+  clientId        Int             @unique
+  address         Address         @relation(fields: [addressId], references: [id])
+  addressId       Int             @unique
+  orderDeliveryId Int?
+  OrderDelivery   OrderDelivery[]
 }

@@ -1,66 +1,108 @@
+import { PrismaClient } from "@prisma/client";
 import { AddRegisterRepository } from "../../../../data/protocols/db/register/add-register-repository";
 import { DeleteRegisterByIdRepository } from "../../../../data/protocols/db/register/delete-register-repository";
 import {
   LoadRegisterByIdRepository,
-  LoadRegisterByNameRepository,
   LoadRegisterRepository,
 } from "../../../../data/protocols/db/register/load-register-repository";
 import { UpdateRegisterRepository } from "../../../../data/protocols/db/register/update-register-repository";
 import { LoadRegisterModel } from "../../../../domain/models/register/register-load-model";
 import { RegisterModel } from "../../../../domain/models/register/register-model";
-import { AddRegisterModel } from "../../../../domain/usescases/add-register/add-register";
-import { prisma } from "../helpers";
+import { AddRegisterModel } from "../../../../domain/usescases/register/add-register";
 
 export class RegisterMySqlRepository
   implements
     AddRegisterRepository,
     LoadRegisterRepository,
     LoadRegisterByIdRepository,
-    LoadRegisterByNameRepository,
     UpdateRegisterRepository,
     DeleteRegisterByIdRepository
 {
-  async add(data: AddRegisterModel): Promise<RegisterModel> {
-    const createRegister = await prisma.register.create({
+  constructor(private readonly prisma: PrismaClient) {}
+
+  async add(dataInfo: AddRegisterModel): Promise<RegisterModel> {
+    const register = await this.prisma.register.create({
       data: {
         client: {
           create: {
-            name: data.client.name,
-            lastName: data.client.lastName,
-            phone: data.client.phone,
+            name: dataInfo.client.name,
+            lastName: dataInfo.client.lastName,
+            phone: dataInfo.client.phone,
           },
         },
         address: {
           create: {
-            street: data.address.street,
-            neighborhood: data.address.neighborhood,
-            numberHouse: data.address.numberHouse,
-            reference: data.address.reference,
-            city: data.address.city,
+            street: dataInfo.address.street,
+            city: dataInfo.address.city,
+            neighborhood: dataInfo.address.neighborhood,
+            numberHouse: dataInfo.address.numberHouse,
+            reference: dataInfo.address.reference,
           },
         },
       },
     });
-    return createRegister as unknown as RegisterModel;
+
+    return register as any;
   }
 
-  loadById(id: number): Promise<LoadRegisterModel> {
-    throw new Error("Method not implemented.");
+  async loadById(id: number): Promise<LoadRegisterModel> {
+    const loadRegisterById = await this.prisma.register.findUnique({
+      where: { id: id },
+    });
+    return loadRegisterById as unknown as LoadRegisterModel;
   }
-  findByName(name: string): Promise<LoadRegisterModel> {
-    throw new Error("Method not implemented.");
-  }
-  updateOneRegisterById(
+
+  async updateOneRegisterById(
     id: number,
     info: Partial<RegisterModel>
   ): Promise<LoadRegisterModel> {
-    throw new Error("Method not implemented.");
+    const { client, address } = info;
+    const updateRegister = await this.prisma.register.update({
+      where: {
+        id: Number(id),
+      },
+      data: {
+        client: {
+          update: {
+            data: {
+              ...client,
+            },
+          },
+        },
+        address: {
+          update: {
+            data: {
+              ...address,
+            },
+          },
+        },
+      },
+    });
+    return updateRegister as unknown as LoadRegisterModel;
   }
+
   async deleteById(id: number): Promise<string> {
-    return null;
+    await this.prisma.register.delete({
+      where: { id: Number(id) },
+    });
+    return "Deletado com sucesso!";
   }
+
   async loadAll(): Promise<LoadRegisterModel[]> {
-    const loadRegisters = await prisma.register.findMany();
+    const loadRegisters = await this.prisma.register.findMany({
+      include: {
+        client: {
+          include: {
+            Register: {
+              include: {
+                client: true,
+                address: true,
+              },
+            },
+          },
+        },
+      },
+    });
 
     return loadRegisters as unknown as LoadRegisterModel[];
   }

@@ -43,16 +43,19 @@ export class OrderDeliveryMongoRepository
     const orderDeliveryCollection = await MongoHelper.getCollection(
       "orderDeliverys"
     );
-    const result = await orderDeliveryCollection.insertOne(orderOfDelivery);
-    const obj = await orderDeliveryCollection.findOne(result.insertedId);
-    const { _id, register, quantity, amount, data } = obj;
+
+    const registerCollection = await MongoHelper.getCollection("registers");
+    const reg = await registerCollection.findOne({});
+    const result = await orderDeliveryCollection.insertOne({
+      register: reg,
+      info: orderOfDelivery,
+    });
 
     const orderDeliveryCreated: OrderDeliveryModel = {
-      id: _id as any,
-      register: register,
-      quantity: quantity,
-      amount: amount,
-      data: data,
+      register: reg as any,
+      quantity: orderOfDelivery.quantity,
+      amount: orderOfDelivery.amount,
+      data: orderOfDelivery.data,
     };
     return orderDeliveryCreated;
   }

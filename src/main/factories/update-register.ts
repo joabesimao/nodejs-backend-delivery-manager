@@ -1,14 +1,12 @@
-import { DbUpdateRegister } from "../../data/usescases/update-register/db-update-register";
-import { LogMongoRepository } from "../../infra/db/mongodb/log-repository/log-mongo-repository";
-import { RegisterMongoRepository } from "../../infra/db/mongodb/register-repository/register";
-import { UpdateRegisterController } from "../../presentation/controllers/update-register/update-register";
+import { DbUpdateRegister } from "../../data/usescases/register-usecases/update-register/db-update-register";
+import { RegisterMySqlRepository } from "../../infra/db/mysql/register-repository/register-mysql-repository";
+import { UpdateRegisterController } from "../../presentation/controllers/register-controllers/update-register/update-register";
 import { Controller } from "../../presentation/protocols/controller";
-import { LogControllerDecorator } from "../decorators/log";
+import { prisma } from "../../infra/db/mysql/helpers/index";
 
 export const makeUpdateRegisterController = (): Controller => {
-  const updateRepository = new RegisterMongoRepository();
+  const updateRepository = new RegisterMySqlRepository(prisma);
   const updateRegister = new DbUpdateRegister(updateRepository);
   const registerController = new UpdateRegisterController(updateRegister);
-  const logErrorRepository = new LogMongoRepository();
-  return new LogControllerDecorator(registerController, logErrorRepository);
+  return registerController;
 };

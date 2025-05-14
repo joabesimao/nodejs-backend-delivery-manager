@@ -9,6 +9,5 @@ export const makeAddOrderDeliveryValidation = (): ValidationComposite => {
   for (const field of ["register", "amount", "data", "quantity"]) {
     validations.push(new RequireFieldsValidation(field));
   }
-
   return new ValidationComposite(validations);
 };
