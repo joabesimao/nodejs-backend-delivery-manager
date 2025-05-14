@@ -21,7 +21,7 @@ export class ClientMysqlRepository
     DeleteClientRepository
 {
   constructor(private readonly prisma: PrismaClient) {}
-  
+
   async add(client: AddClientModel): Promise<ClientModel> {
     const createClient = await this.prisma.client.create({
       data: {

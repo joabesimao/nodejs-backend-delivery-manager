@@ -9,6 +9,5 @@ export const makeAddRegisterValidation = (): ValidationComposite => {
   for (const field of ["client", "address"]) {
     validations.push(new RequireFieldsValidation(field));
   }
-
   return new ValidationComposite(validations);
 };

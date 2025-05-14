@@ -1,3 +1,4 @@
+import { PrismaClient } from "@prisma/client";
 import { AddAddressRepository } from "../../../../data/protocols/db/address/add-address";
 import { DeleteAddressRepository } from "../../../../data/protocols/db/address/delete-address";
 import { LoadAddressRepository } from "../../../../data/protocols/db/address/load-address";
@@ -5,7 +6,6 @@ import { UpdateAddressRepository } from "../../../../data/protocols/db/address/u
 import { Address } from "../../../../domain/models/register/address-model";
 import { AddAddressModel } from "../../../../domain/usescases/address/add-address";
 import { UpdateAddressModel } from "../../../../domain/usescases/address/update-address";
-import { prisma } from "../helpers";
 
 export class AddressMysqlRepository
   implements
@@ -14,8 +14,10 @@ export class AddressMysqlRepository
     UpdateAddressRepository,
     DeleteAddressRepository
 {
+  constructor(private readonly prisma: PrismaClient) {}
+
   async add(address: AddAddressModel): Promise<Address> {
-    const createAddress = await prisma.address.create({
+    const createAddress = await this.prisma.address.create({
       data: {
         street: address.street,
         neighborhood: address.neighborhood,
@@ -28,12 +30,12 @@ export class AddressMysqlRepository
   }
 
   async loadAll(): Promise<Address[]> {
-    const loadAllAddress = await prisma.address.findMany();
+    const loadAllAddress = await this.prisma.address.findMany();
     return loadAllAddress;
   }
 
   async update(id: number, infoToUpdate: UpdateAddressModel): Promise<Address> {
-    const updateAddress = await prisma.address.update({
+    const updateAddress = await this.prisma.address.update({
       where: { id: Number(id) },
       data: {
         ...infoToUpdate,
@@ -43,7 +45,7 @@ export class AddressMysqlRepository
   }
 
   async deleteOne(id: number): Promise<string> {
-    await prisma.address.delete({
+    await this.prisma.address.delete({
       where: { id: Number(id) },
     });
     return "Deletado com sucesso!";
