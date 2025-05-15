@@ -1,7 +1,8 @@
 import { Controller } from "../../../protocols/controller";
 import { HttpRequest, HttpResponse } from "../../../protocols/http";
 import { DeleteRegister } from "../../../../domain/usescases/register/delete-register";
-import { ok, serverError } from "../../../helpers/http/http-helper";
+import { noExists, ok, serverError } from "../../../helpers/http/http-helper";
+import { Prisma } from "@prisma/client";
 
 export class DeleteRegisterController implements Controller {
   constructor(private readonly deleteRegister: DeleteRegister) {}
@@ -12,6 +13,9 @@ export class DeleteRegisterController implements Controller {
       );
       return ok(deleteRegister);
     } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        return noExists();
+      }
       return serverError(error);
     }
   }
