@@ -7,14 +7,14 @@ import { Validation } from "../../../protocols/validation";
 export class AddOrderDeliveryController implements Controller {
   constructor(
     private readonly addOrderDelivery: AddOrderDelivery,
-    private readonly validation?: Validation
+    private readonly validation: Validation
   ) {}
   async handle(httpRequest: HttpRequest): Promise<HttpResponse> {
     try {
-      /* const error = await this.validation.validate(httpRequest.body);
+      const error = await this.validation.validate(httpRequest.body);
       if (error) {
         return badRequest(error);
-      } */
+      }
 
       const { amount, data, quantity, registerId } = httpRequest.body;
       const orderDelivery = await this.addOrderDelivery.addOrderDelivery({
