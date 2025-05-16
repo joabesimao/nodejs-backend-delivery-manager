@@ -1,4 +1,5 @@
 import { ServerError } from "../../errors";
+import { NoExistsError } from "../../errors/no-exists-error";
 import { UnauthorizedError } from "../../errors/unauthorized-error";
 import { HttpResponse } from "../../protocols/http";
 
@@ -30,4 +31,9 @@ export const noContent = (): HttpResponse => ({
 export const forbidden = (error: Error): HttpResponse => ({
   statusCode: 403,
   body: error,
+});
+
+export const noExists = (): HttpResponse => ({
+  statusCode: 400,
+  body: new NoExistsError(),
 });

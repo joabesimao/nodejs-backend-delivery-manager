@@ -1,5 +1,6 @@
+import { Prisma } from "@prisma/client";
 import { DeleteClient } from "../../../../domain/usescases/client/delete-client";
-import { ok, serverError } from "../../../helpers/http/http-helper";
+import { noExists, ok, serverError } from "../../../helpers/http/http-helper";
 import { Controller } from "../../../protocols/controller";
 import { HttpRequest, HttpResponse } from "../../../protocols/http";
 
@@ -12,7 +13,9 @@ export class DeleteClientController implements Controller {
       );
       return ok(deletedClient);
     } catch (error) {
-      console.log(error);
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        return noExists();
+      }
       return serverError(error);
     }
   }

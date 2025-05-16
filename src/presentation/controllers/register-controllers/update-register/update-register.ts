@@ -1,5 +1,6 @@
+import { Prisma } from "@prisma/client";
 import { UpdateRegister } from "../../../../domain/usescases/register/update-register";
-import { ok, serverError } from "../../../helpers/http/http-helper";
+import { noExists, ok, serverError } from "../../../helpers/http/http-helper";
 import { Controller } from "../../../protocols/controller";
 import { HttpRequest, HttpResponse } from "../../../protocols/http";
 
@@ -14,6 +15,9 @@ export class UpdateRegisterController implements Controller {
 
       return ok(updateData);
     } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        return noExists();
+      }
       return serverError(error);
     }
   }

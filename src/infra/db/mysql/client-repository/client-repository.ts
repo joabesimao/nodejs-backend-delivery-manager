@@ -60,6 +60,7 @@ export class ClientMysqlRepository
     const deleteOneClient = await this.prisma.client.delete({
       where: { id: Number(id) },
     });
+
     return "Deletado com sucesso!";
   }
 }

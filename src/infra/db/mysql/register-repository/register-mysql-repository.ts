@@ -85,6 +85,12 @@ export class RegisterMySqlRepository
     await this.prisma.register.delete({
       where: { id: Number(id) },
     });
+    await this.prisma.client.delete({
+      where: { id: Number(id) },
+    });
+    await this.prisma.address.delete({
+      where: { id: Number(id) },
+    });
     return "Deletado com sucesso!";
   }
 
