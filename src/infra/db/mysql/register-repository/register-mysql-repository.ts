@@ -47,7 +47,11 @@ export class RegisterMySqlRepository
 
   async loadById(id: number): Promise<LoadRegisterModel> {
     const loadRegisterById = await this.prisma.register.findUnique({
-      where: { id: id },
+      where: { id: Number(id) },
+      include: {
+        client: true,
+        address: true,
+      },
     });
     return loadRegisterById as unknown as LoadRegisterModel;
   }

@@ -30,11 +30,7 @@ export default (router: Router): void => {
   router.get("/client", adaptRoute(makeLoadClientController()));
   router.get("/orderDelivery", adaptRoute(makeLoadOrdersDeliveryController()));
   router.get("/address", adaptRoute(makeLoadAddressController()));
-  router.get(
-    "/register/:id",
-    adminAuth,
-    adaptRoute(makeLoadRegisterByIdController())
-  );
+  router.get("/register/:id", adaptRoute(makeLoadRegisterByIdController()));
   router.get(
     "/register/name/:name",
     adminAuth,
