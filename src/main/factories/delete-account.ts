@@ -4,9 +4,11 @@ import { Controller } from "../../presentation/protocols/controller";
 import { AccountMongoRepository } from "../../infra/db/mongodb/account-repository/account-repository";
 import { DbDeleteAccountById } from "../../data/usescases/account-usescases/delete-account/db-delete-account";
 import { DeleteAccountController } from "../../presentation/controllers/account-controllers/delete-account/delete-account";
+import { AccountMySqlRepository } from "../../infra/db/mysql/account-repository/account-repository";
+import { prisma } from "../../infra/db/mysql/helpers/index";
 
 export const makeDeleteAccountController = (): Controller => {
-  const deleteAccountRepository = new AccountMongoRepository();
+  const deleteAccountRepository = new AccountMySqlRepository(prisma);
   const deleteAccountDelivery = new DbDeleteAccountById(
     deleteAccountRepository
   );
