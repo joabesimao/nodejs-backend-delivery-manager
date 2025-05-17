@@ -35,7 +35,7 @@ export class RegisterMySqlRepository
             street: dataInfo.address.street,
             city: dataInfo.address.city,
             neighborhood: dataInfo.address.neighborhood,
-            numberHouse: dataInfo.address.numberHouse,
+            numberHouse: Number(dataInfo.address.numberHouse),
             reference: dataInfo.address.reference,
           },
         },
