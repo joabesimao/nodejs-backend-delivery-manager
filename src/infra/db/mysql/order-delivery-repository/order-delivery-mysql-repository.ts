@@ -39,7 +39,7 @@ export class OrderDeliveryMySqlRepository
     const order = await this.prisma.orderDelivery.create({
       data: {
         registerId: orderOfDelivery.registerId,
-        amount: orderOfDelivery.amount,
+        amount: Number(orderOfDelivery.amount),
         data: new Date(),
         quantity: orderOfDelivery.quantity,
       },
