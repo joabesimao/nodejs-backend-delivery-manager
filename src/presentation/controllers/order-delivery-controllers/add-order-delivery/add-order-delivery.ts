@@ -25,7 +25,6 @@ export class AddOrderDeliveryController implements Controller {
       });
       return ok(orderDelivery);
     } catch (error) {
-      console.log(error);
       return serverError(error);
     }
   }
