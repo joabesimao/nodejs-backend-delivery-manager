@@ -3,6 +3,7 @@ import { AddRegisterRepository } from "../../../../data/protocols/db/register/ad
 import { DeleteRegisterByIdRepository } from "../../../../data/protocols/db/register/delete-register-repository";
 import {
   LoadRegisterByIdRepository,
+  LoadRegisterByNameRepository,
   LoadRegisterRepository,
 } from "../../../../data/protocols/db/register/load-register-repository";
 import { UpdateRegisterRepository } from "../../../../data/protocols/db/register/update-register-repository";
@@ -15,6 +16,7 @@ export class RegisterMySqlRepository
     AddRegisterRepository,
     LoadRegisterRepository,
     LoadRegisterByIdRepository,
+    LoadRegisterByNameRepository,
     UpdateRegisterRepository,
     DeleteRegisterByIdRepository
 {
@@ -54,6 +56,26 @@ export class RegisterMySqlRepository
       },
     });
     return loadRegisterById as unknown as LoadRegisterModel;
+  }
+
+  async findByName(name: string): Promise<LoadRegisterModel> {
+    const loadRegisterByName = await this.prisma.register.findFirst({
+      where: {
+        client: {
+          name: name,
+        },
+      },
+    });
+    const registerFound = await this.prisma.register.findUnique({
+      where: {
+        id: loadRegisterByName.id,
+      },
+      include: {
+        client: true,
+        address: true,
+      },
+    });
+    return registerFound as any;
   }
 
   async updateOneRegisterById(

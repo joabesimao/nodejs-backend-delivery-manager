@@ -33,7 +33,7 @@ export default (router: Router): void => {
   router.get("/register/:id", adaptRoute(makeLoadRegisterByIdController()));
   router.get(
     "/register/name/:name",
-    adminAuth,
+
     adaptRoute(makeLoadRegisterByNameController())
   );
   router.get(
