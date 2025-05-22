@@ -82,7 +82,8 @@ export class RegisterMySqlRepository
     id: number,
     info: Partial<RegisterModel>
   ): Promise<LoadRegisterModel> {
-    const { client, address } = info;
+    const { client } = info;
+
     const updateRegister = await this.prisma.register.update({
       where: {
         id: Number(id),
@@ -98,7 +99,11 @@ export class RegisterMySqlRepository
         address: {
           update: {
             data: {
-              ...address,
+              street: info.address.street,
+              neighborhood: info.address.neighborhood,
+              city: info.address.city,
+              numberHouse: Number(info.address.numberHouse),
+              reference: info.address.reference,
             },
           },
         },
