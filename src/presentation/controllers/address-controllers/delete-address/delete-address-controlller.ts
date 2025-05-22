@@ -13,7 +13,6 @@ export class DeleteAddressController implements Controller {
       );
       return ok(deleteAddress);
     } catch (error) {
-      console.log(error);
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         return noExists();
       }
