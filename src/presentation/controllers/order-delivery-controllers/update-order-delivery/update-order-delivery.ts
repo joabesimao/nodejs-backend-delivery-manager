@@ -14,9 +14,7 @@ export class UpdateOrderDeliveryController implements Controller {
       );
       return ok(updateOrderDelivery);
     } catch (error) {
-      if (error instanceof Prisma.PrismaClientKnownRequestError) {
-        return noExists();
-      }
+      console.log(error);
       return serverError(error);
     }
   }
