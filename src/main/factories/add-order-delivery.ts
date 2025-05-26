@@ -5,7 +5,7 @@ import { OrderDeliveryMySqlRepository } from "../../infra/db/mysql/order-deliver
 import { prisma } from "../../infra/db/mysql/helpers/index";
 import { makeAddOrderDeliveryValidation } from "./add-order-delivery-validation";
 
-export const makeAddOrderDeliveryController = (): Controller => {
+export const makeAddOrderDeliveryController =  (): Controller => {
   const orderDeliveryRepository = new OrderDeliveryMySqlRepository(prisma);
   const addOrderDelivery = new DbAddOrderDelivery(orderDeliveryRepository);
   const orderDelivery = makeAddOrderDeliveryValidation();

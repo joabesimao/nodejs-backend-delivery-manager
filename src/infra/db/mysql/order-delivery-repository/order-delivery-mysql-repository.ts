@@ -68,7 +68,7 @@ export class OrderDeliveryMySqlRepository
   ): Promise<OrderDeliveryModel> {
     const updateOrder = await this.prisma.orderDelivery.update({
       where: { id: Number(id) },
-      data: { ...info },
+      data: { amount: Number(info.amount), quantity: info.quantity },
     });
     return updateOrder as unknown as OrderDeliveryModel;
   }

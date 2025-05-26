@@ -82,7 +82,8 @@ export class RegisterMySqlRepository
     id: number,
     info: Partial<RegisterModel>
   ): Promise<LoadRegisterModel> {
-    const { client, address } = info;
+    const { client } = info;
+
     const updateRegister = await this.prisma.register.update({
       where: {
         id: Number(id),
@@ -98,7 +99,11 @@ export class RegisterMySqlRepository
         address: {
           update: {
             data: {
-              ...address,
+              street: info.address.street,
+              neighborhood: info.address.neighborhood,
+              city: info.address.city,
+              numberHouse: Number(info.address.numberHouse),
+              reference: info.address.reference,
             },
           },
         },
@@ -109,12 +114,6 @@ export class RegisterMySqlRepository
 
   async deleteById(id: number): Promise<string> {
     await this.prisma.register.delete({
-      where: { id: Number(id) },
-    });
-    await this.prisma.client.delete({
-      where: { id: Number(id) },
-    });
-    await this.prisma.address.delete({
       where: { id: Number(id) },
     });
     return "Deletado com sucesso!";

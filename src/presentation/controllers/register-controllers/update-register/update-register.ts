@@ -15,9 +15,6 @@ export class UpdateRegisterController implements Controller {
 
       return ok(updateData);
     } catch (error) {
-      if (error instanceof Prisma.PrismaClientKnownRequestError) {
-        return noExists();
-      }
       return serverError(error);
     }
   }

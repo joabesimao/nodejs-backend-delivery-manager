@@ -1,8 +1,6 @@
 import { DeleteAddressController } from "./delete-address-controlller";
-import { noContent, ok, serverError } from "../../../helpers/http/http-helper";
-import { ClientModel } from "../../../../domain/models/client/client-model";
+import { ok, serverError } from "../../../helpers/http/http-helper";
 import { DeleteAddress } from "../../../../domain/usescases/address/delete-address";
-import { Address } from "../../../../domain/models/register/address-model";
 import { HttpRequest } from "../../../protocols/http";
 
 const makeFakeHttpRequest = (): HttpRequest => {
