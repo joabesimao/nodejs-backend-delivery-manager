@@ -6,7 +6,6 @@ import {
   forbidden,
   ok,
   serverError,
-  unauthorized,
 } from "../../../helpers/http/http-helper";
 import { Controller } from "../../../protocols/controller";
 import { HttpRequest, HttpResponse } from "../../../protocols/http";

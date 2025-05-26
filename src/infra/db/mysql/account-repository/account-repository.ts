@@ -1,5 +1,4 @@
 import { PrismaClient } from "@prisma/client";
-import { ObjectId } from "mongodb";
 import { UpdateAccessTokenRepository } from "../../../../data/protocols/db/access-token-repository/update-access-token-repository";
 import { DeleteAccountRepository } from "../../../../data/protocols/db/account/delete-account-repository";
 import { FindAccountByEmailRepository } from "../../../../data/protocols/db/account/find-account-by-email-repository";

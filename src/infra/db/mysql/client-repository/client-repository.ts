@@ -1,4 +1,4 @@
-import { Prisma, PrismaClient } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
 import { AddClientRepository } from "../../../../data/protocols/db/client/add-client";
 import { DeleteClientRepository } from "../../../../data/protocols/db/client/delete-client";
 import {

@@ -1,9 +1,5 @@
 import { DeleteClientController } from "./delete-client";
-import { LoadRegisters } from "../../../../domain/usescases/register/load-register";
-import { LoadRegisterModel } from "../../../../domain/models/register/register-load-model";
-import { noContent, ok, serverError } from "../../../helpers/http/http-helper";
-import { ClientModel } from "../../../../domain/models/client/client-model";
-import { LoadClients } from "../../../../domain/usescases/client/load-client";
+import { ok, serverError } from "../../../helpers/http/http-helper";
 import { DeleteClient } from "../../../../domain/usescases/client/delete-client";
 import { HttpRequest } from "../../../protocols/http";
 

@@ -1,6 +1,6 @@
 import { UpdateClientController } from "./update-client-controller";
 import { UpdateClient } from "../../../../domain/usescases/client/update-client";
-import { noContent, ok, serverError } from "../../../helpers/http/http-helper";
+import { ok, serverError } from "../../../helpers/http/http-helper";
 import {
   Client,
   ClientModel,
