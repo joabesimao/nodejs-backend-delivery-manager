@@ -3,6 +3,8 @@ import { DbAddOrderDelivery } from "../../data/usescases/order-delivery/add-orde
 import { AddOrderDeliveryController } from "../../presentation/controllers/order-delivery-controllers/add-order-delivery/add-order-delivery";
 import { makeAddOrderDeliveryValidation } from "./add-order-delivery-validation";
 import { OrderDeliveryMongoRepository } from "../../infra/db/mongodb/order-delivery-repository/order-delivery-repository";
+import { LogControllerDecorator } from "../decorators/log";
+import { LogMongoRepository } from "../../infra/db/mongodb/log-repository/log-mongo-repository";
 
 export const makeAddOrderDeliveryController = (): Controller => {
   const orderDeliveryRepository = new OrderDeliveryMongoRepository();
@@ -12,5 +14,6 @@ export const makeAddOrderDeliveryController = (): Controller => {
     addOrderDelivery,
     orderDelivery
   );
-  return addOrderDeliveryController;
+  const logError = new LogMongoRepository();
+  return new LogControllerDecorator(addOrderDeliveryController, logError);
 };
