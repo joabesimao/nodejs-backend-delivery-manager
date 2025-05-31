@@ -1,14 +1,11 @@
-import { pool } from "../infra/db/mysql/helpers/";
-import env from "../env";
+import { MongoHelper } from "../infra/db/mongodb/helpers/mongo-helper";
+import env from "../../env";
 
-pool
-  .getConnection()
+MongoHelper.connect(env.mongoUrl)
   .then(async () => {
     const app = (await import("./config/app")).default;
-    app.listen(env.serverPort, () =>
-      console.log(`Server running at http://localhost:${env.serverPort}`)
+    app.listen(env.port, () =>
+      console.log(`Server running at http://localhost:${env.port}`)
     );
   })
-  .catch((err) => {
-    console.error("erro ao conectar", err);
-  });
+  .catch(console.error);
