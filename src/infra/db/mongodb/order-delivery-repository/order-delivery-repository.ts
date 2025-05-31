@@ -5,7 +5,9 @@ import {
   LoadOrderDeliveryByIdRepository,
   LoadOrderDeliveryRepository,
 } from "../../../../data/protocols/db/order-delivery/load-order-delivery";
+import { UpdateOrderDeliveryRepository } from "../../../../data/protocols/db/order-delivery/update-order-delivery";
 import { OrderDeliveryModel } from "../../../../domain/models/order-delivery/order-delivery";
+import { UpdateOrderDeliveryModel } from "../../../../domain/models/order-delivery/update-order-delivery";
 import { AddOrderDeliveryModel } from "../../../../domain/usescases/order-delivery/add-order-delivery";
 import { MongoHelper } from "../helpers/mongo-helper";
 
@@ -14,8 +16,25 @@ export class OrderDeliveryMongoRepository
     AddOrderDeliveryRepository,
     LoadOrderDeliveryRepository,
     LoadOrderDeliveryByIdRepository,
+    UpdateOrderDeliveryRepository,
     DeleteOrderDeliveryByIdRepository
 {
+  async updateOrder(
+    id: number,
+    info: UpdateOrderDeliveryModel
+  ): Promise<OrderDeliveryModel> {
+    const objId = new ObjectId(id);
+    const orderDeliveryCollection = await MongoHelper.getCollection(
+      "orderDeliverys"
+    );
+    await orderDeliveryCollection.updateOne(
+      { _id: objId },
+      { $set: { ...info } }
+    );
+    const result = await orderDeliveryCollection.findOne({ _id: objId });
+    return result as unknown as OrderDeliveryModel;
+  }
+
   async getAllOrderOfDelivery(): Promise<OrderDeliveryModel[]> {
     const listOfOrdersOfDeliveryCollection = await MongoHelper.getCollection(
       "orderDeliverys"
