@@ -52,6 +52,7 @@ export class OrderDeliveryMongoRepository
     });
 
     const orderDeliveryCreated: OrderDeliveryModel = {
+      id: Number(result.insertedId),
       register: reg as any,
       quantity: orderOfDelivery.quantity,
       amount: orderOfDelivery.amount,
