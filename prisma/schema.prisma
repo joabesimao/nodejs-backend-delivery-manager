@@ -51,3 +51,16 @@ model Register {
   orderDeliveryId Int?
   OrderDelivery   OrderDelivery[]
 }
+
+model City {
+  id            Int            @id @default(autoincrement())
+  name          String         @unique
+  neighborhoods Neighborhood[]
+}
+
+model Neighborhood {
+  id     Int    @id @default(autoincrement())
+  name   String
+  cityId Int
+  city   City   @relation(fields: [cityId], references: [id])
+}
