@@ -6,7 +6,7 @@ import { Validation } from "../../presentation/protocols/validation";
 
 export const makeAddOrderDeliveryValidation = (): ValidationComposite => {
   const validations: Validation[] = [];
-  for (const field of ["amount", "data", "quantity"]) {
+  for (const field of ["registerId", "amount", "quantity"]) {
     validations.push(new RequireFieldsValidation(field));
   }
   return new ValidationComposite(validations);

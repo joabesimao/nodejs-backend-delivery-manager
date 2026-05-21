@@ -11,7 +11,6 @@ export const makeAddAddressValidation = (): ValidationComposite => {
     "city",
     "neighborhood",
     "numberHouse",
-    "reference",
   ]) {
     validations.push(new RequireFieldsValidation(field));
   }

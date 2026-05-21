@@ -122,16 +122,8 @@ export class RegisterMySqlRepository
   async loadAll(): Promise<LoadRegisterModel[]> {
     const loadRegisters = await this.prisma.register.findMany({
       include: {
-        client: {
-          include: {
-            Register: {
-              include: {
-                client: true,
-                address: true,
-              },
-            },
-          },
-        },
+        client: true,
+        address: true,
       },
     });
 
