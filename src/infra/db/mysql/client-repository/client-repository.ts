@@ -35,8 +35,16 @@ export class ClientMysqlRepository
   }
 
   async loadAll(): Promise<ClientModel[]> {
-    const loadClientList = await this.prisma.client.findMany();
-    return loadClientList;
+    const loadClientList = await this.prisma.client.findMany({
+      include: {
+        Register: {
+          include: {
+            address: true,
+          },
+        },
+      },
+    });
+    return loadClientList as any;
   }
 
   async loadOne(id: number): Promise<ClientModel> {
