@@ -23,6 +23,10 @@ import { makeUpdateAddressController } from "../factories/update-address";
 import { makeDeleteAddressController } from "../factories/delete-address";
 import { makeDeleteClientController } from "../factories/delete-client-mysql";
 import { makeUpdateClientController } from "../factories/update-client";
+import { makeLoadCityController } from "../factories/load-city";
+import { makeLoadNeighborhoodController } from "../factories/load-neighborhood";
+import { makeAddCityController } from "../factories/add-city";
+import { makeAddNeighborhoodController } from "../factories/add-neighborhood";
 
 export default (router: Router): void => {
   const adminAuth = adaptMiddleware(makeAuthMiddleware("admin"));
@@ -42,6 +46,10 @@ export default (router: Router): void => {
     adaptRoute(makeLoadOrderByIdController())
   );
   router.get("/client/:id", adaptRoute(makeLoadOneClientController()));
+  router.get("/city", adaptRoute(makeLoadCityController()));
+  router.get("/neighborhood", adaptRoute(makeLoadNeighborhoodController()));
+  router.post("/city", adaptRoute(makeAddCityController()));
+  router.post("/neighborhood", adaptRoute(makeAddNeighborhoodController()));
   router.post("/register", adaptRoute(makeAddRegisterController()));
   router.post("/signup", adaptRoute(makeSignupController()));
   router.post("/login", adaptRoute(makeLoginController()));
