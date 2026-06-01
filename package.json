@@ -8,8 +8,8 @@
   "scripts": {
     "start": "node dist/main/server.js ",
     "build": "rimraf dist && tsc",
-    "dev": "sucrase-node src/main/server.ts",
-    "n": "nodemon ./src/main/server.ts",
+    "dev": "nodemon",
+    "dev:once": "sucrase-node src/main/server.ts",
     "generate": "npx prisma generate",
     "test": "jest --passWithNoTests --watch --silent --noStackTrace --runInBand",
     "test:unit": "npm test -- --watch -c jest-unit-config.js",
