@@ -26,11 +26,11 @@ To install this project, run the following commands:
 
 - For npm users
   `npm install`
-  `npm start`
+  `npm run dev`
 
 - For yarn users:
   `yarn install`
-  `yarn start`
+  `yarn dev`
 
 # Test
 
