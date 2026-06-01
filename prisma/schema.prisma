@@ -23,12 +23,19 @@ model Client {
   Register Register?
 }
 
+enum OrderStatus {
+  actived
+  delivered
+  finished
+}
+
 model OrderDelivery {
-  id         Int      @id @default(autoincrement())
+  id         Int         @id @default(autoincrement())
   quantity   String
   amount     Float
   data       DateTime
-  Register   Register @relation(fields: [registerId], references: [id])
+  status     OrderStatus @default(actived)
+  Register   Register    @relation(fields: [registerId], references: [id])
   registerId Int
 }
 
