@@ -57,6 +57,7 @@ export class OrderDeliveryMongoRepository
       quantity: orderOfDelivery.quantity,
       amount: orderOfDelivery.amount,
       data: orderOfDelivery.data,
+      status: "actived",
     };
     return orderDeliveryCreated;
   }
