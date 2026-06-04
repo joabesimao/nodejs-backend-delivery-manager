@@ -27,6 +27,7 @@ import { makeLoadCityController } from "../factories/load-city";
 import { makeLoadNeighborhoodController } from "../factories/load-neighborhood";
 import { makeAddCityController } from "../factories/add-city";
 import { makeAddNeighborhoodController } from "../factories/add-neighborhood";
+import { makeRefreshTokenController } from "../factories/refresh-token-factory";
 
 export default (router: Router): void => {
   const adminAuth = adaptMiddleware(makeAuthMiddleware("admin"));
@@ -53,6 +54,7 @@ export default (router: Router): void => {
   router.post("/register", adaptRoute(makeAddRegisterController()));
   router.post("/signup", adaptRoute(makeSignupController()));
   router.post("/login", adaptRoute(makeLoginController()));
+  router.post("/refresh-token", adaptRoute(makeRefreshTokenController()));
   router.post(
     "/orderDelivery",
 
