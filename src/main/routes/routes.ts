@@ -28,12 +28,17 @@ import { makeLoadNeighborhoodController } from "../factories/load-neighborhood";
 import { makeAddCityController } from "../factories/add-city";
 import { makeAddNeighborhoodController } from "../factories/add-neighborhood";
 import { makeRefreshTokenController } from "../factories/refresh-token-factory";
+import { makeLoadOrderDeliveryRankingController } from "../factories/load-order-delivery-ranking";
 
 export default (router: Router): void => {
   const adminAuth = adaptMiddleware(makeAuthMiddleware("admin"));
   router.get("/register", adaptRoute(makeLoadRegisterController()));
   router.get("/client", adaptRoute(makeLoadClientController()));
   router.get("/orderDelivery", adaptRoute(makeLoadOrdersDeliveryController()));
+  router.get(
+    "/orderDelivery/ranking/deliveryman",
+    adaptRoute(makeLoadOrderDeliveryRankingController())
+  );
   router.get("/address", adaptRoute(makeLoadAddressController()));
   router.get("/register/:id", adaptRoute(makeLoadRegisterByIdController()));
   router.get(

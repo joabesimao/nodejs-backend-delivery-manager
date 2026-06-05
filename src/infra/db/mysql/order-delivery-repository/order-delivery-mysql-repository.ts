@@ -1,10 +1,16 @@
-import { PrismaClient } from "@prisma/client";
+import { OrderStatus, PrismaClient } from "@prisma/client";
 import { AddOrderDeliveryRepository } from "../../../../data/protocols/db/order-delivery/add-order-delivery";
 import { DeleteOrderDeliveryByIdRepository } from "../../../../data/protocols/db/order-delivery/delete-order-delivery";
 import {
+  LoadOrderDeliveryRankingRepository,
   LoadOrderDeliveryByIdRepository,
   LoadOrderDeliveryRepository,
 } from "../../../../data/protocols/db/order-delivery/load-order-delivery";
+import {
+  DeliveryRankingFilter,
+  DeliveryRankingModel,
+  DeliveryRankingPaginatedModel,
+} from "../../../../domain/models/order-delivery/delivery-ranking";
 import { UpdateOrderDeliveryRepository } from "../../../../data/protocols/db/order-delivery/update-order-delivery";
 import { OrderDeliveryModel } from "../../../../domain/models/order-delivery/order-delivery";
 import { UpdateOrderDeliveryModel } from "../../../../domain/models/order-delivery/update-order-delivery";
@@ -15,6 +21,7 @@ export class OrderDeliveryMySqlRepository
     AddOrderDeliveryRepository,
     LoadOrderDeliveryRepository,
     LoadOrderDeliveryByIdRepository,
+    LoadOrderDeliveryRankingRepository,
     UpdateOrderDeliveryRepository,
     DeleteOrderDeliveryByIdRepository
 {
@@ -60,6 +67,78 @@ export class OrderDeliveryMySqlRepository
       },
     });
     return orderById as unknown as OrderDeliveryModel;
+  }
+
+  async getDeliverymanRankingByPeriod(
+    filter: DeliveryRankingFilter
+  ): Promise<DeliveryRankingPaginatedModel> {
+    const statusFilter: OrderStatus[] =
+      filter.status === "all" || !filter.status
+        ? [OrderStatus.delivered, OrderStatus.finished]
+        : [filter.status as OrderStatus];
+
+    const deliveries = await this.prisma.orderDelivery.findMany({
+      where: {
+        data: {
+          gte: filter.startDate,
+          lte: filter.endDate,
+        },
+        status: {
+          in: statusFilter,
+        },
+      },
+      include: {
+        Register: {
+          include: {
+            client: true,
+          },
+        },
+      },
+    });
+
+    const totalsByRegister = new Map<number, DeliveryRankingModel>();
+
+    for (const delivery of deliveries) {
+      const registerId = delivery.registerId;
+      const current = totalsByRegister.get(registerId);
+      const deliverymanName = `${delivery.Register.client.name} ${delivery.Register.client.lastName}`.trim();
+
+      if (!current) {
+        totalsByRegister.set(registerId, {
+          registerId,
+          deliverymanName,
+          totalDeliveries: 1,
+        });
+        continue;
+      }
+
+      current.totalDeliveries += 1;
+    }
+
+    const sortedItems = Array.from(totalsByRegister.values()).sort(
+      (a, b) =>
+        b.totalDeliveries - a.totalDeliveries ||
+        a.deliverymanName.localeCompare(b.deliverymanName)
+    );
+
+    const totalItems = sortedItems.length;
+    const totalDeliveries = sortedItems.reduce(
+      (sum, item) => sum + item.totalDeliveries,
+      0
+    );
+    const totalPages = Math.max(1, Math.ceil(totalItems / filter.pageSize));
+    const currentPage = Math.min(filter.page, totalPages);
+    const startIndex = (currentPage - 1) * filter.pageSize;
+    const items = sortedItems.slice(startIndex, startIndex + filter.pageSize);
+
+    return {
+      items,
+      page: currentPage,
+      pageSize: filter.pageSize,
+      totalItems,
+      totalPages,
+      totalDeliveries,
+    };
   }
 
   async updateOrder(

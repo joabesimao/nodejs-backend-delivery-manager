@@ -2,219 +2,111 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-const citiesWithNeighborhoods = [
+const initialClients = [
   {
-    name: "Fortaleza",
-    neighborhoods: [
-      "Aldeota",
-      "Meireles",
-      "Iracema",
-      "Centro",
-      "Benfica",
-      "Montese",
-      "Damas",
-      "Fátima",
-      "Messejana",
-      "Parangaba",
-      "Bom Jardim",
-      "Conjunto Ceará",
-      "Granja Portugal",
-      "Granja Lisboa",
-      "Mondubim",
-      "Siqueira",
-      "Jangurussu",
-      "Lagamar",
-      "Pirambu",
-      "Cristo Redentor",
-      "Barra do Ceará",
-      "Mucuripe",
-      "Varjota",
-      "Dionísio Torres",
-      "Cocó",
-      "Papicu",
-      "Aerolândia",
-      "Passaré",
-      "Itaperi",
-      "Paupina",
-      "Cajazeiras",
-      "Jóquei Clube",
-      "Parquelândia",
-      "Antônio Bezerra",
-      "Presidente Kennedy",
-      "Bela Vista",
-      "Alagadiço",
-      "Monte Castelo",
-      "Quintino Cunha",
-      "São Gerardo",
-      "Amadeu Furtado",
-      "Ellery",
-      "Edson Queiroz",
-      "Sapiranga",
-      "Eusébio (Fortaleza)",
-      "Cidade dos Funcionários",
-      "Cambeba",
-      "Guararapes",
-      "Água Fria",
-      "Floresta",
-      "Henrique Jorge",
-      "João XXIII",
-      "Jardim América",
-      "Parque Dois Irmãos",
-      "Vila Velha",
-      "Maraponga",
-      "Manibura",
-      "Pan Americano",
-      "Serrinha",
-      "Boa Vista",
-      "Dom Lustosa",
-    ],
+    client: { name: "Joao", lastName: "Silva", phone: "85999990001" },
+    address: {
+      street: "Rua das Flores",
+      neighborhood: "Centro",
+      numberHouse: 120,
+      reference: "Proximo a praca",
+      city: "Cidade Exemplo",
+    },
   },
   {
-    name: "Caucaia",
-    neighborhoods: [
-      "Centro",
-      "Jurema",
-      "Araturi",
-      "Parque Solon de Lucena",
-      "Taboleiro",
-      "Novo Mondubim",
-      "Catuana",
-      "Iparana",
-      "Pacheco",
-    ],
+    client: { name: "Maria", lastName: "Alves", phone: "85999990002" },
+    address: {
+      street: "Av. Principal",
+      neighborhood: "Nova Esperanca",
+      numberHouse: 45,
+      reference: "Casa azul",
+      city: "Cidade Exemplo",
+    },
   },
   {
-    name: "Juazeiro do Norte",
-    neighborhoods: [
-      "Centro",
-      "João Cabral",
-      "Salesiano",
-      "Triângulo",
-      "Lagoa Seca",
-      "Pirajá",
-      "Franciscanos",
-      "Santo Antônio",
-      "São José",
-      "Frei Damião",
-    ],
-  },
-  {
-    name: "Maracanaú",
-    neighborhoods: [
-      "Centro",
-      "Conjunto Jereissati",
-      "Parque Tabapuá",
-      "Novo Oriente",
-      "Jardim Bandeirantes",
-      "São Francisco",
-    ],
-  },
-  {
-    name: "Sobral",
-    neighborhoods: [
-      "Centro",
-      "Dom Expedito",
-      "Padre Ibiapina",
-      "Sumaré",
-      "Terrenos Novos",
-      "Cohab",
-      "Junco",
-    ],
-  },
-  {
-    name: "Crato",
-    neighborhoods: [
-      "Centro",
-      "Pimenta",
-      "Seminário",
-      "Lameiro",
-      "Mirandão",
-      "Alto da Penha",
-    ],
-  },
-  {
-    name: "Iguatu",
-    neighborhoods: ["Centro", "Novo Iguatu", "Raimundo Gomes", "São Francisco"],
-  },
-  {
-    name: "Quixadá",
-    neighborhoods: ["Centro", "Açudinho", "Bom Nome", "Dinamarca"],
-  },
-  {
-    name: "Pacatuba",
-    neighborhoods: ["Centro", "Pajuçara", "Mondego", "Sítios Novos"],
-  },
-  {
-    name: "Horizonte",
-    neighborhoods: ["Centro", "Aningas", "Jardim Horizonte", "Itambé"],
-  },
-  {
-    name: "Aquiraz",
-    neighborhoods: ["Centro", "Prainha", "Porto das Dunas", "Jacaúna"],
-  },
-  {
-    name: "Itapipoca",
-    neighborhoods: ["Centro", "Planalto", "Ventura", "Santo Antônio"],
-  },
-  {
-    name: "Maranguape",
-    neighborhoods: ["Centro", "Aracapá", "Gameleira", "Sítio Olho d'Água"],
-  },
-  {
-    name: "Barbalha",
-    neighborhoods: ["Centro", "Limoeiro", "São Sebastião", "Muriti"],
-  },
-  {
-    name: "Crateús",
-    neighborhoods: ["Centro", "Betânia", "Planalto", "Nova Vida"],
-  },
-  {
-    name: "Canindé",
-    neighborhoods: ["Centro", "São Francisco", "Boa Vista", "Lagoa"],
-  },
-  {
-    name: "Russas",
-    neighborhoods: ["Centro", "Bonfim", "Várzea Alegre", "Boa Esperança"],
-  },
-  {
-    name: "Tianguá",
-    neighborhoods: ["Centro", "Fátima", "Colina", "Santa Luzia"],
-  },
-  {
-    name: "Limoeiro do Norte",
-    neighborhoods: ["Centro", "Olho d'Água", "Santo Antônio", "Lagoa Nova"],
-  },
-  {
-    name: "Icó",
-    neighborhoods: ["Centro", "Várzea", "Bom Jesus", "Penedo"],
+    client: { name: "Carlos", lastName: "Lima", phone: "85999990003" },
+    address: {
+      street: "Rua do Sol",
+      neighborhood: "Sao Jose",
+      numberHouse: 78,
+      reference: "Apto 301",
+      city: "Nova Cidade",
+    },
   },
 ];
+
+const initialOrders = [
+  { phone: "85999990001", quantity: "3", amount: 48.5, daysAgo: 6, status: "finished" },
+  { phone: "85999990001", quantity: "2", amount: 31.9, daysAgo: 4, status: "delivered" },
+  { phone: "85999990002", quantity: "1", amount: 15, daysAgo: 3, status: "finished" },
+  { phone: "85999990002", quantity: "5", amount: 82, daysAgo: 2, status: "actived" },
+  { phone: "85999990003", quantity: "4", amount: 67.2, daysAgo: 1, status: "finished" },
+] as const;
 
 async function main() {
   console.log("🌱 Iniciando seed...");
 
-  for (const cityData of citiesWithNeighborhoods) {
-    const city = await prisma.city.upsert({
-      where: { name: cityData.name },
-      update: {},
-      create: { name: cityData.name },
+  for (const entry of initialClients) {
+    const existingClient = await prisma.client.findFirst({
+      where: { phone: entry.client.phone },
+      include: {
+        Register: true,
+      },
     });
 
-    for (const neighborhoodName of cityData.neighborhoods) {
-      const exists = await prisma.neighborhood.findFirst({
-        where: { name: neighborhoodName, cityId: city.id },
+    if (!existingClient?.Register?.id) {
+      await prisma.register.create({
+        data: {
+          client: {
+            create: {
+              name: entry.client.name,
+              lastName: entry.client.lastName,
+              phone: entry.client.phone,
+            },
+          },
+          address: {
+            create: {
+              street: entry.address.street,
+              neighborhood: entry.address.neighborhood,
+              numberHouse: entry.address.numberHouse,
+              reference: entry.address.reference,
+              city: entry.address.city,
+            },
+          },
+        },
       });
-
-      if (!exists) {
-        await prisma.neighborhood.create({
-          data: { name: neighborhoodName, cityId: city.id },
-        });
-      }
     }
+  }
 
-    console.log(
-      `  ✔ ${city.name} — ${cityData.neighborhoods.length} bairros`
-    );
+  const existingOrdersCount = await prisma.orderDelivery.count();
+
+  if (existingOrdersCount === 0) {
+    for (const order of initialOrders) {
+    const register = await prisma.register.findFirst({
+      where: {
+        client: {
+          phone: order.phone,
+        },
+      },
+    });
+
+      if (!register) {
+        continue;
+      }
+
+      const date = new Date();
+      date.setDate(date.getDate() - order.daysAgo);
+
+      await prisma.orderDelivery.create({
+        data: {
+          registerId: register.id,
+          quantity: order.quantity,
+          amount: order.amount,
+          data: date,
+          status: order.status,
+        },
+      });
+    }
   }
 
   console.log("✅ Seed concluído!");
@@ -223,7 +115,7 @@ async function main() {
 main()
   .catch((e) => {
     console.error("❌ Erro no seed:", e);
-    process.exit(1);
+    throw e;
   })
   .finally(async () => {
     await prisma.$disconnect();
