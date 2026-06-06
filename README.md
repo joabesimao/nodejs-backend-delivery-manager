@@ -1,91 +1,129 @@
-# Register Api
+# Delivery Manager API
 
+![versao](https://img.shields.io/badge/version-1.0.0-0ea5e9.svg)
+![node](https://img.shields.io/badge/Node.js-20-339933?logo=node.js&logoColor=white)
+![typescript](https://img.shields.io/badge/TypeScript-5.x-3178c6?logo=typescript&logoColor=white)
+![mysql](https://img.shields.io/badge/MySQL-8-4479A1?logo=mysql&logoColor=white)
+![docker](https://img.shields.io/badge/Docker-ready-2496ED?logo=docker&logoColor=white)
 
-Register API for register of clients
+API para gerenciamento de clientes, pedidos de entrega, autenticacao e relatorios, usando Node.js + TypeScript + Prisma + MySQL.
 
-# Summary
+## Principais recursos
 
-- [Requirements](#Requirements)
-- [Installation](#Installation)
-- [Test](#Test)
-- [Techs](#Techs)
-- [References](#References)
+- Cadastro de clientes, enderecos, cidades e bairros.
+- Criacao e atualizacao de pedidos de entrega.
+- Autenticacao com access token e refresh token.
+- Ranking de entregadores por periodo.
+- Seed inicial com dados de exemplo.
 
+## Stack
 
+- Node.js
+- TypeScript
+- Express
+- Prisma
+- MySQL
+- Jest
 
-# Requirements
+## Requisitos
 
-To create a mysqldump for this project database run:
-``
+- Node.js 20+
+- npm 10+
+- MySQL 8+
 
+## Variaveis de ambiente
 
-# Installation
+Arquivos publicos incluidos:
 
-To install this project, run the following commands:
-`gh repo clone joabesimao/Register`
+- .env.public
+- .env.public.example
 
-- For npm users
-  `npm install`
-  `npm run dev`
+Variaveis utilizadas:
 
-- For yarn users:
-  `yarn install`
-  `yarn dev`
+- PORT
+- DB_HOST
+- DB_PORT
+- DB_NAME
+- DB_USER
+- DB_PASSWORD
+- DATABASE_URL
+- JWT_SECRET
 
-# Test
+## Execucao local (sem Docker)
 
-To execute this project tests, you must run the following commands:
+1. Instale dependencias:
 
-- **Unit Tests**
-  `npm run test:unit`
-  or
-  `yarn test:unit`
+```bash
+npm install
+```
 
-- **Functional Tests**
-  `npm run test:functional`
-  or
-  `yarn test:functional`
+2. Copie o ambiente publico:
 
-- **Lint**
-  `npm run lint`
-  or
-  `yarn lint`
+```bash
+cp .env.public.example .env
+```
 
-- **Style Check**
-  `npm run style:check`
-  `npm run style:fix`
-  or
-  `yarn style:check`
-  `yarn style:fix`
+3. Gere client Prisma e aplique migracoes:
 
-- **All Tests**
-  `npm test`
-  or
-  `yarn test`
+```bash
+npx prisma generate
+npx prisma migrate deploy
+```
 
-then access then [/docs route](http://localhost:3000/docs)
+4. (Opcional) Seed inicial:
 
-`http://localhost:5050/register`
+```bash
+npx prisma db seed
+```
 
-# Techs
+5. Suba a API:
 
-![TypeScript](https://img.shields.io/badge/typescript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white) ![NodeJS](https://img.shields.io/badge/node.js-6DA55F?style=for-the-badge&logo=node.js&logoColor=white) ![Jest](https://img.shields.io/badge/-jest-%23C21325?style=for-the-badge&logo=jest&logoColor=white) ![GitHub Actions](https://img.shields.io/badge/githubactions-%232671E5.svg?style=for-the-badge&logo=githubactions&logoColor=white) ![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white) ![ESLint](https://img.shields.io/badge/ESLint-4B3263?style=for-the-badge&logo=eslint&logoColor=white)![Visual Studio Code](https://img.shields.io/badge/VisualStudioCode-0078d7.svg?style=for-the-badge&logo=visual-studio-code&logoColor=white) 
+```bash
+npm run dev
+```
 
-In this project, we used the following technologies:
+API em: http://localhost:3000/api
 
-- [Node.js](https://nodejs.org/)
-- [Visual Studio Code](https://code.visualstudio.com/)- Text editor with following plugins installed: [DotENV](https://github.com/mikestead/vscode-dotenv), [ESLint](https://github.com/Microsoft/vscode-eslint), [GitLens](https://github.com/eamodio/vscode-gitlens) e [vscode-icons](https://github.com/vscode-icons/vscode-icons).
-- [Overnight](https://github.com/seanpmaxwell/overnight/tree/master) - TypeScript decorators for [Express](https://github.com/expressjs/express).
-- [Jest](https://jestjs.io/) - Javascript Test Framework.
-- [ESLint](https://github.com/eslint/eslint) - ESLint to padronize the project code.
-- [Prettier](https://prettier.io/) - To format code automatically.
-- [Docker Compose](https://docs.docker.com/compose/) - Virtualization Tool container based.
-- [Testlink (Docker)](https://hub.docker.com/r/bitnami/testlink/) - Docker image for [Testlink](https://testlink.org/)
-- [Husky](https://github.com/typicode/husky) - To force tests and lint when committing and pushing.
+## Docker publico (API + MySQL + Frontend)
 
+Foi adicionado um compose publico sem alterar o compose existente:
 
+- docker-compose.public.yml
 
+Subir stack completa:
 
-# References
+```bash
+docker compose -f docker-compose.public.yml up --build
+```
+
+Servicos:
+
+- Frontend: http://localhost:5173
+- API: http://localhost:3000/api
+- MySQL: localhost:3306
+
+Parar stack:
+
+```bash
+docker compose -f docker-compose.public.yml down
+```
+
+## Scripts
+
+- npm run dev: desenvolvimento com nodemon.
+- npm run build: build TypeScript em dist.
+- npm run start: executa build em producao.
+- npm run test: testes com Jest.
+- npm run test:unit: testes unitarios.
+- npm run test:integration: testes de integracao.
+
+## Observacoes
+
+- O projeto mantem o docker-compose.yml original intacto.
+- Os arquivos publicos adicionados usam sufixo .public para facilitar publicacao no GitHub.
+
+## Licenca
+
+Uso interno/projeto privado. Ajuste conforme necessidade para repositoio publico.
 
 
