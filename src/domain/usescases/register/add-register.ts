@@ -4,7 +4,7 @@ import { RegisterModel } from "../../models/register/register-model";
 
 export interface AddRegisterModel {
   client: Client;
-  address: Address
+  address: Address;
 }
 
 export interface AddRegister {
