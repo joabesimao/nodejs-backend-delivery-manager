@@ -2,6 +2,7 @@ import { OrderDeliveryModel } from "../../models/order-delivery/order-delivery";
 
 export interface AddOrderDeliveryModel {
   registerId: number;
+  deliverymanId?: number;
   quantity: string;
   amount: number;
   data: Date;
@@ -9,6 +10,6 @@ export interface AddOrderDeliveryModel {
 
 export interface AddOrderDelivery {
   addOrderDelivery(
-    orderDelivery: AddOrderDeliveryModel
+    orderDelivery: AddOrderDeliveryModel,
   ): Promise<OrderDeliveryModel>;
 }

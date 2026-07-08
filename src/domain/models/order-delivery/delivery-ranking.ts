@@ -7,7 +7,7 @@ export interface DeliveryRankingFilter {
 }
 
 export interface DeliveryRankingModel {
-  registerId: number;
+  deliverymanId: number;
   deliverymanName: string;
   totalDeliveries: number;
 }

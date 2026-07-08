@@ -29,6 +29,8 @@ import { makeAddCityController } from "../factories/add-city";
 import { makeAddNeighborhoodController } from "../factories/add-neighborhood";
 import { makeRefreshTokenController } from "../factories/refresh-token-factory";
 import { makeLoadOrderDeliveryRankingController } from "../factories/load-order-delivery-ranking";
+import { makeAddDeliverymanController } from "../factories/add-deliveryman";
+import { makeLoadDeliverymanController } from "../factories/load-deliveryman";
 
 export default (router: Router): void => {
   const adminAuth = adaptMiddleware(makeAuthMiddleware("admin"));
@@ -37,25 +39,27 @@ export default (router: Router): void => {
   router.get("/orderDelivery", adaptRoute(makeLoadOrdersDeliveryController()));
   router.get(
     "/orderDelivery/ranking/deliveryman",
-    adaptRoute(makeLoadOrderDeliveryRankingController())
+    adaptRoute(makeLoadOrderDeliveryRankingController()),
   );
   router.get("/address", adaptRoute(makeLoadAddressController()));
   router.get("/register/:id", adaptRoute(makeLoadRegisterByIdController()));
   router.get(
     "/register/name/:name",
 
-    adaptRoute(makeLoadRegisterByNameController())
+    adaptRoute(makeLoadRegisterByNameController()),
   );
   router.get(
     "/orderDelivery/:id",
 
-    adaptRoute(makeLoadOrderByIdController())
+    adaptRoute(makeLoadOrderByIdController()),
   );
   router.get("/client/:id", adaptRoute(makeLoadOneClientController()));
   router.get("/city", adaptRoute(makeLoadCityController()));
   router.get("/neighborhood", adaptRoute(makeLoadNeighborhoodController()));
+  router.get("/deliveryman", adaptRoute(makeLoadDeliverymanController()));
   router.post("/city", adaptRoute(makeAddCityController()));
   router.post("/neighborhood", adaptRoute(makeAddNeighborhoodController()));
+  router.post("/deliveryman", adaptRoute(makeAddDeliverymanController()));
   router.post("/register", adaptRoute(makeAddRegisterController()));
   router.post("/signup", adaptRoute(makeSignupController()));
   router.post("/login", adaptRoute(makeLoginController()));
@@ -63,46 +67,46 @@ export default (router: Router): void => {
   router.post(
     "/orderDelivery",
 
-    adaptRoute(makeAddOrderDeliveryController())
+    adaptRoute(makeAddOrderDeliveryController()),
   );
   router.post(
     "/orderDelivery/:id",
 
-    adaptRoute(makeAddOrderDeliveryController())
+    adaptRoute(makeAddOrderDeliveryController()),
   );
   router.put("/register/:id", adaptRoute(makeUpdateRegisterController()));
   router.put("/client/:id", adaptRoute(makeUpdateClientController()));
   router.put("/address/:id", adaptRoute(makeUpdateAddressController()));
   router.put(
     "/orderDelivery/:id",
-    adaptRoute(makeUpdateOrderDeliveryController())
+    adaptRoute(makeUpdateOrderDeliveryController()),
   );
   router.delete(
     "/register/:id",
 
-    adaptRoute(makeDeleteRegisterByIdController())
+    adaptRoute(makeDeleteRegisterByIdController()),
   );
   router.delete(
     "/orderDelivery/:id",
 
-    adaptRoute(makeDeleteOrderDeliveryController())
+    adaptRoute(makeDeleteOrderDeliveryController()),
   );
 
   router.delete(
     "/account/:id",
 
-    adaptRoute(makeDeleteAccountController())
+    adaptRoute(makeDeleteAccountController()),
   );
 
   router.delete(
     "/address/:id",
 
-    adaptRoute(makeDeleteAddressController())
+    adaptRoute(makeDeleteAddressController()),
   );
 
   router.delete(
     "/client/:id",
 
-    adaptRoute(makeDeleteClientController())
+    adaptRoute(makeDeleteClientController()),
   );
 };

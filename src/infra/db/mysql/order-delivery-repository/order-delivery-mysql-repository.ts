@@ -29,6 +29,7 @@ export class OrderDeliveryMySqlRepository
   async getAllOrderOfDelivery(): Promise<OrderDeliveryModel[]> {
     const allOrderDelivery = await this.prisma.orderDelivery.findMany({
       include: {
+        deliveryman: true,
         Register: {
           include: {
             client: true,
@@ -41,11 +42,14 @@ export class OrderDeliveryMySqlRepository
     return allOrderDelivery as unknown as OrderDeliveryModel[];
   }
   async addOrderOfDelivery(
-    orderOfDelivery: AddOrderDeliveryModel
+    orderOfDelivery: AddOrderDeliveryModel,
   ): Promise<OrderDeliveryModel> {
     const order = await this.prisma.orderDelivery.create({
       data: {
         registerId: orderOfDelivery.registerId,
+        ...(orderOfDelivery.deliverymanId && {
+          deliverymanId: Number(orderOfDelivery.deliverymanId),
+        }),
         amount: Number(orderOfDelivery.amount),
         data: new Date(),
         quantity: orderOfDelivery.quantity,
@@ -58,6 +62,7 @@ export class OrderDeliveryMySqlRepository
     const orderById = await this.prisma.orderDelivery.findUnique({
       where: { id: Number(id) },
       include: {
+        deliveryman: true,
         Register: {
           include: {
             client: true,
@@ -70,7 +75,7 @@ export class OrderDeliveryMySqlRepository
   }
 
   async getDeliverymanRankingByPeriod(
-    filter: DeliveryRankingFilter
+    filter: DeliveryRankingFilter,
   ): Promise<DeliveryRankingPaginatedModel> {
     const statusFilter: OrderStatus[] =
       filter.status === "all" || !filter.status
@@ -88,6 +93,7 @@ export class OrderDeliveryMySqlRepository
         },
       },
       include: {
+        deliveryman: true,
         Register: {
           include: {
             client: true,
@@ -96,16 +102,21 @@ export class OrderDeliveryMySqlRepository
       },
     });
 
-    const totalsByRegister = new Map<number, DeliveryRankingModel>();
+    const totalsByDeliveryman = new Map<number, DeliveryRankingModel>();
 
     for (const delivery of deliveries) {
-      const registerId = delivery.registerId;
-      const current = totalsByRegister.get(registerId);
-      const deliverymanName = `${delivery.Register.client.name} ${delivery.Register.client.lastName}`.trim();
+      if (!delivery.deliverymanId || !delivery.deliveryman) {
+        continue;
+      }
+
+      const deliverymanId = delivery.deliverymanId;
+      const current = totalsByDeliveryman.get(deliverymanId);
+      const deliverymanName =
+        `${delivery.deliveryman.name} ${delivery.deliveryman.lastName}`.trim();
 
       if (!current) {
-        totalsByRegister.set(registerId, {
-          registerId,
+        totalsByDeliveryman.set(deliverymanId, {
+          deliverymanId,
           deliverymanName,
           totalDeliveries: 1,
         });
@@ -115,16 +126,16 @@ export class OrderDeliveryMySqlRepository
       current.totalDeliveries += 1;
     }
 
-    const sortedItems = Array.from(totalsByRegister.values()).sort(
+    const sortedItems = Array.from(totalsByDeliveryman.values()).sort(
       (a, b) =>
         b.totalDeliveries - a.totalDeliveries ||
-        a.deliverymanName.localeCompare(b.deliverymanName)
+        a.deliverymanName.localeCompare(b.deliverymanName),
     );
 
     const totalItems = sortedItems.length;
     const totalDeliveries = sortedItems.reduce(
       (sum, item) => sum + item.totalDeliveries,
-      0
+      0,
     );
     const totalPages = Math.max(1, Math.ceil(totalItems / filter.pageSize));
     const currentPage = Math.min(filter.page, totalPages);
@@ -143,13 +154,16 @@ export class OrderDeliveryMySqlRepository
 
   async updateOrder(
     id: number,
-    info: UpdateOrderDeliveryModel
+    info: UpdateOrderDeliveryModel,
   ): Promise<OrderDeliveryModel> {
     const updateOrder = await this.prisma.orderDelivery.update({
       where: { id: Number(id) },
       data: {
         amount: Number(info.amount),
         quantity: info.quantity,
+        ...(info.deliverymanId && {
+          deliverymanId: Number(info.deliverymanId),
+        }),
         ...(info.status && { status: info.status }),
       },
     });
