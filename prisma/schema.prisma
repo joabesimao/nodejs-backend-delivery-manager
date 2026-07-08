@@ -31,15 +31,17 @@ enum OrderStatus {
 }
 
 model OrderDelivery {
-  id          Int         @id @default(autoincrement())
-  quantity    String
-  amount      Float
-  data        DateTime
-  status      OrderStatus @default(actived)
-  Register    Register    @relation(fields: [registerId], references: [id])
-  registerId  Int
-  unitStore   UnitStore?  @relation(fields: [unitStoreId], references: [id])
-  unitStoreId Int?
+  id            Int          @id @default(autoincrement())
+  quantity      String
+  amount        Float
+  data          DateTime
+  status        OrderStatus  @default(actived)
+  Register      Register     @relation(fields: [registerId], references: [id])
+  registerId    Int
+  deliveryman   Deliveryman? @relation(fields: [deliverymanId], references: [id])
+  deliverymanId Int?
+  unitStore     UnitStore?   @relation(fields: [unitStoreId], references: [id])
+  unitStoreId   Int?
 }
 
 model Address {
@@ -71,6 +73,14 @@ model City {
 model UnitStore {
   id         Int             @id @default(autoincrement())
   name       String
+  deliveries OrderDelivery[]
+}
+
+model Deliveryman {
+  id         Int             @id @default(autoincrement())
+  name       String
+  lastName   String
+  phone      String          @unique
   deliveries OrderDelivery[]
 }
 
