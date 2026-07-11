@@ -5,4 +5,5 @@ export interface UpdateOrderDeliveryModel {
   amount: number;
   status?: OrderStatus;
   deliverymanId?: number;
+  accountId?: number;
 }

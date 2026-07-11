@@ -1,3 +1,3 @@
 export interface DeleteOrderDeliveryByIdRepository {
-  deleteById(id: number): Promise<string>;
+  deleteById(id: number, accountId?: number): Promise<string>;
 }

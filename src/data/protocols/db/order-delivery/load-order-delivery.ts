@@ -5,15 +5,18 @@ import {
 } from "../../../../domain/models/order-delivery/delivery-ranking";
 
 export interface LoadOrderDeliveryRepository {
-  getAllOrderOfDelivery(): Promise<OrderDeliveryModel[]>;
+  getAllOrderOfDelivery(accountId?: number): Promise<OrderDeliveryModel[]>;
 }
 
 export interface LoadOrderDeliveryByIdRepository {
-  getOneOrderOfDelivery(id: number): Promise<OrderDeliveryModel>;
+  getOneOrderOfDelivery(
+    id: number,
+    accountId?: number,
+  ): Promise<OrderDeliveryModel>;
 }
 
 export interface LoadOrderDeliveryRankingRepository {
   getDeliverymanRankingByPeriod(
-    filter: DeliveryRankingFilter
+    filter: DeliveryRankingFilter,
   ): Promise<DeliveryRankingPaginatedModel>;
 }

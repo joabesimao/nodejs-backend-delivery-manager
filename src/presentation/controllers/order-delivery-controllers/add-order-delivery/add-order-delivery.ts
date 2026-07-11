@@ -18,12 +18,15 @@ export class AddOrderDeliveryController implements Controller {
 
       const { amount, data, quantity, registerId, deliverymanId } =
         httpRequest.body;
+      const accountId =
+        Number(httpRequest.headers?.accountId || 0) || undefined;
       const orderDelivery = await this.addOrderDelivery.addOrderDelivery({
         registerId: registerId,
         deliverymanId: deliverymanId,
         amount: amount,
         data: data,
         quantity: quantity,
+        accountId,
       });
       return ok(orderDelivery);
     } catch (error) {

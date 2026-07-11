@@ -4,11 +4,11 @@ import { LoadOrderDeliveryRepository } from "../../../protocols/db/order-deliver
 
 export class DbLoadOrderDelivery implements LoadOrderDelivery {
   constructor(
-    private readonly loadOrderDeliveryRepository: LoadOrderDeliveryRepository
+    private readonly loadOrderDeliveryRepository: LoadOrderDeliveryRepository,
   ) {}
-  async loadAll(): Promise<OrderDeliveryModel[]> {
+  async loadAll(accountId?: number): Promise<OrderDeliveryModel[]> {
     const orders =
-      await this.loadOrderDeliveryRepository.getAllOrderOfDelivery();
+      await this.loadOrderDeliveryRepository.getAllOrderOfDelivery(accountId);
     return orders;
   }
 }

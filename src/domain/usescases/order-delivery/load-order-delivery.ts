@@ -6,15 +6,15 @@ import {
 } from "../../models/order-delivery/delivery-ranking";
 
 export interface LoadOrderDelivery {
-  loadAll(): Promise<OrderDeliveryModel[]>;
+  loadAll(accountId?: number): Promise<OrderDeliveryModel[]>;
 }
 
 export interface LoadOrderDeliveryById {
-  loadOne(id: number): Promise<OrderDeliveryModel>;
+  loadOne(id: number, accountId?: number): Promise<OrderDeliveryModel>;
 }
 
 export interface LoadOrderDeliveryRanking {
   loadByPeriod(
-    filter: DeliveryRankingFilter
+    filter: DeliveryRankingFilter,
   ): Promise<DeliveryRankingPaginatedModel>;
 }

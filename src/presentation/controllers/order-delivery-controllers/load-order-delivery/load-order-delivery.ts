@@ -7,7 +7,9 @@ export class LoadOrderDeliveryController implements Controller {
   constructor(private readonly loadOrderDelivery: LoadOrderDelivery) {}
   async handle(httpRequest: HttpRequest): Promise<HttpResponse> {
     try {
-      const allOrders = await this.loadOrderDelivery.loadAll();
+      const accountId =
+        Number(httpRequest.headers?.accountId || 0) || undefined;
+      const allOrders = await this.loadOrderDelivery.loadAll(accountId);
       return ok(allOrders);
     } catch (error) {
       return serverError(error);

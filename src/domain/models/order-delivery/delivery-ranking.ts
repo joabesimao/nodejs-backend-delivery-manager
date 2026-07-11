@@ -4,6 +4,7 @@ export interface DeliveryRankingFilter {
   status?: "delivered" | "finished" | "all";
   page: number;
   pageSize: number;
+  accountId?: number;
 }
 
 export interface DeliveryRankingModel {

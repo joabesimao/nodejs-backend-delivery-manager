@@ -4,11 +4,14 @@ import { LoadOrderDeliveryByIdRepository } from "../../../protocols/db/order-del
 
 export class DbLoadOrderDeliveryById implements LoadOrderDeliveryById {
   constructor(
-    private readonly loadOrderDeliveryRepositoryById: LoadOrderDeliveryByIdRepository
+    private readonly loadOrderDeliveryRepositoryById: LoadOrderDeliveryByIdRepository,
   ) {}
-  async loadOne(id: number): Promise<OrderDeliveryModel> {
+  async loadOne(id: number, accountId?: number): Promise<OrderDeliveryModel> {
     const findRegister =
-      await this.loadOrderDeliveryRepositoryById.getOneOrderOfDelivery(id);
+      await this.loadOrderDeliveryRepositoryById.getOneOrderOfDelivery(
+        id,
+        accountId,
+      );
     return findRegister;
   }
 }

@@ -15,6 +15,11 @@ import { UpdateOrderDeliveryRepository } from "../../../../data/protocols/db/ord
 import { OrderDeliveryModel } from "../../../../domain/models/order-delivery/order-delivery";
 import { UpdateOrderDeliveryModel } from "../../../../domain/models/order-delivery/update-order-delivery";
 import { AddOrderDeliveryModel } from "../../../../domain/usescases/order-delivery/add-order-delivery";
+import { emitDeliveryRealtime } from "../../../../main/realtime/realtime-state";
+import {
+  getAccountScope,
+  resolveRootStoreId,
+} from "../../../../main/realtime/store-scope";
 
 export class OrderDeliveryMySqlRepository
   implements
@@ -26,9 +31,24 @@ export class OrderDeliveryMySqlRepository
     DeleteOrderDeliveryByIdRepository
 {
   constructor(private readonly prisma: PrismaClient) {}
-  async getAllOrderOfDelivery(): Promise<OrderDeliveryModel[]> {
+  async getAllOrderOfDelivery(
+    accountId?: number,
+  ): Promise<OrderDeliveryModel[]> {
+    const scope = accountId
+      ? await getAccountScope(this.prisma, accountId)
+      : null;
+
     const allOrderDelivery = await this.prisma.orderDelivery.findMany({
+      where:
+        scope && scope.visibleUnitIds.length > 0
+          ? {
+              unitStoreId: {
+                in: scope.visibleUnitIds,
+              },
+            }
+          : undefined,
       include: {
+        unitStore: true,
         deliveryman: true,
         Register: {
           include: {
@@ -44,9 +64,20 @@ export class OrderDeliveryMySqlRepository
   async addOrderOfDelivery(
     orderOfDelivery: AddOrderDeliveryModel,
   ): Promise<OrderDeliveryModel> {
+    const scope = orderOfDelivery.accountId
+      ? await getAccountScope(this.prisma, orderOfDelivery.accountId)
+      : null;
+
+    const scopedUnitStoreId = scope?.unitStoreId ?? null;
+
     const order = await this.prisma.orderDelivery.create({
       data: {
         registerId: orderOfDelivery.registerId,
+        ...(scopedUnitStoreId
+          ? {
+              unitStoreId: scopedUnitStoreId,
+            }
+          : {}),
         ...(orderOfDelivery.deliverymanId && {
           deliverymanId: Number(orderOfDelivery.deliverymanId),
         }),
@@ -54,14 +85,8 @@ export class OrderDeliveryMySqlRepository
         data: new Date(),
         quantity: orderOfDelivery.quantity,
       },
-    });
-    return order as unknown as OrderDeliveryModel;
-  }
-
-  async getOneOrderOfDelivery(id: number): Promise<OrderDeliveryModel> {
-    const orderById = await this.prisma.orderDelivery.findUnique({
-      where: { id: Number(id) },
       include: {
+        unitStore: true,
         deliveryman: true,
         Register: {
           include: {
@@ -71,12 +96,66 @@ export class OrderDeliveryMySqlRepository
         },
       },
     });
+
+    const rootStoreId = order.unitStoreId
+      ? await resolveRootStoreId(this.prisma, order.unitStoreId)
+      : null;
+
+    emitDeliveryRealtime({
+      eventType: "created",
+      unitStoreId: order.unitStoreId ?? null,
+      rootStoreId,
+      order,
+    });
+
+    return order as unknown as OrderDeliveryModel;
+  }
+
+  async getOneOrderOfDelivery(
+    id: number,
+    accountId?: number,
+  ): Promise<OrderDeliveryModel> {
+    const orderById = await this.prisma.orderDelivery.findUnique({
+      where: { id: Number(id) },
+      include: {
+        unitStore: true,
+        deliveryman: true,
+        Register: {
+          include: {
+            client: true,
+            address: true,
+          },
+        },
+      },
+    });
+
+    if (!orderById) {
+      return null as unknown as OrderDeliveryModel;
+    }
+
+    if (accountId) {
+      const scope = await getAccountScope(this.prisma, accountId);
+
+      if (
+        scope &&
+        scope.visibleUnitIds.length > 0 &&
+        orderById.unitStoreId &&
+        !scope.visibleUnitIds.includes(orderById.unitStoreId)
+      ) {
+        throw new Error("Sem permissao para visualizar entrega dessa loja");
+      }
+    }
+
     return orderById as unknown as OrderDeliveryModel;
   }
 
   async getDeliverymanRankingByPeriod(
     filter: DeliveryRankingFilter,
   ): Promise<DeliveryRankingPaginatedModel> {
+    const scope = filter.accountId
+      ? await getAccountScope(this.prisma, filter.accountId)
+      : null;
+
     const statusFilter: OrderStatus[] =
       filter.status === "all" || !filter.status
         ? [OrderStatus.delivered, OrderStatus.finished]
@@ -91,6 +170,13 @@ export class OrderDeliveryMySqlRepository
         status: {
           in: statusFilter,
         },
+        ...(scope && scope.visibleUnitIds.length > 0
+          ? {
+              unitStoreId: {
+                in: scope.visibleUnitIds,
+              },
+            }
+          : {}),
       },
       include: {
         deliveryman: true,
@@ -156,6 +242,31 @@ export class OrderDeliveryMySqlRepository
     id: number,
     info: UpdateOrderDeliveryModel,
   ): Promise<OrderDeliveryModel> {
+    const existingOrder = await this.prisma.orderDelivery.findUnique({
+      where: { id: Number(id) },
+      select: {
+        id: true,
+        unitStoreId: true,
+      },
+    });
+
+    if (!existingOrder) {
+      throw new Error("Pedido nao encontrado");
+    }
+
+    if (info.accountId) {
+      const scope = await getAccountScope(this.prisma, info.accountId);
+
+      if (
+        scope &&
+        scope.visibleUnitIds.length > 0 &&
+        existingOrder.unitStoreId &&
+        !scope.visibleUnitIds.includes(existingOrder.unitStoreId)
+      ) {
+        throw new Error("Sem permissao para atualizar entrega dessa loja");
+      }
+    }
+
     const updateOrder = await this.prisma.orderDelivery.update({
       where: { id: Number(id) },
       data: {
@@ -166,14 +277,75 @@ export class OrderDeliveryMySqlRepository
         }),
         ...(info.status && { status: info.status }),
       },
+      include: {
+        unitStore: true,
+        deliveryman: true,
+        Register: {
+          include: {
+            client: true,
+            address: true,
+          },
+        },
+      },
     });
+
+    const rootStoreId = updateOrder.unitStoreId
+      ? await resolveRootStoreId(this.prisma, updateOrder.unitStoreId)
+      : null;
+
+    emitDeliveryRealtime({
+      eventType: "updated",
+      unitStoreId: updateOrder.unitStoreId ?? null,
+      rootStoreId,
+      order: updateOrder,
+    });
+
     return updateOrder as unknown as OrderDeliveryModel;
   }
 
-  async deleteById(id: number): Promise<string> {
-    const deleteOneOrderDelivery = await this.prisma.orderDelivery.delete({
+  async deleteById(id: number, accountId?: number): Promise<string> {
+    const existingOrder = await this.prisma.orderDelivery.findUnique({
+      where: { id: Number(id) },
+      select: {
+        id: true,
+        unitStoreId: true,
+      },
+    });
+
+    if (!existingOrder) {
+      throw new Error("Pedido nao encontrado");
+    }
+
+    if (accountId) {
+      const scope = await getAccountScope(this.prisma, accountId);
+
+      if (
+        scope &&
+        scope.visibleUnitIds.length > 0 &&
+        existingOrder.unitStoreId &&
+        !scope.visibleUnitIds.includes(existingOrder.unitStoreId)
+      ) {
+        throw new Error("Sem permissao para deletar entrega dessa loja");
+      }
+    }
+
+    await this.prisma.orderDelivery.delete({
       where: { id: Number(id) },
     });
+
+    const rootStoreId = existingOrder?.unitStoreId
+      ? await resolveRootStoreId(this.prisma, existingOrder.unitStoreId)
+      : null;
+
+    emitDeliveryRealtime({
+      eventType: "deleted",
+      unitStoreId: existingOrder?.unitStoreId ?? null,
+      rootStoreId,
+      order: {
+        id: Number(id),
+      },
+    });
+
     return "Deletado com Sucesso";
   }
 }
