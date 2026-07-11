@@ -18,6 +18,15 @@ export class AccountMySqlRepository
     const account = await this.prisma.account.findUnique({
       where: { id: Number(token) },
     });
+
+    if (!account) {
+      return null;
+    }
+
+    if (role && account.role !== role) {
+      return null;
+    }
+
     return account;
   }
 

@@ -1,4 +1,4 @@
-import { Router } from "express";
+import { Request, Router } from "express";
 import { makeAddRegisterController } from "../factories/add-register";
 import { adaptRoute } from "../adapters/express-route-adapter";
 import { makeLoadRegisterController } from "../factories/load-register";
@@ -31,14 +31,21 @@ import { makeRefreshTokenController } from "../factories/refresh-token-factory";
 import { makeLoadOrderDeliveryRankingController } from "../factories/load-order-delivery-ranking";
 import { makeAddDeliverymanController } from "../factories/add-deliveryman";
 import { makeLoadDeliverymanController } from "../factories/load-deliveryman";
+import { prisma } from "../../infra/db/mysql/helpers";
+import { getAccountScope } from "../realtime/store-scope";
 
 export default (router: Router): void => {
-  const adminAuth = adaptMiddleware(makeAuthMiddleware("admin"));
+  const auth = adaptMiddleware(makeAuthMiddleware());
   router.get("/register", adaptRoute(makeLoadRegisterController()));
   router.get("/client", adaptRoute(makeLoadClientController()));
-  router.get("/orderDelivery", adaptRoute(makeLoadOrdersDeliveryController()));
+  router.get(
+    "/orderDelivery",
+    auth,
+    adaptRoute(makeLoadOrdersDeliveryController()),
+  );
   router.get(
     "/orderDelivery/ranking/deliveryman",
+    auth,
     adaptRoute(makeLoadOrderDeliveryRankingController()),
   );
   router.get("/address", adaptRoute(makeLoadAddressController()));
@@ -50,7 +57,7 @@ export default (router: Router): void => {
   );
   router.get(
     "/orderDelivery/:id",
-
+    auth,
     adaptRoute(makeLoadOrderByIdController()),
   );
   router.get("/client/:id", adaptRoute(makeLoadOneClientController()));
@@ -66,12 +73,12 @@ export default (router: Router): void => {
   router.post("/refresh-token", adaptRoute(makeRefreshTokenController()));
   router.post(
     "/orderDelivery",
-
+    auth,
     adaptRoute(makeAddOrderDeliveryController()),
   );
   router.post(
     "/orderDelivery/:id",
-
+    auth,
     adaptRoute(makeAddOrderDeliveryController()),
   );
   router.put("/register/:id", adaptRoute(makeUpdateRegisterController()));
@@ -79,6 +86,7 @@ export default (router: Router): void => {
   router.put("/address/:id", adaptRoute(makeUpdateAddressController()));
   router.put(
     "/orderDelivery/:id",
+    auth,
     adaptRoute(makeUpdateOrderDeliveryController()),
   );
   router.delete(
@@ -88,9 +96,58 @@ export default (router: Router): void => {
   );
   router.delete(
     "/orderDelivery/:id",
-
+    auth,
     adaptRoute(makeDeleteOrderDeliveryController()),
   );
+
+  router.get("/chat/messages", auth, async (req, res) => {
+    try {
+      const accountId = Number(
+        (req as Request & { accountId?: number }).accountId || 0,
+      );
+
+      if (!accountId) {
+        res.status(401).json({ error: "Nao autenticado" });
+        return;
+      }
+
+      const scope = await getAccountScope(prisma, accountId);
+
+      if (!scope) {
+        res.status(404).json({ error: "Conta nao encontrada" });
+        return;
+      }
+
+      const messages = await prisma.chatMessage.findMany({
+        where: scope.visibleUnitIds.length
+          ? { unitStoreId: { in: scope.visibleUnitIds } }
+          : undefined,
+        include: {
+          sender: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              role: true,
+              unitStoreId: true,
+            },
+          },
+          unitStore: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+        },
+        orderBy: { createdAt: "desc" },
+        take: 100,
+      });
+
+      res.status(200).json(messages.reverse());
+    } catch {
+      res.status(500).json({ error: "Falha ao carregar mensagens" });
+    }
+  });
 
   router.delete(
     "/account/:id",

@@ -8,8 +8,11 @@ export class DeleteOrderDeliveryController implements Controller {
   constructor(private readonly deleteOrderDelivery: DeleteOrderDelivery) {}
   async handle(httpRequest: HttpRequest): Promise<HttpResponse> {
     try {
+      const accountId =
+        Number(httpRequest.headers?.accountId || 0) || undefined;
       const result = await this.deleteOrderDelivery.delete(
-        httpRequest.params.id
+        Number(httpRequest.params.id),
+        accountId,
       );
       return ok(result);
     } catch (error) {

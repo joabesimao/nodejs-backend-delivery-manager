@@ -7,9 +7,14 @@ export class UpdateOrderDeliveryController implements Controller {
   constructor(private readonly updateOrderDelivery: UpdateOrderDelivery) {}
   async handle(httpRequest: HttpRequest): Promise<HttpResponse> {
     try {
+      const accountId =
+        Number(httpRequest.headers?.accountId || 0) || undefined;
       const updateOrderDelivery = await this.updateOrderDelivery.update(
         httpRequest.params.id,
-        httpRequest.body
+        {
+          ...httpRequest.body,
+          accountId,
+        },
       );
       return ok(updateOrderDelivery);
     } catch (error) {

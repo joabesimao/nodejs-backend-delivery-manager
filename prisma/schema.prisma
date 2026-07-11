@@ -9,10 +9,19 @@ datasource db {
 }
 
 model Account {
-  id       Int    @id @default(autoincrement())
-  name     String
-  email    String @unique
-  password String
+  id          Int           @id @default(autoincrement())
+  name        String
+  email       String        @unique
+  password    String
+  role        AccountRole   @default(branch)
+  unitStoreId Int?
+  unitStore   UnitStore?    @relation(fields: [unitStoreId], references: [id])
+  messages    ChatMessage[]
+}
+
+enum AccountRole {
+  principal
+  branch
 }
 
 model Client {
@@ -71,9 +80,15 @@ model City {
 }
 
 model UnitStore {
-  id         Int             @id @default(autoincrement())
-  name       String
-  deliveries OrderDelivery[]
+  id            Int             @id @default(autoincrement())
+  name          String
+  isMain        Boolean         @default(false)
+  parentStoreId Int?
+  parentStore   UnitStore?      @relation("UnitStoreHierarchy", fields: [parentStoreId], references: [id])
+  children      UnitStore[]     @relation("UnitStoreHierarchy")
+  deliveries    OrderDelivery[]
+  accounts      Account[]
+  messages      ChatMessage[]
 }
 
 model Deliveryman {
@@ -89,4 +104,18 @@ model Neighborhood {
   name   String
   cityId Int
   city   City   @relation(fields: [cityId], references: [id])
+}
+
+model ChatMessage {
+  id            Int       @id @default(autoincrement())
+  unitStoreId   Int
+  senderId      Int
+  text          String?
+  imageBase64   String?   @db.LongText
+  imageMimeType String?
+  createdAt     DateTime  @default(now())
+  unitStore     UnitStore @relation(fields: [unitStoreId], references: [id])
+  sender        Account   @relation(fields: [senderId], references: [id])
+
+  @@index([unitStoreId, createdAt])
 }

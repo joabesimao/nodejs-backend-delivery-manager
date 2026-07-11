@@ -15,6 +15,7 @@ export class LoadOrderDeliveryRankingController implements Controller {
       const status = String(httpRequest.headers?.status ?? "all");
       const page = Number(httpRequest.headers?.page ?? 1);
       const pageSize = Number(httpRequest.headers?.pageSize ?? 10);
+      const accountId = Number(httpRequest.headers?.accountId || 0) || undefined;
 
       if (
         !httpRequest.headers?.startDate ||
@@ -47,6 +48,7 @@ export class LoadOrderDeliveryRankingController implements Controller {
         status: status as "all" | "delivered" | "finished",
         page,
         pageSize,
+        accountId,
       });
 
       return ok(ranking);

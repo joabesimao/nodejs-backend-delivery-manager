@@ -1,3 +1,3 @@
 export interface DeleteOrderDelivery {
-  delete(id: number): Promise<string>;
+  delete(id: number, accountId?: number): Promise<string>;
 }

@@ -3,10 +3,13 @@ import { DeleteOrderDeliveryByIdRepository } from "../../../protocols/db/order-d
 
 export class DbdeleteOrderDelivery implements DeleteOrderDelivery {
   constructor(
-    private readonly deleteOrderDeliveryRepository: DeleteOrderDeliveryByIdRepository
+    private readonly deleteOrderDeliveryRepository: DeleteOrderDeliveryByIdRepository,
   ) {}
-  async delete(id: number): Promise<string> {
-    const result = await this.deleteOrderDeliveryRepository.deleteById(id);
+  async delete(id: number, accountId?: number): Promise<string> {
+    const result = await this.deleteOrderDeliveryRepository.deleteById(
+      id,
+      accountId,
+    );
     return result;
   }
 }
