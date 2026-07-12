@@ -121,28 +121,55 @@ export const setupRealtimeGateway = (httpServer: HttpServer): void => {
         rootStoreId: number | null;
       };
       networkRoom: string;
+      defaultUnitStoreId?: number | null;
     };
+
+    let fallbackUnitStoreId = session.account.unitStoreId;
+    if (!fallbackUnitStoreId) {
+      const mainUnit = await prisma.unitStore.findFirst({
+        where: { isMain: true },
+        select: { id: true },
+        orderBy: { id: "asc" },
+      });
+
+      fallbackUnitStoreId =
+        mainUnit?.id ??
+        (
+          await prisma.unitStore.findFirst({
+            select: { id: true },
+            orderBy: { id: "asc" },
+          })
+        )?.id ??
+        null;
+    }
+
+    session.defaultUnitStoreId = fallbackUnitStoreId;
 
     socket.join(session.networkRoom);
 
-    const unitRooms = session.scope.visibleUnitIds.map(
-      (unitId) => `unit:${unitId}`,
-    );
+    const visibleUnitIdsForChat =
+      session.scope.visibleUnitIds.length > 0
+        ? session.scope.visibleUnitIds
+        : fallbackUnitStoreId
+          ? [fallbackUnitStoreId]
+          : [];
+
+    const unitRooms = visibleUnitIdsForChat.map((unitId) => `unit:${unitId}`);
     for (const room of unitRooms) {
       socket.join(room);
     }
 
-    const units = session.scope.visibleUnitIds.length
+    const units = visibleUnitIdsForChat.length
       ? await prisma.unitStore.findMany({
-          where: { id: { in: session.scope.visibleUnitIds } },
+          where: { id: { in: visibleUnitIdsForChat } },
           select: { id: true, name: true, parentStoreId: true, isMain: true },
           orderBy: { id: "asc" },
         })
       : [];
 
     const messages = await prisma.chatMessage.findMany({
-      where: session.scope.visibleUnitIds.length
-        ? { unitStoreId: { in: session.scope.visibleUnitIds } }
+      where: visibleUnitIdsForChat.length
+        ? { unitStoreId: { in: visibleUnitIdsForChat } }
         : undefined,
       include: {
         sender: {
@@ -204,14 +231,18 @@ export const setupRealtimeGateway = (httpServer: HttpServer): void => {
 
           const requestedUnit = Number(payload?.unitStoreId || 0) || null;
           const fallbackUnit = session.account.unitStoreId;
-          const chosenUnitId = requestedUnit ?? fallbackUnit;
+          const chosenUnitId =
+            requestedUnit ?? fallbackUnit ?? session.defaultUnitStoreId ?? null;
 
           if (!chosenUnitId) {
             ack?.({ ok: false, error: "Conta sem loja vinculada" });
             return;
           }
 
-          if (!session.scope.visibleUnitIds.includes(chosenUnitId)) {
+          if (
+            visibleUnitIdsForChat.length > 0 &&
+            !visibleUnitIdsForChat.includes(chosenUnitId)
+          ) {
             ack?.({
               ok: false,
               error: "Sem permissao para enviar para essa loja",

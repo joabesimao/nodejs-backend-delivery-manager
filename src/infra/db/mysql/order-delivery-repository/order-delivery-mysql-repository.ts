@@ -1,4 +1,4 @@
-import { OrderStatus, PrismaClient } from "@prisma/client";
+import { OrderStatus, Prisma, PrismaClient } from "@prisma/client";
 import { AddOrderDeliveryRepository } from "../../../../data/protocols/db/order-delivery/add-order-delivery";
 import { DeleteOrderDeliveryByIdRepository } from "../../../../data/protocols/db/order-delivery/delete-order-delivery";
 import {
@@ -31,6 +31,20 @@ export class OrderDeliveryMySqlRepository
     DeleteOrderDeliveryByIdRepository
 {
   constructor(private readonly prisma: PrismaClient) {}
+
+  private isMissingUnitStoreColumn(error: unknown): boolean {
+    if (!(error instanceof Prisma.PrismaClientKnownRequestError)) {
+      return false;
+    }
+
+    if (error.code !== "P2022") {
+      return false;
+    }
+
+    const column = String(error.meta?.column ?? "").toLowerCase();
+    return column.includes("unitstoreid");
+  }
+
   async getAllOrderOfDelivery(
     accountId?: number,
   ): Promise<OrderDeliveryModel[]> {
@@ -38,26 +52,45 @@ export class OrderDeliveryMySqlRepository
       ? await getAccountScope(this.prisma, accountId)
       : null;
 
-    const allOrderDelivery = await this.prisma.orderDelivery.findMany({
-      where:
-        scope && scope.visibleUnitIds.length > 0
-          ? {
-              unitStoreId: {
-                in: scope.visibleUnitIds,
-              },
-            }
-          : undefined,
-      include: {
-        unitStore: true,
-        deliveryman: true,
-        Register: {
-          include: {
-            client: true,
-            address: true,
+    let allOrderDelivery;
+    try {
+      allOrderDelivery = await this.prisma.orderDelivery.findMany({
+        where:
+          scope && scope.visibleUnitIds.length > 0
+            ? {
+                unitStoreId: {
+                  in: scope.visibleUnitIds,
+                },
+              }
+            : undefined,
+        include: {
+          unitStore: true,
+          deliveryman: true,
+          Register: {
+            include: {
+              client: true,
+              address: true,
+            },
           },
         },
-      },
-    });
+      });
+    } catch (error) {
+      if (!this.isMissingUnitStoreColumn(error)) {
+        throw error;
+      }
+
+      allOrderDelivery = await this.prisma.orderDelivery.findMany({
+        include: {
+          deliveryman: true,
+          Register: {
+            include: {
+              client: true,
+              address: true,
+            },
+          },
+        },
+      });
+    }
 
     return allOrderDelivery as unknown as OrderDeliveryModel[];
   }
@@ -70,40 +103,71 @@ export class OrderDeliveryMySqlRepository
 
     const scopedUnitStoreId = scope?.unitStoreId ?? null;
 
-    const order = await this.prisma.orderDelivery.create({
-      data: {
-        registerId: orderOfDelivery.registerId,
-        ...(scopedUnitStoreId
-          ? {
-              unitStoreId: scopedUnitStoreId,
-            }
-          : {}),
-        ...(orderOfDelivery.deliverymanId && {
-          deliverymanId: Number(orderOfDelivery.deliverymanId),
-        }),
-        amount: Number(orderOfDelivery.amount),
-        data: new Date(),
-        quantity: orderOfDelivery.quantity,
-      },
-      include: {
-        unitStore: true,
-        deliveryman: true,
-        Register: {
-          include: {
-            client: true,
-            address: true,
+    let order;
+    let rootStoreId: number | null = null;
+
+    try {
+      order = await this.prisma.orderDelivery.create({
+        data: {
+          registerId: orderOfDelivery.registerId,
+          ...(scopedUnitStoreId
+            ? {
+                unitStoreId: scopedUnitStoreId,
+              }
+            : {}),
+          ...(orderOfDelivery.deliverymanId && {
+            deliverymanId: Number(orderOfDelivery.deliverymanId),
+          }),
+          amount: Number(orderOfDelivery.amount),
+          data: new Date(),
+          quantity: orderOfDelivery.quantity,
+        },
+        include: {
+          unitStore: true,
+          deliveryman: true,
+          Register: {
+            include: {
+              client: true,
+              address: true,
+            },
           },
         },
-      },
-    });
+      });
 
-    const rootStoreId = order.unitStoreId
-      ? await resolveRootStoreId(this.prisma, order.unitStoreId)
-      : null;
+      rootStoreId = order.unitStoreId
+        ? await resolveRootStoreId(this.prisma, order.unitStoreId)
+        : null;
+    } catch (error) {
+      if (!this.isMissingUnitStoreColumn(error)) {
+        throw error;
+      }
+
+      order = await this.prisma.orderDelivery.create({
+        data: {
+          registerId: orderOfDelivery.registerId,
+          ...(orderOfDelivery.deliverymanId && {
+            deliverymanId: Number(orderOfDelivery.deliverymanId),
+          }),
+          amount: Number(orderOfDelivery.amount),
+          data: new Date(),
+          quantity: orderOfDelivery.quantity,
+        },
+        include: {
+          deliveryman: true,
+          Register: {
+            include: {
+              client: true,
+              address: true,
+            },
+          },
+        },
+      });
+    }
 
     emitDeliveryRealtime({
       eventType: "created",
-      unitStoreId: order.unitStoreId ?? null,
+      unitStoreId:
+        (order as { unitStoreId?: number | null }).unitStoreId ?? null,
       rootStoreId,
       order,
     });
@@ -115,19 +179,39 @@ export class OrderDeliveryMySqlRepository
     id: number,
     accountId?: number,
   ): Promise<OrderDeliveryModel> {
-    const orderById = await this.prisma.orderDelivery.findUnique({
-      where: { id: Number(id) },
-      include: {
-        unitStore: true,
-        deliveryman: true,
-        Register: {
-          include: {
-            client: true,
-            address: true,
+    let orderById;
+    try {
+      orderById = await this.prisma.orderDelivery.findUnique({
+        where: { id: Number(id) },
+        include: {
+          unitStore: true,
+          deliveryman: true,
+          Register: {
+            include: {
+              client: true,
+              address: true,
+            },
           },
         },
-      },
-    });
+      });
+    } catch (error) {
+      if (!this.isMissingUnitStoreColumn(error)) {
+        throw error;
+      }
+
+      orderById = await this.prisma.orderDelivery.findUnique({
+        where: { id: Number(id) },
+        include: {
+          deliveryman: true,
+          Register: {
+            include: {
+              client: true,
+              address: true,
+            },
+          },
+        },
+      });
+    }
 
     if (!orderById) {
       return null as unknown as OrderDeliveryModel;
@@ -136,11 +220,14 @@ export class OrderDeliveryMySqlRepository
     if (accountId) {
       const scope = await getAccountScope(this.prisma, accountId);
 
+      const orderUnitStoreId =
+        (orderById as { unitStoreId?: number | null }).unitStoreId ?? null;
+
       if (
         scope &&
         scope.visibleUnitIds.length > 0 &&
-        orderById.unitStoreId &&
-        !scope.visibleUnitIds.includes(orderById.unitStoreId)
+        orderUnitStoreId &&
+        !scope.visibleUnitIds.includes(orderUnitStoreId)
       ) {
         throw new Error("Sem permissao para visualizar entrega dessa loja");
       }
@@ -161,32 +248,59 @@ export class OrderDeliveryMySqlRepository
         ? [OrderStatus.delivered, OrderStatus.finished]
         : [filter.status as OrderStatus];
 
-    const deliveries = await this.prisma.orderDelivery.findMany({
-      where: {
-        data: {
-          gte: filter.startDate,
-          lte: filter.endDate,
+    let deliveries;
+    try {
+      deliveries = await this.prisma.orderDelivery.findMany({
+        where: {
+          data: {
+            gte: filter.startDate,
+            lte: filter.endDate,
+          },
+          status: {
+            in: statusFilter,
+          },
+          ...(scope && scope.visibleUnitIds.length > 0
+            ? {
+                unitStoreId: {
+                  in: scope.visibleUnitIds,
+                },
+              }
+            : {}),
         },
-        status: {
-          in: statusFilter,
-        },
-        ...(scope && scope.visibleUnitIds.length > 0
-          ? {
-              unitStoreId: {
-                in: scope.visibleUnitIds,
-              },
-            }
-          : {}),
-      },
-      include: {
-        deliveryman: true,
-        Register: {
-          include: {
-            client: true,
+        include: {
+          deliveryman: true,
+          Register: {
+            include: {
+              client: true,
+            },
           },
         },
-      },
-    });
+      });
+    } catch (error) {
+      if (!this.isMissingUnitStoreColumn(error)) {
+        throw error;
+      }
+
+      deliveries = await this.prisma.orderDelivery.findMany({
+        where: {
+          data: {
+            gte: filter.startDate,
+            lte: filter.endDate,
+          },
+          status: {
+            in: statusFilter,
+          },
+        },
+        include: {
+          deliveryman: true,
+          Register: {
+            include: {
+              client: true,
+            },
+          },
+        },
+      });
+    }
 
     const totalsByDeliveryman = new Map<number, DeliveryRankingModel>();
 
@@ -242,13 +356,29 @@ export class OrderDeliveryMySqlRepository
     id: number,
     info: UpdateOrderDeliveryModel,
   ): Promise<OrderDeliveryModel> {
-    const existingOrder = await this.prisma.orderDelivery.findUnique({
-      where: { id: Number(id) },
-      select: {
-        id: true,
-        unitStoreId: true,
-      },
-    });
+    let existingOrder;
+    let withUnitStoreColumn = true;
+    try {
+      existingOrder = await this.prisma.orderDelivery.findUnique({
+        where: { id: Number(id) },
+        select: {
+          id: true,
+          unitStoreId: true,
+        },
+      });
+    } catch (error) {
+      if (!this.isMissingUnitStoreColumn(error)) {
+        throw error;
+      }
+
+      withUnitStoreColumn = false;
+      existingOrder = await this.prisma.orderDelivery.findUnique({
+        where: { id: Number(id) },
+        select: {
+          id: true,
+        },
+      });
+    }
 
     if (!existingOrder) {
       throw new Error("Pedido nao encontrado");
@@ -257,45 +387,80 @@ export class OrderDeliveryMySqlRepository
     if (info.accountId) {
       const scope = await getAccountScope(this.prisma, info.accountId);
 
+      const orderUnitStoreId = withUnitStoreColumn
+        ? ((existingOrder as { unitStoreId?: number | null }).unitStoreId ??
+          null)
+        : null;
+
       if (
         scope &&
         scope.visibleUnitIds.length > 0 &&
-        existingOrder.unitStoreId &&
-        !scope.visibleUnitIds.includes(existingOrder.unitStoreId)
+        orderUnitStoreId &&
+        !scope.visibleUnitIds.includes(orderUnitStoreId)
       ) {
         throw new Error("Sem permissao para atualizar entrega dessa loja");
       }
     }
 
-    const updateOrder = await this.prisma.orderDelivery.update({
-      where: { id: Number(id) },
-      data: {
-        amount: Number(info.amount),
-        quantity: info.quantity,
-        ...(info.deliverymanId && {
-          deliverymanId: Number(info.deliverymanId),
-        }),
-        ...(info.status && { status: info.status }),
-      },
-      include: {
-        unitStore: true,
-        deliveryman: true,
-        Register: {
-          include: {
-            client: true,
-            address: true,
+    let updateOrder;
+    let rootStoreId: number | null = null;
+    try {
+      updateOrder = await this.prisma.orderDelivery.update({
+        where: { id: Number(id) },
+        data: {
+          amount: Number(info.amount),
+          quantity: info.quantity,
+          ...(info.deliverymanId && {
+            deliverymanId: Number(info.deliverymanId),
+          }),
+          ...(info.status && { status: info.status }),
+        },
+        include: {
+          unitStore: true,
+          deliveryman: true,
+          Register: {
+            include: {
+              client: true,
+              address: true,
+            },
           },
         },
-      },
-    });
+      });
 
-    const rootStoreId = updateOrder.unitStoreId
-      ? await resolveRootStoreId(this.prisma, updateOrder.unitStoreId)
-      : null;
+      rootStoreId = updateOrder.unitStoreId
+        ? await resolveRootStoreId(this.prisma, updateOrder.unitStoreId)
+        : null;
+    } catch (error) {
+      if (!this.isMissingUnitStoreColumn(error)) {
+        throw error;
+      }
+
+      updateOrder = await this.prisma.orderDelivery.update({
+        where: { id: Number(id) },
+        data: {
+          amount: Number(info.amount),
+          quantity: info.quantity,
+          ...(info.deliverymanId && {
+            deliverymanId: Number(info.deliverymanId),
+          }),
+          ...(info.status && { status: info.status }),
+        },
+        include: {
+          deliveryman: true,
+          Register: {
+            include: {
+              client: true,
+              address: true,
+            },
+          },
+        },
+      });
+    }
 
     emitDeliveryRealtime({
       eventType: "updated",
-      unitStoreId: updateOrder.unitStoreId ?? null,
+      unitStoreId:
+        (updateOrder as { unitStoreId?: number | null }).unitStoreId ?? null,
       rootStoreId,
       order: updateOrder,
     });
@@ -304,13 +469,29 @@ export class OrderDeliveryMySqlRepository
   }
 
   async deleteById(id: number, accountId?: number): Promise<string> {
-    const existingOrder = await this.prisma.orderDelivery.findUnique({
-      where: { id: Number(id) },
-      select: {
-        id: true,
-        unitStoreId: true,
-      },
-    });
+    let existingOrder;
+    let withUnitStoreColumn = true;
+    try {
+      existingOrder = await this.prisma.orderDelivery.findUnique({
+        where: { id: Number(id) },
+        select: {
+          id: true,
+          unitStoreId: true,
+        },
+      });
+    } catch (error) {
+      if (!this.isMissingUnitStoreColumn(error)) {
+        throw error;
+      }
+
+      withUnitStoreColumn = false;
+      existingOrder = await this.prisma.orderDelivery.findUnique({
+        where: { id: Number(id) },
+        select: {
+          id: true,
+        },
+      });
+    }
 
     if (!existingOrder) {
       throw new Error("Pedido nao encontrado");
@@ -319,11 +500,16 @@ export class OrderDeliveryMySqlRepository
     if (accountId) {
       const scope = await getAccountScope(this.prisma, accountId);
 
+      const orderUnitStoreId = withUnitStoreColumn
+        ? ((existingOrder as { unitStoreId?: number | null }).unitStoreId ??
+          null)
+        : null;
+
       if (
         scope &&
         scope.visibleUnitIds.length > 0 &&
-        existingOrder.unitStoreId &&
-        !scope.visibleUnitIds.includes(existingOrder.unitStoreId)
+        orderUnitStoreId &&
+        !scope.visibleUnitIds.includes(orderUnitStoreId)
       ) {
         throw new Error("Sem permissao para deletar entrega dessa loja");
       }
@@ -333,13 +519,17 @@ export class OrderDeliveryMySqlRepository
       where: { id: Number(id) },
     });
 
-    const rootStoreId = existingOrder?.unitStoreId
-      ? await resolveRootStoreId(this.prisma, existingOrder.unitStoreId)
+    const existingOrderUnitStoreId = withUnitStoreColumn
+      ? ((existingOrder as { unitStoreId?: number | null }).unitStoreId ?? null)
+      : null;
+
+    const rootStoreId = existingOrderUnitStoreId
+      ? await resolveRootStoreId(this.prisma, existingOrderUnitStoreId)
       : null;
 
     emitDeliveryRealtime({
       eventType: "deleted",
-      unitStoreId: existingOrder?.unitStoreId ?? null,
+      unitStoreId: existingOrderUnitStoreId,
       rootStoreId,
       order: {
         id: Number(id),

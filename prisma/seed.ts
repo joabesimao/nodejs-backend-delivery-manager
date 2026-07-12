@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client";
+import bcrypt from "bcrypt";
 
 const prisma = new PrismaClient();
 
@@ -36,15 +37,130 @@ const initialClients = [
 ];
 
 const initialOrders = [
-  { phone: "85999990001", quantity: "3", amount: 48.5, daysAgo: 6, status: "finished" },
-  { phone: "85999990001", quantity: "2", amount: 31.9, daysAgo: 4, status: "delivered" },
-  { phone: "85999990002", quantity: "1", amount: 15, daysAgo: 3, status: "finished" },
-  { phone: "85999990002", quantity: "5", amount: 82, daysAgo: 2, status: "actived" },
-  { phone: "85999990003", quantity: "4", amount: 67.2, daysAgo: 1, status: "finished" },
+  {
+    phone: "85999990001",
+    quantity: "3",
+    amount: 48.5,
+    daysAgo: 6,
+    status: "finished",
+  },
+  {
+    phone: "85999990001",
+    quantity: "2",
+    amount: 31.9,
+    daysAgo: 4,
+    status: "delivered",
+  },
+  {
+    phone: "85999990002",
+    quantity: "1",
+    amount: 15,
+    daysAgo: 3,
+    status: "finished",
+  },
+  {
+    phone: "85999990002",
+    quantity: "5",
+    amount: 82,
+    daysAgo: 2,
+    status: "actived",
+  },
+  {
+    phone: "85999990003",
+    quantity: "4",
+    amount: 67.2,
+    daysAgo: 1,
+    status: "finished",
+  },
 ] as const;
 
 async function main() {
   console.log("🌱 Iniciando seed...");
+
+  let mainUnit = await prisma.unitStore.findFirst({
+    where: { isMain: true },
+    orderBy: { id: "asc" },
+  });
+
+  if (!mainUnit) {
+    mainUnit = await prisma.unitStore.create({
+      data: {
+        name: "Matriz FastOne",
+        isMain: true,
+      },
+    });
+  }
+
+  let branchUnit = await prisma.unitStore.findFirst({
+    where: {
+      isMain: false,
+      parentStoreId: mainUnit.id,
+    },
+    orderBy: { id: "asc" },
+  });
+
+  if (!branchUnit) {
+    branchUnit = await prisma.unitStore.create({
+      data: {
+        name: "Filial FastOne",
+        isMain: false,
+        parentStoreId: mainUnit.id,
+      },
+    });
+  }
+
+  const defaultPassword = await bcrypt.hash("123456", 10);
+
+  await prisma.account.upsert({
+    where: { email: "admin@fastone.local" },
+    update: {
+      name: "Administrador",
+      role: "principal",
+      unitStoreId: mainUnit.id,
+      password: defaultPassword,
+    },
+    create: {
+      name: "Administrador",
+      email: "admin@fastone.local",
+      password: defaultPassword,
+      role: "principal",
+      unitStoreId: mainUnit.id,
+    },
+  });
+
+  await prisma.account.upsert({
+    where: { email: "chat.matriz@fastone.local" },
+    update: {
+      name: "Chat Matriz",
+      role: "principal",
+      unitStoreId: mainUnit.id,
+      password: defaultPassword,
+    },
+    create: {
+      name: "Chat Matriz",
+      email: "chat.matriz@fastone.local",
+      password: defaultPassword,
+      role: "principal",
+      unitStoreId: mainUnit.id,
+    },
+  });
+
+  await prisma.account.upsert({
+    where: { email: "chat.filial@fastone.local" },
+    update: {
+      name: "Chat Filial",
+      role: "branch",
+      unitStoreId: branchUnit.id,
+      password: defaultPassword,
+    },
+    create: {
+      name: "Chat Filial",
+      email: "chat.filial@fastone.local",
+      password: defaultPassword,
+      role: "branch",
+      unitStoreId: branchUnit.id,
+    },
+  });
 
   for (const entry of initialClients) {
     const existingClient = await prisma.client.findFirst({
@@ -82,13 +198,13 @@ async function main() {
 
   if (existingOrdersCount === 0) {
     for (const order of initialOrders) {
-    const register = await prisma.register.findFirst({
-      where: {
-        client: {
-          phone: order.phone,
+      const register = await prisma.register.findFirst({
+        where: {
+          client: {
+            phone: order.phone,
+          },
         },
-      },
-    });
+      });
 
       if (!register) {
         continue;

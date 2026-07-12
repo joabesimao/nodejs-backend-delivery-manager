@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client";
+import { Prisma, PrismaClient } from "@prisma/client";
 
 type AccountScope = {
   accountId: number;
@@ -12,6 +12,14 @@ const uniqueNumbers = (values: number[]): number[] =>
   Array.from(
     new Set(values.filter((value) => Number.isFinite(value) && value > 0)),
   );
+
+const isLegacySchemaError = (error: unknown): boolean => {
+  if (!(error instanceof Prisma.PrismaClientKnownRequestError)) {
+    return false;
+  }
+
+  return error.code === "P2021" || error.code === "P2022";
+};
 
 export const resolveRootStoreId = async (
   prisma: PrismaClient,
@@ -67,14 +75,41 @@ export const getAccountScope = async (
   prisma: PrismaClient,
   accountId: number,
 ): Promise<AccountScope | null> => {
-  const account = await prisma.account.findUnique({
-    where: { id: accountId },
-    select: {
-      id: true,
-      role: true,
-      unitStoreId: true,
-    },
-  });
+  let account: {
+    id: number;
+    role: "principal" | "branch";
+    unitStoreId: number | null;
+  } | null = null;
+
+  try {
+    account = await prisma.account.findUnique({
+      where: { id: accountId },
+      select: {
+        id: true,
+        role: true,
+        unitStoreId: true,
+      },
+    });
+  } catch (error) {
+    if (!isLegacySchemaError(error)) {
+      throw error;
+    }
+
+    const basicAccount = await prisma.account.findUnique({
+      where: { id: accountId },
+      select: {
+        id: true,
+      },
+    });
+
+    account = basicAccount
+      ? {
+          id: basicAccount.id,
+          role: "branch",
+          unitStoreId: null,
+        }
+      : null;
+  }
 
   if (!account) {
     return null;
@@ -92,12 +127,29 @@ export const getAccountScope = async (
     };
   }
 
-  const rootStoreId = await resolveRootStoreId(prisma, account.unitStoreId);
+  let rootStoreId = account.unitStoreId;
+  try {
+    rootStoreId = await resolveRootStoreId(prisma, account.unitStoreId);
+  } catch (error) {
+    if (!isLegacySchemaError(error)) {
+      throw error;
+    }
+  }
 
-  const visibleUnitIds =
-    normalizedRole === "principal"
-      ? await listDescendantUnitIds(prisma, rootStoreId)
-      : [account.unitStoreId];
+  let visibleUnitIds: number[];
+  if (normalizedRole === "principal") {
+    try {
+      visibleUnitIds = await listDescendantUnitIds(prisma, rootStoreId);
+    } catch (error) {
+      if (!isLegacySchemaError(error)) {
+        throw error;
+      }
+
+      visibleUnitIds = [account.unitStoreId];
+    }
+  } else {
+    visibleUnitIds = [account.unitStoreId];
+  }
 
   return {
     accountId: account.id,

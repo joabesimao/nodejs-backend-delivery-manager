@@ -34,6 +34,63 @@ import { makeLoadDeliverymanController } from "../factories/load-deliveryman";
 import { prisma } from "../../infra/db/mysql/helpers";
 import { getAccountScope } from "../realtime/store-scope";
 
+const MAX_CHAT_IMAGE_SIZE_BYTES = 5 * 1024 * 1024;
+
+const estimateBase64Bytes = (base64Value: string): number => {
+  const padding = base64Value.match(/=+$/)?.[0].length ?? 0;
+  return Math.floor((base64Value.length * 3) / 4) - padding;
+};
+
+const normalizeBase64 = (imageBase64: string): string => {
+  if (!imageBase64) {
+    return "";
+  }
+
+  const marker = ",";
+  const markerIndex = imageBase64.indexOf(marker);
+
+  if (markerIndex >= 0 && imageBase64.startsWith("data:")) {
+    return imageBase64.slice(markerIndex + 1);
+  }
+
+  return imageBase64;
+};
+
+const resolveVisibleUnitsForChat = async (accountId: number) => {
+  const scope = await getAccountScope(prisma, accountId);
+
+  if (!scope) {
+    return {
+      scope: null,
+      visibleUnitIds: [] as number[],
+    };
+  }
+
+  let visibleUnitIds = scope.visibleUnitIds;
+  if (visibleUnitIds.length === 0) {
+    const fallbackUnit = scope.unitStoreId
+      ? { id: scope.unitStoreId }
+      : ((await prisma.unitStore.findFirst({
+          where: { isMain: true },
+          select: { id: true },
+          orderBy: { id: "asc" },
+        })) ??
+        (await prisma.unitStore.findFirst({
+          select: { id: true },
+          orderBy: { id: "asc" },
+        })));
+
+    if (fallbackUnit?.id) {
+      visibleUnitIds = [fallbackUnit.id];
+    }
+  }
+
+  return {
+    scope,
+    visibleUnitIds,
+  };
+};
+
 export default (router: Router): void => {
   const auth = adaptMiddleware(makeAuthMiddleware());
   router.get("/register", adaptRoute(makeLoadRegisterController()));
@@ -111,7 +168,8 @@ export default (router: Router): void => {
         return;
       }
 
-      const scope = await getAccountScope(prisma, accountId);
+      const { scope, visibleUnitIds } =
+        await resolveVisibleUnitsForChat(accountId);
 
       if (!scope) {
         res.status(404).json({ error: "Conta nao encontrada" });
@@ -119,8 +177,8 @@ export default (router: Router): void => {
       }
 
       const messages = await prisma.chatMessage.findMany({
-        where: scope.visibleUnitIds.length
-          ? { unitStoreId: { in: scope.visibleUnitIds } }
+        where: visibleUnitIds.length
+          ? { unitStoreId: { in: visibleUnitIds } }
           : undefined,
         include: {
           sender: {
@@ -146,6 +204,221 @@ export default (router: Router): void => {
       res.status(200).json(messages.reverse());
     } catch {
       res.status(500).json({ error: "Falha ao carregar mensagens" });
+    }
+  });
+
+  router.post("/chat/messages", auth, async (req, res) => {
+    try {
+      const accountId = Number(
+        (req as Request & { accountId?: number }).accountId || 0,
+      );
+
+      if (!accountId) {
+        res.status(401).json({ error: "Nao autenticado" });
+        return;
+      }
+
+      const { scope, visibleUnitIds } =
+        await resolveVisibleUnitsForChat(accountId);
+
+      if (!scope) {
+        res.status(404).json({ error: "Conta nao encontrada" });
+        return;
+      }
+
+      const text =
+        typeof req.body?.text === "string" ? req.body.text.trim() : "";
+      const rawImage =
+        typeof req.body?.imageBase64 === "string"
+          ? req.body.imageBase64.trim()
+          : "";
+      const normalizedImage = normalizeBase64(rawImage);
+      const imageMimeType =
+        typeof req.body?.imageMimeType === "string" &&
+        req.body.imageMimeType.trim()
+          ? req.body.imageMimeType.trim()
+          : null;
+
+      if (!text && !normalizedImage) {
+        res.status(400).json({ error: "Mensagem vazia" });
+        return;
+      }
+
+      if (normalizedImage) {
+        const estimatedBytes = estimateBase64Bytes(normalizedImage);
+        if (estimatedBytes > MAX_CHAT_IMAGE_SIZE_BYTES) {
+          res.status(400).json({ error: "Imagem excede 5MB" });
+          return;
+        }
+      }
+
+      const requestedUnitId = Number(req.body?.unitStoreId || 0) || null;
+      const chosenUnitId =
+        requestedUnitId ?? scope.unitStoreId ?? visibleUnitIds[0] ?? null;
+
+      if (!chosenUnitId) {
+        res.status(400).json({ error: "Conta sem loja vinculada" });
+        return;
+      }
+
+      if (visibleUnitIds.length > 0 && !visibleUnitIds.includes(chosenUnitId)) {
+        res
+          .status(403)
+          .json({ error: "Sem permissao para enviar para essa loja" });
+        return;
+      }
+
+      const message = await prisma.chatMessage.create({
+        data: {
+          unitStoreId: chosenUnitId,
+          senderId: accountId,
+          text: text || null,
+          imageBase64: normalizedImage || null,
+          imageMimeType,
+        },
+        include: {
+          sender: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              role: true,
+              unitStoreId: true,
+            },
+          },
+          unitStore: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+        },
+      });
+
+      res.status(201).json(message);
+    } catch {
+      res.status(500).json({ error: "Falha ao enviar mensagem" });
+    }
+  });
+
+  router.put("/chat/messages/:id", auth, async (req, res) => {
+    try {
+      const accountId = Number(
+        (req as Request & { accountId?: number }).accountId || 0,
+      );
+      const messageId = Number(req.params.id || 0);
+
+      if (!accountId) {
+        res.status(401).json({ error: "Nao autenticado" });
+        return;
+      }
+
+      if (!messageId) {
+        res.status(400).json({ error: "Mensagem invalida" });
+        return;
+      }
+
+      const text =
+        typeof req.body?.text === "string" ? req.body.text.trim() : "";
+      if (!text) {
+        res.status(400).json({ error: "Texto da mensagem obrigatorio" });
+        return;
+      }
+
+      const existing = await prisma.chatMessage.findUnique({
+        where: { id: messageId },
+        select: {
+          id: true,
+          senderId: true,
+        },
+      });
+
+      if (!existing) {
+        res.status(404).json({ error: "Mensagem nao encontrada" });
+        return;
+      }
+
+      if (existing.senderId !== accountId) {
+        res
+          .status(403)
+          .json({ error: "Sem permissao para editar essa mensagem" });
+        return;
+      }
+
+      const updated = await prisma.chatMessage.update({
+        where: { id: messageId },
+        data: {
+          text,
+        },
+        include: {
+          sender: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              role: true,
+              unitStoreId: true,
+            },
+          },
+          unitStore: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+        },
+      });
+
+      res.status(200).json(updated);
+    } catch {
+      res.status(500).json({ error: "Falha ao atualizar mensagem" });
+    }
+  });
+
+  router.delete("/chat/messages/:id", auth, async (req, res) => {
+    try {
+      const accountId = Number(
+        (req as Request & { accountId?: number }).accountId || 0,
+      );
+      const messageId = Number(req.params.id || 0);
+
+      if (!accountId) {
+        res.status(401).json({ error: "Nao autenticado" });
+        return;
+      }
+
+      if (!messageId) {
+        res.status(400).json({ error: "Mensagem invalida" });
+        return;
+      }
+
+      const existing = await prisma.chatMessage.findUnique({
+        where: { id: messageId },
+        select: {
+          id: true,
+          senderId: true,
+        },
+      });
+
+      if (!existing) {
+        res.status(404).json({ error: "Mensagem nao encontrada" });
+        return;
+      }
+
+      if (existing.senderId !== accountId) {
+        res
+          .status(403)
+          .json({ error: "Sem permissao para excluir essa mensagem" });
+        return;
+      }
+
+      await prisma.chatMessage.delete({
+        where: { id: messageId },
+      });
+
+      res.status(200).json({ ok: true });
+    } catch {
+      res.status(500).json({ error: "Falha ao excluir mensagem" });
     }
   });
 
