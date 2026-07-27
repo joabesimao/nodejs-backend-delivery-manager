@@ -8,3 +8,4 @@ env.ts
 generated/prisma/
 .env
 dbsql
+.env
