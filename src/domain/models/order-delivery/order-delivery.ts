@@ -10,5 +10,7 @@ export interface OrderDeliveryModel {
   quantity: string;
   amount: number;
   data: Date;
+  receivedAt?: Date;
+  finishedAt?: Date;
   status: OrderStatus;
 }
