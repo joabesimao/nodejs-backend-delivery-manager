@@ -44,6 +44,8 @@ model OrderDelivery {
   quantity      String
   amount        Float
   data          DateTime
+  receivedAt    DateTime?    @default(now())
+  finishedAt    DateTime?
   status        OrderStatus  @default(actived)
   Register      Register     @relation(fields: [registerId], references: [id])
   registerId    Int

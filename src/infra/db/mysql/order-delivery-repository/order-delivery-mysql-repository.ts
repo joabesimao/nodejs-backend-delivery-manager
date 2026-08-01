@@ -83,6 +83,7 @@ export class OrderDeliveryMySqlRepository
         }),
         amount: Number(orderOfDelivery.amount),
         data: new Date(),
+        receivedAt: new Date(),
         quantity: orderOfDelivery.quantity,
       },
       include: {
@@ -272,6 +273,9 @@ export class OrderDeliveryMySqlRepository
       data: {
         amount: Number(info.amount),
         quantity: info.quantity,
+        ...(info.status === "finished" && {
+          finishedAt: new Date(),
+        }),
         ...(info.deliverymanId && {
           deliverymanId: Number(info.deliverymanId),
         }),
