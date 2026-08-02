@@ -1,6 +1,9 @@
 import { PrismaClient } from "@prisma/client";
+import bcrypt from "bcrypt";
 
 const prisma = new PrismaClient();
+const DEFAULT_ADMIN_EMAIL = "admin@fastone.local";
+const DEFAULT_ADMIN_PASSWORD = "12345678";
 
 const initialClients = [
   {
@@ -45,6 +48,33 @@ const initialOrders = [
 
 async function main() {
   console.log("🌱 Iniciando seed...");
+
+  const adminPasswordHash = await bcrypt.hash(DEFAULT_ADMIN_PASSWORD, 12);
+
+  const existingAdmin = await prisma.account.findUnique({
+    where: { email: DEFAULT_ADMIN_EMAIL },
+    select: { id: true },
+  });
+
+  if (!existingAdmin) {
+    await prisma.account.create({
+      data: {
+        name: "Administrador",
+        email: DEFAULT_ADMIN_EMAIL,
+        password: adminPasswordHash,
+      },
+    });
+    console.log("✅ Conta admin padrão criada");
+  } else {
+    await prisma.account.update({
+      where: { email: DEFAULT_ADMIN_EMAIL },
+      data: {
+        name: "Administrador",
+        password: adminPasswordHash,
+      },
+    });
+    console.log("✅ Conta admin padrão atualizada");
+  }
 
   for (const entry of initialClients) {
     const existingClient = await prisma.client.findFirst({

@@ -18,6 +18,16 @@ export const adaptRoute = (controller: Controller) => {
     if (httpResponse.statusCode >= 200 && httpResponse.statusCode <= 299) {
       res.status(httpResponse.statusCode).json(httpResponse.body);
     } else {
+      if (httpResponse.statusCode >= 500) {
+        console.error("[route] internal_error", {
+          method: req.method,
+          path: req.originalUrl,
+          accountId: requestWithAccount.accountId ?? null,
+          statusCode: httpResponse.statusCode,
+          message: httpResponse.body?.message ?? "Internal server error",
+        });
+      }
+
       res.status(httpResponse.statusCode).json({
         error: httpResponse.body.message,
       });
