@@ -42,9 +42,25 @@ export class AddOrderDeliveryController implements Controller {
     private readonly validation: Validation,
   ) {}
   async handle(httpRequest: HttpRequest): Promise<HttpResponse> {
+    const requestTrace = {
+      at: new Date().toISOString(),
+      route: "POST /orderDelivery",
+      accountId: Number(httpRequest.headers?.accountId || 0) || null,
+      registerId: httpRequest.body?.registerId ?? null,
+      deliverymanId: httpRequest.body?.deliverymanId ?? null,
+      quantity: httpRequest.body?.quantity ?? null,
+      amount: httpRequest.body?.amount ?? null,
+    };
+
     try {
+      console.info("[orderDelivery:create] request", requestTrace);
+
       const error = await this.validation.validate(httpRequest.body);
       if (error) {
+        console.warn("[orderDelivery:create] validation_error", {
+          ...requestTrace,
+          reason: error.message,
+        });
         return badRequest(error);
       }
 
@@ -83,8 +99,32 @@ export class AddOrderDeliveryController implements Controller {
         quantity: String(quantity),
         accountId,
       });
+
+      console.info("[orderDelivery:create] success", {
+        ...requestTrace,
+        createdOrderId: orderDelivery?.id ?? null,
+        parsedAmount,
+      });
+
       return ok(orderDelivery);
     } catch (error) {
+      const message = error instanceof Error ? error.message : "";
+
+      console.error("[orderDelivery:create] error", {
+        ...requestTrace,
+        reason: message || "Erro desconhecido",
+      });
+
+      if (
+        message.includes("Cadastro nao encontrado") ||
+        message.includes("Entregador nao encontrado") ||
+        message.includes("Conta vinculada a loja inexistente") ||
+        message.includes("Sem permissao") ||
+        message.includes("Foreign key constraint")
+      ) {
+        return badRequest(new Error(message || "Dados invalidos para criar pedido"));
+      }
+
       return serverError(error);
     }
   }

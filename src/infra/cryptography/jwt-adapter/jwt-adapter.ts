@@ -32,7 +32,13 @@ export class JwtAdapter implements Encrypter, Decrypter {
   }
 
   async decrypt(value: string): Promise<string> {
-    const payload = (await jwt.verify(value, this.secret)) as JwtPayload;
+    let payload: JwtPayload;
+
+    try {
+      payload = (await jwt.verify(value, this.secret)) as JwtPayload;
+    } catch {
+      return null;
+    }
 
     if (!payload?.id) {
       return null;

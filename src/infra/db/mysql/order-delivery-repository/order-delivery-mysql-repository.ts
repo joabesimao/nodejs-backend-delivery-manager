@@ -64,11 +64,44 @@ export class OrderDeliveryMySqlRepository
   async addOrderOfDelivery(
     orderOfDelivery: AddOrderDeliveryModel,
   ): Promise<OrderDeliveryModel> {
+    const registerExists = await this.prisma.register.findUnique({
+      where: { id: Number(orderOfDelivery.registerId) },
+      select: { id: true },
+    });
+
+    if (!registerExists) {
+      throw new Error("Cadastro nao encontrado");
+    }
+
+    if (orderOfDelivery.deliverymanId) {
+      const deliverymanExists = await this.prisma.deliveryman.findUnique({
+        where: { id: Number(orderOfDelivery.deliverymanId) },
+        select: { id: true },
+      });
+
+      if (!deliverymanExists) {
+        throw new Error("Entregador nao encontrado");
+      }
+    }
+
     const scope = orderOfDelivery.accountId
       ? await getAccountScope(this.prisma, orderOfDelivery.accountId)
       : null;
 
-    const scopedUnitStoreId = scope?.unitStoreId ?? null;
+    let scopedUnitStoreId: number | null = null;
+
+    if (scope?.unitStoreId) {
+      const unitStoreExists = await this.prisma.unitStore.findUnique({
+        where: { id: scope.unitStoreId },
+        select: { id: true },
+      });
+
+      if (!unitStoreExists) {
+        throw new Error("Conta vinculada a loja inexistente");
+      }
+
+      scopedUnitStoreId = scope.unitStoreId;
+    }
 
     const order = await this.prisma.orderDelivery.create({
       data: {
