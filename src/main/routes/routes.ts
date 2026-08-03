@@ -146,6 +146,99 @@ export default (router: Router): void => {
       res.status(500).json({ error: "Falha ao carregar dados do dashboard" });
     }
   });
+
+  router.get("/dashboard/reports", auth, async (req, res) => {
+    try {
+      const accountId = Number(
+        (req as Request & { accountId?: number }).accountId || 0,
+      );
+
+      if (!accountId) {
+        res.status(401).json({ error: "Nao autenticado" });
+        return;
+      }
+
+      const scope = await getAccountScope(prisma, accountId);
+
+      if (!scope) {
+        res.status(404).json({ error: "Conta nao encontrada" });
+        return;
+      }
+
+      const ordersWhere = scope.visibleUnitIds.length
+        ? {
+            unitStoreId: {
+              in: scope.visibleUnitIds,
+            },
+          }
+        : undefined;
+
+      const orders = await prisma.orderDelivery.findMany({
+        where: ordersWhere,
+        include: {
+          Register: {
+            include: {
+              address: true,
+            },
+          },
+        },
+      });
+
+      const byNeighborhood = Array.from(
+        orders.reduce((totals, order) => {
+          const neighborhood = order.Register?.address?.neighborhood?.trim();
+
+          if (!neighborhood) {
+            return totals;
+          }
+
+          totals.set(neighborhood, (totals.get(neighborhood) ?? 0) + 1);
+          return totals;
+        }, new Map<string, number>()),
+      )
+        .map(([name, value]) => ({ name, value }))
+        .sort((a, b) => b.value - a.value || a.name.localeCompare(b.name));
+
+      const byCity = Array.from(
+        orders.reduce((totals, order) => {
+          const city = order.Register?.address?.city?.trim();
+
+          if (!city) {
+            return totals;
+          }
+
+          totals.set(city, (totals.get(city) ?? 0) + 1);
+          return totals;
+        }, new Map<string, number>()),
+      )
+        .map(([name, value]) => ({ name, value }))
+        .sort((a, b) => b.value - a.value || a.name.localeCompare(b.name));
+
+      const completedOrders = orders.filter(
+        (order) => order.status === OrderStatus.finished,
+      ).length;
+      const pendingOrders = orders.length - completedOrders;
+
+      res.status(200).json({
+        summary: {
+          totalOrders: orders.length,
+          completedOrders,
+          pendingOrders,
+          totalRevenue: orders
+            .filter((order) => order.status === OrderStatus.finished)
+            .reduce((sum, order) => sum + Number(order.amount ?? 0), 0),
+        },
+        byNeighborhood,
+        byCity,
+        byStatus: [
+          { name: "Finalizadas", value: completedOrders },
+          { name: "Pendentes", value: pendingOrders },
+        ],
+      });
+    } catch {
+      res.status(500).json({ error: "Falha ao carregar dados de relatórios do dashboard" });
+    }
+  });
   router.get("/address", adaptRoute(makeLoadAddressController()));
   router.get("/register/:id", adaptRoute(makeLoadRegisterByIdController()));
   router.get(
