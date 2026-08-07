@@ -32,8 +32,13 @@ import { makeRefreshTokenController } from "../factories/refresh-token-factory";
 import { makeLoadOrderDeliveryRankingController } from "../factories/load-order-delivery-ranking";
 import { makeAddDeliverymanController } from "../factories/add-deliveryman";
 import { makeLoadDeliverymanController } from "../factories/load-deliveryman";
-import { prisma } from "../../infra/db/mysql/helpers";
-import { getAccountScope } from "../realtime/store-scope";
+import { makeLoadChatMessagesController } from "../factories/load-chat-messages";
+import { makeLoadChatMessageByIdController } from "../factories/load-chat-message-by-id";
+import { makeAddChatMessageController } from "../factories/add-chat-message";
+import { makeDeleteChatMessageController } from "../factories/delete-chat-message";
+import { makeUpdateChatMessageController } from "../factories/update-chat-message";
+import { makeSearchChatMessagesController } from "../factories/search-chat-messages";
+import { makeGetChatStatisticsController } from "../factories/get-chat-statistics";
 
 export default (router: Router): void => {
   const auth = adaptMiddleware(makeAuthMiddleware());
@@ -291,58 +296,17 @@ export default (router: Router): void => {
     adaptRoute(makeDeleteOrderDeliveryController()),
   );
 
-  router.get("/chat/messages", auth, async (req, res) => {
-    try {
-      const accountId = Number(
-        (req as Request & { accountId?: number }).accountId || 0,
-      );
-
-      if (!accountId) {
-        res.status(401).json({ error: "Nao autenticado" });
-        return;
-      }
-
-      const scope = await getAccountScope(prisma, accountId);
-
-      if (!scope) {
-        res.status(404).json({ error: "Conta nao encontrada" });
-        return;
-      }
-
-      const messages = await prisma.chatMessage.findMany({
-        where: scope.visibleUnitIds.length
-          ? { unitStoreId: { in: scope.visibleUnitIds } }
-          : undefined,
-        include: {
-          sender: {
-            select: {
-              id: true,
-              name: true,
-              email: true,
-              role: true,
-              unitStoreId: true,
-            },
-          },
-          unitStore: {
-            select: {
-              id: true,
-              name: true,
-            },
-          },
-        },
-        orderBy: { createdAt: "desc" },
-        take: 100,
-      });
-
-      res.status(200).json(messages.reverse());
-    } catch {
-      res.status(500).json({ error: "Falha ao carregar mensagens" });
-    }
-  });
+  // Chat endpoints
+  router.get("/chat/messages", auth, adaptRoute(makeLoadChatMessagesController()));
+  router.get("/chat/search", auth, adaptRoute(makeSearchChatMessagesController()));
+  router.get("/chat/messages/:id", auth, adaptRoute(makeLoadChatMessageByIdController()));
+  router.post("/chat/messages", auth, adaptRoute(makeAddChatMessageController()));
+  router.put("/chat/messages/:id", auth, adaptRoute(makeUpdateChatMessageController()));
+  router.delete("/chat/messages/:id", auth, adaptRoute(makeDeleteChatMessageController()));
+  router.get("/chat/statistics", auth, adaptRoute(makeGetChatStatisticsController()));
 
   router.delete(
     "/account/:id",
-
     adaptRoute(makeDeleteAccountController()),
   );
 

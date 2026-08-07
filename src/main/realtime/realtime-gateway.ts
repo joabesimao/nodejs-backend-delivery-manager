@@ -172,6 +172,42 @@ export const setupRealtimeGateway = (httpServer: HttpServer): void => {
 
     socket.emit("chat:history", messages.reverse());
 
+    // Fetch chat history
+    socket.on("chat:fetch-history", async (ack?: (response: unknown) => void) => {
+      try {
+        const messages = await prisma.chatMessage.findMany({
+          where: session.scope.visibleUnitIds.length
+            ? { unitStoreId: { in: session.scope.visibleUnitIds } }
+            : undefined,
+          include: {
+            sender: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+                role: true,
+                unitStoreId: true,
+              },
+            },
+            unitStore: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+          },
+          orderBy: { createdAt: "desc" },
+          take: 100,
+        });
+
+        socket.emit("chat:history", messages.reverse());
+        ack?.({ ok: true });
+      } catch {
+        ack?.({ ok: false, error: "Falha ao buscar histórico" });
+      }
+    });
+
+    // Send chat message
     socket.on(
       "chat:send",
       async (payload: ChatSendPayload, ack?: (response: unknown) => void) => {
@@ -250,6 +286,48 @@ export const setupRealtimeGateway = (httpServer: HttpServer): void => {
           ack?.({ ok: true, messageId: message.id });
         } catch {
           ack?.({ ok: false, error: "Falha ao enviar mensagem" });
+        }
+      },
+    );
+
+    // Delete chat message
+    socket.on(
+      "chat:delete-message",
+      async (payload: { messageId: number }, ack?: (response: unknown) => void) => {
+        try {
+          const messageId = Number(payload?.messageId || 0);
+
+          if (!messageId) {
+            ack?.({ ok: false, error: "ID de mensagem inválido" });
+            return;
+          }
+
+          const message = await prisma.chatMessage.findUnique({
+            where: { id: messageId },
+          });
+
+          if (!message) {
+            ack?.({ ok: false, error: "Mensagem não encontrada" });
+            return;
+          }
+
+          // Only sender or principal can delete
+          if (
+            message.senderId !== session.account.id &&
+            session.account.role !== "principal"
+          ) {
+            ack?.({ ok: false, error: "Sem permissão para deletar" });
+            return;
+          }
+
+          await prisma.chatMessage.delete({
+            where: { id: messageId },
+          });
+
+          io.to(session.networkRoom).emit("chat:message-deleted", { messageId });
+          ack?.({ ok: true });
+        } catch {
+          ack?.({ ok: false, error: "Falha ao deletar mensagem" });
         }
       },
     );
