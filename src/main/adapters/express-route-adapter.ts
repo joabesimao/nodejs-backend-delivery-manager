@@ -4,21 +4,28 @@ import { Request, Response } from "express";
 
 export const adaptRoute = (controller: Controller) => {
   return async (req: Request, res: Response) => {
-    const requestWithAccount = req as Request & { accountId?: number };
-    const httpRequest: HttpRequest = {
-      body: req.body,
-      params: req.params,
-      headers: {
-        ...req.headers,
-        ...req.query,
-        accountId: requestWithAccount.accountId,
-      },
-    };
-    const httpResponse = await controller.handle(httpRequest);
-    if (httpResponse.statusCode >= 200 && httpResponse.statusCode <= 299) {
-      res.status(httpResponse.statusCode).json(httpResponse.body);
-    } else {
-      if (httpResponse.statusCode >= 500) {
+    try {
+      const requestWithAccount = req as Request & { accountId?: number };
+      const httpRequest: HttpRequest = {
+        body: req.body,
+        params: req.params,
+        query: req.query,
+        headers: {
+          ...req.headers,
+          accountId: requestWithAccount.accountId,
+          accountRole: (req as any).accountRole,
+          accountUnitStoreId: (req as any).accountUnitStoreId,
+        },
+      };
+      const httpResponse = await controller.handle(httpRequest);
+      if (httpResponse.statusCode >= 200 && httpResponse.statusCode <= 299) {
+        res.status(httpResponse.statusCode).json(httpResponse.body);
+      } else {
+        const errorBody = httpResponse.body as any;
+        const errorMessage = errorBody?.message || 
+                            (errorBody instanceof Error ? errorBody.message : null) ||
+                            "Erro desconhecido";
+        if (httpResponse.statusCode >= 500) {
         console.error("[route] internal_error", {
           method: req.method,
           path: req.originalUrl,
@@ -29,8 +36,13 @@ export const adaptRoute = (controller: Controller) => {
       }
 
       res.status(httpResponse.statusCode).json({
-        error: httpResponse.body.message,
-      });
+          error: errorMessage,
+        });
+      }
+    } catch (error) {
+      console.error("Route error:", error);
+      res.status(500).json({ error: "Internal server error" });
     }
   };
 };
+

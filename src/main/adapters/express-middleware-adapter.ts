@@ -12,8 +12,12 @@ export const adaptMiddleware = (middleware: Middleware) => {
       Object.assign(req, httpResponse.body);
       next();
     } else {
+      const errorBody = httpResponse.body as any;
+      const errorMessage = errorBody?.message || 
+                          (errorBody instanceof Error ? errorBody.message : null) ||
+                          "Erro desconhecido";
       res.status(httpResponse.statusCode).json({
-        error: httpResponse.body.message,
+        error: errorMessage,
       });
     }
   };
