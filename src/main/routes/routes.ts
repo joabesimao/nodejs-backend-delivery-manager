@@ -28,6 +28,8 @@ import { makeLoadCityController } from "../factories/load-city";
 import { makeLoadNeighborhoodController } from "../factories/load-neighborhood";
 import { makeAddCityController } from "../factories/add-city";
 import { makeAddNeighborhoodController } from "../factories/add-neighborhood";
+import { getAccountScope } from "../realtime/store-scope";
+import { prisma } from "../../infra/db/mysql/helpers";
 import { makeRefreshTokenController } from "../factories/refresh-token-factory";
 import { makeLoadOrderDeliveryRankingController } from "../factories/load-order-delivery-ranking";
 import { makeAddDeliverymanController } from "../factories/add-deliveryman";
@@ -147,8 +149,9 @@ export default (router: Router): void => {
             : "Sem entregador",
         })),
       });
-    } catch {
-      res.status(500).json({ error: "Falha ao carregar dados do dashboard" });
+    } catch (error) {
+      console.error("[dashboard/overview] Erro ao carregar dados:", error);
+      res.status(500).json({ error: "Falha ao carregar dados do dashboard", details: String(error) });
     }
   });
 

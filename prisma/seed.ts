@@ -46,6 +46,18 @@ const initialOrders = [
   { phone: "85999990003", quantity: "4", amount: 67.2, daysAgo: 1, status: "finished" },
 ] as const;
 
+const initialCities = [
+  { name: "Cidade Exemplo" },
+  { name: "Nova Cidade" },
+  { name: "Fortaleza" },
+];
+
+const initialNeighborhoods = [
+  { name: "Centro", cityName: "Cidade Exemplo" },
+  { name: "Nova Esperanca", cityName: "Cidade Exemplo" },
+  { name: "Sao Jose", cityName: "Nova Cidade" },
+];
+
 async function main() {
   console.log("🌱 Iniciando seed...");
 
@@ -74,6 +86,43 @@ async function main() {
       },
     });
     console.log("✅ Conta admin padrão atualizada");
+  }
+
+  // Seed de cidades
+  for (const city of initialCities) {
+    const existingCity = await prisma.city.findUnique({
+      where: { name: city.name },
+    });
+
+    if (!existingCity) {
+      await prisma.city.create({
+        data: { name: city.name },
+      });
+      console.log(`✅ Cidade "${city.name}" criada`);
+    }
+  }
+
+  // Seed de bairros
+  for (const neighborhood of initialNeighborhoods) {
+    const city = await prisma.city.findUnique({
+      where: { name: neighborhood.cityName },
+    });
+
+    if (city) {
+      const existingNeighborhood = await prisma.neighborhood.findFirst({
+        where: { name: neighborhood.name, cityId: city.id },
+      });
+
+      if (!existingNeighborhood) {
+        await prisma.neighborhood.create({
+          data: {
+            name: neighborhood.name,
+            cityId: city.id,
+          },
+        });
+        console.log(`✅ Bairro "${neighborhood.name}" criado`);
+      }
+    }
   }
 
   for (const entry of initialClients) {
