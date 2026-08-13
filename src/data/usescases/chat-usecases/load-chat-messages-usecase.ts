@@ -1,5 +1,4 @@
 // Protocolo de use case para carregar mensagens de chat
-import { Either } from "../../../domain/models/either";
 
 export interface ChatMessage {
   id: number;
@@ -13,7 +12,7 @@ export interface ChatMessage {
     id: number;
     name: string;
     email: string;
-    role: "principal" | "branch";
+    role: "admin" | "user";
     unitStoreId: number | null;
   };
   unitStore: {
@@ -41,5 +40,5 @@ export interface LoadChatMessagesUseCaseResponse {
 export interface LoadChatMessagesUseCase {
   execute(
     request: LoadChatMessagesUseCaseRequest,
-  ): Promise<Either<Error, LoadChatMessagesUseCaseResponse>>;
+  ): Promise<LoadChatMessagesUseCaseResponse>;
 }

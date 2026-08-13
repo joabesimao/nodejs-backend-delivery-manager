@@ -39,16 +39,16 @@ export class DeleteChatMessageController implements Controller {
         };
       }
 
-      // Verificar permissão: somente remetente ou principal podem deletar
+      // Verificar permissão: somente remetente ou admin podem deletar
       const account = await prisma.account.findUnique({
         where: { id: accountId },
         select: { role: true },
       });
 
       const isOwner = message.senderId === accountId;
-      const isPrincipal = account?.role === "principal";
+      const isAdmin = account?.role === "admin";
 
-      if (!isOwner && !isPrincipal) {
+      if (!isOwner && !isAdmin) {
         return {
           statusCode: 403,
           body: { error: "Sem permissão para deletar esta mensagem" },

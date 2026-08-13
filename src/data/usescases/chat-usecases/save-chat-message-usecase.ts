@@ -1,5 +1,4 @@
 // Protocolo de use case para salvar mensagem de chat
-import { Either } from "../../../domain/models/either";
 
 export interface SaveChatMessageUseCaseRequest {
   unitStoreId: number;
@@ -22,5 +21,5 @@ export interface SaveChatMessageUseCaseResponse {
 export interface SaveChatMessageUseCase {
   execute(
     request: SaveChatMessageUseCaseRequest,
-  ): Promise<Either<Error, SaveChatMessageUseCaseResponse>>;
+  ): Promise<SaveChatMessageUseCaseResponse>;
 }

@@ -50,16 +50,16 @@ export class UpdateChatMessageController implements Controller {
         };
       }
 
-      // Verificar permissão: somente remetente ou principal podem editar
+      // Verificar permissão: somente remetente ou admin podem editar
       const account = await prisma.account.findUnique({
         where: { id: accountId },
         select: { role: true },
       });
 
       const isOwner = message.senderId === accountId;
-      const isPrincipal = account?.role === "principal";
+      const isAdmin = account?.role === "admin";
 
-      if (!isOwner && !isPrincipal) {
+      if (!isOwner && !isAdmin) {
         return {
           statusCode: 403,
           body: { error: "Sem permissão para editar esta mensagem" },

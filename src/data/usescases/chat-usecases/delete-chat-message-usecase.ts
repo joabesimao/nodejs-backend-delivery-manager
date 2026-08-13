@@ -1,10 +1,9 @@
 // Protocolo de use case para deletar mensagem de chat
-import { Either } from "../../../domain/models/either";
 
 export interface DeleteChatMessageUseCaseRequest {
   messageId: number;
   accountId: number;
-  accountRole: "principal" | "branch";
+  accountRole: "admin" | "user";
 }
 
 export interface DeleteChatMessageUseCaseResponse {
@@ -14,5 +13,5 @@ export interface DeleteChatMessageUseCaseResponse {
 export interface DeleteChatMessageUseCase {
   execute(
     request: DeleteChatMessageUseCaseRequest,
-  ): Promise<Either<Error, DeleteChatMessageUseCaseResponse>>;
+  ): Promise<DeleteChatMessageUseCaseResponse>;
 }
