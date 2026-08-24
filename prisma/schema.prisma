@@ -28,6 +28,7 @@ model Client {
   id       Int       @id @default(autoincrement())
   name     String
   lastName String
+  cpf      String    @unique
   phone    String
   status   Boolean   @default(true)
   Register Register?
@@ -120,4 +121,12 @@ model ChatMessage {
   sender        Account   @relation(fields: [senderId], references: [id])
 
   @@index([unitStoreId, createdAt])
+}
+
+model Product {
+  id          Int     @id @default(autoincrement())
+  name        String
+  price       Decimal @db.Decimal(10, 2)
+  description String
+  category    String
 }
