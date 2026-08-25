@@ -1,4 +1,4 @@
-import { DbAddAccount } from "../../data/usescases/account-usescases/add-account/db-add-account";
+import { DbAddAccount } from "../../data/usescases/account-usecases/add-account/db-add-account";
 import { BcryptAdapter } from "../../infra/cryptography/bcrypt-adapter/bcrypt-adapter";
 import { AccountMySqlRepository } from "../../infra/db/mysql/account-repository/account-repository";
 import { SignupController } from "../../presentation/controllers/account-controllers/signup/signup";

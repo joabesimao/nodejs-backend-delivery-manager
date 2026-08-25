@@ -8,5 +8,5 @@ export interface AddProductModel {
 }
 
 export interface AddProduct {
-  add(client: AddProductModel): Promise<Product>;
+  add(product: AddProductModel): Promise<Product>;
 }
