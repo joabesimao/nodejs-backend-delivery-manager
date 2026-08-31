@@ -20,6 +20,7 @@ export class DeliverymanMysqlRepository
       data: {
         name: deliveryman.name,
         lastName: deliveryman.lastName,
+        numberQualification: deliveryman.numberQualification,
         phone: deliveryman.phone,
       },
     });

@@ -7,7 +7,12 @@ const DEFAULT_ADMIN_PASSWORD = "12345678";
 
 const initialClients = [
   {
-    client: { name: "Joao", lastName: "Silva", phone: "85999990001" },
+    client: {
+      name: "Joao",
+      lastName: "Silva",
+      phone: "85999990001",
+      cpf: "12345678901",
+    },
     address: {
       street: "Rua das Flores",
       neighborhood: "Centro",
@@ -17,7 +22,12 @@ const initialClients = [
     },
   },
   {
-    client: { name: "Maria", lastName: "Alves", phone: "85999990002" },
+    client: {
+      name: "Maria",
+      lastName: "Alves",
+      phone: "85999990002",
+      cpf: "12345678902",
+    },
     address: {
       street: "Av. Principal",
       neighborhood: "Nova Esperanca",
@@ -27,7 +37,12 @@ const initialClients = [
     },
   },
   {
-    client: { name: "Carlos", lastName: "Lima", phone: "85999990003" },
+    client: {
+      name: "Carlos",
+      lastName: "Lima",
+      phone: "85999990003",
+      cpf: "12345678903",
+    },
     address: {
       street: "Rua do Sol",
       neighborhood: "Sao Jose",
@@ -74,6 +89,7 @@ async function main() {
         name: "Administrador",
         email: DEFAULT_ADMIN_EMAIL,
         password: adminPasswordHash,
+        role: "admin",
       },
     });
     console.log("✅ Conta admin padrão criada");
@@ -83,6 +99,7 @@ async function main() {
       data: {
         name: "Administrador",
         password: adminPasswordHash,
+        role: "admin",
       },
     });
     console.log("✅ Conta admin padrão atualizada");
@@ -141,6 +158,7 @@ async function main() {
               name: entry.client.name,
               lastName: entry.client.lastName,
               phone: entry.client.phone,
+              cpf: entry.client.cpf,
             },
           },
           address: {

@@ -3,6 +3,7 @@ import { Client } from "../../models/client/client-model";
 export interface AddClientModel {
   name: string;
   lastName: string;
+  cpf: string;
   phone: string;
 }
 

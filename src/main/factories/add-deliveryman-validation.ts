@@ -4,9 +4,9 @@ import {
 } from "../../presentation/helpers/validators";
 import { Validation } from "../../presentation/protocols/validation";
 
-export const makeAddClientValidation = (): ValidationComposite => {
+export const makeAddDeliverymanValidation = (): ValidationComposite => {
   const validations: Validation[] = [];
-  for (const field of ["name", "lastName", "cpf", "phone"]) {
+  for (const field of ["name", "lastName", "numberQualification", "phone"]) {
     validations.push(new RequireFieldsValidation(field));
   }
   return new ValidationComposite(validations);
