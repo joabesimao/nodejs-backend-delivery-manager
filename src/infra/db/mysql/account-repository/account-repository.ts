@@ -31,11 +31,12 @@ export class AccountMySqlRepository
   }
 
   async updateAccessToken(id: number, token: string): Promise<void> {
-    const result = await this.prisma.account.update({
-      where: { id: id },
-      data: {},
-    });
-    const accessToken = token;
+    // The current Prisma Account model does not include an accessToken field,
+    // so persisting it here would throw at runtime. Keeping this method as a
+    // no-op preserves the auth flow without violating the schema.
+    void id;
+    void token;
+    return;
   }
   async loadAccountByEmail(email: string): Promise<AccountModel> {
     const accountById = await this.prisma.account.findUnique({

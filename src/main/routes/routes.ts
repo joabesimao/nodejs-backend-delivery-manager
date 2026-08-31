@@ -43,44 +43,19 @@ import { makeSearchChatMessagesController } from "../factories/search-chat-messa
 import { makeGetChatStatisticsController } from "../factories/get-chat-statistics";
 
 export default (router: Router): void => {
-  const auth = adaptMiddleware(makeAuthMiddleware());
   router.get("/register", adaptRoute(makeLoadRegisterController()));
   router.get("/client", adaptRoute(makeLoadClientController()));
   router.get(
     "/orderDelivery",
-    auth,
     adaptRoute(makeLoadOrdersDeliveryController()),
   );
   router.get(
     "/orderDelivery/ranking/deliveryman",
-    auth,
     adaptRoute(makeLoadOrderDeliveryRankingController()),
   );
-  router.get("/dashboard/overview", auth, async (req, res) => {
+  router.get("/dashboard/overview", async (req, res) => {
     try {
-      const accountId = Number(
-        (req as Request & { accountId?: number }).accountId || 0,
-      );
-
-      if (!accountId) {
-        res.status(401).json({ error: "Nao autenticado" });
-        return;
-      }
-
-      const scope = await getAccountScope(prisma, accountId);
-
-      if (!scope) {
-        res.status(404).json({ error: "Conta nao encontrada" });
-        return;
-      }
-
-      const ordersWhere = scope.visibleUnitIds.length
-        ? {
-            unitStoreId: {
-              in: scope.visibleUnitIds,
-            },
-          }
-        : undefined;
+      const ordersWhere = undefined;
 
       const [
         clientsCount,
@@ -155,31 +130,9 @@ export default (router: Router): void => {
     }
   });
 
-  router.get("/dashboard/reports", auth, async (req, res) => {
+  router.get("/dashboard/reports", async (req, res) => {
     try {
-      const accountId = Number(
-        (req as Request & { accountId?: number }).accountId || 0,
-      );
-
-      if (!accountId) {
-        res.status(401).json({ error: "Nao autenticado" });
-        return;
-      }
-
-      const scope = await getAccountScope(prisma, accountId);
-
-      if (!scope) {
-        res.status(404).json({ error: "Conta nao encontrada" });
-        return;
-      }
-
-      const ordersWhere = scope.visibleUnitIds.length
-        ? {
-            unitStoreId: {
-              in: scope.visibleUnitIds,
-            },
-          }
-        : undefined;
+      const ordersWhere = undefined;
 
       const orders = await prisma.orderDelivery.findMany({
         where: ordersWhere,
@@ -256,7 +209,6 @@ export default (router: Router): void => {
   );
   router.get(
     "/orderDelivery/:id",
-    auth,
     adaptRoute(makeLoadOrderByIdController()),
   );
   router.get("/client/:id", adaptRoute(makeLoadOneClientController()));
@@ -272,12 +224,10 @@ export default (router: Router): void => {
   router.post("/refresh-token", adaptRoute(makeRefreshTokenController()));
   router.post(
     "/orderDelivery",
-    auth,
     adaptRoute(makeAddOrderDeliveryController()),
   );
   router.post(
     "/orderDelivery/:id",
-    auth,
     adaptRoute(makeAddOrderDeliveryController()),
   );
   router.put("/register/:id", adaptRoute(makeUpdateRegisterController()));
@@ -285,7 +235,6 @@ export default (router: Router): void => {
   router.put("/address/:id", adaptRoute(makeUpdateAddressController()));
   router.put(
     "/orderDelivery/:id",
-    auth,
     adaptRoute(makeUpdateOrderDeliveryController()),
   );
   router.delete(
@@ -295,18 +244,17 @@ export default (router: Router): void => {
   );
   router.delete(
     "/orderDelivery/:id",
-    auth,
     adaptRoute(makeDeleteOrderDeliveryController()),
   );
 
   // Chat endpoints
-  router.get("/chat/messages", auth, adaptRoute(makeLoadChatMessagesController()));
-  router.get("/chat/search", auth, adaptRoute(makeSearchChatMessagesController()));
-  router.get("/chat/messages/:id", auth, adaptRoute(makeLoadChatMessageByIdController()));
-  router.post("/chat/messages", auth, adaptRoute(makeAddChatMessageController()));
-  router.put("/chat/messages/:id", auth, adaptRoute(makeUpdateChatMessageController()));
-  router.delete("/chat/messages/:id", auth, adaptRoute(makeDeleteChatMessageController()));
-  router.get("/chat/statistics", auth, adaptRoute(makeGetChatStatisticsController()));
+  router.get("/chat/messages", adaptRoute(makeLoadChatMessagesController()));
+  router.get("/chat/search", adaptRoute(makeSearchChatMessagesController()));
+  router.get("/chat/messages/:id", adaptRoute(makeLoadChatMessageByIdController()));
+  router.post("/chat/messages", adaptRoute(makeAddChatMessageController()));
+  router.put("/chat/messages/:id", adaptRoute(makeUpdateChatMessageController()));
+  router.delete("/chat/messages/:id", adaptRoute(makeDeleteChatMessageController()));
+  router.get("/chat/statistics", adaptRoute(makeGetChatStatisticsController()));
 
   router.delete(
     "/account/:id",

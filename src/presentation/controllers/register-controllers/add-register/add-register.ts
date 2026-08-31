@@ -42,6 +42,7 @@ export class AddRegisterController implements Controller {
 
       return ok(result);
     } catch (error) {
+      console.error("[AddRegisterController] Error:", error);
       return serverError(error);
     }
   }

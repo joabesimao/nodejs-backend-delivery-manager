@@ -29,6 +29,7 @@ export class RegisterMySqlRepository
           create: {
             name: dataInfo.client.name,
             lastName: dataInfo.client.lastName,
+            cpf: dataInfo.client.cpf,
             phone: dataInfo.client.phone,
           },
         },
