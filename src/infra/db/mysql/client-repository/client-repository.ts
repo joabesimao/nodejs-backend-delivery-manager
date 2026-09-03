@@ -23,11 +23,22 @@ export class ClientMysqlRepository
   constructor(private readonly prisma: PrismaClient) {}
 
   async add(client: AddClientModel): Promise<ClientModel> {
+    const cpfClean = client.cpf.replace(/\D/g, "");
+    
+    // Verificar se CPF já existe
+    const existingClient = await this.prisma.client.findFirst({
+      where: { cpf: cpfClean },
+    });
+
+    if (existingClient) {
+      throw new Error(`CPF ${client.cpf} já cadastrado no sistema.`);
+    }
+
     const createClient = await this.prisma.client.create({
       data: {
         name: client.name,
         lastName: client.lastName,
-        cpf: client.cpf,
+        cpf: cpfClean,
         phone: client.phone,
       },
     });
