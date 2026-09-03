@@ -34,6 +34,8 @@ import { makeRefreshTokenController } from "../factories/refresh-token-factory";
 import { makeLoadOrderDeliveryRankingController } from "../factories/load-order-delivery-ranking";
 import { makeAddDeliverymanController } from "../factories/add-deliveryman";
 import { makeLoadDeliverymanController } from "../factories/load-deliveryman";
+import { makeUpdateDeliverymanController } from "../factories/update-deliveryman";
+import { makeDeleteDeliverymanController } from "../factories/delete-deliveryman";
 import { makeLoadChatMessagesController } from "../factories/load-chat-messages";
 import { makeLoadChatMessageByIdController } from "../factories/load-chat-message-by-id";
 import { makeAddChatMessageController } from "../factories/add-chat-message";
@@ -237,6 +239,7 @@ export default (router: Router): void => {
     "/orderDelivery/:id",
     adaptRoute(makeUpdateOrderDeliveryController()),
   );
+  router.put("/deliveryman/:id", adaptRoute(makeUpdateDeliverymanController()));
   router.delete(
     "/register/:id",
 
@@ -245,6 +248,10 @@ export default (router: Router): void => {
   router.delete(
     "/orderDelivery/:id",
     adaptRoute(makeDeleteOrderDeliveryController()),
+  );
+  router.delete(
+    "/deliveryman/:id",
+    adaptRoute(makeDeleteDeliverymanController()),
   );
 
   // Chat endpoints
