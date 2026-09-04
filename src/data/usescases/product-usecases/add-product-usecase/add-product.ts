@@ -1,9 +1,5 @@
-import {
-  AddProduct,
-  Product,
-  AddProductModel,
-  AddProductRepository
-} from "./db-add-product-protocols";
+import { AddProduct, AddProductModel, AddProductRepository, Product } from "./db-add-product-protocols";
+
 
 export class DbAddProduct implements AddProduct {
   constructor(private readonly addProductRepository: AddProductRepository) {}
