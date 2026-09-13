@@ -9,12 +9,14 @@ import { HttpRequest } from "../../../protocols/http";
 
 const makeFakeUpdateClient = (): ClientModel => ({
   name: "any_name",
+  cpf: "any_cpf",
   phone: "any_number",
 });
 
 const fakehttpRequest = (): HttpRequest => ({
   body: {
     name: "any_name",
+    cpf: "any_cpf",
     phone: "any_number",
   },
   params: {
@@ -59,6 +61,7 @@ describe("Load update client Controller", () => {
     await sut.handle(fakehttpRequest());
     expect(loadSpy).toHaveBeenCalledWith(1, {
       name: "any_name",
+      cpf: "any_cpf",
       phone: "any_number",
     });
   });

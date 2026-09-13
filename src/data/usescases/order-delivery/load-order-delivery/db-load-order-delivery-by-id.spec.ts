@@ -31,10 +31,13 @@ const makeSut = (): SutTypes => {
 };
 
 const makeOrder = (): OrderDeliveryModel => ({
+  id: 8,
+  status: "actived",
   register: {
     id: 1,
     client: {
       name: "any_name",
+      cpf: "any_cpf",
       phone: "any_phone",
     },
     address: {

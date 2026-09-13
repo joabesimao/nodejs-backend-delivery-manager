@@ -1,6 +1,6 @@
 import { AuthMiddleware } from "./auth-middleware";
 import { HttpRequest } from "../protocols/http";
-import { forbidden, ok, serverError } from "../helpers/http/http-helper";
+import { forbidden, ok } from "../helpers/http/http-helper";
 import { AccessDeniedError } from "../errors/access-denied-error";
 import { LoadAccountByToken } from "../../domain/usescases/auth-middleware/load-account-by-token";
 import { AccountModel } from "../../domain/models/account/account-model";
@@ -67,10 +67,12 @@ describe("Auth Middleware", () => {
     const { sut } = makeSut();
 
     const httpResponse = await sut.handle(makeFakeHttpRequest());
-    expect(httpResponse).toEqual(ok({ accountId: 1 }));
+    expect(httpResponse).toEqual(
+      ok({ accountId: 1, accountRole: undefined, accountUnitStoreId: null })
+    );
   });
 
-  test("Should return 500 if LoadAccountByToken throws", async () => {
+  test("Should return 403 if LoadAccountByToken throws", async () => {
     const { sut, loadAccountByTokenStub } = makeSut();
     jest
       .spyOn(loadAccountByTokenStub, "load")
@@ -78,7 +80,7 @@ describe("Auth Middleware", () => {
         new Promise((resolve, reject) => reject(new Error()))
       );
     const httpResponse = await sut.handle(makeFakeHttpRequest());
-    expect(httpResponse).toEqual(serverError(new Error()));
+    expect(httpResponse).toEqual(forbidden(new AccessDeniedError()));
   });
 
   test("Should call LoadAccountByToken with correct accessToken and role", async () => {

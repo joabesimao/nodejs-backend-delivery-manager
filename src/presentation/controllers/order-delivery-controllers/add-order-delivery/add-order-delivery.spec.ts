@@ -12,31 +12,22 @@ import Mockdate from "mockdate";
 
 const makeFakeRequest = (): HttpRequest => ({
   body: {
-    id: "1",
-    register: {
-      id: 1,
-      client: {
-        name: "any_name",
-        phone: "any_phone",
-      },
-      address: {
-        street: "any_street",
-        neighborhood: "any_neighborhood",
-        numberHouse: 123,
-        reference: "any_reference",
-        city: "any_city",
-      },
-    },
+    registerId: 1,
+    deliverymanId: 2,
     amount: 1,
     data: new Date("2022-10-10"),
     quantity: "12",
   },
 });
+
 const makeOrderDelivery = (): OrderDeliveryModel => ({
+  id: 1,
+  status: "actived",
   register: {
     id: 1,
     client: {
       name: "any_name",
+      cpf: "any_cpf",
       phone: "any_phone",
     },
     address: {
@@ -47,7 +38,6 @@ const makeOrderDelivery = (): OrderDeliveryModel => ({
       city: "any_city",
     },
   },
-
   amount: 1,
   data: new Date("2022-10-10"),
   quantity: "12",
@@ -106,23 +96,11 @@ describe("addOrderDelivery Controller", () => {
     await sut.handle(fakeRequest);
     expect(addRegisterSpy).toHaveBeenCalledWith({
       registerId: 1,
+      deliverymanId: 2,
       amount: 1,
       data: new Date("2022-10-10T00:00:00.000Z"),
       quantity: "12",
-      register: {
-        address: {
-          city: "any_city",
-          neighborhood: "any_neighborhood",
-          numberHouse: 123,
-          reference: "any_reference",
-          street: "any_street",
-        },
-        client: {
-          name: "any_name",
-          phone: "any_phone",
-        },
-        id: 1,
-      },
+      accountId: undefined,
     });
   });
 
@@ -156,12 +134,20 @@ describe("addOrderDelivery Controller", () => {
     );
   });
 
+  test("Should return 400 if registerId is invalid", async () => {
+    const { sut } = makeSut();
+    const httpResponse = await sut.handle({
+      body: { ...makeFakeRequest().body, registerId: "not_a_number" },
+    });
+    expect(httpResponse.statusCode).toBe(400);
+  });
+
   test("Should return 500 if AddOrdersDelivery throws", async () => {
     const { sut, addOrderDeliveryStub } = makeSut();
     jest
       .spyOn(addOrderDeliveryStub, "addOrderDelivery")
       .mockReturnValueOnce(
-        new Promise((resolve, reject) => reject(new Error()) as any)
+        new Promise((resolve, reject) => reject(new Error()))
       );
     const fakeRequest = makeFakeRequest();
     const httpResponse = await sut.handle(fakeRequest);

@@ -30,7 +30,7 @@ describe("validation Composite", () => {
     jest
       .spyOn(validationStubs[1], "validate")
       .mockReturnValueOnce(new MissingParamError("field"));
-    const error = sut.validate({ field: "any_value" });
+    const error = await sut.validate({ field: "any_value" });
     expect(error).toEqual(new MissingParamError("field"));
   });
 
@@ -40,13 +40,13 @@ describe("validation Composite", () => {
     jest
       .spyOn(validationStubs[1], "validate")
       .mockReturnValueOnce(new MissingParamError("field"));
-    const error = sut.validate({ field: "any_value" });
+    const error = await sut.validate({ field: "any_value" });
     expect(error).toEqual(new Error());
   });
 
   test("Should not return if validation succeeds", async () => {
     const { sut } = makeSut();
-    const error = sut.validate({ field: "any_value" });
+    const error = await sut.validate({ field: "any_value" });
     expect(error).toBeFalsy();
   });
 });

@@ -35,7 +35,7 @@ describe("DbDeleteOrderDelivery Usecase", () => {
     const { sut, deleteOrderDeliveryRepositoryStub } = makeSut();
     const addSpy = jest.spyOn(deleteOrderDeliveryRepositoryStub, "deleteById");
     await sut.delete(id);
-    expect(addSpy).toHaveBeenCalledWith(8);
+    expect(addSpy).toHaveBeenCalledWith(8, undefined);
   });
 
   test("Should DbDeleteOrderDelivery return on success", async () => {

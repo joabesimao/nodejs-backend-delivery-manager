@@ -8,6 +8,7 @@ import {
 
 const makeFakeClient = (): ClientModel => ({
   name: "any_name",
+  cpf: "any_cpf",
   phone: "any_number",
 });
 

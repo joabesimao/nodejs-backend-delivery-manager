@@ -10,10 +10,13 @@ const makeFakeUpdateOrderDelivery = (): UpdateOrderDeliveryModel => ({
 });
 
 const makeFakeOrderDelivery = (): OrderDeliveryModel => ({
+  id: 2,
+  status: "actived",
   register: {
     id: 2,
     client: {
       name: "any_name",
+      cpf: "any_cpf",
       phone: "any_number",
     },
     address: {

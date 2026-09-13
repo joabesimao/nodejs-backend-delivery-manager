@@ -6,6 +6,7 @@ const makeFakeRegister = (): LoadRegisterModel => ({
   id: 1,
   client: {
     name: "any_name",
+    cpf: "any_cpf",
     phone: "any_number",
   },
   address: {

@@ -11,7 +11,7 @@ describe("Add Order validation Factory", () => {
   test("Should call ValidationComposite with all validations", async () => {
     makeAddOrderDeliveryValidation();
     const validations: Validation[] = [];
-    for (const field of ["register", "amount", "data", "quantity"]) {
+    for (const field of ["registerId", "amount", "quantity"]) {
       validations.push(new RequireFieldsValidation(field));
     }
 
