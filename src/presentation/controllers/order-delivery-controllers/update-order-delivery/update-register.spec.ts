@@ -16,6 +16,7 @@ const fakehttpRequest = (): HttpRequest => ({
       id: 1,
       client: {
         name: "any_name",
+        cpf: "any_cpf",
         phone: "123456747",
       },
       address: {
@@ -36,10 +37,13 @@ const fakehttpRequest = (): HttpRequest => ({
 });
 
 const makeFakeOrder = (): OrderDeliveryModel => ({
+  id: 1,
+  status: "actived",
   register: {
     id: 1,
     client: {
       name: "any_name",
+      cpf: "any_cpf",
       phone: "123456747",
     },
     address: {
@@ -89,7 +93,10 @@ describe("Update one Order Delivery Controller", () => {
     const updateSpy = jest.spyOn(updateOrderDeliveryStub, "update");
 
     await sut.handle(fakehttpRequest());
-    expect(updateSpy).toHaveBeenCalledWith(1, makeFakeOrder());
+    expect(updateSpy).toHaveBeenCalledWith(1, {
+      ...fakehttpRequest().body,
+      accountId: undefined,
+    });
   });
 
   test("Should call UpdateOrderDeliveryController on success", async () => {

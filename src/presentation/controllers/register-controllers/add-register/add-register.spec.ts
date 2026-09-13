@@ -12,6 +12,7 @@ const makeFakeRequest = (): HttpRequest => ({
   body: {
     client: {
       name: "any_name",
+      cpf: "any_cpf",
       phone: "any_phone",
     },
     address: {
@@ -27,6 +28,7 @@ const makeFakeRegisterModel = (): RegisterModel => ({
   id: 1,
   client: {
     name: "any_name",
+    cpf: "any_cpf",
     phone: "any_phone",
   },
   address: {
@@ -84,6 +86,7 @@ describe("addRegister Controller", () => {
     expect(addRegisterSpy).toHaveBeenCalledWith({
       client: {
         name: "any_name",
+        cpf: "any_cpf",
         phone: "any_phone",
       },
       address: {
@@ -122,6 +125,7 @@ describe("addRegister Controller", () => {
       body: {
         client: {
           name: "any_name",
+          cpf: "any_cpf",
           phone: "any_phone",
         },
         address: {
@@ -137,6 +141,7 @@ describe("addRegister Controller", () => {
     expect(validationSpy).toHaveBeenCalledWith({
       client: {
         name: "any_name",
+        cpf: "any_cpf",
         phone: "any_phone",
       },
       address: {

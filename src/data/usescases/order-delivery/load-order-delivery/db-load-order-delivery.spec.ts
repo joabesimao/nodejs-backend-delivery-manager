@@ -10,10 +10,13 @@ interface SutTypes {
 
 const makeOrders = (): OrderDeliveryModel[] => [
   {
+    id: 1,
+    status: "actived",
     register: {
       id: 1,
       client: {
         name: "any_name",
+        cpf: "any_cpf",
         phone: "any_phone",
       },
       address: {
@@ -29,10 +32,13 @@ const makeOrders = (): OrderDeliveryModel[] => [
     quantity: "6",
   },
   {
+    id: 2,
+    status: "actived",
     register: {
       id: 3,
       client: {
         name: "other_name",
+        cpf: "other_cpf",
         phone: "other_phone",
       },
       address: {

@@ -6,6 +6,7 @@ import { HttpRequest } from "../../../protocols/http";
 
 const makeFakeOneClient = (): ClientModel => ({
   name: "any_name",
+  cpf: "any_cpf",
   phone: "any_number",
 });
 
@@ -13,6 +14,7 @@ const fakehttpRequest = (): HttpRequest => ({
   body: {
     id: 1,
     name: "any_name",
+    cpf: "any_cpf",
     phone: "any_number",
   },
   params: {

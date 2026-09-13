@@ -14,6 +14,7 @@ const fakehttpRequest = (): HttpRequest => ({
     id: 1,
     client: {
       name: "any_name",
+      cpf: "any_cpf",
       phone: "123456747",
     },
     address: {
@@ -33,6 +34,7 @@ const makeFakeRegisters = (): RegisterModel => ({
   id: 1,
   client: {
     name: "any_name",
+    cpf: "any_cpf",
     phone: "123456747",
   },
   address: {

@@ -17,6 +17,7 @@ const makeRegister = (): RegisterModel => ({
   id: 1,
   client: {
     name: "any_name",
+    cpf: "any_cpf",
     phone: "any_phone",
   },
   address: {
@@ -58,7 +59,7 @@ const makeSut = (): SutTypes => {
 };
 
 const makeAddRegister = (): AddRegisterModel => ({
-  client: { name: "any_name", phone: "any_phone" },
+  client: { name: "any_name", cpf: "any_cpf", phone: "any_phone" },
   address: {
     street: "any_street",
     neighborhood: "any_neighborhood",
@@ -76,6 +77,7 @@ describe("DbAddRegister Usecase", () => {
     expect(addSpy).toHaveBeenCalledWith({
       client: {
         name: "any_name",
+        cpf: "any_cpf",
         phone: "any_phone",
       },
       address: {
