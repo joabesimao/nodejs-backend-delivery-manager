@@ -343,6 +343,86 @@ export default (router: Router): void => {
       res.status(500).json({ error: "Falha ao carregar dados de relatórios do dashboard" });
     }
   });
+  router.get("/search", async (req, res) => {
+    try {
+      const term = typeof req.query.q === "string" ? req.query.q.trim() : "";
+
+      if (term.length < 2) {
+        res.status(200).json({ query: term, orders: [], clients: [], deliverymen: [] });
+        return;
+      }
+
+      const RESULT_LIMIT = 5;
+      const numericId = /^\d+$/.test(term) ? Number(term) : undefined;
+
+      const [orders, clients, deliverymen] = await Promise.all([
+        prisma.orderDelivery.findMany({
+          where: {
+            OR: [
+              ...(numericId !== undefined ? [{ id: numericId }] : []),
+              { Register: { client: { name: { contains: term } } } },
+              { deliveryman: { name: { contains: term } } },
+              { deliveryman: { lastName: { contains: term } } },
+            ],
+          },
+          include: {
+            deliveryman: true,
+            Register: { include: { client: true, address: true } },
+          },
+          orderBy: { data: "desc" },
+          take: RESULT_LIMIT,
+        }),
+        prisma.client.findMany({
+          where: {
+            OR: [
+              { name: { contains: term } },
+              { cpf: { contains: term } },
+              { phone: { contains: term } },
+            ],
+          },
+          take: RESULT_LIMIT,
+        }),
+        prisma.deliveryman.findMany({
+          where: {
+            OR: [
+              { name: { contains: term } },
+              { lastName: { contains: term } },
+              { phone: { contains: term } },
+            ],
+          },
+          take: RESULT_LIMIT,
+        }),
+      ]);
+
+      res.status(200).json({
+        query: term,
+        orders: orders.map((order) => ({
+          id: order.id,
+          status: order.status,
+          amount: order.amount,
+          clientName: order.Register?.client?.name ?? "",
+          deliverymanName: order.deliveryman
+            ? `${order.deliveryman.name} ${order.deliveryman.lastName}`.trim()
+            : null,
+        })),
+        clients: clients.map((client) => ({
+          id: client.id,
+          name: client.name,
+          cpf: client.cpf,
+          phone: client.phone,
+        })),
+        deliverymen: deliverymen.map((deliveryman) => ({
+          id: deliveryman.id,
+          name: deliveryman.name,
+          lastName: deliveryman.lastName,
+          phone: deliveryman.phone,
+        })),
+      });
+    } catch (error) {
+      console.error("[search] Erro ao buscar:", error);
+      res.status(500).json({ error: "Falha ao realizar a busca" });
+    }
+  });
   router.get("/address", adaptRoute(makeLoadAddressController()));
   router.get("/register/:id", adaptRoute(makeLoadRegisterByIdController()));
   router.get(
