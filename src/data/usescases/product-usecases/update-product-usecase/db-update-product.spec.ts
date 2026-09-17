@@ -8,10 +8,13 @@ const makeFakeProduct = (): Product => ({
   price: 10,
   description: "any_description",
   category: "any_category",
+  status: true,
 });
 
 const makeFakeUpdateInfo = (): Partial<ProductModel> => ({
   name: "new_name",
+  status: false,
+  variations: [{ attribute: "Cor", value: "Azul" }],
 });
 
 interface SutTypes {

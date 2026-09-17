@@ -124,9 +124,29 @@ model ChatMessage {
 }
 
 model Product {
-  id          Int     @id @default(autoincrement())
-  name        String
-  price       Decimal @db.Decimal(10, 2)
-  description String
-  category    String
+  id            Int                @id @default(autoincrement())
+  name          String
+  price         Decimal            @db.Decimal(10, 2)
+  description   String
+  category      String
+  subcategory   String?
+  brand         String?
+  model         String?
+  unit          String?
+  barcode       String?            @unique
+  status        Boolean            @default(true)
+  notes         String?            @db.Text
+  imageBase64   String?            @db.LongText
+  imageMimeType String?
+  variations    ProductVariation[]
+}
+
+model ProductVariation {
+  id        Int     @id @default(autoincrement())
+  attribute String
+  value     String
+  productId Int
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId])
 }

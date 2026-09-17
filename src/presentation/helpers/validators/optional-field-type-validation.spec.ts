@@ -59,4 +59,27 @@ describe("OptionalFieldTypeValidation", () => {
       expect(error).toBeFalsy();
     });
   });
+
+  describe("boolean field", () => {
+    const makeSut = (): OptionalFieldTypeValidation =>
+      new OptionalFieldTypeValidation("status", "boolean");
+
+    test("Should not return if field is absent", () => {
+      const sut = makeSut();
+      const error = sut.validate({});
+      expect(error).toBeFalsy();
+    });
+
+    test("Should return InvalidParamError if field is not a boolean", () => {
+      const sut = makeSut();
+      const error = sut.validate({ status: "true" });
+      expect(error).toEqual(new InvalidParamError("status"));
+    });
+
+    test("Should not return if field is a valid boolean", () => {
+      const sut = makeSut();
+      const error = sut.validate({ status: false });
+      expect(error).toBeFalsy();
+    });
+  });
 });

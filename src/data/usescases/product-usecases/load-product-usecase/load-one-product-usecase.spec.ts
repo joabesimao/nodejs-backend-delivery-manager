@@ -8,6 +8,7 @@ const makeFakeProduct = (): Product => ({
   price: 10,
   description: "any_description",
   category: "any_category",
+  status: true,
 });
 
 interface SutTypes {

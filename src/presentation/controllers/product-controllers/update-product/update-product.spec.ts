@@ -4,7 +4,7 @@ import { UpdateProductController } from "./update-product";
 import { HttpRequest } from "../../../protocols/http";
 import { badRequest, ok, serverError } from "../../../helpers/http/http-helper";
 import { Validation } from "../../../protocols/validation";
-import { MissingParamError } from "../../../errors";
+import { MissingParamError, InvalidParamError } from "../../../errors";
 
 const makeFakeRequest = (): HttpRequest => ({
   params: {
@@ -22,6 +22,7 @@ const makeFakeProduct = (): Product => ({
   price: 10,
   description: "any_description",
   category: "any_category",
+  status: true,
 });
 
 const makeUpdateProductStub = (): UpdateProduct => {
@@ -85,6 +86,16 @@ describe("UpdateProduct Controller", () => {
       );
     const httpResponse = await sut.handle(makeFakeRequest());
     expect(httpResponse).toEqual(serverError(new Error()));
+  });
+
+  test("Should return 400 if UpdateProduct throws a duplicate barcode error", async () => {
+    const { sut, updateProductStub } = makeSut();
+    const barcodeError: any = new Error("Unique constraint failed");
+    barcodeError.code = "P2002";
+    barcodeError.meta = { target: ["barcode"] };
+    jest.spyOn(updateProductStub, "update").mockReturnValueOnce(Promise.reject(barcodeError));
+    const httpResponse = await sut.handle(makeFakeRequest());
+    expect(httpResponse).toEqual(badRequest(new InvalidParamError("barcode")));
   });
 
   test("Should return 400 if Validation returns an error", async () => {
