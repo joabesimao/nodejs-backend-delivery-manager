@@ -8,11 +8,20 @@ const makeFakeProductModel = (): AddProductModel => ({
   price: 10,
   description: "any_description",
   category: "any_category",
+  subcategory: "any_subcategory",
+  brand: "any_brand",
+  model: "any_model",
+  unit: "un.",
+  barcode: "any_barcode",
+  status: true,
+  notes: "any_notes",
+  variations: [{ attribute: "Tamanho", value: "M" }],
 });
 
 const makeFakeProduct = (): Product => ({
   id: 1,
   ...makeFakeProductModel(),
+  status: true,
 });
 
 interface SutTypes {

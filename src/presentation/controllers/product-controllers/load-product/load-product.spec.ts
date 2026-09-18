@@ -16,6 +16,7 @@ const makeFakeProducts = (): Product[] => [
     price: 10,
     description: "any_description",
     category: "any_category",
+    status: true,
   },
 ];
 
