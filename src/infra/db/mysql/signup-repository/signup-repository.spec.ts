@@ -47,4 +47,20 @@ describe("AddAccount MySql Repository", () => {
     prisma.account.create.mockRejectedValueOnce(new Error());
     await expect(sut.add(fakeAddAccount)).rejects.toThrow();
   });
+
+  test("Should forward role to prisma.account.create when present", async () => {
+    const { sut, prisma } = makeSut();
+    await sut.add({ ...fakeAddAccount, role: "entregador" as any });
+    expect(prisma.account.create).toHaveBeenCalledWith({
+      data: { ...fakeAddAccount, role: "entregador" },
+    });
+  });
+
+  test("Should omit role from prisma.account.create when absent", async () => {
+    const { sut, prisma } = makeSut();
+    await sut.add(fakeAddAccount);
+    expect(prisma.account.create).toHaveBeenCalledWith({
+      data: fakeAddAccount,
+    });
+  });
 });

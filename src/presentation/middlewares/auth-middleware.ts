@@ -1,5 +1,5 @@
 import { AccessDeniedError } from "../errors/access-denied-error";
-import { forbidden, ok } from "../helpers/http/http-helper";
+import { forbidden, ok, unauthorized } from "../helpers/http/http-helper";
 import { HttpRequest, HttpResponse } from "../protocols/http";
 import { Middleware } from "../protocols/middleware";
 import { LoadAccountByToken } from "../../domain/usescases/auth-middleware/load-account-by-token";
@@ -7,42 +7,46 @@ import { LoadAccountByToken } from "../../domain/usescases/auth-middleware/load-
 export class AuthMiddleware implements Middleware {
   constructor(
     private readonly loadAccountByAccessToken: LoadAccountByToken,
-    private readonly role?: string,
+    private readonly roles?: string[],
   ) {}
+
   async handle(httpRequest: HttpRequest): Promise<HttpResponse> {
     const token = httpRequest.headers?.["x-access-token"];
 
-    try {
-      const accessToken = token;
-      if (accessToken) {
-        const account = await this.loadAccountByAccessToken.load(
-          accessToken,
-          this.role,
-        );
-        if (account) {
-          console.info("[auth] authorized", {
-            accountId: account.id,
-            role: account.role,
-          });
+    if (!token) {
+      console.warn("[auth] denied", { hasToken: false });
+      return unauthorized();
+    }
 
-          return ok({
-            accountId: account.id,
-            accountRole: account.role,
-            accountUnitStoreId: account.unitStoreId ?? null,
-          }) as unknown as any;
-        }
+    try {
+      const account = await this.loadAccountByAccessToken.load(token);
+      if (!account) {
+        console.warn("[auth] denied", { hasToken: true });
+        return unauthorized();
       }
 
-      console.warn("[auth] denied", {
-        hasToken: Boolean(token),
+      if (this.roles?.length && !this.roles.includes(account.role)) {
+        console.warn("[auth] forbidden", {
+          accountId: account.id,
+          role: account.role,
+          allowedRoles: this.roles,
+        });
+        return forbidden(new AccessDeniedError());
+      }
+
+      console.info("[auth] authorized", {
+        accountId: account.id,
+        role: account.role,
       });
 
-      return forbidden(new AccessDeniedError());
-    } catch {
-      console.warn("[auth] token_error", {
-        hasToken: Boolean(token),
+      return ok({
+        accountId: account.id,
+        accountRole: account.role,
+        accountUnitStoreId: account.unitStoreId ?? null,
       });
-      return forbidden(new AccessDeniedError());
+    } catch {
+      console.warn("[auth] token_error", { hasToken: true });
+      return unauthorized();
     }
   }
 }

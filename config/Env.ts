@@ -13,6 +13,8 @@ const envSchema = z.object({
   DB_PASSWORD: z.string(),
 
   JWT_SECRET: z.string(),
+  JWT_ACCESS_EXPIRES_IN: z.string().default("15m"),
+  JWT_REFRESH_EXPIRES_IN: z.string().default("7d"),
 });
 
 const parsed = envSchema.safeParse(process.env);

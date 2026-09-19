@@ -1,5 +1,6 @@
 import { JwtAdapter } from "../../../../infra/cryptography/jwt-adapter/jwt-adapter";
 import { AccountMySqlRepository } from "../../../../infra/db/mysql/account-repository/account-repository";
+import { hashToken } from "../../../../utils/hash-token";
 import {
   badRequest,
   ok,
@@ -15,6 +16,8 @@ export class RefreshTokenController implements Controller {
     private readonly validation: Validation,
     private readonly jwtAdapter: JwtAdapter,
     private readonly accountRepository: AccountMySqlRepository,
+    private readonly accessTokenExpiresIn: string,
+    private readonly refreshTokenExpiresIn: string,
   ) {}
 
   async handle(httpRequest: HttpRequest): Promise<HttpResponse> {
@@ -31,20 +34,53 @@ export class RefreshTokenController implements Controller {
         return unauthorized();
       }
 
-      const account = await this.accountRepository.loadByToken(String(payload.id));
+      const account = await this.accountRepository.loadByToken(
+        String(payload.id),
+      );
       if (!account) {
+        return unauthorized();
+      }
+
+      const incomingHash = hashToken(refreshToken);
+      const expired =
+        !account.refreshTokenExpiresAt ||
+        account.refreshTokenExpiresAt.getTime() < Date.now();
+
+      if (
+        !account.refreshTokenHash ||
+        account.refreshTokenHash !== incomingHash ||
+        expired
+      ) {
+        // Unknown, mismatched (already rotated) or expired refresh token:
+        // revoke defensively to stop any further use of this account's chain.
+        await this.accountRepository.updateRefreshToken(
+          account.id,
+          null,
+          null,
+        );
         return unauthorized();
       }
 
       const accessToken = await this.jwtAdapter.encrypt(String(account.id), {
         type: "access",
-        expiresIn: "15m",
+        expiresIn: this.accessTokenExpiresIn,
       });
 
-      const newRefreshToken = await this.jwtAdapter.encrypt(String(account.id), {
-        type: "refresh",
-        expiresIn: "7d",
-      });
+      const newRefreshToken = await this.jwtAdapter.encrypt(
+        String(account.id),
+        {
+          type: "refresh",
+          expiresIn: this.refreshTokenExpiresIn,
+        },
+      );
+
+      const decoded = await this.jwtAdapter.decode(newRefreshToken);
+      const newExpiresAt = decoded?.exp ? new Date(decoded.exp * 1000) : null;
+      await this.accountRepository.updateRefreshToken(
+        account.id,
+        hashToken(newRefreshToken),
+        newExpiresAt,
+      );
 
       return ok({
         accessToken,

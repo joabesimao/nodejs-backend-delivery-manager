@@ -11,5 +11,11 @@ export const makeRefreshTokenController = (): Controller => {
   const jwtAdapter = new JwtAdapter(env.JWT_SECRET);
   const accountRepository = new AccountMySqlRepository(prisma);
 
-  return new RefreshTokenController(validation, jwtAdapter, accountRepository);
+  return new RefreshTokenController(
+    validation,
+    jwtAdapter,
+    accountRepository,
+    env.JWT_ACCESS_EXPIRES_IN,
+    env.JWT_REFRESH_EXPIRES_IN,
+  );
 };

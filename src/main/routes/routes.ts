@@ -52,19 +52,25 @@ import { makeLoadProductController } from "../factories/load-product";
 import { makeLoadOneProductController } from "../factories/load-one-product";
 import { makeUpdateProductController } from "../factories/update-product";
 import { makeDeleteProductController } from "../factories/delete-product";
+import { makeLogoutController } from "../factories/logout-factory";
+import { makeAddStaffAccountController } from "../factories/add-staff-account";
+
+const auth = (roles?: string[]) => adaptMiddleware(makeAuthMiddleware(roles));
 
 export default (router: Router): void => {
-  router.get("/register", adaptRoute(makeLoadRegisterController()));
-  router.get("/client", adaptRoute(makeLoadClientController()));
+  router.get("/register", auth(), adaptRoute(makeLoadRegisterController()));
+  router.get("/client", auth(), adaptRoute(makeLoadClientController()));
   router.get(
     "/orderDelivery",
+    auth(),
     adaptRoute(makeLoadOrdersDeliveryController()),
   );
   router.get(
     "/orderDelivery/ranking/deliveryman",
+    auth(),
     adaptRoute(makeLoadOrderDeliveryRankingController()),
   );
-  router.get("/dashboard/overview", async (req, res) => {
+  router.get("/dashboard/overview", auth(), async (req, res) => {
     try {
       const startDateParam =
         typeof req.query.startDate === "string" ? req.query.startDate : undefined;
@@ -175,7 +181,7 @@ export default (router: Router): void => {
     }
   });
 
-  router.get("/dashboard/performance", async (req, res) => {
+  router.get("/dashboard/performance", auth(), async (req, res) => {
     try {
       const now = new Date();
       const defaultEnd = new Date(now);
@@ -259,7 +265,7 @@ export default (router: Router): void => {
     }
   });
 
-  router.get("/dashboard/reports", async (req, res) => {
+  router.get("/dashboard/reports", auth(), async (req, res) => {
     try {
       const startDateParam =
         typeof req.query.startDate === "string" ? req.query.startDate : undefined;
@@ -343,7 +349,7 @@ export default (router: Router): void => {
       res.status(500).json({ error: "Falha ao carregar dados de relatórios do dashboard" });
     }
   });
-  router.get("/search", async (req, res) => {
+  router.get("/search", auth(), async (req, res) => {
     try {
       const term = typeof req.query.q === "string" ? req.query.q.trim() : "";
 
@@ -423,99 +429,388 @@ export default (router: Router): void => {
       res.status(500).json({ error: "Falha ao realizar a busca" });
     }
   });
-  router.get("/address", adaptRoute(makeLoadAddressController()));
-  router.get("/register/:id", adaptRoute(makeLoadRegisterByIdController()));
+  router.get("/address", auth(), adaptRoute(makeLoadAddressController()));
+  router.get(
+    "/register/:id",
+    auth(),
+    adaptRoute(makeLoadRegisterByIdController()),
+  );
   router.get(
     "/register/name/:name",
-
+    auth(),
     adaptRoute(makeLoadRegisterByNameController()),
   );
   router.get(
     "/orderDelivery/:id",
+    auth(),
     adaptRoute(makeLoadOrderByIdController()),
   );
-  router.get("/client/:id", adaptRoute(makeLoadOneClientController()));
-  router.get("/city", adaptRoute(makeLoadCityController()));
-  router.get("/neighborhood", adaptRoute(makeLoadNeighborhoodController()));
-  router.get("/deliveryman", adaptRoute(makeLoadDeliverymanController()));
-  router.get("/product", adaptRoute(makeLoadProductController()));
-  router.get("/product/:id", adaptRoute(makeLoadOneProductController()));
-  router.post("/city", adaptRoute(makeAddCityController()));
-  router.post("/neighborhood", adaptRoute(makeAddNeighborhoodController()));
-  router.post("/deliveryman", adaptRoute(makeAddDeliverymanController()));
-  router.post("/product", adaptRoute(makeAddProductController()));
-  router.post("/register", adaptRoute(makeAddRegisterController()));
+  router.get("/client/:id", auth(), adaptRoute(makeLoadOneClientController()));
+  router.get("/city", auth(), adaptRoute(makeLoadCityController()));
+  router.get(
+    "/neighborhood",
+    auth(),
+    adaptRoute(makeLoadNeighborhoodController()),
+  );
+  router.get(
+    "/deliveryman",
+    auth(),
+    adaptRoute(makeLoadDeliverymanController()),
+  );
+  router.get("/product", auth(), adaptRoute(makeLoadProductController()));
+  router.get(
+    "/product/:id",
+    auth(),
+    adaptRoute(makeLoadOneProductController()),
+  );
+  router.post(
+    "/city",
+    auth(["admin", "gerente_estoque"]),
+    adaptRoute(makeAddCityController()),
+  );
+  router.post(
+    "/neighborhood",
+    auth(["admin", "gerente_estoque"]),
+    adaptRoute(makeAddNeighborhoodController()),
+  );
+  router.post(
+    "/deliveryman",
+    auth(["admin"]),
+    adaptRoute(makeAddDeliverymanController()),
+  );
+  router.post(
+    "/product",
+    auth(["admin", "gerente_estoque"]),
+    adaptRoute(makeAddProductController()),
+  );
+  router.post(
+    "/register",
+    auth(["admin", "gerente_estoque"]),
+    adaptRoute(makeAddRegisterController()),
+  );
+
+  /**
+   * @swagger
+   * /signup:
+   *   post:
+   *     tags: [Auth]
+   *     summary: Cria uma conta pública (sempre com role "user")
+   *     security: []
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             required: [name, email, password, passwordConfirmation]
+   *             properties:
+   *               name:
+   *                 type: string
+   *               email:
+   *                 type: string
+   *                 format: email
+   *               password:
+   *                 type: string
+   *               passwordConfirmation:
+   *                 type: string
+   *     responses:
+   *       200:
+   *         description: Conta criada
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 accessToken:
+   *                   type: string
+   *       400:
+   *         description: Erro de validação
+   *       403:
+   *         description: E-mail já em uso
+   */
   router.post("/signup", adaptRoute(makeSignupController()));
+
+  /**
+   * @swagger
+   * /login:
+   *   post:
+   *     tags: [Auth]
+   *     summary: Autentica uma conta e retorna access + refresh token
+   *     security: []
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             required: [email, password]
+   *             properties:
+   *               email:
+   *                 type: string
+   *                 format: email
+   *               password:
+   *                 type: string
+   *     responses:
+   *       200:
+   *         description: Login bem-sucedido
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 accessToken:
+   *                   type: string
+   *                 refreshToken:
+   *                   type: string
+   *       400:
+   *         description: Erro de validação
+   *       401:
+   *         description: Credenciais inválidas
+   */
   router.post("/login", adaptRoute(makeLoginController()));
+
+  /**
+   * @swagger
+   * /refresh-token:
+   *   post:
+   *     tags: [Auth]
+   *     summary: Rotaciona o par access+refresh token
+   *     security: []
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             required: [refreshToken]
+   *             properties:
+   *               refreshToken:
+   *                 type: string
+   *     responses:
+   *       200:
+   *         description: Novo par de tokens
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 accessToken:
+   *                   type: string
+   *                 refreshToken:
+   *                   type: string
+   *       400:
+   *         description: Erro de validação
+   *       401:
+   *         description: Refresh token inválido, expirado ou já utilizado
+   */
   router.post("/refresh-token", adaptRoute(makeRefreshTokenController()));
+
+  /**
+   * @swagger
+   * /logout:
+   *   post:
+   *     tags: [Auth]
+   *     summary: Revoga o refresh token da conta autenticada
+   *     security:
+   *       - accessToken: []
+   *     responses:
+   *       204:
+   *         description: Logout realizado
+   *       401:
+   *         description: Não autenticado
+   */
+  router.post("/logout", auth(), adaptRoute(makeLogoutController()));
+
+  /**
+   * @swagger
+   * /account/staff:
+   *   post:
+   *     tags: [Auth]
+   *     summary: Cria uma conta de staff (admin, gerente_estoque ou entregador) — somente admin
+   *     security:
+   *       - accessToken: []
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             required: [name, email, password, passwordConfirmation, role]
+   *             properties:
+   *               name:
+   *                 type: string
+   *               email:
+   *                 type: string
+   *                 format: email
+   *               password:
+   *                 type: string
+   *               passwordConfirmation:
+   *                 type: string
+   *               role:
+   *                 type: string
+   *                 enum: [admin, gerente_estoque, entregador, user]
+   *     responses:
+   *       200:
+   *         description: Conta de staff criada
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 id:
+   *                   type: integer
+   *                 name:
+   *                   type: string
+   *                 email:
+   *                   type: string
+   *                 role:
+   *                   type: string
+   *       400:
+   *         description: Erro de validação
+   *       401:
+   *         description: Não autenticado
+   *       403:
+   *         description: Sem permissão (requer role admin) ou e-mail já em uso
+   */
+  router.post(
+    "/account/staff",
+    auth(["admin"]),
+    adaptRoute(makeAddStaffAccountController()),
+  );
+
   router.post(
     "/orderDelivery",
+    auth(["admin", "gerente_estoque"]),
     adaptRoute(makeAddOrderDeliveryController()),
   );
   router.post(
     "/orderDelivery/:id",
+    auth(["admin", "gerente_estoque"]),
     adaptRoute(makeAddOrderDeliveryController()),
   );
-  router.put("/register/:id", adaptRoute(makeUpdateRegisterController()));
-  router.put("/client/:id", adaptRoute(makeUpdateClientController()));
-  router.put("/address/:id", adaptRoute(makeUpdateAddressController()));
+  router.put(
+    "/register/:id",
+    auth(["admin", "gerente_estoque"]),
+    adaptRoute(makeUpdateRegisterController()),
+  );
+  router.put(
+    "/client/:id",
+    auth(["admin", "gerente_estoque"]),
+    adaptRoute(makeUpdateClientController()),
+  );
+  router.put(
+    "/address/:id",
+    auth(["admin", "gerente_estoque"]),
+    adaptRoute(makeUpdateAddressController()),
+  );
   router.put(
     "/orderDelivery/:id",
+    auth(["admin", "entregador"]),
     adaptRoute(makeUpdateOrderDeliveryController()),
   );
-  router.put("/deliveryman/:id", adaptRoute(makeUpdateDeliverymanController()));
-  router.put("/product/:id", adaptRoute(makeUpdateProductController()));
-  router.put("/city/:id", adaptRoute(makeUpdateCityController()));
-  router.put("/neighborhood/:id", adaptRoute(makeUpdateNeighborhoodController()));
+  router.put(
+    "/deliveryman/:id",
+    auth(["admin"]),
+    adaptRoute(makeUpdateDeliverymanController()),
+  );
+  router.put(
+    "/product/:id",
+    auth(["admin", "gerente_estoque"]),
+    adaptRoute(makeUpdateProductController()),
+  );
+  router.put(
+    "/city/:id",
+    auth(["admin", "gerente_estoque"]),
+    adaptRoute(makeUpdateCityController()),
+  );
+  router.put(
+    "/neighborhood/:id",
+    auth(["admin", "gerente_estoque"]),
+    adaptRoute(makeUpdateNeighborhoodController()),
+  );
   router.delete(
     "/register/:id",
-
+    auth(["admin"]),
     adaptRoute(makeDeleteRegisterByIdController()),
   );
   router.delete(
     "/orderDelivery/:id",
+    auth(["admin"]),
     adaptRoute(makeDeleteOrderDeliveryController()),
   );
   router.delete(
     "/deliveryman/:id",
+    auth(["admin"]),
     adaptRoute(makeDeleteDeliverymanController()),
   );
   router.delete(
     "/product/:id",
+    auth(["admin"]),
     adaptRoute(makeDeleteProductController()),
   );
   router.delete(
     "/city/:id",
+    auth(["admin"]),
     adaptRoute(makeDeleteCityController()),
   );
   router.delete(
     "/neighborhood/:id",
+    auth(["admin"]),
     adaptRoute(makeDeleteNeighborhoodController()),
   );
 
   // Chat endpoints
-  router.get("/chat/messages", adaptRoute(makeLoadChatMessagesController()));
-  router.get("/chat/search", adaptRoute(makeSearchChatMessagesController()));
-  router.get("/chat/messages/:id", adaptRoute(makeLoadChatMessageByIdController()));
-  router.post("/chat/messages", adaptRoute(makeAddChatMessageController()));
-  router.put("/chat/messages/:id", adaptRoute(makeUpdateChatMessageController()));
-  router.delete("/chat/messages/:id", adaptRoute(makeDeleteChatMessageController()));
-  router.get("/chat/statistics", adaptRoute(makeGetChatStatisticsController()));
+  router.get(
+    "/chat/messages",
+    auth(),
+    adaptRoute(makeLoadChatMessagesController()),
+  );
+  router.get(
+    "/chat/search",
+    auth(),
+    adaptRoute(makeSearchChatMessagesController()),
+  );
+  router.get(
+    "/chat/messages/:id",
+    auth(),
+    adaptRoute(makeLoadChatMessageByIdController()),
+  );
+  router.post(
+    "/chat/messages",
+    auth(),
+    adaptRoute(makeAddChatMessageController()),
+  );
+  router.put(
+    "/chat/messages/:id",
+    auth(),
+    adaptRoute(makeUpdateChatMessageController()),
+  );
+  router.delete(
+    "/chat/messages/:id",
+    auth(["admin"]),
+    adaptRoute(makeDeleteChatMessageController()),
+  );
+  router.get(
+    "/chat/statistics",
+    auth(),
+    adaptRoute(makeGetChatStatisticsController()),
+  );
 
   router.delete(
     "/account/:id",
+    auth(["admin"]),
     adaptRoute(makeDeleteAccountController()),
   );
 
   router.delete(
     "/address/:id",
-
+    auth(["admin"]),
     adaptRoute(makeDeleteAddressController()),
   );
 
   router.delete(
     "/client/:id",
-
+    auth(["admin"]),
     adaptRoute(makeDeleteClientController()),
   );
 };
