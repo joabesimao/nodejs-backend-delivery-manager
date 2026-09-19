@@ -4,9 +4,10 @@ import {
 } from "../../../../domain/usescases/register/add-register";
 import { AddRegisterController } from "./add-register";
 import { HttpRequest } from "../../../protocols/http";
-import { ok, serverError } from "../../../helpers/http/http-helper";
+import { badRequest, ok, serverError } from "../../../helpers/http/http-helper";
 import { Validation } from "../../../protocols/validation";
 import { RegisterModel } from "../../../../domain/models/register/register-model";
+import { MissingParamError } from "../../../errors";
 
 const makeFakeRequest = (): HttpRequest => ({
   body: {
@@ -152,5 +153,39 @@ describe("addRegister Controller", () => {
         city: "any_city",
       },
     });
+  });
+
+  test("Should return 400 if body validation returns an error", async () => {
+    const { sut, validationStub } = makeSut();
+    jest
+      .spyOn(validationStub, "validate")
+      .mockReturnValueOnce(new MissingParamError("client"));
+    const httpResponse = await sut.handle(makeFakeRequest());
+    expect(httpResponse).toEqual(
+      badRequest(new MissingParamError("client"))
+    );
+  });
+
+  test("Should return 400 if client validation returns an error", async () => {
+    const { sut, validationStub } = makeSut();
+    jest
+      .spyOn(validationStub, "validate")
+      .mockReturnValueOnce(null as any)
+      .mockReturnValueOnce(new MissingParamError("name"));
+    const httpResponse = await sut.handle(makeFakeRequest());
+    expect(httpResponse).toEqual(badRequest(new MissingParamError("name")));
+  });
+
+  test("Should return 400 if address validation returns an error", async () => {
+    const { sut, validationStub } = makeSut();
+    jest
+      .spyOn(validationStub, "validate")
+      .mockReturnValueOnce(null as any)
+      .mockReturnValueOnce(null as any)
+      .mockReturnValueOnce(new MissingParamError("street"));
+    const httpResponse = await sut.handle(makeFakeRequest());
+    expect(httpResponse).toEqual(
+      badRequest(new MissingParamError("street"))
+    );
   });
 });

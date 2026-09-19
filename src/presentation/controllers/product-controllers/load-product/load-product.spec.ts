@@ -98,6 +98,38 @@ describe("LoadProduct Controller", () => {
     );
   });
 
+  test("Should return 400 if priceMin is invalid", async () => {
+    const { sut } = makeSut();
+    const httpResponse = await sut.handle({
+      query: { priceMin: "not_a_number" },
+    });
+    expect(httpResponse).toEqual(badRequest(new InvalidParamError("priceMin")));
+  });
+
+  test("Should return 400 if priceMin is negative", async () => {
+    const { sut } = makeSut();
+    const httpResponse = await sut.handle({
+      query: { priceMin: "-1" },
+    });
+    expect(httpResponse).toEqual(badRequest(new InvalidParamError("priceMin")));
+  });
+
+  test("Should return 400 if priceMax is invalid", async () => {
+    const { sut } = makeSut();
+    const httpResponse = await sut.handle({
+      query: { priceMax: "not_a_number" },
+    });
+    expect(httpResponse).toEqual(badRequest(new InvalidParamError("priceMax")));
+  });
+
+  test("Should return 400 if priceMax is negative", async () => {
+    const { sut } = makeSut();
+    const httpResponse = await sut.handle({
+      query: { priceMax: "-1" },
+    });
+    expect(httpResponse).toEqual(badRequest(new InvalidParamError("priceMax")));
+  });
+
   test("Should return 400 if priceMin is greater than priceMax", async () => {
     const { sut } = makeSut();
     const httpResponse = await sut.handle({
@@ -110,6 +142,18 @@ describe("LoadProduct Controller", () => {
     const { sut } = makeSut();
     const httpResponse = await sut.handle({ query: { limit: "-1" } });
     expect(httpResponse).toEqual(badRequest(new InvalidParamError("limit")));
+  });
+
+  test("Should return 400 if offset is invalid", async () => {
+    const { sut } = makeSut();
+    const httpResponse = await sut.handle({ query: { offset: "not_a_number" } });
+    expect(httpResponse).toEqual(badRequest(new InvalidParamError("offset")));
+  });
+
+  test("Should return 400 if offset is negative", async () => {
+    const { sut } = makeSut();
+    const httpResponse = await sut.handle({ query: { offset: "-1" } });
+    expect(httpResponse).toEqual(badRequest(new InvalidParamError("offset")));
   });
 
   test("Should return 500 if LoadAllProduct throws", async () => {

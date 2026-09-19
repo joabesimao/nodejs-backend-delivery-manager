@@ -1,7 +1,8 @@
 import { DeleteClientController } from "./delete-client";
-import { ok, serverError } from "../../../helpers/http/http-helper";
+import { noExists, ok, serverError } from "../../../helpers/http/http-helper";
 import { DeleteClient } from "../../../../domain/usescases/client/delete-client";
 import { HttpRequest } from "../../../protocols/http";
+import { Prisma } from "@prisma/client";
 
 interface SutTypes {
   sut: DeleteClientController;
@@ -66,5 +67,21 @@ describe("Delete CLient Controller", () => {
 
     const httpResponse = await sut.handle(fakeHttpRequest);
     expect(httpResponse).toEqual(serverError(new Error()));
+  });
+
+  test("Should return noExists if Delete throws a PrismaClientKnownRequestError", async () => {
+    const { sut, deleteClientStub } = makeSut();
+    const prismaError = new Prisma.PrismaClientKnownRequestError(
+      "Record not found",
+      { code: "P2025", clientVersion: "6.7.0" }
+    );
+    jest
+      .spyOn(deleteClientStub, "delete")
+      .mockReturnValueOnce(
+        new Promise((resolve, reject) => reject(prismaError))
+      );
+
+    const httpResponse = await sut.handle(fakeHttpRequest);
+    expect(httpResponse).toEqual(noExists());
   });
 });

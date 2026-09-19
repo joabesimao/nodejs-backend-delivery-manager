@@ -1,6 +1,7 @@
 import { DeleteOrderDeliveryController } from "./delete-order-delivery";
 import { DeleteOrderDelivery } from "../../../../domain/usescases/order-delivery/delete-order-delivery";
-import { ok, serverError } from "../../../helpers/http/http-helper";
+import { noExists, ok, serverError } from "../../../helpers/http/http-helper";
+import { Prisma } from "@prisma/client";
 
 interface SutTypes {
   sut: DeleteOrderDeliveryController;
@@ -54,5 +55,21 @@ describe("DeleteOrderDelivery Controller", () => {
       );
     const deletedRegister = await sut.handle(id);
     expect(deletedRegister).toEqual(serverError(new Error("")));
+  });
+
+  test("Should return noExists if DeleteOrderDelivery throws a PrismaClientKnownRequestError", async () => {
+    const { sut, deleteOrderDeliveryStub } = makeSut();
+    const prismaError = new Prisma.PrismaClientKnownRequestError(
+      "Record not found",
+      { code: "P2025", clientVersion: "6.7.0" }
+    );
+    jest
+      .spyOn(deleteOrderDeliveryStub, "delete")
+      .mockReturnValueOnce(
+        new Promise((resolve, reject) => reject(prismaError))
+      );
+
+    const deletedRegister = await sut.handle(id);
+    expect(deletedRegister).toEqual(noExists());
   });
 });

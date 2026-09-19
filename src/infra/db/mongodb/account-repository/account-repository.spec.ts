@@ -87,4 +87,29 @@ describe("Account Mongo Repository", () => {
     const account = await sut.loadByToken("67e1ee819d149752b1d4ba16");
     expect(account).toBeFalsy();
   });
+
+  test("Should update the account access token on updateAccessToken", async () => {
+    const sut = makeSut();
+    const { insertedId } = await accountCollection.insertOne({
+      name: "any_name",
+      email: "any_email@email.com",
+      password: "any_password",
+    });
+    await sut.updateAccessToken(insertedId as any, "any_token");
+    const account = await accountCollection.findOne({ _id: insertedId });
+    expect(account.accessToken).toBe("any_token");
+  });
+
+  test("Should delete the account on deleteById and return success message", async () => {
+    const sut = makeSut();
+    const { insertedId } = await accountCollection.insertOne({
+      name: "any_name",
+      email: "any_email@email.com",
+      password: "any_password",
+    });
+    const message = await sut.deleteById(insertedId as any);
+    expect(message).toBe("Conta deletada com sucesso!");
+    const account = await accountCollection.findOne({ _id: insertedId });
+    expect(account).toBeNull();
+  });
 });

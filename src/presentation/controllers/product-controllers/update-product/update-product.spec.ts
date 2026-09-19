@@ -98,6 +98,25 @@ describe("UpdateProduct Controller", () => {
     expect(httpResponse).toEqual(badRequest(new InvalidParamError("barcode")));
   });
 
+  test("Should return 500 if UpdateProduct throws a P2002 error not related to barcode", async () => {
+    const { sut, updateProductStub } = makeSut();
+    const uniqueError: any = new Error("Unique constraint failed");
+    uniqueError.code = "P2002";
+    uniqueError.meta = { target: ["name"] };
+    jest.spyOn(updateProductStub, "update").mockReturnValueOnce(Promise.reject(uniqueError));
+    const httpResponse = await sut.handle(makeFakeRequest());
+    expect(httpResponse).toEqual(serverError(uniqueError));
+  });
+
+  test("Should return 500 if UpdateProduct throws a P2002 error without meta", async () => {
+    const { sut, updateProductStub } = makeSut();
+    const uniqueError: any = new Error("Unique constraint failed");
+    uniqueError.code = "P2002";
+    jest.spyOn(updateProductStub, "update").mockReturnValueOnce(Promise.reject(uniqueError));
+    const httpResponse = await sut.handle(makeFakeRequest());
+    expect(httpResponse).toEqual(serverError(uniqueError));
+  });
+
   test("Should return 400 if Validation returns an error", async () => {
     const { sut, validationStub } = makeSut();
     jest

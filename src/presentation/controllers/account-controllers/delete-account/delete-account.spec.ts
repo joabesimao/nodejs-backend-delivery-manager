@@ -1,7 +1,8 @@
 import { DeleteAccountController } from "./delete-account";
 import { DeleteAccount } from "../../../../domain/usescases/signup/delete-account";
 import { HttpRequest } from "../../../protocols/http";
-import { ok, serverError } from "../../../helpers/http/http-helper";
+import { noExists, ok, serverError } from "../../../helpers/http/http-helper";
+import { Prisma } from "@prisma/client";
 
 const makeDeleteAccountStub = (): DeleteAccount => {
   class DeleteAccountStub implements DeleteAccount {
@@ -70,5 +71,21 @@ describe("DeleteAccount Controller", () => {
 
     const deletedRegister = await sut.handle(fakehttpRequest());
     expect(deletedRegister).toEqual(serverError(new Error("")));
+  });
+
+  test("Should return noExists if DeleteAccount throws a PrismaClientKnownRequestError", async () => {
+    const { sut, deleteAccountStub } = makeSut();
+    const prismaError = new Prisma.PrismaClientKnownRequestError(
+      "Record not found",
+      { code: "P2025", clientVersion: "6.7.0" }
+    );
+    jest
+      .spyOn(deleteAccountStub, "deleteAccountById")
+      .mockReturnValueOnce(
+        new Promise((resolve, reject) => reject(prismaError))
+      );
+
+    const deletedAccount = await sut.handle(fakehttpRequest());
+    expect(deletedAccount).toEqual(noExists());
   });
 });
