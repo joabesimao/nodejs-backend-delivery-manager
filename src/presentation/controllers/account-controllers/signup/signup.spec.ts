@@ -16,6 +16,7 @@ import { Validation } from "../../../protocols/validation";
 import {
   Authentication,
   AuthenticationModel,
+  AuthenticationResult,
 } from "../../../../domain/usescases/authentication/authentication";
 
 const makeFakeAccountModel = (): AccountModel => ({
@@ -68,8 +69,10 @@ const makeSut = (): SutTypes => {
 
 const makeAuthenticationStub = (): Authentication => {
   class AuthenticationStub implements Authentication {
-    async auth(authentication: AuthenticationModel): Promise<string> {
-      return "any_token";
+    async auth(
+      authentication: AuthenticationModel
+    ): Promise<AuthenticationResult> {
+      return { accessToken: "any_token", refreshToken: "any_refresh_token" };
     }
   }
   return new AuthenticationStub();

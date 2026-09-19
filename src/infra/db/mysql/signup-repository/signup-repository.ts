@@ -12,6 +12,7 @@ export class AddAccountMySqlRepository implements AddAccountRepository {
         name: account.name,
         email: account.email,
         password: account.password,
+        ...(account.role ? { role: account.role } : {}),
       },
     });
     return addAccount;

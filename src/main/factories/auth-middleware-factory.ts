@@ -6,12 +6,12 @@ import { Middleware } from "../../presentation/protocols/middleware";
 import { env } from "../../../config/Env";
 import { prisma } from "../../infra/db/mysql/helpers";
 
-export const makeAuthMiddleware = (role?: string): Middleware => {
+export const makeAuthMiddleware = (roles?: string[]): Middleware => {
   const jwtAdapter = new JwtAdapter(env.JWT_SECRET);
   const accountMySqlRepository = new AccountMySqlRepository(prisma);
   const dbAccountByToken = new DbLoadAccountByToken(
     jwtAdapter,
     accountMySqlRepository,
   );
-  return new AuthMiddleware(dbAccountByToken, role);
+  return new AuthMiddleware(dbAccountByToken, roles);
 };

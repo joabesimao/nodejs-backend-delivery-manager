@@ -23,7 +23,7 @@ const makeLoadAccountByTokenRepositoryStub =
     class LoadAccountByTokenRepositoryStub
       implements LoadAccountByTokenRepository
     {
-      async loadByToken(token: string, role?: string): Promise<AccountModel> {
+      async loadByToken(token: string): Promise<AccountModel> {
         return new Promise((resolve) =>
           resolve({
             id: 1,
@@ -75,8 +75,8 @@ describe("DbLoadAccountByToken", () => {
       loadAccountByTokenRepositoryStub,
       "loadByToken"
     );
-    await sut.load("any_token", "any_role");
-    expect(loadAccountByTokenSpy).toHaveBeenCalledWith("any_value", "any_role");
+    await sut.load("any_token");
+    expect(loadAccountByTokenSpy).toHaveBeenCalledWith("any_value");
   });
 
   test("Should return null if LoadAccountByTokenRepository return null", async () => {
@@ -107,7 +107,7 @@ describe("DbLoadAccountByToken", () => {
       .mockReturnValueOnce(
         new Promise((resolve, reject) => reject(new Error()))
       );
-    const promise = sut.load("any_token", "any_role");
+    const promise = sut.load("any_token");
     await expect(promise).rejects.toThrow();
   });
 
@@ -118,7 +118,7 @@ describe("DbLoadAccountByToken", () => {
       .mockReturnValueOnce(
         new Promise((resolve, reject) => reject(new Error()))
       );
-    const promise = sut.load("any_token", "any_role");
+    const promise = sut.load("any_token");
     await expect(promise).rejects.toThrow();
   });
 });

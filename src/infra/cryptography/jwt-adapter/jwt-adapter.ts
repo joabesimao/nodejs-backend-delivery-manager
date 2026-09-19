@@ -1,19 +1,12 @@
-import { Encrypter } from "../../../data/protocols/criptography/encrypter";
-import jwt from "jsonwebtoken";
+import {
+  DecodedToken,
+  EncryptOptions,
+  Encrypter,
+} from "../../../data/protocols/criptography/encrypter";
+import jwt, { SignOptions } from "jsonwebtoken";
 import { Decrypter } from "../../../data/protocols/criptography/decrypter";
-import type { SignOptions } from "jsonwebtoken";
 
-type EncryptOptions = {
-  expiresIn?: SignOptions["expiresIn"];
-  type?: "access" | "refresh";
-};
-
-type JwtPayload = {
-  id?: string;
-  type?: "access" | "refresh";
-  iat?: number;
-  exp?: number;
-};
+type JwtPayload = DecodedToken;
 
 export class JwtAdapter implements Encrypter, Decrypter {
   constructor(private readonly secret: string) {}
@@ -25,7 +18,11 @@ export class JwtAdapter implements Encrypter, Decrypter {
         type: options?.type ?? "access",
       },
       this.secret,
-      options?.expiresIn ? { expiresIn: options.expiresIn } : undefined,
+      options?.expiresIn
+        ? ({
+            expiresIn: options.expiresIn,
+          } as SignOptions)
+        : undefined,
     );
 
     return token;

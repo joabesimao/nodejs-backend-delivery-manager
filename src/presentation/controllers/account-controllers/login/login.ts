@@ -8,19 +8,12 @@ import {
 } from "../../../helpers/http/http-helper";
 import { Authentication } from "../../../../domain/usescases/authentication/authentication";
 import { Validation } from "../../../protocols/validation";
-import { JwtAdapter } from "../../../../infra/cryptography/jwt-adapter/jwt-adapter";
-import { env } from "../../../../../config/Env";
 
 export class LoginController implements Controller {
-  private readonly jwtAdapter: JwtAdapter;
-
   constructor(
     private readonly authentication: Authentication,
-    private readonly validation: Validation,
-    jwtAdapter?: JwtAdapter
-  ) {
-    this.jwtAdapter = jwtAdapter ?? new JwtAdapter(env.JWT_SECRET);
-  }
+    private readonly validation: Validation
+  ) {}
 
   async handle(httpRequest: HttpRequest): Promise<HttpResponse> {
     try {
@@ -30,24 +23,12 @@ export class LoginController implements Controller {
       }
       const { email, password } = httpRequest.body;
 
-      const accessToken = await this.authentication.auth({ email, password });
-      if (!accessToken) {
+      const authResult = await this.authentication.auth({ email, password });
+      if (!authResult) {
         return unauthorized();
       }
 
-      const payload = await this.jwtAdapter.decode(accessToken);
-      const accountId = payload?.id;
-
-      if (!accountId) {
-        return ok({ accessToken });
-      }
-
-      const refreshToken = await this.jwtAdapter.encrypt(String(accountId), {
-        type: "refresh",
-        expiresIn: "7d",
-      });
-
-      return ok({ accessToken, refreshToken });
+      return ok(authResult);
     } catch (error) {
       return serverError(error);
     }

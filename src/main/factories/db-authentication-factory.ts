@@ -15,6 +15,9 @@ export const makeDbAuthentication = (): Authentication => {
     accountMysqlRepository,
     bcryptAdapter,
     jwt,
-    accountMysqlRepository
+    accountMysqlRepository,
+    accountMysqlRepository,
+    env.JWT_ACCESS_EXPIRES_IN,
+    env.JWT_REFRESH_EXPIRES_IN
   );
 };

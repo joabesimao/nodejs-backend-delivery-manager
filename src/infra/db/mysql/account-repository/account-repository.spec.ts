@@ -4,6 +4,7 @@ const makeFakePrisma = () => ({
   account: {
     findUnique: jest.fn(),
     delete: jest.fn(),
+    update: jest.fn(),
   },
 });
 
@@ -32,7 +33,7 @@ describe("Account MySql Repository", () => {
       });
     });
 
-    test("Should return the account when role matches", async () => {
+    test("Should return the account on success", async () => {
       const { sut, prisma } = makeSut();
       prisma.account.findUnique.mockResolvedValueOnce({
         id: 1,
@@ -41,7 +42,7 @@ describe("Account MySql Repository", () => {
         password: "any_password",
         role: "admin",
       });
-      const account = await sut.loadByToken("1", "admin");
+      const account = await sut.loadByToken("1");
       expect(account).toEqual({
         id: 1,
         name: "any_name",
@@ -58,19 +59,6 @@ describe("Account MySql Repository", () => {
       expect(account).toBeNull();
     });
 
-    test("Should return null if role does not match", async () => {
-      const { sut, prisma } = makeSut();
-      prisma.account.findUnique.mockResolvedValueOnce({
-        id: 1,
-        name: "any_name",
-        email: "any_email@email.com",
-        password: "any_password",
-        role: "user",
-      });
-      const account = await sut.loadByToken("1", "admin");
-      expect(account).toBeNull();
-    });
-
     test("Should throw if prisma.account.findUnique throws", async () => {
       const { sut, prisma } = makeSut();
       prisma.account.findUnique.mockRejectedValueOnce(new Error());
@@ -84,6 +72,35 @@ describe("Account MySql Repository", () => {
       const result = await sut.updateAccessToken(1, "any_token");
       expect(result).toBeUndefined();
       expect(prisma.account.findUnique).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("updateRefreshToken()", () => {
+    test("Should call prisma.account.update with correct values", async () => {
+      const { sut, prisma } = makeSut();
+      const expiresAt = new Date();
+      await sut.updateRefreshToken(1, "any_hash", expiresAt);
+      expect(prisma.account.update).toHaveBeenCalledWith({
+        where: { id: 1 },
+        data: { refreshTokenHash: "any_hash", refreshTokenExpiresAt: expiresAt },
+      });
+    });
+
+    test("Should call prisma.account.update with null values to revoke the token", async () => {
+      const { sut, prisma } = makeSut();
+      await sut.updateRefreshToken(1, null, null);
+      expect(prisma.account.update).toHaveBeenCalledWith({
+        where: { id: 1 },
+        data: { refreshTokenHash: null, refreshTokenExpiresAt: null },
+      });
+    });
+
+    test("Should throw if prisma.account.update throws", async () => {
+      const { sut, prisma } = makeSut();
+      prisma.account.update.mockRejectedValueOnce(new Error());
+      await expect(
+        sut.updateRefreshToken(1, "any_hash", new Date()),
+      ).rejects.toThrow();
     });
   });
 

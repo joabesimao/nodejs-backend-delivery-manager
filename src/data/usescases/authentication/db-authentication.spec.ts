@@ -3,8 +3,14 @@ import { AccountModel } from "../../../domain/models/account/account-model";
 import { LoadAccountByEmailRepository } from "../../../data/protocols/authentication/load-account-by-email-repository";
 import { HashComparer } from "../../../data/protocols/criptography/hash-comparer";
 import { AuthenticationModel } from "../../../domain/usescases/authentication/authentication";
-import { Encrypter } from "../../protocols/criptography/encrypter";
+import {
+  DecodedToken,
+  EncryptOptions,
+  Encrypter,
+} from "../../protocols/criptography/encrypter";
 import { UpdateAccessTokenRepository } from "../../../data/protocols/db/access-token-repository/update-access-token-repository";
+import { UpdateRefreshTokenRepository } from "../../../data/protocols/db/access-token-repository/update-refresh-token-repository";
+import { hashToken } from "../../../utils/hash-token";
 
 const fakeAccount = () => {
   const account: AccountModel = {
@@ -41,10 +47,16 @@ const makeHashCompare = (): HashComparer => {
   return new HashCompareStub();
 };
 
+const FAKE_EXP = Math.floor(Date.now() / 1000) + 3600;
+
 const makeTokenGenerator = (): Encrypter => {
   class TokenGeneratorStub implements Encrypter {
-    async encrypt(id: string): Promise<string> {
-      return new Promise((resolve) => resolve("any_token"));
+    async encrypt(id: string, options?: EncryptOptions): Promise<string> {
+      return options?.type === "refresh" ? "any_refresh_token" : "any_access_token";
+    }
+
+    async decode(value: string): Promise<DecodedToken | null> {
+      return { id: "1", type: "refresh", exp: FAKE_EXP };
     }
   }
   return new TokenGeneratorStub();
@@ -58,12 +70,29 @@ const makeUpdateAccessTokenRepository = (): UpdateAccessTokenRepository => {
   }
   return new UpdateAccessTokenRepositoryStub();
 };
+
+const makeUpdateRefreshTokenRepository = (): UpdateRefreshTokenRepository => {
+  class UpdateRefreshTokenRepositoryStub
+    implements UpdateRefreshTokenRepository
+  {
+    async updateRefreshToken(
+      id: number,
+      refreshTokenHash: string | null,
+      expiresAt: Date | null
+    ): Promise<void> {
+      return new Promise((resolve) => resolve());
+    }
+  }
+  return new UpdateRefreshTokenRepositoryStub();
+};
+
 interface SutTypes {
   sut: DbAuthentication;
   loadAccountByEmailRepositoryStub: LoadAccountByEmailRepository;
   hashCompareStub: HashComparer;
   encrypterStub: Encrypter;
   updateAccessTokenRepositoryStub: UpdateAccessTokenRepository;
+  updateRefreshTokenRepositoryStub: UpdateRefreshTokenRepository;
 }
 
 const makeSut = (): SutTypes => {
@@ -71,11 +100,15 @@ const makeSut = (): SutTypes => {
   const hashCompareStub = makeHashCompare();
   const encrypterStub = makeTokenGenerator();
   const updateAccessTokenRepositoryStub = makeUpdateAccessTokenRepository();
+  const updateRefreshTokenRepositoryStub = makeUpdateRefreshTokenRepository();
   const sut = new DbAuthentication(
     loadAccountByEmailRepositoryStub,
     hashCompareStub,
     encrypterStub,
-    updateAccessTokenRepositoryStub
+    updateAccessTokenRepositoryStub,
+    updateRefreshTokenRepositoryStub,
+    "15m",
+    "7d"
   );
   return {
     sut,
@@ -83,6 +116,7 @@ const makeSut = (): SutTypes => {
     hashCompareStub,
     encrypterStub,
     updateAccessTokenRepositoryStub,
+    updateRefreshTokenRepositoryStub,
   };
 };
 
@@ -102,8 +136,8 @@ describe("DbAuthentication UseCase", () => {
     jest
       .spyOn(loadAccountByEmailRepositoryStub, "loadAccountByEmail")
       .mockReturnValueOnce(null as any);
-    const accessToken = await sut.auth(makeFakeAuthentication());
-    expect(accessToken).toBeNull();
+    const authResult = await sut.auth(makeFakeAuthentication());
+    expect(authResult).toBeNull();
   });
 
   test("Should call HashComparer with correct values", async () => {
@@ -120,8 +154,8 @@ describe("DbAuthentication UseCase", () => {
     const compareSpy = jest
       .spyOn(hashCompareStub, "compare")
       .mockReturnValueOnce(new Promise((resolve, rejects) => resolve(false)));
-    const accessToken = await sut.auth(makeFakeAuthentication());
-    expect(accessToken).toBeNull();
+    const authResult = await sut.auth(makeFakeAuthentication());
+    expect(authResult).toBeNull();
   });
 
   test("Should throw if LoadAccountByEmailRepository throws ", async () => {
@@ -135,11 +169,18 @@ describe("DbAuthentication UseCase", () => {
     await expect(promise).rejects.toThrow();
   });
 
-  test("Should call Encrypter with correct id", async () => {
+  test("Should call Encrypter to generate access and refresh tokens with correct id and expiry", async () => {
     const { sut, encrypterStub } = makeSut();
     const generateSpy = jest.spyOn(encrypterStub, "encrypt");
     await sut.auth(makeFakeAuthentication());
-    expect(generateSpy).toHaveBeenCalledWith("1");
+    expect(generateSpy).toHaveBeenCalledWith("1", {
+      type: "access",
+      expiresIn: "15m",
+    });
+    expect(generateSpy).toHaveBeenCalledWith("1", {
+      type: "refresh",
+      expiresIn: "7d",
+    });
   });
 
   test("Should throw if Encrypter throws ", async () => {
@@ -153,10 +194,13 @@ describe("DbAuthentication UseCase", () => {
     await expect(promise).rejects.toThrow();
   });
 
-  test("Should return TokenGenerator on succeeds", async () => {
+  test("Should return access and refresh tokens on success", async () => {
     const { sut } = makeSut();
-    const token = await sut.auth(makeFakeAuthentication());
-    expect(token).toBe("any_token");
+    const authResult = await sut.auth(makeFakeAuthentication());
+    expect(authResult).toEqual({
+      accessToken: "any_access_token",
+      refreshToken: "any_refresh_token",
+    });
   });
 
   test("Should call UpdateAccessTokenRepository with correct values", async () => {
@@ -166,13 +210,38 @@ describe("DbAuthentication UseCase", () => {
       "updateAccessToken"
     );
     await sut.auth(makeFakeAuthentication());
-    expect(updateSpy).toHaveBeenCalledWith(1, "any_token");
+    expect(updateSpy).toHaveBeenCalledWith(1, "any_access_token");
   });
 
   test("Should throw if UpdateAccessTokenRepository throws ", async () => {
     const { sut, updateAccessTokenRepositoryStub } = makeSut();
     jest
       .spyOn(updateAccessTokenRepositoryStub, "updateAccessToken")
+      .mockReturnValueOnce(
+        new Promise((resolve, reject) => reject(new Error()))
+      );
+    const promise = sut.auth(makeFakeAuthentication());
+    await expect(promise).rejects.toThrow();
+  });
+
+  test("Should call UpdateRefreshTokenRepository with the hashed refresh token and expiry", async () => {
+    const { sut, updateRefreshTokenRepositoryStub } = makeSut();
+    const updateSpy = jest.spyOn(
+      updateRefreshTokenRepositoryStub,
+      "updateRefreshToken"
+    );
+    await sut.auth(makeFakeAuthentication());
+    expect(updateSpy).toHaveBeenCalledWith(
+      1,
+      hashToken("any_refresh_token"),
+      new Date(FAKE_EXP * 1000)
+    );
+  });
+
+  test("Should throw if UpdateRefreshTokenRepository throws ", async () => {
+    const { sut, updateRefreshTokenRepositoryStub } = makeSut();
+    jest
+      .spyOn(updateRefreshTokenRepositoryStub, "updateRefreshToken")
       .mockReturnValueOnce(
         new Promise((resolve, reject) => reject(new Error()))
       );

@@ -9,10 +9,9 @@ import { MissingParamError } from "../../../errors";
 import {
   Authentication,
   AuthenticationModel,
+  AuthenticationResult,
 } from "../../../../domain/usescases/authentication/authentication";
 import { Validation } from "../../../protocols/validation";
-import { JwtAdapter } from "../../../../infra/cryptography/jwt-adapter/jwt-adapter";
-import { env } from "../../../../../config/Env";
 
 interface SutTypes {
   sut: LoginController;
@@ -20,10 +19,17 @@ interface SutTypes {
   validationStub: Validation;
 }
 
+const makeFakeAuthResult = (): AuthenticationResult => ({
+  accessToken: "any_access_token",
+  refreshToken: "any_refresh_token",
+});
+
 const makeAuthenticationStub = (): Authentication => {
   class AuthenticationStub implements Authentication {
-    async auth(authentication: AuthenticationModel): Promise<string> {
-      return "any_token";
+    async auth(
+      authentication: AuthenticationModel
+    ): Promise<AuthenticationResult> {
+      return makeFakeAuthResult();
     }
   }
   return new AuthenticationStub();
@@ -98,7 +104,7 @@ describe("Login Controller", () => {
     expect(httpResponse).toEqual(serverError(new Error()));
   });
 
-  test("Should return 200 if valid credentials are provided", async () => {
+  test("Should return 200 with the access and refresh tokens on success", async () => {
     const { sut } = makeSut();
     const httpRequest = {
       body: {
@@ -107,7 +113,7 @@ describe("Login Controller", () => {
       },
     };
     const httpResponse = await sut.handle(httpRequest);
-    expect(httpResponse).toEqual(ok({ accessToken: "any_token" }));
+    expect(httpResponse).toEqual(ok(makeFakeAuthResult()));
   });
 
   test("Should call Validation with correct value", async () => {
@@ -138,31 +144,5 @@ describe("Login Controller", () => {
     expect(httpResponse).toEqual(
       badRequest(new MissingParamError("any_field"))
     );
-  });
-
-  test("Should return 200 with accessToken and refreshToken when the accessToken payload contains an id", async () => {
-    const { sut, authenticationStub } = makeSut();
-    const jwtAdapter = new JwtAdapter(env.JWT_SECRET);
-    const validAccessToken = await jwtAdapter.encrypt("1", {
-      type: "access",
-    });
-    jest
-      .spyOn(authenticationStub, "auth")
-      .mockReturnValueOnce(new Promise((resolve) => resolve(validAccessToken)));
-    const httpRequest = {
-      body: {
-        email: "any_email@email.com",
-        password: "any_password",
-      },
-    };
-    const httpResponse = await sut.handle(httpRequest);
-    expect(httpResponse.statusCode).toBe(200);
-    expect(httpResponse.body.accessToken).toBe(validAccessToken);
-    expect(typeof httpResponse.body.refreshToken).toBe("string");
-    const refreshPayload = await jwtAdapter.decode(
-      httpResponse.body.refreshToken
-    );
-    expect(refreshPayload.type).toBe("refresh");
-    expect(refreshPayload.id).toBe("1");
   });
 });
