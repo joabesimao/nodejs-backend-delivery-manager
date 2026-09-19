@@ -65,5 +65,38 @@ describe("Jwt Adapter", () => {
       const token = await sut.decrypt("any_value");
       expect(token).toBeNull();
     });
+
+    test("Should return null if verify returns a payload without id", async () => {
+      const sut = makeSut();
+      jest
+        .spyOn(jwt, "verify")
+        .mockImplementationOnce(() => new Promise((resolve) => resolve({})) as any);
+      const token = await sut.decrypt("any_value");
+      expect(token).toBeNull();
+    });
+  });
+
+  describe("decode()", () => {
+    test("Should call verify with correct values", async () => {
+      const sut = makeSut();
+      const verifySpy = jest.spyOn(jwt, "verify");
+      await sut.decode("any_token");
+      expect(verifySpy).toHaveBeenCalledWith("any_token", "secret");
+    });
+
+    test("Should return the payload on decode success", async () => {
+      const sut = makeSut();
+      const payload = await sut.decode("any_token");
+      expect(payload).toEqual({ id: "any_id" });
+    });
+
+    test("Should return null if verify throws", async () => {
+      const sut = makeSut();
+      jest.spyOn(jwt, "verify").mockImplementationOnce(() => {
+        throw new Error();
+      });
+      const payload = await sut.decode("any_token");
+      expect(payload).toBeNull();
+    });
   });
 });

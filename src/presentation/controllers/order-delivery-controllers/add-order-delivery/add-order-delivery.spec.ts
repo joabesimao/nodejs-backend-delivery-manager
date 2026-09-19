@@ -7,6 +7,7 @@ import { HttpRequest } from "../../../protocols/http";
 import { badRequest, ok, serverError } from "../../../helpers/http/http-helper";
 import { Validation } from "../../../protocols/validation";
 import { MissingParamError } from "../../../errors";
+import { InvalidParamError } from "../../../errors/invalid-params-error";
 import { OrderDeliveryModel } from "../../../../domain/models/order-delivery/order-delivery";
 import Mockdate from "mockdate";
 
@@ -158,5 +159,88 @@ describe("addOrderDelivery Controller", () => {
     const { sut } = makeSut();
     const httpResponse = await sut.handle(makeFakeRequest());
     expect(httpResponse).toEqual(ok(makeOrderDelivery()));
+  });
+
+  test("Should return 400 if amount is an empty string", async () => {
+    const { sut } = makeSut();
+    const httpResponse = await sut.handle({
+      body: { ...makeFakeRequest().body, amount: "" },
+    });
+    expect(httpResponse).toEqual(badRequest(new InvalidParamError("amount")));
+  });
+
+  test("Should return 400 if amount is less than or equal to 0", async () => {
+    const { sut } = makeSut();
+    const httpResponse = await sut.handle({
+      body: { ...makeFakeRequest().body, amount: 0 },
+    });
+    expect(httpResponse).toEqual(badRequest(new InvalidParamError("amount")));
+  });
+
+  test("Should correctly parse amount using dot as thousands separator and comma as decimal separator", async () => {
+    const { sut, addOrderDeliveryStub } = makeSut();
+    const addOrderDeliverySpy = jest.spyOn(
+      addOrderDeliveryStub,
+      "addOrderDelivery"
+    );
+    await sut.handle({
+      body: { ...makeFakeRequest().body, amount: "1.234,56" },
+    });
+    expect(addOrderDeliverySpy).toHaveBeenCalledWith(
+      expect.objectContaining({ amount: 1234.56 })
+    );
+  });
+
+  test("Should correctly parse amount using comma as thousands separator and dot as decimal separator", async () => {
+    const { sut, addOrderDeliveryStub } = makeSut();
+    const addOrderDeliverySpy = jest.spyOn(
+      addOrderDeliveryStub,
+      "addOrderDelivery"
+    );
+    await sut.handle({
+      body: { ...makeFakeRequest().body, amount: "1,234.56" },
+    });
+    expect(addOrderDeliverySpy).toHaveBeenCalledWith(
+      expect.objectContaining({ amount: 1234.56 })
+    );
+  });
+
+  test("Should correctly parse amount using comma only as decimal separator", async () => {
+    const { sut, addOrderDeliveryStub } = makeSut();
+    const addOrderDeliverySpy = jest.spyOn(
+      addOrderDeliveryStub,
+      "addOrderDelivery"
+    );
+    await sut.handle({
+      body: { ...makeFakeRequest().body, amount: "10,50" },
+    });
+    expect(addOrderDeliverySpy).toHaveBeenCalledWith(
+      expect.objectContaining({ amount: 10.5 })
+    );
+  });
+
+  test("Should return 400 if deliverymanId is invalid", async () => {
+    const { sut } = makeSut();
+    const httpResponse = await sut.handle({
+      body: { ...makeFakeRequest().body, deliverymanId: "not_a_number" },
+    });
+    expect(httpResponse).toEqual(
+      badRequest(new InvalidParamError("deliverymanId"))
+    );
+  });
+
+  test("Should return badRequest if AddOrderDelivery throws a known business error", async () => {
+    const { sut, addOrderDeliveryStub } = makeSut();
+    jest
+      .spyOn(addOrderDeliveryStub, "addOrderDelivery")
+      .mockReturnValueOnce(
+        new Promise((resolve, reject) =>
+          reject(new Error("Cadastro nao encontrado"))
+        )
+      );
+    const httpResponse = await sut.handle(makeFakeRequest());
+    expect(httpResponse).toEqual(
+      badRequest(new Error("Cadastro nao encontrado"))
+    );
   });
 });

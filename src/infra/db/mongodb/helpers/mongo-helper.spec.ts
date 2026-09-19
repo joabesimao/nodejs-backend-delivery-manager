@@ -14,4 +14,9 @@ describe("Mongo Helper ", () => {
     connection = await sut.getCollection("registers");
     expect(connection).toBeTruthy();
   });
+
+  test("Should map an object replacing _id with id", () => {
+    const mapped = sut.map({ _id: "any_id", name: "any_name" });
+    expect(mapped).toEqual({ id: "any_id", name: "any_name" });
+  });
 });

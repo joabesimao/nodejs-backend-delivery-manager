@@ -11,6 +11,8 @@ import {
   AuthenticationModel,
 } from "../../../../domain/usescases/authentication/authentication";
 import { Validation } from "../../../protocols/validation";
+import { JwtAdapter } from "../../../../infra/cryptography/jwt-adapter/jwt-adapter";
+import { env } from "../../../../../config/Env";
 
 interface SutTypes {
   sut: LoginController;
@@ -136,5 +138,31 @@ describe("Login Controller", () => {
     expect(httpResponse).toEqual(
       badRequest(new MissingParamError("any_field"))
     );
+  });
+
+  test("Should return 200 with accessToken and refreshToken when the accessToken payload contains an id", async () => {
+    const { sut, authenticationStub } = makeSut();
+    const jwtAdapter = new JwtAdapter(env.JWT_SECRET);
+    const validAccessToken = await jwtAdapter.encrypt("1", {
+      type: "access",
+    });
+    jest
+      .spyOn(authenticationStub, "auth")
+      .mockReturnValueOnce(new Promise((resolve) => resolve(validAccessToken)));
+    const httpRequest = {
+      body: {
+        email: "any_email@email.com",
+        password: "any_password",
+      },
+    };
+    const httpResponse = await sut.handle(httpRequest);
+    expect(httpResponse.statusCode).toBe(200);
+    expect(httpResponse.body.accessToken).toBe(validAccessToken);
+    expect(typeof httpResponse.body.refreshToken).toBe("string");
+    const refreshPayload = await jwtAdapter.decode(
+      httpResponse.body.refreshToken
+    );
+    expect(refreshPayload.type).toBe("refresh");
+    expect(refreshPayload.id).toBe("1");
   });
 });
