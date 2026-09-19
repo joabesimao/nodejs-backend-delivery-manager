@@ -132,45 +132,52 @@ export const setupRealtimeGateway = (httpServer: HttpServer): void => {
       socket.join(room);
     }
 
-    const units = session.scope.visibleUnitIds.length
-      ? await prisma.unitStore.findMany({
-          where: { id: { in: session.scope.visibleUnitIds } },
-          select: { id: true, name: true, parentStoreId: true, isMain: true },
-          orderBy: { id: "asc" },
-        })
-      : [];
+    try {
+      const units = session.scope.visibleUnitIds.length
+        ? await prisma.unitStore.findMany({
+            where: { id: { in: session.scope.visibleUnitIds } },
+            select: { id: true, name: true, parentStoreId: true, isMain: true },
+            orderBy: { id: "asc" },
+          })
+        : [];
 
-    const messages = await prisma.chatMessage.findMany({
-      where: session.scope.visibleUnitIds.length
-        ? { unitStoreId: { in: session.scope.visibleUnitIds } }
-        : undefined,
-      include: {
-        sender: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-            role: true,
-            unitStoreId: true,
+      const messages = await prisma.chatMessage.findMany({
+        where: session.scope.visibleUnitIds.length
+          ? { unitStoreId: { in: session.scope.visibleUnitIds } }
+          : undefined,
+        include: {
+          sender: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              role: true,
+              unitStoreId: true,
+            },
+          },
+          unitStore: {
+            select: {
+              id: true,
+              name: true,
+            },
           },
         },
-        unitStore: {
-          select: {
-            id: true,
-            name: true,
-          },
-        },
-      },
-      orderBy: { createdAt: "desc" },
-      take: 100,
-    });
+        orderBy: { createdAt: "desc" },
+        take: 100,
+      });
 
-    socket.emit("session:ready", {
-      account: session.account,
-      units,
-    });
+      socket.emit("session:ready", {
+        account: session.account,
+        units,
+      });
 
-    socket.emit("chat:history", messages.reverse());
+      socket.emit("chat:history", messages.reverse());
+    } catch (error) {
+      console.error("[realtime] Falha ao carregar sessão inicial:", error);
+      socket.emit("session:error", {
+        message: "Falha ao carregar dados iniciais",
+      });
+    }
 
     // Fetch chat history
     socket.on("chat:fetch-history", async (ack?: (response: unknown) => void) => {
