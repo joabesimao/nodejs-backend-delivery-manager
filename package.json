@@ -17,8 +17,8 @@
     "test:integration": "jest --watch -c jest-integration-config.js",
     "test:unit:coverage": "jest --coverage",
     "test:verbose": "jest --passWithNoTests",
-    "test:staged": "npm test -- --findRelatedTests",
-    "test:ci": "npm test -- --coverage"
+    "test:staged": "jest --passWithNoTests --silent --noStackTrace --runInBand --findRelatedTests",
+    "test:ci": "jest --passWithNoTests --silent --noStackTrace --runInBand --coverage"
   },
   "author": "",
   "license": "ISC",
