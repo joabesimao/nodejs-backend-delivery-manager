@@ -20,7 +20,8 @@ API RESTful completa para gerenciamento de entregas, clientes, pedidos e relató
 
 ## 🎯 Features
 
-- ✅ **Autenticação JWT** - Access Token e Refresh Token
+- ✅ **Autenticação JWT** - Access Token e Refresh Token, com bloqueio de contas inativas
+- ✅ **Gestão de Contas (RBAC)** - CRUD de usuários com papéis (`admin`, `gerente_estoque`, `entregador`, `user`), ativação/desativação e proteção contra exclusão do próprio usuário ou do último admin
 - ✅ **Gestão de Clientes** - Cadastro, edição, exclusão e busca
 - ✅ **Pedidos de Entrega** - Criação, atualização, rastreamento
 - ✅ **Entregadores** - Cadastro e ranking por período
@@ -117,6 +118,60 @@ O servidor estará rodando em `http://localhost:3000`
 curl -X POST http://localhost:3000/api/login \
   -H "Content-Type: application/json" \
   -d '{"email": "admin@fastone.local", "password": "12345678"}'
+```
+
+Retorno (login válido, conta ativa):
+```json
+{
+  "accessToken": "...",
+  "refreshToken": "...",
+  "name": "Administrador",
+  "role": "admin"
+}
+```
+
+Contas com `active: false` não conseguem autenticar (login retorna como inválido) e, se já tiverem um `accessToken` válido, esse token deixa de ser aceito nas rotas protegidas assim que a conta é desativada.
+
+---
+
+### 🔐 Contas / Usuários (RBAC)
+
+Todas as rotas abaixo exigem token de um usuário com papel `admin`.
+
+| Método | Rota | Descrição |
+|--------|------|-----------|
+| POST | `/api/account/staff` | Cria uma conta (`admin`, `gerente_estoque`, `entregador` ou `user`) |
+| GET | `/api/account` | Lista contas, com filtro opcional por `role` e busca (`q`) por nome/e-mail |
+| PUT | `/api/account/:id` | Atualiza nome, e-mail, papel, senha e/ou `active` |
+| DELETE | `/api/account/:id` | Remove uma conta |
+
+Papéis disponíveis (`AccountRole`): `admin`, `gerente_estoque`, `entregador`, `user`.
+
+**Regras de exclusão (`DELETE /account/:id`):**
+- Um admin não pode excluir a própria conta → `403 Forbidden` (`SelfActionError`)
+- Não é possível excluir o último admin ativo do sistema → `403 Forbidden` (`LastAdminError`)
+- Se a conta tiver registros vinculados (violação de chave estrangeira), a API responde `409 Conflict` (`AccountInUseError`) em vez de derrubar a exclusão com erro genérico
+
+**Exemplo de criação de staff:**
+```bash
+curl -X POST http://localhost:3000/api/account/staff \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer seu_token_admin" \
+  -d '{
+    "name": "Maria Souza",
+    "email": "maria@fastone.local",
+    "password": "12345678",
+    "passwordConfirmation": "12345678",
+    "role": "gerente_estoque"
+  }'
+```
+
+**Exemplo de desativação (soft delete) sem remover a conta:**
+```bash
+curl -X PUT http://localhost:3000/api/account/5 \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer seu_token_admin" \
+  -d '{"active": false}'
 ```
 
 ---
@@ -303,7 +358,7 @@ npm run test:integration
 ### Cobertura de testes
 
 ```bash
-npm run test:coverage
+npm run test:unit:coverage
 ```
 
 ---
