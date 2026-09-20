@@ -18,6 +18,8 @@ const fakeAccount = () => {
     name: "any_name",
     email: "any_email@email.com",
     password: "hashed_password",
+    role: "user",
+    active: true,
   };
   return account;
 };
@@ -200,7 +202,22 @@ describe("DbAuthentication UseCase", () => {
     expect(authResult).toEqual({
       accessToken: "any_access_token",
       refreshToken: "any_refresh_token",
+      name: "any_name",
+      role: "user",
     });
+  });
+
+  test("Should return null if account is inactive", async () => {
+    const { sut, loadAccountByEmailRepositoryStub } = makeSut();
+    jest
+      .spyOn(loadAccountByEmailRepositoryStub, "loadAccountByEmail")
+      .mockReturnValueOnce(
+        new Promise((resolve) =>
+          resolve({ ...fakeAccount(), active: false }),
+        ),
+      );
+    const authResult = await sut.auth(makeFakeAuthentication());
+    expect(authResult).toBeNull();
   });
 
   test("Should call UpdateAccessTokenRepository with correct values", async () => {

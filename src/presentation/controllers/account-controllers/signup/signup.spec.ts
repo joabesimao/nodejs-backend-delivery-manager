@@ -72,7 +72,12 @@ const makeAuthenticationStub = (): Authentication => {
     async auth(
       authentication: AuthenticationModel
     ): Promise<AuthenticationResult> {
-      return { accessToken: "any_token", refreshToken: "any_refresh_token" };
+      return {
+        accessToken: "any_token",
+        refreshToken: "any_refresh_token",
+        name: "any_name",
+        role: "user",
+      };
     }
   }
   return new AuthenticationStub();

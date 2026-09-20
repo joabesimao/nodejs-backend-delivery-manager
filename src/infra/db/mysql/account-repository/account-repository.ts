@@ -1,10 +1,26 @@
-import { PrismaClient } from "@prisma/client";
+import { Prisma, PrismaClient } from "@prisma/client";
 import { UpdateAccessTokenRepository } from "../../../../data/protocols/db/access-token-repository/update-access-token-repository";
 import { UpdateRefreshTokenRepository } from "../../../../data/protocols/db/access-token-repository/update-refresh-token-repository";
 import { DeleteAccountRepository } from "../../../../data/protocols/db/account/delete-account-repository";
 import { FindAccountByEmailRepository } from "../../../../data/protocols/db/account/find-account-by-email-repository";
 import { LoadAccountByTokenRepository } from "../../../../data/protocols/db/account/load-account-by-token-repository";
+import { LoadAccountsRepository } from "../../../../data/protocols/db/account/load-accounts-repository";
+import { LoadAccountByIdRepository } from "../../../../data/protocols/db/account/load-account-by-id-repository";
+import { CountActiveAdminsRepository } from "../../../../data/protocols/db/account/count-active-admins-repository";
+import { UpdateAccountRepository } from "../../../../data/protocols/db/account/update-account-repository";
 import { AccountModel } from "../../../../domain/models/account/account-model";
+import { PublicAccountModel } from "../../../../domain/models/account/public-account-model";
+import { LoadAccountsFilter } from "../../../../domain/usescases/account/load-accounts";
+import { UpdateAccountModel } from "../../../../domain/usescases/account/update-account";
+
+const PUBLIC_ACCOUNT_SELECT = {
+  id: true,
+  name: true,
+  email: true,
+  role: true,
+  active: true,
+  unitStoreId: true,
+} satisfies Prisma.AccountSelect;
 
 export class AccountMySqlRepository
   implements
@@ -12,7 +28,11 @@ export class AccountMySqlRepository
     UpdateAccessTokenRepository,
     UpdateRefreshTokenRepository,
     LoadAccountByTokenRepository,
-    DeleteAccountRepository
+    DeleteAccountRepository,
+    LoadAccountsRepository,
+    LoadAccountByIdRepository,
+    CountActiveAdminsRepository,
+    UpdateAccountRepository
 {
   constructor(private readonly prisma: PrismaClient) {}
 
@@ -55,9 +75,61 @@ export class AccountMySqlRepository
   }
 
   async deleteById(id: number): Promise<string> {
-    const deletedAccount = await this.prisma.account.delete({
+    await this.prisma.account.delete({
       where: { id: id },
     });
     return "Conta deletada com sucesso!";
+  }
+
+  async loadAll(filter?: LoadAccountsFilter): Promise<PublicAccountModel[]> {
+    const accounts = await this.prisma.account.findMany({
+      where: {
+        role: filter?.role,
+        ...(filter?.q
+          ? {
+              OR: [
+                { name: { contains: filter.q } },
+                { email: { contains: filter.q } },
+              ],
+            }
+          : {}),
+      },
+      select: PUBLIC_ACCOUNT_SELECT,
+      orderBy: { name: "asc" },
+    });
+
+    return accounts;
+  }
+
+  async loadById(id: number): Promise<PublicAccountModel | null> {
+    const account = await this.prisma.account.findUnique({
+      where: { id },
+      select: PUBLIC_ACCOUNT_SELECT,
+    });
+    return account;
+  }
+
+  async countActiveAdmins(): Promise<number> {
+    return this.prisma.account.count({
+      where: { role: "admin", active: true },
+    });
+  }
+
+  async updateById(
+    id: number,
+    data: UpdateAccountModel,
+  ): Promise<PublicAccountModel> {
+    const account = await this.prisma.account.update({
+      where: { id },
+      data: {
+        name: data.name,
+        email: data.email,
+        role: data.role,
+        active: data.active,
+        password: data.password,
+      },
+      select: PUBLIC_ACCOUNT_SELECT,
+    });
+    return account;
   }
 }

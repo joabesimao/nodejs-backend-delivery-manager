@@ -6,6 +6,7 @@ export interface AccountModel {
   email: string;
   password: string;
   role?: AccountRole;
+  active?: boolean;
   unitStoreId?: number | null;
   refreshTokenHash?: string | null;
   refreshTokenExpiresAt?: Date | null;
