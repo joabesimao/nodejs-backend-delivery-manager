@@ -31,6 +31,10 @@ export class DbAuthentication implements Authentication {
       return null;
     }
 
+    if (accountBd.active === false) {
+      return null;
+    }
+
     const isValid = await this.hashCompare.compare(
       authentication.password,
       accountBd.password
@@ -61,6 +65,11 @@ export class DbAuthentication implements Authentication {
       expiresAt
     );
 
-    return { accessToken, refreshToken };
+    return {
+      accessToken,
+      refreshToken,
+      name: accountBd.name,
+      role: accountBd.role,
+    };
   }
 }

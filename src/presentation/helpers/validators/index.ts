@@ -3,6 +3,7 @@ export * from "./barcode-duplicate-validation";
 export * from "./compare-fields-validation";
 export * from "./cpf-duplicate-validation";
 export * from "./email-validation";
+export * from "./optional-email-validation";
 export * from "./optional-field-type-validation";
 export * from "./product-image-validation";
 export * from "./product-variations-validation";

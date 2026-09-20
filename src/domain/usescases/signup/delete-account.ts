@@ -1,3 +1,3 @@
 export interface DeleteAccount {
-  deleteAccountById(id: number): Promise<string>;
+  deleteAccountById(id: number, requesterId: number): Promise<string>;
 }

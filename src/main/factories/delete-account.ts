@@ -9,6 +9,8 @@ import { prisma } from "../../infra/db/mysql/helpers/index";
 export const makeDeleteAccountController = (): Controller => {
   const deleteAccountRepository = new AccountMySqlRepository(prisma);
   const deleteAccountDelivery = new DbDeleteAccountById(
+    deleteAccountRepository,
+    deleteAccountRepository,
     deleteAccountRepository
   );
   const deleteaccountController = new DeleteAccountController(

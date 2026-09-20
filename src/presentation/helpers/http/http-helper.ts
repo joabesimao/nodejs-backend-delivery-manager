@@ -37,3 +37,8 @@ export const noExists = (): HttpResponse => ({
   statusCode: 400,
   body: new NoExistsError(),
 });
+
+export const conflict = (error: Error): HttpResponse => ({
+  statusCode: 409,
+  body: error,
+});

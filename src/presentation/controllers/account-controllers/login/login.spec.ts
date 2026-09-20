@@ -22,6 +22,8 @@ interface SutTypes {
 const makeFakeAuthResult = (): AuthenticationResult => ({
   accessToken: "any_access_token",
   refreshToken: "any_refresh_token",
+  name: "any_name",
+  role: "user",
 });
 
 const makeAuthenticationStub = (): Authentication => {

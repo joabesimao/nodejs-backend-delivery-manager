@@ -1,12 +1,21 @@
 import { DeleteAccountController } from "./delete-account";
 import { DeleteAccount } from "../../../../domain/usescases/signup/delete-account";
 import { HttpRequest } from "../../../protocols/http";
-import { noExists, ok, serverError } from "../../../helpers/http/http-helper";
+import {
+  conflict,
+  forbidden,
+  noExists,
+  ok,
+  serverError,
+} from "../../../helpers/http/http-helper";
 import { Prisma } from "@prisma/client";
+import { AccountInUseError } from "../../../errors/account-in-use-error";
+import { LastAdminError } from "../../../errors/last-admin-error";
+import { SelfActionError } from "../../../errors/self-action-error";
 
 const makeDeleteAccountStub = (): DeleteAccount => {
   class DeleteAccountStub implements DeleteAccount {
-    async deleteAccountById(id: Number): Promise<string> {
+    async deleteAccountById(id: number, requesterId: number): Promise<string> {
       return new Promise((resolve) => resolve("conta apagada com sucesso"));
     }
   }
@@ -44,6 +53,9 @@ const fakehttpRequest = (): HttpRequest => ({
   params: {
     id: 1,
   },
+  headers: {
+    accountId: 999,
+  },
 });
 
 describe("DeleteAccount Controller", () => {
@@ -51,7 +63,7 @@ describe("DeleteAccount Controller", () => {
     const { sut, deleteAccountStub } = makeSut();
     const deleteAccountSpy = jest.spyOn(deleteAccountStub, "deleteAccountById");
     await sut.handle(fakehttpRequest());
-    expect(deleteAccountSpy).toHaveBeenCalledWith(1);
+    expect(deleteAccountSpy).toHaveBeenCalledWith(1, 999);
   });
 
   test("Should return a message when DeleteAccount on success", async () => {
@@ -87,5 +99,45 @@ describe("DeleteAccount Controller", () => {
 
     const deletedAccount = await sut.handle(fakehttpRequest());
     expect(deletedAccount).toEqual(noExists());
+  });
+
+  test("Should return conflict if DeleteAccount throws a foreign key PrismaClientKnownRequestError", async () => {
+    const { sut, deleteAccountStub } = makeSut();
+    const prismaError = new Prisma.PrismaClientKnownRequestError(
+      "Foreign key constraint failed",
+      { code: "P2003", clientVersion: "6.7.0" }
+    );
+    jest
+      .spyOn(deleteAccountStub, "deleteAccountById")
+      .mockReturnValueOnce(
+        new Promise((resolve, reject) => reject(prismaError))
+      );
+
+    const deletedAccount = await sut.handle(fakehttpRequest());
+    expect(deletedAccount).toEqual(conflict(new AccountInUseError()));
+  });
+
+  test("Should return forbidden if DeleteAccount throws SelfActionError", async () => {
+    const { sut, deleteAccountStub } = makeSut();
+    jest
+      .spyOn(deleteAccountStub, "deleteAccountById")
+      .mockReturnValueOnce(
+        new Promise((resolve, reject) => reject(new SelfActionError()))
+      );
+
+    const deletedAccount = await sut.handle(fakehttpRequest());
+    expect(deletedAccount).toEqual(forbidden(new SelfActionError()));
+  });
+
+  test("Should return forbidden if DeleteAccount throws LastAdminError", async () => {
+    const { sut, deleteAccountStub } = makeSut();
+    jest
+      .spyOn(deleteAccountStub, "deleteAccountById")
+      .mockReturnValueOnce(
+        new Promise((resolve, reject) => reject(new LastAdminError()))
+      );
+
+    const deletedAccount = await sut.handle(fakehttpRequest());
+    expect(deletedAccount).toEqual(forbidden(new LastAdminError()));
   });
 });
