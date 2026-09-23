@@ -7,5 +7,6 @@ export * from "./optional-email-validation";
 export * from "./optional-field-type-validation";
 export * from "./product-image-validation";
 export * from "./product-variations-validation";
+export * from "./qualification-duplicate-validation";
 export * from "./require-field-validation";
 export * from "./validation-composite";

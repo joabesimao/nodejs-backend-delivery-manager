@@ -1,5 +1,5 @@
 import { UpdateDeliveryman } from "../../../../domain/usescases/deliveryman/update-deliveryman";
-import { CpfInUseError } from "../../../errors";
+import { CpfInUseError, QualificationInUseError } from "../../../errors";
 import { badRequest, conflict, ok, serverError } from "../../../helpers/http/http-helper";
 import { Controller } from "../../../protocols/controller";
 import { HttpRequest, HttpResponse } from "../../../protocols/http";
@@ -23,6 +23,9 @@ export class UpdateDeliverymanController implements Controller {
     } catch (error) {
       if (error.code === "P2002" && error.meta?.target?.includes("cpf")) {
         return conflict(new CpfInUseError());
+      }
+      if (error.code === "P2002" && error.meta?.target?.includes("numberQualification")) {
+        return conflict(new QualificationInUseError());
       }
       return serverError(error);
     }

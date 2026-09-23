@@ -102,7 +102,7 @@ model Deliveryman {
   id                   Int             @id @default(autoincrement())
   name                 String
   lastName             String
-  numberQualification  String
+  numberQualification  String          @unique
   phone                String          @unique
   cpf                  String?         @unique
   deliveries           OrderDelivery[]
