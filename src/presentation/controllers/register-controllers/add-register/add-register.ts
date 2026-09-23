@@ -1,5 +1,6 @@
 import { AddRegister } from "../../../../domain/usescases/register/add-register";
-import { badRequest, ok, serverError } from "../../../helpers/http/http-helper";
+import { CpfInUseError } from "../../../errors";
+import { badRequest, conflict, ok, serverError } from "../../../helpers/http/http-helper";
 import { Controller } from "../../../protocols/controller";
 import { HttpRequest, HttpResponse } from "../../../protocols/http";
 import { Validation } from "../../../protocols/validation";
@@ -24,6 +25,9 @@ export class AddRegisterController implements Controller {
         httpRequest.body.client
       );
       if (errorBodyClient) {
+        if (errorBodyClient instanceof CpfInUseError) {
+          return conflict(errorBodyClient);
+        }
         return badRequest(errorBodyClient);
       }
 
@@ -42,6 +46,9 @@ export class AddRegisterController implements Controller {
 
       return ok(result);
     } catch (error) {
+      if (error.code === "P2002" && error.meta?.target?.includes("cpf")) {
+        return conflict(new CpfInUseError());
+      }
       console.error("[AddRegisterController] Error:", error);
       return serverError(error);
     }

@@ -4,4 +4,5 @@ export interface Deliveryman {
   lastName: string;
   numberQualification:string;
   phone: string;
+  cpf?: string;
 }

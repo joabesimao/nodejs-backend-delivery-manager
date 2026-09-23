@@ -77,6 +77,7 @@ describe("Deliveryman MySql Repository", () => {
       lastName: "any_last_name",
       numberQualification: "any_qualification",
       phone: "any_phone",
+      cpf: "any_cpf",
     };
 
     test("Should call prisma.deliveryman.create with correct values", async () => {

@@ -5,6 +5,7 @@ export interface AddDeliverymanModel {
   lastName: string;
   numberQualification: string;
   phone: string;
+  cpf: string;
 }
 
 export interface AddDeliveryman {
