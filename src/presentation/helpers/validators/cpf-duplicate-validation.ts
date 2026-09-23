@@ -1,4 +1,4 @@
-import { InvalidParamError } from "../../errors";
+import { CpfInUseError } from "../../errors";
 import { Validation } from "../../protocols/validation";
 
 export interface CpfDuplicateValidator {
@@ -19,7 +19,7 @@ export class CpfDuplicateValidation implements Validation {
     const isCpfDuplicate = await this.cpfValidator.validate(cpfClean);
     
     if (isCpfDuplicate) {
-      return new InvalidParamError("cpf");
+      return new CpfInUseError();
     }
 
     return null;

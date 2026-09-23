@@ -30,6 +30,7 @@ export class DeliverymanMysqlRepository
         lastName: deliveryman.lastName,
         numberQualification: deliveryman.numberQualification,
         phone: deliveryman.phone,
+        cpf: deliveryman.cpf,
       },
     });
   }
@@ -42,6 +43,7 @@ export class DeliverymanMysqlRepository
         ...(data.lastName && { lastName: data.lastName }),
         ...(data.phone && { phone: data.phone }),
         ...(data.numberQualification && { numberQualification: data.numberQualification }),
+        ...(data.cpf && { cpf: data.cpf }),
       },
     });
   }

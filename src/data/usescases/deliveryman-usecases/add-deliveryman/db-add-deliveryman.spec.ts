@@ -14,6 +14,7 @@ const makeDeliveryman = (): Deliveryman => ({
   lastName: "any_lastName",
   numberQualification: "any_numberQualification",
   phone: "any_phone",
+  cpf: "any_cpf",
 });
 
 const makeAddDeliverymanModel = (): AddDeliverymanModel => ({
@@ -21,6 +22,7 @@ const makeAddDeliverymanModel = (): AddDeliverymanModel => ({
   lastName: "any_lastName",
   numberQualification: "any_numberQualification",
   phone: "any_phone",
+  cpf: "any_cpf",
 });
 
 const makeAddDeliverymanRepository = (): AddDeliverymanRepository => {
@@ -51,6 +53,7 @@ describe("DbAddDeliveryman Usecase", () => {
       lastName: "any_lastName",
       numberQualification: "any_numberQualification",
       phone: "any_phone",
+      cpf: "any_cpf",
     });
   });
 
