@@ -106,6 +106,57 @@ model Deliveryman {
   phone                String          @unique
   cpf                  String?         @unique
   deliveries           OrderDelivery[]
+  vehicles             Vehicle[]
+  oilChangeLogs        OilChangeLog[]
+  fuelRefills          FuelRefill[]
+}
+
+model Vehicle {
+  id            Int            @id @default(autoincrement())
+  plate         String         @unique
+  model         String
+  brand         String?
+  deliverymanId Int?
+  deliveryman   Deliveryman?   @relation(fields: [deliverymanId], references: [id])
+  oilChangeLogs OilChangeLog[]
+  fuelRefills   FuelRefill[]
+}
+
+model OilChangeConfig {
+  id         Int      @id @default(autoincrement())
+  intervalKm Int
+  updatedAt  DateTime @updatedAt
+}
+
+model OilChangeLog {
+  id            Int         @id @default(autoincrement())
+  vehicleId     Int
+  vehicle       Vehicle     @relation(fields: [vehicleId], references: [id])
+  deliverymanId Int
+  deliveryman   Deliveryman @relation(fields: [deliverymanId], references: [id])
+  km            Int
+  nextChangeKm  Int
+  changeDate    DateTime
+  createdAt     DateTime    @default(now())
+
+  @@index([vehicleId, changeDate])
+}
+
+model FuelRefill {
+  id            Int         @id @default(autoincrement())
+  vehicleId     Int
+  vehicle       Vehicle     @relation(fields: [vehicleId], references: [id])
+  deliverymanId Int
+  deliveryman   Deliveryman @relation(fields: [deliverymanId], references: [id])
+  km            Int
+  previousKm    Int?
+  kmDriven      Int?
+  liters        Decimal     @db.Decimal(10, 2)
+  totalValue    Decimal     @db.Decimal(10, 2)
+  refillDate    DateTime
+  createdAt     DateTime    @default(now())
+
+  @@index([vehicleId, refillDate])
 }
 
 model Neighborhood {

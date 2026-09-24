@@ -5,6 +5,8 @@ export * from "./cpf-duplicate-validation";
 export * from "./email-validation";
 export * from "./optional-email-validation";
 export * from "./optional-field-type-validation";
+export * from "./plate-duplicate-validation";
+export * from "./positive-number-validation";
 export * from "./product-image-validation";
 export * from "./product-variations-validation";
 export * from "./qualification-duplicate-validation";
