@@ -4,3 +4,6 @@ export * from "./server-error";
 export * from "./email-use-error";
 export * from "./cpf-in-use-error";
 export * from "./qualification-in-use-error";
+export * from "./plate-in-use-error";
+export * from "./invalid-km-error";
+export * from "./vehicle-in-use-error";
