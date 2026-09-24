@@ -19,9 +19,10 @@ const makeFakeFuelRefill = (): FuelRefill => ({
   previousKm: undefined,
   kmDriven: undefined,
   liters: 20,
+  pricePerLiter: 7.5,
   totalValue: 150,
-  refillDate: new Date(),
-  createdAt: new Date(),
+  refillDate: new Date("2026-09-23T00:00:00.000Z"),
+  createdAt: new Date("2026-09-23T00:00:00.000Z"),
 });
 
 const makeAddFuelRefillModel = (): AddFuelRefillModel => ({
@@ -29,8 +30,9 @@ const makeAddFuelRefillModel = (): AddFuelRefillModel => ({
   deliverymanId: 1,
   km: 1000,
   liters: 20,
+  pricePerLiter: 7.5,
   totalValue: 150,
-  refillDate: new Date(),
+  refillDate: new Date("2026-09-23T00:00:00.000Z"),
 });
 
 const makeFindLastFuelRefillRepositoryStub = (): FindLastFuelRefillRepository => {

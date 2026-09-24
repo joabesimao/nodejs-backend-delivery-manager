@@ -17,12 +17,13 @@ export class AddFuelRefillController implements Controller {
       if (error) {
         return badRequest(error);
       }
-      const { vehicleId, deliverymanId, km, liters, totalValue, refillDate } = httpRequest.body;
+      const { vehicleId, deliverymanId, km, liters, pricePerLiter, totalValue, refillDate } = httpRequest.body;
       const result = await this.addFuelRefill.add({
         vehicleId: Number(vehicleId),
         deliverymanId: Number(deliverymanId),
         km: Number(km),
         liters: Number(liters),
+        pricePerLiter: Number(pricePerLiter),
         totalValue: Number(totalValue),
         refillDate: new Date(refillDate),
       });

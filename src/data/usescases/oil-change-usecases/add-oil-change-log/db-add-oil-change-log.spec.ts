@@ -17,7 +17,7 @@ interface SutTypes {
 const makeFakeConfig = (): OilChangeConfig => ({
   id: 1,
   intervalKm: 800,
-  updatedAt: new Date(),
+  updatedAt: new Date("2026-09-23T00:00:00.000Z"),
 });
 
 const makeFakeOilChangeLog = (): OilChangeLog => ({
@@ -26,15 +26,15 @@ const makeFakeOilChangeLog = (): OilChangeLog => ({
   deliverymanId: 1,
   km: 1000,
   nextChangeKm: 1800,
-  changeDate: new Date(),
-  createdAt: new Date(),
+  changeDate: new Date("2026-09-23T00:00:00.000Z"),
+  createdAt: new Date("2026-09-23T00:00:00.000Z"),
 });
 
 const makeAddOilChangeLogModel = (): AddOilChangeLogModel => ({
   vehicleId: 1,
   deliverymanId: 1,
   km: 1000,
-  changeDate: new Date(),
+  changeDate: new Date("2026-09-23T00:00:00.000Z"),
 });
 
 const makeLoadOilChangeConfigRepositoryStub = (): LoadOilChangeConfigRepository => {

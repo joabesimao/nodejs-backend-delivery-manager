@@ -10,7 +10,7 @@ interface SutTypes {
 const makeFakeConfig = (): OilChangeConfig => ({
   id: 1,
   intervalKm: 800,
-  updatedAt: new Date(),
+  updatedAt: new Date("2026-09-23T00:00:00.000Z"),
 });
 
 const makeLoadOilChangeConfigRepositoryStub = (): LoadOilChangeConfigRepository => {

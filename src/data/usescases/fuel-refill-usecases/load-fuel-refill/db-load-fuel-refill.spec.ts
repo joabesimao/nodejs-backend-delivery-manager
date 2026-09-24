@@ -15,8 +15,8 @@ const makeFakeRefills = (): FuelRefill[] => [
     km: 1000,
     liters: 20,
     totalValue: 150,
-    refillDate: new Date(),
-    createdAt: new Date(),
+    refillDate: new Date("2026-09-23T00:00:00.000Z"),
+    createdAt: new Date("2026-09-23T00:00:00.000Z"),
   },
 ];
 

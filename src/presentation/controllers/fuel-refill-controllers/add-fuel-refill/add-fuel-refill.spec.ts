@@ -12,6 +12,7 @@ const makeFakeRequest = (): HttpRequest => ({
     deliverymanId: 1,
     km: 1000,
     liters: 20,
+    pricePerLiter: 7.5,
     totalValue: 150,
     refillDate: "2026-09-23",
   },
@@ -76,6 +77,7 @@ describe("AddFuelRefill Controller", () => {
       deliverymanId: 1,
       km: 1000,
       liters: 20,
+      pricePerLiter: 7.5,
       totalValue: 150,
       refillDate: new Date("2026-09-23"),
     });

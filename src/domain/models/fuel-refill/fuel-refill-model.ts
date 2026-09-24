@@ -9,6 +9,7 @@ export interface FuelRefill {
   previousKm?: number;
   kmDriven?: number;
   liters: number;
+  pricePerLiter?: number;
   totalValue: number;
   refillDate: Date;
   createdAt: Date;

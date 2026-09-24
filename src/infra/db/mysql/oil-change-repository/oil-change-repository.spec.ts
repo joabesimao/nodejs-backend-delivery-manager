@@ -1,6 +1,6 @@
 import { OilChangeMysqlRepository } from "./oil-change-repository";
 
-const fixedDate = new Date();
+const fixedDate = new Date("2026-09-23T00:00:00.000Z");
 
 const makeFakeConfig = () => ({ id: 1, intervalKm: 800, updatedAt: fixedDate });
 
@@ -82,7 +82,7 @@ describe("OilChange MySql Repository", () => {
   describe("add()", () => {
     test("Should call prisma.oilChangeLog.create with correct values", async () => {
       const { sut, prisma } = makeSut();
-      const data = { vehicleId: 1, deliverymanId: 1, km: 1000, nextChangeKm: 1800, changeDate: new Date() };
+      const data = { vehicleId: 1, deliverymanId: 1, km: 1000, nextChangeKm: 1800, changeDate: new Date("2026-09-23T00:00:00.000Z") };
       await sut.add(data);
       expect(prisma.oilChangeLog.create).toHaveBeenCalledWith({
         data,
@@ -94,7 +94,7 @@ describe("OilChange MySql Repository", () => {
       const { sut, prisma } = makeSut();
       prisma.oilChangeLog.create.mockRejectedValueOnce(new Error());
       await expect(
-        sut.add({ vehicleId: 1, deliverymanId: 1, km: 1000, nextChangeKm: 1800, changeDate: new Date() })
+        sut.add({ vehicleId: 1, deliverymanId: 1, km: 1000, nextChangeKm: 1800, changeDate: new Date("2026-09-23T00:00:00.000Z") })
       ).rejects.toThrow();
     });
   });
@@ -105,7 +105,7 @@ describe("OilChange MySql Repository", () => {
       await sut.findLastByVehicle(1);
       expect(prisma.oilChangeLog.findFirst).toHaveBeenCalledWith({
         where: { vehicleId: 1 },
-        orderBy: { changeDate: "desc" },
+        orderBy: [{ changeDate: "desc" }, { id: "desc" }],
       });
     });
 
@@ -123,7 +123,7 @@ describe("OilChange MySql Repository", () => {
       expect(prisma.oilChangeLog.findMany).toHaveBeenCalledWith({
         where: {},
         include: { vehicle: true, deliveryman: true },
-        orderBy: { changeDate: "desc" },
+        orderBy: [{ changeDate: "desc" }, { id: "desc" }],
       });
     });
 
@@ -133,7 +133,7 @@ describe("OilChange MySql Repository", () => {
       expect(prisma.oilChangeLog.findMany).toHaveBeenCalledWith({
         where: { vehicleId: 1, deliverymanId: 2 },
         include: { vehicle: true, deliveryman: true },
-        orderBy: { changeDate: "desc" },
+        orderBy: [{ changeDate: "desc" }, { id: "desc" }],
       });
     });
 

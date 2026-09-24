@@ -152,6 +152,7 @@ model FuelRefill {
   previousKm    Int?
   kmDriven      Int?
   liters        Decimal     @db.Decimal(10, 2)
+  pricePerLiter Decimal?    @db.Decimal(10, 3)
   totalValue    Decimal     @db.Decimal(10, 2)
   refillDate    DateTime
   createdAt     DateTime    @default(now())

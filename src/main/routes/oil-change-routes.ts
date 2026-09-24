@@ -4,6 +4,8 @@ import { adaptMiddleware } from "../adapters/express-middleware-adapter";
 import { makeAuthMiddleware } from "../factories/auth-middleware-factory";
 import { makeAddOilChangeLogController } from "../factories/add-oil-change-log";
 import { makeLoadOilChangeLogController } from "../factories/load-oil-change-log";
+import { makeUpdateOilChangeLogController } from "../factories/update-oil-change-log";
+import { makeDeleteOilChangeLogController } from "../factories/delete-oil-change-log";
 import { makeLoadOilChangeConfigController } from "../factories/load-oil-change-config";
 import { makeUpdateOilChangeConfigController } from "../factories/update-oil-change-config";
 
@@ -29,5 +31,15 @@ export default (router: Router): void => {
     "/oil-change-log",
     auth(["admin", "gerente_estoque", "entregador"]),
     adaptRoute(makeAddOilChangeLogController())
+  );
+  router.put(
+    "/oil-change-log/:id",
+    auth(["admin", "gerente_estoque"]),
+    adaptRoute(makeUpdateOilChangeLogController())
+  );
+  router.delete(
+    "/oil-change-log/:id",
+    auth(["admin", "gerente_estoque"]),
+    adaptRoute(makeDeleteOilChangeLogController())
   );
 };

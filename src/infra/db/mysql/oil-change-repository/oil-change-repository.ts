@@ -3,10 +3,14 @@ import { AddOilChangeLogRepository } from "../../../../data/protocols/db/oil-cha
 import { FindLastOilChangeLogRepository } from "../../../../data/protocols/db/oil-change/find-last-oil-change-log";
 import { LoadOilChangeConfigRepository } from "../../../../data/protocols/db/oil-change/load-oil-change-config";
 import { LoadOilChangeLogRepository } from "../../../../data/protocols/db/oil-change/load-oil-change-log";
+import { FindOilChangeLogByIdRepository } from "../../../../data/protocols/db/oil-change/find-oil-change-log-by-id";
+import { UpdateOilChangeLogRepository } from "../../../../data/protocols/db/oil-change/update-oil-change-log";
+import { DeleteOilChangeLogRepository } from "../../../../data/protocols/db/oil-change/delete-oil-change-log";
 import { UpdateOilChangeConfigRepository } from "../../../../data/protocols/db/oil-change/update-oil-change-config";
 import { OilChangeConfig } from "../../../../domain/models/oil-change/oil-change-config-model";
 import { OilChangeLog } from "../../../../domain/models/oil-change/oil-change-log-model";
 import { LoadOilChangeLogParams } from "../../../../domain/usescases/oil-change/load-oil-change-log";
+import { UpdateOilChangeLogModel } from "../../../../domain/usescases/oil-change/update-oil-change-log";
 
 const DEFAULT_INTERVAL_KM = 800;
 const CONFIG_ID = 1;
@@ -17,7 +21,10 @@ export class OilChangeMysqlRepository
     UpdateOilChangeConfigRepository,
     AddOilChangeLogRepository,
     FindLastOilChangeLogRepository,
-    LoadOilChangeLogRepository
+    LoadOilChangeLogRepository,
+    FindOilChangeLogByIdRepository,
+    UpdateOilChangeLogRepository,
+    DeleteOilChangeLogRepository
 {
   constructor(private readonly prisma: PrismaClient) {}
 
@@ -61,7 +68,7 @@ export class OilChangeMysqlRepository
   async findLastByVehicle(vehicleId: number): Promise<OilChangeLog | null> {
     return this.prisma.oilChangeLog.findFirst({
       where: { vehicleId },
-      orderBy: { changeDate: "desc" },
+      orderBy: [{ changeDate: "desc" }, { id: "desc" }],
     });
   }
 
@@ -72,7 +79,32 @@ export class OilChangeMysqlRepository
         ...(params?.deliverymanId && { deliverymanId: params.deliverymanId }),
       },
       include: { vehicle: true, deliveryman: true },
-      orderBy: { changeDate: "desc" },
+      orderBy: [{ changeDate: "desc" }, { id: "desc" }],
     });
+  }
+
+  async findLogById(id: number): Promise<OilChangeLog | null> {
+    return this.prisma.oilChangeLog.findUnique({
+      where: { id: Number(id) },
+      include: { vehicle: true, deliveryman: true },
+    });
+  }
+
+  async updateLog(id: number, data: UpdateOilChangeLogModel & { nextChangeKm: number }): Promise<OilChangeLog> {
+    return this.prisma.oilChangeLog.update({
+      where: { id: Number(id) },
+      data: {
+        ...(data.vehicleId !== undefined && { vehicleId: data.vehicleId }),
+        ...(data.deliverymanId !== undefined && { deliverymanId: data.deliverymanId }),
+        ...(data.km !== undefined && { km: data.km }),
+        ...(data.changeDate !== undefined && { changeDate: data.changeDate }),
+        nextChangeKm: data.nextChangeKm,
+      },
+      include: { vehicle: true, deliveryman: true },
+    });
+  }
+
+  async deleteLog(id: number): Promise<void> {
+    await this.prisma.oilChangeLog.delete({ where: { id: Number(id) } });
   }
 }

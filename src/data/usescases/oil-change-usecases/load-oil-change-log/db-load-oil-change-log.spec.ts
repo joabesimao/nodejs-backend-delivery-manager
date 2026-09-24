@@ -14,8 +14,8 @@ const makeFakeLogs = (): OilChangeLog[] => [
     deliverymanId: 1,
     km: 1000,
     nextChangeKm: 1800,
-    changeDate: new Date(),
-    createdAt: new Date(),
+    changeDate: new Date("2026-09-23T00:00:00.000Z"),
+    createdAt: new Date("2026-09-23T00:00:00.000Z"),
   },
 ];
 

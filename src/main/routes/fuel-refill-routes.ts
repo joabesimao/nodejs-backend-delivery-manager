@@ -4,6 +4,8 @@ import { adaptMiddleware } from "../adapters/express-middleware-adapter";
 import { makeAuthMiddleware } from "../factories/auth-middleware-factory";
 import { makeAddFuelRefillController } from "../factories/add-fuel-refill";
 import { makeLoadFuelRefillController } from "../factories/load-fuel-refill";
+import { makeUpdateFuelRefillController } from "../factories/update-fuel-refill";
+import { makeDeleteFuelRefillController } from "../factories/delete-fuel-refill";
 
 const auth = (roles?: string[]) => adaptMiddleware(makeAuthMiddleware(roles));
 
@@ -17,5 +19,15 @@ export default (router: Router): void => {
     "/fuel-refill",
     auth(["admin", "gerente_estoque", "entregador"]),
     adaptRoute(makeAddFuelRefillController())
+  );
+  router.put(
+    "/fuel-refill/:id",
+    auth(["admin", "gerente_estoque"]),
+    adaptRoute(makeUpdateFuelRefillController())
+  );
+  router.delete(
+    "/fuel-refill/:id",
+    auth(["admin", "gerente_estoque"]),
+    adaptRoute(makeDeleteFuelRefillController())
   );
 };

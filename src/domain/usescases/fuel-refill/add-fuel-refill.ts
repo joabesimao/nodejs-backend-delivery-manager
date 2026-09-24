@@ -5,6 +5,7 @@ export interface AddFuelRefillModel {
   deliverymanId: number;
   km: number;
   liters: number;
+  pricePerLiter: number;
   totalValue: number;
   refillDate: Date;
 }

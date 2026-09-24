@@ -8,6 +8,7 @@ export interface AddFuelRefillRepository {
     previousKm?: number;
     kmDriven?: number;
     liters: number;
+    pricePerLiter: number;
     totalValue: number;
     refillDate: Date;
   }): Promise<FuelRefill>;
