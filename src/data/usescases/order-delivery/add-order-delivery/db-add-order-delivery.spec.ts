@@ -37,7 +37,7 @@ const makeOrderDeliveryRepository = (): AddOrderDeliveryRepository => {
     async addOrderOfDelivery(
       orderOfDelivery: AddOrderDeliveryModel
     ): Promise<OrderDeliveryModel> {
-      return new Promise((resolve) => resolve(makeOrder()));
+      return await new Promise((resolve) => resolve(makeOrder()));
     }
   }
   return new OrderDeliveryRepositoryStub();

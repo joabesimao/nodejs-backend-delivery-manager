@@ -12,7 +12,7 @@ const fakeHttpRequest = (): HttpRequest => ({
 const makeDeleteProductStub = (): DeleteProductById => {
   class DeleteProductStub implements DeleteProductById {
     async delete(id: number): Promise<string> {
-      return new Promise((resolve) => resolve("Deletado com sucesso!"));
+      return await new Promise((resolve) => resolve("Deletado com sucesso!"));
     }
   }
   return new DeleteProductStub();

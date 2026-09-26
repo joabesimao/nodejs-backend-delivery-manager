@@ -26,7 +26,7 @@ interface SutTypes {
 const makeLoadOilChangeLogStub = (): LoadOilChangeLog => {
   class LoadOilChangeLogStub implements LoadOilChangeLog {
     async load(params?: LoadOilChangeLogParams): Promise<OilChangeLog[]> {
-      return new Promise((resolve) => resolve(makeFakeLogs()));
+      return await new Promise((resolve) => resolve(makeFakeLogs()));
     }
   }
   return new LoadOilChangeLogStub();

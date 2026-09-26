@@ -6,6 +6,7 @@ export class DbLoadOneClient implements LoadOneClient {
   constructor(
     private readonly loadOneClientRepository: LoadOneClientRepository
   ) {}
+
   async loadOne(id: number): Promise<ClientModel> {
     const oneClient = await this.loadOneClientRepository.loadOne(id);
     return oneClient;

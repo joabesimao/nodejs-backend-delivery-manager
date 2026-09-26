@@ -91,7 +91,7 @@ const makeSocket = (overrides: Record<string, unknown> = {}) => {
 };
 
 const setup = () => {
-  const httpServer = {} as HttpServer;
+  const httpServer = {} as unknown as HttpServer;
   setupRealtimeGateway(httpServer);
 
   const middleware = mockUse.mock.calls[0][0] as (
@@ -164,14 +164,14 @@ beforeEach(() => {
 describe("realtime-gateway", () => {
   describe("setupRealtimeGateway()", () => {
     test("Should register the realtime server via setRealtimeServer", () => {
-      const httpServer = {} as HttpServer;
+      const httpServer = {} as unknown as HttpServer;
       setupRealtimeGateway(httpServer);
 
       expect(setRealtimeServerMock).toHaveBeenCalledTimes(1);
     });
 
     test("Should create the socket.io Server with the expected path and cors options", () => {
-      const httpServer = {} as HttpServer;
+      const httpServer = {} as unknown as HttpServer;
       setupRealtimeGateway(httpServer);
 
       expect(Server).toHaveBeenCalledWith(
@@ -815,7 +815,7 @@ describe("realtime-gateway", () => {
       const { connectionHandler } = setup();
       await connectionHandler(socket);
 
-      const handler = socket.__handlers["disconnect"] as () => void;
+      const handler = socket.__handlers.disconnect as () => void;
 
       handler();
 

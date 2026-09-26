@@ -9,15 +9,15 @@ export class CpfDuplicateValidation implements Validation {
   constructor(private readonly cpfValidator: CpfDuplicateValidator) {}
 
   async validate(input: any): Promise<Error | null> {
-    const cpf = input.cpf || (input.client && input.client.cpf);
-    
+    const cpf = input.cpf || (input.client?.cpf);
+
     if (!cpf) {
       return null;
     }
 
     const cpfClean = cpf.replace(/\D/g, "");
     const isCpfDuplicate = await this.cpfValidator.validate(cpfClean);
-    
+
     if (isCpfDuplicate) {
       return new CpfInUseError();
     }

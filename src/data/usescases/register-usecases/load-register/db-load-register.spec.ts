@@ -45,7 +45,7 @@ interface SutTypes {
 const makeLoadRegisterRepository = (): LoadRegisterRepository => {
   class LoadRegisterRepositoryStub implements LoadRegisterRepository {
     async loadAll(): Promise<LoadRegisterModel[]> {
-      return new Promise((resolve) => resolve(makeFakeRegisters()));
+      return await new Promise((resolve) => resolve(makeFakeRegisters()));
     }
   }
   return new LoadRegisterRepositoryStub();

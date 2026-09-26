@@ -1,7 +1,4 @@
 import { DbUpdateAddress } from "./db-update-address";
-import { LoadRegisterModel } from "../../../../domain/models/register/register-load-model";
-import { LoadAddressRepository } from "../../../protocols/db/address/load-address";
-import { ClientModel } from "../../../../domain/models/client/client-model";
 import { Address } from "../../../../domain/models/register/address-model";
 import { UpdateAddressRepository } from "../../../protocols/db/address/update-address";
 import { UpdateAddressModel } from "../../../../domain/usescases/address/update-address";
@@ -25,7 +22,7 @@ const makeUpdateAddressRepository = (): UpdateAddressRepository => {
       id: number,
       infoToUpdate: UpdateAddressModel
     ): Promise<Address> {
-      return new Promise((resolve) => resolve(makeFakeAddress()));
+      return await new Promise((resolve) => resolve(makeFakeAddress()));
     }
   }
   return new UpdateAddressRepositoryStub();

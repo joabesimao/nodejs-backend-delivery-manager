@@ -22,7 +22,7 @@ const makeFakeLogs = (): OilChangeLog[] => [
 const makeLoadOilChangeLogRepositoryStub = (): LoadOilChangeLogRepository => {
   class LoadOilChangeLogRepositoryStub implements LoadOilChangeLogRepository {
     async loadAll(params?: any): Promise<OilChangeLog[]> {
-      return new Promise((resolve) => resolve(makeFakeLogs()));
+      return await new Promise((resolve) => resolve(makeFakeLogs()));
     }
   }
   return new LoadOilChangeLogRepositoryStub();

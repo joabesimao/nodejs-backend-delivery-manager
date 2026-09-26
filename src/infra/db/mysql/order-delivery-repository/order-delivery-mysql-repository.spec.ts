@@ -300,14 +300,14 @@ describe("OrderDelivery MySql Repository", () => {
     });
 
     test("Should return the order when scope is null", async () => {
-      const { sut, prisma } = makeSut();
+      const { sut } = makeSut();
       mockedGetAccountScope.mockResolvedValueOnce(null);
       const order = await sut.getOneOrderOfDelivery(1, 3);
       expect(order).toEqual(makeFakeOrder());
     });
 
     test("Should return the order when scope has no visible units", async () => {
-      const { sut, prisma } = makeSut();
+      const { sut } = makeSut();
       mockedGetAccountScope.mockResolvedValueOnce({ visibleUnitIds: [] });
       const order = await sut.getOneOrderOfDelivery(1, 3);
       expect(order).toEqual(makeFakeOrder());

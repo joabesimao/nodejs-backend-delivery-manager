@@ -58,7 +58,7 @@ const makeOrders = (): OrderDeliveryModel[] => [
 const makeLoadOrderDeliveryRepository = (): LoadOrderDeliveryRepository => {
   class LoadOrderDeliveryRepositoryStub implements LoadOrderDeliveryRepository {
     async getAllOrderOfDelivery(): Promise<OrderDeliveryModel[]> {
-      return new Promise((resolve) => resolve(makeOrders()));
+      return await new Promise((resolve) => resolve(makeOrders()));
     }
   }
   return new LoadOrderDeliveryRepositoryStub();

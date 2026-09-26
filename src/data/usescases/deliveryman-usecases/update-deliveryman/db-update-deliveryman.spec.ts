@@ -18,13 +18,12 @@ interface SutTypes {
 
 const makeUpdateDeliverymanRepository = (): UpdateDeliverymanRepository => {
   class UpdateDeliverymanRepositoryStub
-    implements UpdateDeliverymanRepository
-  {
+    implements UpdateDeliverymanRepository {
     async update(
       id: number,
       data: Partial<Deliveryman>
     ): Promise<Deliveryman> {
-      return new Promise((resolve) => resolve(makeFakeDeliveryman()));
+      return await new Promise((resolve) => resolve(makeFakeDeliveryman()));
     }
   }
   return new UpdateDeliverymanRepositoryStub();

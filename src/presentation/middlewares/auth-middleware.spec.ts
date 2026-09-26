@@ -16,7 +16,7 @@ const makeFakeAccount = (): AccountModel => ({
 const makeLoadAccountByToken = (): LoadAccountByToken => {
   class LoadAccountByTokenStub implements LoadAccountByToken {
     async load(accessToken: string): Promise<AccountModel> {
-      return new Promise((resolve) => resolve(makeFakeAccount()));
+      return await new Promise((resolve) => resolve(makeFakeAccount()));
     }
   }
   return new LoadAccountByTokenStub();

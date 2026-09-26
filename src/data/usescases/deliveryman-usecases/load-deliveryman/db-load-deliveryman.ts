@@ -8,6 +8,6 @@ export class DbLoadDeliveryman implements LoadDeliveryman {
   ) {}
 
   async load(): Promise<Deliveryman[]> {
-    return this.loadDeliverymanRepository.loadAll();
+    return await this.loadDeliverymanRepository.loadAll();
   }
 }

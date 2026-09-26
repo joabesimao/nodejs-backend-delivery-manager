@@ -9,6 +9,6 @@ export class DbUpdateNeighborhood implements UpdateNeighborhood {
   constructor(private readonly updateNeighborhoodRepository: UpdateNeighborhoodRepository) {}
 
   async update(id: number, data: UpdateNeighborhoodModel): Promise<Neighborhood> {
-    return this.updateNeighborhoodRepository.update(id, data);
+    return await this.updateNeighborhoodRepository.update(id, data);
   }
 }

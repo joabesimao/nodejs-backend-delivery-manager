@@ -5,6 +5,7 @@ export class DbDeleteClient implements DeleteClient {
   constructor(
     private readonly deleteClientRepository: DeleteClientRepository
   ) {}
+
   async delete(id: number): Promise<string> {
     const deletedClient = await this.deleteClientRepository.deleteOne(id);
     return deletedClient;

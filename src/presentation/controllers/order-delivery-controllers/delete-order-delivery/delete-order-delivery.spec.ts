@@ -23,8 +23,8 @@ const makeSut = (): SutTypes => {
 
 const makeDeleteOrderDeliveryStub = (): DeleteOrderDelivery => {
   class DeleteRegisterStub implements DeleteOrderDelivery {
-    async delete(id: Number): Promise<string> {
-      return new Promise((resolve) =>
+    async delete(id: number): Promise<string> {
+      return await new Promise((resolve) =>
         resolve("Pedido de Entrega Apagado com Sucesso")
       );
     }

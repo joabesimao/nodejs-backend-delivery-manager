@@ -1,11 +1,11 @@
 import type { Server as SocketIOServer } from "socket.io";
 
-type DeliveryRealtimePayload = {
+interface DeliveryRealtimePayload {
   eventType: "created" | "updated" | "deleted";
   unitStoreId: number | null;
   rootStoreId: number | null;
   order: unknown;
-};
+}
 
 let io: SocketIOServer | null = null;
 

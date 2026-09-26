@@ -1,8 +1,8 @@
-import {env} from "../../../../../config/Env";
+import { env } from "../../../../../config/Env";
 import mysql from "mysql2/promise";
 import { PrismaClient } from "@prisma/client";
 
-export let prisma = new PrismaClient({
+export const prisma = new PrismaClient({
   datasourceUrl: `mysql://${env.DB_USER}:${env.DB_PASSWORD}@${env.DB_HOST}:${env.DB_PORT}/${env.DB_NAME}`,
 });
 

@@ -26,7 +26,7 @@ interface SutTypes {
 const makeUpdateVehicleStub = (): UpdateVehicle => {
   class UpdateVehicleStub implements UpdateVehicle {
     async update(id: number, data: UpdateVehicleModel): Promise<Vehicle> {
-      return new Promise((resolve) => resolve(makeFakeVehicle()));
+      return await new Promise((resolve) => resolve(makeFakeVehicle()));
     }
   }
   return new UpdateVehicleStub();

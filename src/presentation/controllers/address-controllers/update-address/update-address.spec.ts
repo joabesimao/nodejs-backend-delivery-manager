@@ -5,7 +5,7 @@ import {
   UpdateAddress,
   UpdateAddressModel,
 } from "../../../../domain/usescases/address/update-address";
-import { HttpRequest, HttpResponse } from "../../../protocols/http";
+import { HttpRequest } from "../../../protocols/http";
 
 const makeFakeAddress = (): Address => ({
   street: "any_street",
@@ -33,7 +33,7 @@ const makeUpdateAddress = (): UpdateAddress => {
       id: number,
       infoToUpdate: UpdateAddressModel
     ): Promise<Address> {
-      return new Promise((resolve) => resolve(makeFakeAddress()));
+      return await new Promise((resolve) => resolve(makeFakeAddress()));
     }
   }
   return new UpdateAddressStub();

@@ -32,8 +32,7 @@ export class AccountMySqlRepository
     LoadAccountsRepository,
     LoadAccountByIdRepository,
     CountActiveAdminsRepository,
-    UpdateAccountRepository
-{
+    UpdateAccountRepository {
   constructor(private readonly prisma: PrismaClient) {}
 
   async loadByToken(token: string): Promise<AccountModel> {
@@ -49,11 +48,8 @@ export class AccountMySqlRepository
   }
 
   async updateAccessToken(id: number, token: string): Promise<void> {
-    // Access tokens are short-lived stateless JWTs (no revocation needed),
-    // so there is nothing to persist here by design.
     void id;
     void token;
-    return;
   }
 
   async updateRefreshToken(
@@ -69,14 +65,14 @@ export class AccountMySqlRepository
 
   async loadAccountByEmail(email: string): Promise<AccountModel> {
     const accountById = await this.prisma.account.findUnique({
-      where: { email: email },
+      where: { email },
     });
     return accountById;
   }
 
   async deleteById(id: number): Promise<string> {
     await this.prisma.account.delete({
-      where: { id: id },
+      where: { id },
     });
     return "Conta deletada com sucesso!";
   }
@@ -110,7 +106,7 @@ export class AccountMySqlRepository
   }
 
   async countActiveAdmins(): Promise<number> {
-    return this.prisma.account.count({
+    return await this.prisma.account.count({
       where: { role: "admin", active: true },
     });
   }

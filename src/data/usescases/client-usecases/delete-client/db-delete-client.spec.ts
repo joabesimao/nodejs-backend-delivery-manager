@@ -1,7 +1,5 @@
 import { DbDeleteClient } from "./db-delete-client";
-import { LoadRegisterModel } from "../../../../domain/models/register/register-load-model";
 import { DeleteClientRepository } from "../../../protocols/db/client/delete-client";
-import { ClientModel } from "../../../../domain/models/client/client-model";
 
 interface SutTypes {
   sut: DbDeleteClient;
@@ -11,7 +9,7 @@ interface SutTypes {
 const makeDeleteClientRepository = (): DeleteClientRepository => {
   class DeleteClientRepositoryStub implements DeleteClientRepository {
     async deleteOne(id: number): Promise<string> {
-      return new Promise((resolve) => resolve("Cliente Deletado com Sucesso!"));
+      return await new Promise((resolve) => resolve("Cliente Deletado com Sucesso!"));
     }
   }
   return new DeleteClientRepositoryStub();

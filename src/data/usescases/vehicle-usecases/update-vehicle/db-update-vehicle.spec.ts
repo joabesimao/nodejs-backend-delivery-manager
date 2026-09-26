@@ -18,7 +18,7 @@ const makeVehicle = (): Vehicle => ({
 const makeUpdateVehicleRepository = (): UpdateVehicleRepository => {
   class UpdateVehicleRepositoryStub implements UpdateVehicleRepository {
     async update(id: number, data: Partial<Vehicle>): Promise<Vehicle> {
-      return new Promise((resolve) => resolve(makeVehicle()));
+      return await new Promise((resolve) => resolve(makeVehicle()));
     }
   }
   return new UpdateVehicleRepositoryStub();

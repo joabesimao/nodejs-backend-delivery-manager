@@ -38,7 +38,7 @@ interface SutTypes {
 const makeAddFuelRefillStub = (): AddFuelRefill => {
   class AddFuelRefillStub implements AddFuelRefill {
     async add(refill: AddFuelRefillModel): Promise<FuelRefill> {
-      return new Promise((resolve) => resolve(makeFakeFuelRefill()));
+      return await new Promise((resolve) => resolve(makeFakeFuelRefill()));
     }
   }
   return new AddFuelRefillStub();

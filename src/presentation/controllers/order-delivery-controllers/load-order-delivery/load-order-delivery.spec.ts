@@ -81,7 +81,7 @@ interface SutTypes {
 const makeLoadOrderDeliveryStub = (): LoadOrderDelivery => {
   class LoadOrderStub implements LoadOrderDelivery {
     async loadAll(): Promise<OrderDeliveryModel[]> {
-      return new Promise((resolve) => resolve(makeOrdersDelivery()));
+      return await new Promise((resolve) => resolve(makeOrdersDelivery()));
     }
   }
   return new LoadOrderStub();

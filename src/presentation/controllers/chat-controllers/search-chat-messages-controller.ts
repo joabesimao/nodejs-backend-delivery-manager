@@ -32,10 +32,10 @@ export class SearchChatMessagesController implements Controller {
       const hasImage = query.hasImage === "true";
       const hasText = query.hasText === "true";
 
-      let whereClause: any = {};
+      const whereClause: any = {};
 
       // Filtrar por escopo visível
-      if (scope && scope.visibleUnitIds.length) {
+      if (scope?.visibleUnitIds.length) {
         whereClause.unitStoreId = { in: scope.visibleUnitIds };
       }
 

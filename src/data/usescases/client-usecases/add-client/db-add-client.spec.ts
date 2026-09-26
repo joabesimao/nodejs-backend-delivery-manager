@@ -17,7 +17,7 @@ const makeClient = (): ClientModel => ({
 const makeClientRepository = (): AddClientRepository => {
   class ClientRepositoryStub implements AddClientRepository {
     async add(client: AddClientModel): Promise<ClientModel> {
-      return new Promise((resolve) => resolve(makeClient()));
+      return await new Promise((resolve) => resolve(makeClient()));
     }
   }
   return new ClientRepositoryStub();

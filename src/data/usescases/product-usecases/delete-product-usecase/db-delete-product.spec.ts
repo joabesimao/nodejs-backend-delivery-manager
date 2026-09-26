@@ -9,7 +9,7 @@ interface SutTypes {
 const makeDeleteProductRepository = (): DeleteProductByIdRepository => {
   class DeleteProductByIdRepositoryStub implements DeleteProductByIdRepository {
     async deleteById(id: number): Promise<string> {
-      return new Promise((resolve) => resolve("Deletado com sucesso!"));
+      return await new Promise((resolve) => resolve("Deletado com sucesso!"));
     }
   }
   return new DeleteProductByIdRepositoryStub();

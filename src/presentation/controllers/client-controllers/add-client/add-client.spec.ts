@@ -1,6 +1,7 @@
 import { AddClientController } from "./add-client";
 import { HttpRequest } from "../../../protocols/http";
-import { ok, serverError } from "../../../helpers/http/http-helper";
+import { conflict, ok, serverError } from "../../../helpers/http/http-helper";
+import { CpfInUseError } from "../../../errors";
 import {
   Client,
   ClientModel,
@@ -31,7 +32,7 @@ interface SutTypes {
 const makeAddClientStub = (): AddClient => {
   class AddClientStub implements AddClient {
     async add(client: AddClientModel): Promise<Client> {
-      return new Promise((resolve) => resolve(makeFakeClientModel()));
+      return await new Promise((resolve) => resolve(makeFakeClientModel()));
     }
   }
   return new AddClientStub();
@@ -69,6 +70,15 @@ describe("addClient Controller", () => {
     const fakeRequest = makeFakeRequest();
     const httpResponse = await sut.handle(fakeRequest);
     expect(httpResponse).toEqual(serverError(new Error()));
+  });
+
+  test("Should return 409 if the cpf unique constraint fails", async () => {
+    const { sut, addClientStub } = makeSut();
+    jest
+      .spyOn(addClientStub, "add")
+      .mockRejectedValueOnce({ code: "P2002", meta: { target: ["cpf"] } });
+    const httpResponse = await sut.handle(makeFakeRequest());
+    expect(httpResponse).toEqual(conflict(new CpfInUseError()));
   });
 
   test("Should return 200 on sucess", async () => {

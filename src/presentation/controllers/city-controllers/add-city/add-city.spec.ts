@@ -26,7 +26,7 @@ interface SutTypes {
 const makeAddCityStub = (): AddCity => {
   class AddCityStub implements AddCity {
     async add(city: AddCityModel): Promise<City> {
-      return new Promise((resolve) => resolve(makeFakeCity()));
+      return await new Promise((resolve) => resolve(makeFakeCity()));
     }
   }
   return new AddCityStub();

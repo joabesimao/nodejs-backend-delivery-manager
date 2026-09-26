@@ -28,7 +28,7 @@ const makeFakeResult = (): LoadProductResult => ({
 const makeLoadAllProductStub = (): LoadAllProduct => {
   class LoadAllProductStub implements LoadAllProduct {
     async load(filter?: LoadProductFilter): Promise<LoadProductResult> {
-      return new Promise((resolve) => resolve(makeFakeResult()));
+      return await new Promise((resolve) => resolve(makeFakeResult()));
     }
   }
   return new LoadAllProductStub();

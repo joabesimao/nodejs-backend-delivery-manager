@@ -1,12 +1,12 @@
 import { PrismaClient } from "@prisma/client";
 
-type AccountScope = {
+interface AccountScope {
   accountId: number;
   role: "principal" | "branch";
   unitStoreId: number | null;
   rootStoreId: number | null;
   visibleUnitIds: number[];
-};
+}
 
 const uniqueNumbers = (values: number[]): number[] =>
   Array.from(
@@ -40,7 +40,7 @@ export const listDescendantUnitIds = async (
   const queue: number[] = [rootUnitStoreId];
 
   while (queue.length > 0) {
-    const currentId = queue.shift() as number;
+    const currentId = queue.shift();
 
     if (visited.has(currentId)) {
       continue;

@@ -30,7 +30,7 @@ interface SutTypes {
 const makeLoadOneClient = (): LoadOneClient => {
   class LoadOneClientStub implements LoadOneClient {
     async loadOne(id: number): Promise<ClientModel> {
-      return new Promise((resolve) => resolve(makeFakeOneClient()));
+      return await new Promise((resolve) => resolve(makeFakeOneClient()));
     }
   }
   return new LoadOneClientStub();

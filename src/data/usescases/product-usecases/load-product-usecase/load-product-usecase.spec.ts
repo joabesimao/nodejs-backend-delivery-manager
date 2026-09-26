@@ -30,7 +30,7 @@ interface SutTypes {
 const makeLoadProductRepository = (): LoadProductRepository => {
   class LoadProductRepositoryStub implements LoadProductRepository {
     async getAllProducts(filter?: LoadProductFilter): Promise<LoadProductResult> {
-      return new Promise((resolve) => resolve(makeFakeResult()));
+      return await new Promise((resolve) => resolve(makeFakeResult()));
     }
   }
   return new LoadProductRepositoryStub();

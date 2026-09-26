@@ -16,7 +16,7 @@ interface SutTypes {
 const makeLoadOneClientRepository = (): LoadOneClientRepository => {
   class LoadOneClientRepositoryStub implements LoadOneClientRepository {
     async loadOne(id: number): Promise<ClientModel> {
-      return new Promise((resolve) => resolve(makeFakeClient()));
+      return await new Promise((resolve) => resolve(makeFakeClient()));
     }
   }
   return new LoadOneClientRepositoryStub();

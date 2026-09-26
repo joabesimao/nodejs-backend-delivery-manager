@@ -28,6 +28,6 @@ export class DbUpdateOilChangeLog implements UpdateOilChangeLog {
       throw new InvalidKmError(KM_OUT_OF_ORDER_MESSAGE);
     }
     const intervalKm = current.nextChangeKm - current.km;
-    return this.updateOilChangeLogRepository.updateLog(id, { ...data, nextChangeKm: merged.km + intervalKm });
+    return await this.updateOilChangeLogRepository.updateLog(id, { ...data, nextChangeKm: merged.km + intervalKm });
   }
 }

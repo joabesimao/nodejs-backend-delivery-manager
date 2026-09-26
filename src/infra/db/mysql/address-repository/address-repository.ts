@@ -6,14 +6,16 @@ import { UpdateAddressRepository } from "../../../../data/protocols/db/address/u
 import { Address } from "../../../../domain/models/register/address-model";
 import { AddAddressModel } from "../../../../domain/usescases/address/add-address";
 import { UpdateAddressModel } from "../../../../domain/usescases/address/update-address";
+import { pickDefined } from "../helpers/pick-defined";
+
+const ADDRESS_FIELDS = ["street", "neighborhood", "city", "numberHouse", "reference"] as const;
 
 export class AddressMysqlRepository
   implements
     AddAddressRepository,
     LoadAddressRepository,
     UpdateAddressRepository,
-    DeleteAddressRepository
-{
+    DeleteAddressRepository {
   constructor(private readonly prisma: PrismaClient) {}
 
   async add(address: AddAddressModel): Promise<Address> {
@@ -35,13 +37,10 @@ export class AddressMysqlRepository
   }
 
   async update(id: number, infoToUpdate: UpdateAddressModel): Promise<Address> {
-    const updateAddress = await this.prisma.address.update({
+    return await this.prisma.address.update({
       where: { id: Number(id) },
-      data: {
-        ...infoToUpdate,
-      },
+      data: pickDefined(infoToUpdate, ADDRESS_FIELDS),
     });
-    return updateAddress;
   }
 
   async deleteOne(id: number): Promise<string> {

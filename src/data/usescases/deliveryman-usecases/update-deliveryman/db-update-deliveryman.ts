@@ -6,6 +6,6 @@ export class DbUpdateDeliveryman implements UpdateDeliveryman {
   constructor(private readonly updateDeliverymanRepository: UpdateDeliverymanRepository) {}
 
   async update(id: number, data: UpdateDeliverymanModel): Promise<Deliveryman> {
-    return this.updateDeliverymanRepository.update(id, data);
+    return await this.updateDeliverymanRepository.update(id, data);
   }
 }

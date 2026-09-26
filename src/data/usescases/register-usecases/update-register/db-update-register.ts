@@ -6,6 +6,7 @@ export class DbUpdateRegister implements UpdateRegister {
   constructor(
     private readonly updateRegisterRepository: UpdateRegisterRepository
   ) {}
+
   async update(
     id: number,
     info: Partial<RegisterModel>

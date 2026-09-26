@@ -1,7 +1,5 @@
 import { DbLoadAddress } from "./db-load-address";
-import { LoadRegisterModel } from "../../../../domain/models/register/register-load-model";
 import { LoadAddressRepository } from "../../../protocols/db/address/load-address";
-import { ClientModel } from "../../../../domain/models/client/client-model";
 import { Address } from "../../../../domain/models/register/address-model";
 
 const makeFakeAddressList = (): Address[] => {
@@ -31,7 +29,7 @@ interface SutTypes {
 const makeLoadAddressRepository = (): LoadAddressRepository => {
   class LoadAddressRepositoryStub implements LoadAddressRepository {
     async loadAll(): Promise<Address[]> {
-      return new Promise((resolve) => resolve(makeFakeAddressList()));
+      return await new Promise((resolve) => resolve(makeFakeAddressList()));
     }
   }
   return new LoadAddressRepositoryStub();

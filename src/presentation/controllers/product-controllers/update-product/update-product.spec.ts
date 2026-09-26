@@ -28,7 +28,7 @@ const makeFakeProduct = (): Product => ({
 const makeUpdateProductStub = (): UpdateProduct => {
   class UpdateProductStub implements UpdateProduct {
     async update(id: number, info: Partial<ProductModel>): Promise<Product> {
-      return new Promise((resolve) => resolve(makeFakeProduct()));
+      return await new Promise((resolve) => resolve(makeFakeProduct()));
     }
   }
   return new UpdateProductStub();

@@ -13,7 +13,7 @@ export class DbLoadOrderDeliveryRanking implements LoadOrderDeliveryRanking {
   async loadByPeriod(
     filter: DeliveryRankingFilter
   ): Promise<DeliveryRankingPaginatedModel> {
-    return this.loadOrderDeliveryRankingRepository.getDeliverymanRankingByPeriod(
+    return await this.loadOrderDeliveryRankingRepository.getDeliverymanRankingByPeriod(
       filter
     );
   }

@@ -7,43 +7,42 @@ import { Deliveryman } from "../../../../domain/models/deliveryman/deliveryman-m
 import { AddDeliverymanModel } from "../../../../domain/usescases/deliveryman/add-deliveryman";
 
 export class DeliverymanMysqlRepository
-  implements LoadDeliverymanRepository, AddDeliverymanRepository, UpdateDeliverymanRepository, DeleteDeliverymanRepository
-{
+  implements LoadDeliverymanRepository, AddDeliverymanRepository, UpdateDeliverymanRepository, DeleteDeliverymanRepository {
   constructor(private readonly prisma: PrismaClient) {}
 
   async loadAll(): Promise<Deliveryman[]> {
-    return this.prisma.deliveryman.findMany({
+    return await this.prisma.deliveryman.findMany({
       orderBy: [{ name: "asc" }, { lastName: "asc" }],
     });
   }
 
   async loadOne(id: number): Promise<Deliveryman> {
-    return this.prisma.deliveryman.findUnique({
+    return await this.prisma.deliveryman.findUnique({
       where: { id: Number(id) },
     });
   }
 
   async add(deliveryman: AddDeliverymanModel): Promise<Deliveryman> {
-    return this.prisma.deliveryman.create({
+    return await this.prisma.deliveryman.create({
       data: {
         name: deliveryman.name,
         lastName: deliveryman.lastName,
         numberQualification: deliveryman.numberQualification,
         phone: deliveryman.phone,
-        cpf: deliveryman.cpf,
+        cpf: deliveryman.cpf || null,
       },
     });
   }
 
   async update(id: number, data: Partial<Deliveryman>): Promise<Deliveryman> {
-    return this.prisma.deliveryman.update({
+    return await this.prisma.deliveryman.update({
       where: { id: Number(id) },
       data: {
         ...(data.name && { name: data.name }),
         ...(data.lastName && { lastName: data.lastName }),
         ...(data.phone && { phone: data.phone }),
         ...(data.numberQualification && { numberQualification: data.numberQualification }),
-        ...(data.cpf && { cpf: data.cpf }),
+        ...(data.cpf !== undefined && { cpf: data.cpf || null }),
       },
     });
   }

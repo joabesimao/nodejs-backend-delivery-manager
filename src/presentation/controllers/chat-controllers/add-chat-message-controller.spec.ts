@@ -38,7 +38,7 @@ const makeFakeMessage = () => ({
   text: "any_text",
   imageBase64: null,
   imageMimeType: null,
-  createdAt: new Date(),
+  createdAt: new Date("2026-01-01T00:00:00.000Z"),
   sender: { id: 1, name: "any_name", email: "any_email", role: "user", unitStoreId: 10 },
   unitStore: { id: 10, name: "any_store" },
 });

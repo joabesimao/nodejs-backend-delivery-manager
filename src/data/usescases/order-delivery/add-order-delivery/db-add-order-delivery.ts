@@ -9,6 +9,7 @@ export class DbAddOrderDelivery implements AddOrderDelivery {
   constructor(
     private readonly addOrderDeliveryRepository: AddOrderDeliveryRepository
   ) {}
+
   async addOrderDelivery(
     orderDelivery: AddOrderDeliveryModel
   ): Promise<OrderDeliveryModel> {

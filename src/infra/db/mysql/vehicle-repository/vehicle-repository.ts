@@ -7,18 +7,17 @@ import { Vehicle } from "../../../../domain/models/vehicle/vehicle-model";
 import { AddVehicleModel } from "../../../../domain/usescases/vehicle/add-vehicle";
 
 export class VehicleMysqlRepository
-  implements LoadVehicleRepository, AddVehicleRepository, UpdateVehicleRepository, DeleteVehicleRepository
-{
+  implements LoadVehicleRepository, AddVehicleRepository, UpdateVehicleRepository, DeleteVehicleRepository {
   constructor(private readonly prisma: PrismaClient) {}
 
   async loadAll(): Promise<Vehicle[]> {
-    return this.prisma.vehicle.findMany({
+    return await this.prisma.vehicle.findMany({
       orderBy: { plate: "asc" },
     });
   }
 
   async add(vehicle: AddVehicleModel): Promise<Vehicle> {
-    return this.prisma.vehicle.create({
+    return await this.prisma.vehicle.create({
       data: {
         plate: vehicle.plate,
         model: vehicle.model,
@@ -29,7 +28,7 @@ export class VehicleMysqlRepository
   }
 
   async update(id: number, data: Partial<Vehicle>): Promise<Vehicle> {
-    return this.prisma.vehicle.update({
+    return await this.prisma.vehicle.update({
       where: { id: Number(id) },
       data: {
         ...(data.plate && { plate: data.plate }),

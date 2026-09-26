@@ -18,7 +18,7 @@ interface SutTypes {
 const makeLoadVehicleStub = (): LoadVehicle => {
   class LoadVehicleStub implements LoadVehicle {
     async load(): Promise<Vehicle[]> {
-      return new Promise((resolve) => resolve(makeFakeVehicles()));
+      return await new Promise((resolve) => resolve(makeFakeVehicles()));
     }
   }
   return new LoadVehicleStub();

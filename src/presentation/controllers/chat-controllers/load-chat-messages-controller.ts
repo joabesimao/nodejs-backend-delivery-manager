@@ -28,7 +28,7 @@ export class LoadChatMessagesController implements Controller {
       const offset = Number(httpRequest.query?.offset) || 0;
       const unitStoreId = Number(httpRequest.query?.unitStoreId);
 
-      let whereClause: any = {};
+      const whereClause: any = {};
 
       // Filtrar por escopo visível
       if (scope.visibleUnitIds.length) {

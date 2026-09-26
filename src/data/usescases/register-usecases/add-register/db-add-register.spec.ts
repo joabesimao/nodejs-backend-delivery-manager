@@ -32,7 +32,7 @@ const makeRegister = (): RegisterModel => ({
 const makeRegisterRepository = (): AddRegisterRepository => {
   class RegisterRepositoryStub implements AddRegisterRepository {
     async add(data: AddRegisterModel): Promise<RegisterModel> {
-      return new Promise((resolve) => resolve(makeRegister()));
+      return await new Promise((resolve) => resolve(makeRegister()));
     }
   }
   return new RegisterRepositoryStub();
@@ -41,7 +41,7 @@ const makeRegisterRepository = (): AddRegisterRepository => {
 const makeRegisterByNameRepository = (): LoadRegisterByNameRepository => {
   class RegisterByNameRepositoryStub implements LoadRegisterByNameRepository {
     async findByName(name: string): Promise<LoadRegisterModel> {
-      return new Promise((resolve) => resolve(null as any));
+      return await new Promise((resolve) => resolve(null as any));
     }
   }
   return new RegisterByNameRepositoryStub();

@@ -11,6 +11,6 @@ export class DbAddDeliveryman implements AddDeliveryman {
   ) {}
 
   async add(deliveryman: AddDeliverymanModel): Promise<Deliveryman> {
-    return this.addDeliverymanRepository.add(deliveryman);
+    return await this.addDeliverymanRepository.add(deliveryman);
   }
 }

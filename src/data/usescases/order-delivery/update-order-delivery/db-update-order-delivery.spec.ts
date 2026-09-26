@@ -1,6 +1,5 @@
 import { DbUpdateOrderDelivery } from "./db--update-order-delivery";
 import { OrderDeliveryModel } from "../../../../domain/models/order-delivery/order-delivery";
-import { UpdateRegisterRepository } from "../../../protocols/db/register/update-register-repository";
 import { UpdateOrderDeliveryModel } from "../../../../domain/models/order-delivery/update-order-delivery";
 import { UpdateOrderDeliveryRepository } from "../../../protocols/db/order-delivery/update-order-delivery";
 
@@ -39,13 +38,12 @@ interface SutTypes {
 
 const makeUpdateRepositoryStub = (): UpdateOrderDeliveryRepository => {
   class UpdateOrderDeliveryRepositoryStub
-    implements UpdateOrderDeliveryRepository
-  {
+    implements UpdateOrderDeliveryRepository {
     async updateOrder(
       id: number,
       info: UpdateOrderDeliveryModel
     ): Promise<OrderDeliveryModel> {
-      return new Promise((resolve) => resolve(makeFakeOrderDelivery()));
+      return await new Promise((resolve) => resolve(makeFakeOrderDelivery()));
     }
   }
   return new UpdateOrderDeliveryRepositoryStub();

@@ -27,7 +27,7 @@ interface SutTypes {
 const makeLoadClient = (): LoadClients => {
   class LoadClientStub implements LoadClients {
     async load(): Promise<ClientModel[]> {
-      return new Promise((resolve) => resolve(makeFakeClientList()));
+      return await new Promise((resolve) => resolve(makeFakeClientList()));
     }
   }
   return new LoadClientStub();

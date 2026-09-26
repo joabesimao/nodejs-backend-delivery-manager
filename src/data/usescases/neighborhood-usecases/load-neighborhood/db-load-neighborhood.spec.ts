@@ -22,10 +22,9 @@ interface SutTypes {
 
 const makeLoadNeighborhoodRepository = (): LoadNeighborhoodRepository => {
   class LoadNeighborhoodRepositoryStub
-    implements LoadNeighborhoodRepository
-  {
+    implements LoadNeighborhoodRepository {
     async loadAll(): Promise<Neighborhood[]> {
-      return new Promise((resolve) => resolve(makeFakeNeighborhoodList()));
+      return await new Promise((resolve) => resolve(makeFakeNeighborhoodList()));
     }
   }
   return new LoadNeighborhoodRepositoryStub();

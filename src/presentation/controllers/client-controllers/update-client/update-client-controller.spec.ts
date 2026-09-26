@@ -32,7 +32,7 @@ interface SutTypes {
 const makeUpdateClient = (): UpdateClient => {
   class UpdateClientStub implements UpdateClient {
     async update(id: number, infoToUpdate: ClientModel): Promise<Client> {
-      return new Promise((resolve) => resolve(makeFakeUpdateClient()));
+      return await new Promise((resolve) => resolve(makeFakeUpdateClient()));
     }
   }
   return new UpdateClientStub();

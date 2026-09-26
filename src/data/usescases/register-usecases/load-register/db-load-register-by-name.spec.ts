@@ -25,10 +25,9 @@ interface SutTypes {
 
 const makeLoadRegisterByNameRepository = (): LoadRegisterByNameRepository => {
   class LoadRegisterByNameRepositoryStub
-    implements LoadRegisterByNameRepository
-  {
+    implements LoadRegisterByNameRepository {
     async findByName(name: string): Promise<LoadRegisterModel> {
-      return new Promise((resolve) => resolve(makeFakeRegister()));
+      return await new Promise((resolve) => resolve(makeFakeRegister()));
     }
   }
   return new LoadRegisterByNameRepositoryStub();
