@@ -5,6 +5,6 @@ import { LoadOilChangeLogRepository } from "../../../protocols/db/oil-change/loa
 export class DbLoadOilChangeLog implements LoadOilChangeLog {
   constructor(private readonly loadOilChangeLogRepository: LoadOilChangeLogRepository) {}
   async load(params?: LoadOilChangeLogParams): Promise<OilChangeLog[]> {
-    return this.loadOilChangeLogRepository.loadAll(params);
+    return await this.loadOilChangeLogRepository.loadAll(params);
   }
 }

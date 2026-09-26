@@ -21,7 +21,7 @@ interface SutTypes {
 const makeLoadCityRepository = (): LoadCityRepository => {
   class LoadCityRepositoryStub implements LoadCityRepository {
     async loadAll(): Promise<City[]> {
-      return new Promise((resolve) => resolve(makeFakeCityList()));
+      return await new Promise((resolve) => resolve(makeFakeCityList()));
     }
   }
   return new LoadCityRepositoryStub();

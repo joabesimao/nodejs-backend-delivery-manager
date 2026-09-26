@@ -38,7 +38,7 @@ const makeAddFuelRefillModel = (): AddFuelRefillModel => ({
 const makeFindLastFuelRefillRepositoryStub = (): FindLastFuelRefillRepository => {
   class FindLastFuelRefillRepositoryStub implements FindLastFuelRefillRepository {
     async findLastByVehicle(vehicleId: number): Promise<FuelRefill | null> {
-      return new Promise((resolve) => resolve(null));
+      return await new Promise((resolve) => resolve(null));
     }
   }
   return new FindLastFuelRefillRepositoryStub();
@@ -47,7 +47,7 @@ const makeFindLastFuelRefillRepositoryStub = (): FindLastFuelRefillRepository =>
 const makeAddFuelRefillRepositoryStub = (): AddFuelRefillRepository => {
   class AddFuelRefillRepositoryStub implements AddFuelRefillRepository {
     async add(data: any): Promise<FuelRefill> {
-      return new Promise((resolve) => resolve(makeFakeFuelRefill()));
+      return await new Promise((resolve) => resolve(makeFakeFuelRefill()));
     }
   }
   return new AddFuelRefillRepositoryStub();

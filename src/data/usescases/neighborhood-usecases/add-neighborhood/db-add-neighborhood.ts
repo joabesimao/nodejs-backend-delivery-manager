@@ -5,6 +5,6 @@ import { AddNeighborhoodRepository } from "../../../protocols/db/neighborhood/ad
 export class DbAddNeighborhood implements AddNeighborhood {
   constructor(private readonly addNeighborhoodRepository: AddNeighborhoodRepository) {}
   async add(neighborhood: AddNeighborhoodModel): Promise<Neighborhood> {
-    return this.addNeighborhoodRepository.add(neighborhood);
+    return await this.addNeighborhoodRepository.add(neighborhood);
   }
 }

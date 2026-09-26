@@ -19,6 +19,6 @@ export class DbAddOilChangeLog implements AddOilChangeLog {
     }
     const config = await this.loadOilChangeConfigRepository.load();
     const nextChangeKm = log.km + config.intervalKm;
-    return this.addOilChangeLogRepository.add({ ...log, nextChangeKm });
+    return await this.addOilChangeLogRepository.add({ ...log, nextChangeKm });
   }
 }

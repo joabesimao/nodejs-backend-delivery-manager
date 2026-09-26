@@ -32,7 +32,7 @@ const makeUpdateDeliverymanStub = (): UpdateDeliveryman => {
       id: number,
       data: UpdateDeliverymanModel
     ): Promise<Deliveryman> {
-      return new Promise((resolve) => resolve(makeFakeDeliveryman()));
+      return await new Promise((resolve) => resolve(makeFakeDeliveryman()));
     }
   }
   return new UpdateDeliverymanStub();

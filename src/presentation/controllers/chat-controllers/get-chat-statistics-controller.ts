@@ -21,7 +21,7 @@ export class GetChatStatisticsController implements Controller {
         };
       }
 
-      const whereClause = scope && scope.visibleUnitIds.length
+      const whereClause = scope?.visibleUnitIds.length
         ? { unitStoreId: { in: scope.visibleUnitIds } }
         : undefined;
 

@@ -35,6 +35,6 @@ export class DbUpdateFuelRefill implements UpdateFuelRefill {
     if (current.vehicleId !== merged.vehicleId) {
       await this.recalculateFuelRefillKmRepository.recalculateKmChain(current.vehicleId);
     }
-    return this.findFuelRefillByIdRepository.findById(id);
+    return await this.findFuelRefillByIdRepository.findById(id);
   }
 }

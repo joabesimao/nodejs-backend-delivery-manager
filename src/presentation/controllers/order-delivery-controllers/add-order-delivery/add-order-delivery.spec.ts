@@ -53,7 +53,7 @@ const makeAddOrderDeliveryStub = (): AddOrderDelivery => {
     async addOrderDelivery(
       data: AddOrderDeliveryModel
     ): Promise<OrderDeliveryModel> {
-      return new Promise((resolve) => resolve(makeOrderDelivery()));
+      return await new Promise((resolve) => resolve(makeOrderDelivery()));
     }
   }
   return new AddOrderStub();

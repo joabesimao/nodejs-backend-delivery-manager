@@ -31,10 +31,9 @@ const makeFakeAuthentication = (): AuthenticationModel => ({
 
 const makeLoadAccountByEmailRepository = (): LoadAccountByEmailRepository => {
   class LoadAccountByEmailRepositoryStub
-    implements LoadAccountByEmailRepository
-  {
+    implements LoadAccountByEmailRepository {
     async loadAccountByEmail(email: string): Promise<AccountModel> {
-      return new Promise((resolve) => resolve(fakeAccount()));
+      return await new Promise((resolve) => resolve(fakeAccount()));
     }
   }
   return new LoadAccountByEmailRepositoryStub();
@@ -43,7 +42,7 @@ const makeLoadAccountByEmailRepository = (): LoadAccountByEmailRepository => {
 const makeHashCompare = (): HashComparer => {
   class HashCompareStub implements HashComparer {
     async compare(value: string, hash: string): Promise<boolean> {
-      return new Promise((resolve) => resolve(true));
+      return await new Promise((resolve) => resolve(true));
     }
   }
   return new HashCompareStub();
@@ -67,7 +66,7 @@ const makeTokenGenerator = (): Encrypter => {
 const makeUpdateAccessTokenRepository = (): UpdateAccessTokenRepository => {
   class UpdateAccessTokenRepositoryStub implements UpdateAccessTokenRepository {
     async updateAccessToken(id: number, token: string): Promise<void> {
-      return new Promise((resolve) => resolve());
+      return await new Promise((resolve) => resolve());
     }
   }
   return new UpdateAccessTokenRepositoryStub();
@@ -75,14 +74,13 @@ const makeUpdateAccessTokenRepository = (): UpdateAccessTokenRepository => {
 
 const makeUpdateRefreshTokenRepository = (): UpdateRefreshTokenRepository => {
   class UpdateRefreshTokenRepositoryStub
-    implements UpdateRefreshTokenRepository
-  {
+    implements UpdateRefreshTokenRepository {
     async updateRefreshToken(
       id: number,
       refreshTokenHash: string | null,
       expiresAt: Date | null
     ): Promise<void> {
-      return new Promise((resolve) => resolve());
+      return await new Promise((resolve) => resolve());
     }
   }
   return new UpdateRefreshTokenRepositoryStub();
@@ -153,20 +151,16 @@ describe("DbAuthentication UseCase", () => {
 
   test("Should return null if HashComparer returns false", async () => {
     const { sut, hashCompareStub } = makeSut();
-    const compareSpy = jest
-      .spyOn(hashCompareStub, "compare")
-      .mockReturnValueOnce(new Promise((resolve, rejects) => resolve(false)));
+    jest.spyOn(hashCompareStub, "compare").mockResolvedValueOnce(false);
     const authResult = await sut.auth(makeFakeAuthentication());
     expect(authResult).toBeNull();
   });
 
   test("Should throw if LoadAccountByEmailRepository throws ", async () => {
     const { sut, loadAccountByEmailRepositoryStub } = makeSut();
-    const loadSpy = jest
+    jest
       .spyOn(loadAccountByEmailRepositoryStub, "loadAccountByEmail")
-      .mockReturnValueOnce(
-        new Promise((resolve, reject) => reject(new Error()))
-      );
+      .mockRejectedValueOnce(new Error());
     const promise = sut.auth(makeFakeAuthentication());
     await expect(promise).rejects.toThrow();
   });

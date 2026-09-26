@@ -4,8 +4,7 @@ import { badRequest, conflict, ok, serverError } from "../../../helpers/http/htt
 import { Vehicle } from "../../../../domain/models/vehicle/vehicle-model";
 import { AddVehicle, AddVehicleModel } from "../../../../domain/usescases/vehicle/add-vehicle";
 import { Validation } from "../../../protocols/validation";
-import { MissingParamError } from "../../../errors";
-import { PlateInUseError } from "../../../errors";
+import { MissingParamError, PlateInUseError } from "../../../errors";
 
 const makeFakeRequest = (): HttpRequest => ({
   body: {
@@ -29,7 +28,7 @@ interface SutTypes {
 const makeAddVehicleStub = (): AddVehicle => {
   class AddVehicleStub implements AddVehicle {
     async add(vehicle: AddVehicleModel): Promise<Vehicle> {
-      return new Promise((resolve) => resolve(makeFakeVehicle()));
+      return await new Promise((resolve) => resolve(makeFakeVehicle()));
     }
   }
   return new AddVehicleStub();

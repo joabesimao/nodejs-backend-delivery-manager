@@ -15,7 +15,7 @@ export class DbDeleteAccountById implements DeleteAccount {
   async deleteAccountById(id: number, requesterId: number): Promise<string> {
     const target = await this.loadAccountByIdRepository.loadById(id);
     if (!target) {
-      return this.deleteAccountByIdRepository.deleteById(id);
+      return await this.deleteAccountByIdRepository.deleteById(id);
     }
 
     if (id === requesterId) {
@@ -29,6 +29,6 @@ export class DbDeleteAccountById implements DeleteAccount {
       }
     }
 
-    return this.deleteAccountByIdRepository.deleteById(id);
+    return await this.deleteAccountByIdRepository.deleteById(id);
   }
 }

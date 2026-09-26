@@ -5,6 +5,6 @@ import { LoadNeighborhoodRepository } from "../../../protocols/db/neighborhood/l
 export class DbLoadNeighborhood implements LoadNeighborhood {
   constructor(private readonly loadNeighborhoodRepository: LoadNeighborhoodRepository) {}
   async load(): Promise<Neighborhood[]> {
-    return this.loadNeighborhoodRepository.loadAll();
+    return await this.loadNeighborhoodRepository.loadAll();
   }
 }

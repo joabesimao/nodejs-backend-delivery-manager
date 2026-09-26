@@ -34,7 +34,7 @@ interface SutTypes {
 const makeAddOilChangeLogStub = (): AddOilChangeLog => {
   class AddOilChangeLogStub implements AddOilChangeLog {
     async add(log: AddOilChangeLogModel): Promise<OilChangeLog> {
-      return new Promise((resolve) => resolve(makeFakeOilChangeLog()));
+      return await new Promise((resolve) => resolve(makeFakeOilChangeLog()));
     }
   }
   return new AddOilChangeLogStub();

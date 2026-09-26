@@ -5,7 +5,7 @@ import { InvalidParamError } from "../../errors";
 const makeEmailValidator = (): EmailValidator => {
   class EmailValidatorStub implements EmailValidator {
     async isValid(email: string): Promise<boolean> {
-      return new Promise((resolve) => resolve(true));
+      return await new Promise((resolve) => resolve(true));
     }
   }
   return new EmailValidatorStub();
@@ -32,7 +32,7 @@ describe("Email validation", () => {
     const { sut, emailValidatorStub } = makeSut();
     const isValidSpy = jest.spyOn(emailValidatorStub, "isValid");
 
-    sut.validate({ email: "any_email@email.com" });
+    await sut.validate({ email: "any_email@email.com" });
     expect(isValidSpy).toHaveBeenCalledWith("any_email@email.com");
   });
 
@@ -40,17 +40,23 @@ describe("Email validation", () => {
     const { sut, emailValidatorStub } = makeSut();
     jest
       .spyOn(emailValidatorStub, "isValid")
-      .mockReturnValueOnce(new Error() as any);
+      .mockRejectedValueOnce(new Error());
 
-    expect(sut.validate).toThrow();
+    await expect(sut.validate({ email: "any_email@email.com" })).rejects.toThrow();
   });
 
   test("Should return an InvalidParamError if emailValidator returns falsy", async () => {
     const { sut, emailValidatorStub } = makeSut();
     jest
       .spyOn(emailValidatorStub, "isValid")
-      .mockReturnValueOnce(false as any);
-    const error = sut.validate({ email: "invalid_email@email.com" });
+      .mockResolvedValueOnce(false);
+    const error = await sut.validate({ email: "invalid_email@email.com" });
     expect(error).toEqual(new InvalidParamError("email"));
+  });
+
+  test("Should return undefined if emailValidator returns true", async () => {
+    const { sut } = makeSut();
+    const error = await sut.validate({ email: "any_email@email.com" });
+    expect(error).toBeUndefined();
   });
 });

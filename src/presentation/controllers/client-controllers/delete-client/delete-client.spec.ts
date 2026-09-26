@@ -18,7 +18,7 @@ const fakeHttpRequest: HttpRequest = {
 const makeDeleteClient = (): DeleteClient => {
   class DeleteClientStub implements DeleteClient {
     async delete(id: number): Promise<string> {
-      return new Promise((resolve) => resolve("Client Deletado com Sucesso!"));
+      return await new Promise((resolve) => resolve("Client Deletado com Sucesso!"));
     }
   }
   return new DeleteClientStub();
@@ -34,8 +34,6 @@ const makeSut = (): SutTypes => {
 };
 
 describe("Delete CLient Controller", () => {
-  const id = 7;
-
   test("Should call DeleteClient", async () => {
     const { sut, deleteClientStub } = makeSut();
     const loadSpy = jest.spyOn(deleteClientStub, "delete");

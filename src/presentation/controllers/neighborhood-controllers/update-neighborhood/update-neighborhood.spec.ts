@@ -33,7 +33,7 @@ const makeUpdateNeighborhoodStub = (): UpdateNeighborhood => {
       id: number,
       data: UpdateNeighborhoodModel
     ): Promise<Neighborhood> {
-      return new Promise((resolve) => resolve(makeFakeNeighborhood()));
+      return await new Promise((resolve) => resolve(makeFakeNeighborhood()));
     }
   }
   return new UpdateNeighborhoodStub();

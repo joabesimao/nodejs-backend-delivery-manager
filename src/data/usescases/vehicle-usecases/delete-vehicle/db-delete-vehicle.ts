@@ -5,6 +5,6 @@ export class DbDeleteVehicle implements DeleteVehicle {
   constructor(private readonly deleteVehicleRepository: DeleteVehicleRepository) {}
 
   async delete(id: number): Promise<string> {
-    return this.deleteVehicleRepository.deleteOne(id);
+    return await this.deleteVehicleRepository.deleteOne(id);
   }
 }

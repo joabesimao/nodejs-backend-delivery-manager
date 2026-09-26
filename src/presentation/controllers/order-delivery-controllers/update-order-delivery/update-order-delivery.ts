@@ -47,10 +47,10 @@ export class UpdateOrderDeliveryController implements Controller {
         return badRequest(new InvalidParamError("id"));
       }
 
-      const requestBody = {
+      const requestBody: Record<string, unknown> = {
         ...httpRequest.body,
         accountId,
-      } as Record<string, unknown>;
+      };
 
       if (requestBody.amount !== undefined) {
         const parsedAmount = parseAmount(requestBody.amount);

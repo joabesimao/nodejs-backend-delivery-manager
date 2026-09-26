@@ -26,7 +26,7 @@ const makeAddVehicleModel = (): AddVehicleModel => ({
 const makeAddVehicleRepository = (): AddVehicleRepository => {
   class AddVehicleRepositoryStub implements AddVehicleRepository {
     async add(vehicle: AddVehicleModel): Promise<Vehicle> {
-      return new Promise((resolve) => resolve(makeVehicle()));
+      return await new Promise((resolve) => resolve(makeVehicle()));
     }
   }
   return new AddVehicleRepositoryStub();

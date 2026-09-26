@@ -12,8 +12,7 @@ export class AccountMongoRepository
     FindAccountByEmailRepository,
     UpdateAccessTokenRepository,
     LoadAccountByTokenRepository,
-    DeleteAccountRepository
-{
+    DeleteAccountRepository {
   async loadByToken(token: string, role?: string): Promise<AccountModel> {
     const id = new ObjectId(token);
     const accountCollection = await MongoHelper.getCollection("accounts");
@@ -40,10 +39,11 @@ export class AccountMongoRepository
       }
     );
   }
+
   async loadAccountByEmail(email: string): Promise<AccountModel> {
     const accountCollection = await MongoHelper.getCollection("accounts");
     const account = await accountCollection.findOne({
-      email: email,
+      email,
     });
     if (!account) {
       return null;

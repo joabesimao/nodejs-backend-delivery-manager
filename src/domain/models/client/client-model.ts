@@ -1,6 +1,6 @@
 export interface ClientModel {
   name: string;
-  cpf:string;
+  cpf: string;
   phone: string;
   status?: boolean;
 }

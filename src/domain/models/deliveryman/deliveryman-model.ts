@@ -2,7 +2,7 @@ export interface Deliveryman {
   id: number;
   name: string;
   lastName: string;
-  numberQualification:string;
+  numberQualification: string;
   phone: string;
   cpf?: string;
 }

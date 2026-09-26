@@ -5,8 +5,8 @@ import { Prisma } from "@prisma/client";
 
 const makeDeleteRegisterStub = (): DeleteRegister => {
   class DeleteRegisterStub implements DeleteRegister {
-    async delete(id: Number): Promise<string> {
-      return new Promise((resolve) => resolve("registro apagado com sucesso"));
+    async delete(id: number): Promise<string> {
+      return await new Promise((resolve) => resolve("registro apagado com sucesso"));
     }
   }
   return new DeleteRegisterStub();

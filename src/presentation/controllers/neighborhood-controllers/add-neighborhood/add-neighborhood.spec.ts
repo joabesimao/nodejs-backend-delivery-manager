@@ -28,7 +28,7 @@ interface SutTypes {
 const makeAddNeighborhoodStub = (): AddNeighborhood => {
   class AddNeighborhoodStub implements AddNeighborhood {
     async add(neighborhood: AddNeighborhoodModel): Promise<Neighborhood> {
-      return new Promise((resolve) => resolve(makeFakeNeighborhood()));
+      return await new Promise((resolve) => resolve(makeFakeNeighborhood()));
     }
   }
   return new AddNeighborhoodStub();

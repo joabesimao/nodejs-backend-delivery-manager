@@ -16,7 +16,7 @@ import { SelfActionError } from "../../../errors/self-action-error";
 const makeDeleteAccountStub = (): DeleteAccount => {
   class DeleteAccountStub implements DeleteAccount {
     async deleteAccountById(id: number, requesterId: number): Promise<string> {
-      return new Promise((resolve) => resolve("conta apagada com sucesso"));
+      return await new Promise((resolve) => resolve("conta apagada com sucesso"));
     }
   }
   return new DeleteAccountStub();

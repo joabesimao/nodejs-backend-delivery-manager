@@ -41,6 +41,7 @@ export class AddOrderDeliveryController implements Controller {
     private readonly addOrderDelivery: AddOrderDelivery,
     private readonly validation: Validation,
   ) {}
+
   async handle(httpRequest: HttpRequest): Promise<HttpResponse> {
     const requestTrace = {
       at: new Date().toISOString(),

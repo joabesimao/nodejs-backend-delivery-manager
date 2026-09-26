@@ -40,7 +40,7 @@ const makeAddOilChangeLogModel = (): AddOilChangeLogModel => ({
 const makeLoadOilChangeConfigRepositoryStub = (): LoadOilChangeConfigRepository => {
   class LoadOilChangeConfigRepositoryStub implements LoadOilChangeConfigRepository {
     async load(): Promise<OilChangeConfig> {
-      return new Promise((resolve) => resolve(makeFakeConfig()));
+      return await new Promise((resolve) => resolve(makeFakeConfig()));
     }
   }
   return new LoadOilChangeConfigRepositoryStub();
@@ -49,7 +49,7 @@ const makeLoadOilChangeConfigRepositoryStub = (): LoadOilChangeConfigRepository 
 const makeFindLastOilChangeLogRepositoryStub = (): FindLastOilChangeLogRepository => {
   class FindLastOilChangeLogRepositoryStub implements FindLastOilChangeLogRepository {
     async findLastByVehicle(vehicleId: number): Promise<OilChangeLog | null> {
-      return new Promise((resolve) => resolve(null));
+      return await new Promise((resolve) => resolve(null));
     }
   }
   return new FindLastOilChangeLogRepositoryStub();
@@ -58,7 +58,7 @@ const makeFindLastOilChangeLogRepositoryStub = (): FindLastOilChangeLogRepositor
 const makeAddOilChangeLogRepositoryStub = (): AddOilChangeLogRepository => {
   class AddOilChangeLogRepositoryStub implements AddOilChangeLogRepository {
     async add(data: any): Promise<OilChangeLog> {
-      return new Promise((resolve) => resolve(makeFakeOilChangeLog()));
+      return await new Promise((resolve) => resolve(makeFakeOilChangeLog()));
     }
   }
   return new AddOilChangeLogRepositoryStub();

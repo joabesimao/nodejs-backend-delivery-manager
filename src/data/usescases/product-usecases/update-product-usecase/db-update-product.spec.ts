@@ -25,7 +25,7 @@ interface SutTypes {
 const makeUpdateProductRepository = (): UpdateProductRepository => {
   class UpdateProductRepositoryStub implements UpdateProductRepository {
     async updateProduct(id: number, info: Partial<ProductModel>): Promise<Product> {
-      return new Promise((resolve) => resolve(makeFakeProduct()));
+      return await new Promise((resolve) => resolve(makeFakeProduct()));
     }
   }
   return new UpdateProductRepositoryStub();

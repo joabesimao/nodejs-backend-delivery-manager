@@ -5,6 +5,6 @@ import { UpdateOilChangeConfigRepository } from "../../../protocols/db/oil-chang
 export class DbUpdateOilChangeConfig implements UpdateOilChangeConfig {
   constructor(private readonly updateOilChangeConfigRepository: UpdateOilChangeConfigRepository) {}
   async update(data: UpdateOilChangeConfigModel): Promise<OilChangeConfig> {
-    return this.updateOilChangeConfigRepository.upsert(data.intervalKm);
+    return await this.updateOilChangeConfigRepository.upsert(data.intervalKm);
   }
 }

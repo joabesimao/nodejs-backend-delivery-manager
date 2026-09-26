@@ -16,13 +16,12 @@ interface SutTypes {
 
 const makeUpdateNeighborhoodRepository = (): UpdateNeighborhoodRepository => {
   class UpdateNeighborhoodRepositoryStub
-    implements UpdateNeighborhoodRepository
-  {
+    implements UpdateNeighborhoodRepository {
     async update(
       id: number,
       data: Partial<Neighborhood>
     ): Promise<Neighborhood> {
-      return new Promise((resolve) => resolve(makeFakeNeighborhood()));
+      return await new Promise((resolve) => resolve(makeFakeNeighborhood()));
     }
   }
   return new UpdateNeighborhoodRepositoryStub();

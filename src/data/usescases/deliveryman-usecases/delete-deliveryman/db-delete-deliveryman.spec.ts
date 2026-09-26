@@ -8,10 +8,9 @@ interface SutTypes {
 
 const makeDeleteDeliverymanRepository = (): DeleteDeliverymanRepository => {
   class DeleteDeliverymanRepositoryStub
-    implements DeleteDeliverymanRepository
-  {
+    implements DeleteDeliverymanRepository {
     async deleteOne(id: number): Promise<string> {
-      return new Promise((resolve) =>
+      return await new Promise((resolve) =>
         resolve("Entregador Deletado com Sucesso!")
       );
     }

@@ -14,7 +14,7 @@ const makeVehicles = (): Vehicle[] => [
 const makeLoadVehicleRepository = (): LoadVehicleRepository => {
   class LoadVehicleRepositoryStub implements LoadVehicleRepository {
     async loadAll(): Promise<Vehicle[]> {
-      return new Promise((resolve) => resolve(makeVehicles()));
+      return await new Promise((resolve) => resolve(makeVehicles()));
     }
   }
   return new LoadVehicleRepositoryStub();

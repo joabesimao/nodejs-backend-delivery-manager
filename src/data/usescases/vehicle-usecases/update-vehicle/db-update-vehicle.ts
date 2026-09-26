@@ -6,6 +6,6 @@ export class DbUpdateVehicle implements UpdateVehicle {
   constructor(private readonly updateVehicleRepository: UpdateVehicleRepository) {}
 
   async update(id: number, data: UpdateVehicleModel): Promise<Vehicle> {
-    return this.updateVehicleRepository.update(id, data);
+    return await this.updateVehicleRepository.update(id, data);
   }
 }

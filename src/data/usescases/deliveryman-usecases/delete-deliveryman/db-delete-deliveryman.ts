@@ -5,6 +5,6 @@ export class DbDeleteDeliveryman implements DeleteDeliveryman {
   constructor(private readonly deleteDeliverymanRepository: DeleteDeliverymanRepository) {}
 
   async delete(id: number): Promise<string> {
-    return this.deleteDeliverymanRepository.deleteOne(id);
+    return await this.deleteDeliverymanRepository.deleteOne(id);
   }
 }

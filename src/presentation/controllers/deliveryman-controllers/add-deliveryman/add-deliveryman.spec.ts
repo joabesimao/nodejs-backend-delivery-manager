@@ -29,7 +29,7 @@ const makeFakeDeliveryman = (): Deliveryman => ({
 const makeAddDeliverymanStub = (): AddDeliveryman => {
   class AddDeliverymanStub implements AddDeliveryman {
     async add(deliveryman: AddDeliverymanModel): Promise<Deliveryman> {
-      return new Promise((resolve) => resolve(makeFakeDeliveryman()));
+      return await new Promise((resolve) => resolve(makeFakeDeliveryman()));
     }
   }
   return new AddDeliverymanStub();

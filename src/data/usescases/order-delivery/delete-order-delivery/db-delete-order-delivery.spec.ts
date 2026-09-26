@@ -9,10 +9,9 @@ interface SutTypes {
 const makeDeleteOrderDeliveryRepository =
   (): DeleteOrderDeliveryByIdRepository => {
     class DeleteOrderDeliveryRepositoryStub
-      implements DeleteOrderDeliveryByIdRepository
-    {
+      implements DeleteOrderDeliveryByIdRepository {
       async deleteById(id: number): Promise<string> {
-        return new Promise((resolve) =>
+        return await new Promise((resolve) =>
           resolve("Pedido de Entrega,Deletado com Sucesso!")
         );
       }

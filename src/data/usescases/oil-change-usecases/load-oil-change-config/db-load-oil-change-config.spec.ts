@@ -16,7 +16,7 @@ const makeFakeConfig = (): OilChangeConfig => ({
 const makeLoadOilChangeConfigRepositoryStub = (): LoadOilChangeConfigRepository => {
   class LoadOilChangeConfigRepositoryStub implements LoadOilChangeConfigRepository {
     async load(): Promise<OilChangeConfig> {
-      return new Promise((resolve) => resolve(makeFakeConfig()));
+      return await new Promise((resolve) => resolve(makeFakeConfig()));
     }
   }
   return new LoadOilChangeConfigRepositoryStub();

@@ -52,7 +52,7 @@ const makeUpdateRegister = (): UpdateRegister => {
       id: number,
       info: Partial<RegisterModel>
     ): Promise<Promise<RegisterModel>> {
-      return new Promise((resolve) => resolve(makeFakeRegisters()));
+      return await new Promise((resolve) => resolve(makeFakeRegisters()));
     }
   }
   return new UpdateRegisterStub();

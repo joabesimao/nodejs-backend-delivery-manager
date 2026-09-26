@@ -29,8 +29,7 @@ export class FuelRefillMysqlRepository
     FindFuelRefillByIdRepository,
     UpdateFuelRefillRepository,
     DeleteFuelRefillRepository,
-    RecalculateFuelRefillKmRepository
-{
+    RecalculateFuelRefillKmRepository {
   constructor(private readonly prisma: PrismaClient) {}
 
   async add(data: {
@@ -121,6 +120,7 @@ export class FuelRefillMysqlRepository
         return { refill, previousKm, kmDriven };
       })
       .filter(({ refill, previousKm, kmDriven }) => refill.previousKm !== previousKm || refill.kmDriven !== kmDriven)
+      // PrismaPromise precisa continuar lazy para rodar dentro do $transaction em lote
       .map(({ refill, previousKm, kmDriven }) =>
         this.prisma.fuelRefill.update({ where: { id: refill.id }, data: { previousKm, kmDriven } })
       );

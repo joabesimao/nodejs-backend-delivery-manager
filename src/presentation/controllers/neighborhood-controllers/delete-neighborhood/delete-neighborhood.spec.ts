@@ -17,7 +17,7 @@ interface SutTypes {
 const makeDeleteNeighborhoodStub = (): DeleteNeighborhood => {
   class DeleteNeighborhoodStub implements DeleteNeighborhood {
     async delete(id: number): Promise<string> {
-      return new Promise((resolve) =>
+      return await new Promise((resolve) =>
         resolve("Bairro Deletado com Sucesso!")
       );
     }

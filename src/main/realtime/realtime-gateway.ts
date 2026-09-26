@@ -8,12 +8,12 @@ import { getAccountScope } from "./store-scope";
 
 const jwtAdapter = new JwtAdapter(env.JWT_SECRET);
 
-type ChatSendPayload = {
+interface ChatSendPayload {
   text?: string;
   imageBase64?: string;
   imageMimeType?: string;
   unitStoreId?: number;
-};
+}
 
 const MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024;
 
@@ -123,13 +123,13 @@ export const setupRealtimeGateway = (httpServer: HttpServer): void => {
       networkRoom: string;
     };
 
-    socket.join(session.networkRoom);
+    void socket.join(session.networkRoom);
 
     const unitRooms = session.scope.visibleUnitIds.map(
       (unitId) => `unit:${unitId}`,
     );
     for (const room of unitRooms) {
-      socket.join(room);
+      void socket.join(room);
     }
 
     try {

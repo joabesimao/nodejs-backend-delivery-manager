@@ -28,7 +28,7 @@ const makeAddDeliverymanModel = (): AddDeliverymanModel => ({
 const makeAddDeliverymanRepository = (): AddDeliverymanRepository => {
   class AddDeliverymanRepositoryStub implements AddDeliverymanRepository {
     async add(deliveryman: AddDeliverymanModel): Promise<Deliveryman> {
-      return new Promise((resolve) => resolve(makeDeliveryman()));
+      return await new Promise((resolve) => resolve(makeDeliveryman()));
     }
   }
   return new AddDeliverymanRepositoryStub();

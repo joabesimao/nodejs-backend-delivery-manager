@@ -1,10 +1,5 @@
 import { DbDeleteAddress } from "./db-delete-address";
-import { LoadRegisterModel } from "../../../../domain/models/register/register-load-model";
 import { DeleteAddressRepository } from "../../../protocols/db/address/delete-address";
-import { ClientModel } from "../../../../domain/models/client/client-model";
-import { Address } from "../../../../domain/models/register/address-model";
-import { UpdateAddressRepository } from "../../../protocols/db/address/update-address";
-import { UpdateAddressModel } from "../../../../domain/usescases/address/update-address";
 
 interface SutTypes {
   sut: DbDeleteAddress;
@@ -14,7 +9,7 @@ interface SutTypes {
 const makeDeleteAddressRepository = (): DeleteAddressRepository => {
   class DeleteAddressRepositoryStub implements DeleteAddressRepository {
     async deleteOne(id: number): Promise<string> {
-      return new Promise((resolve) => resolve("Endereço apagado com Sucesso!"));
+      return await new Promise((resolve) => resolve("Endereço apagado com Sucesso!"));
     }
   }
   return new DeleteAddressRepositoryStub();

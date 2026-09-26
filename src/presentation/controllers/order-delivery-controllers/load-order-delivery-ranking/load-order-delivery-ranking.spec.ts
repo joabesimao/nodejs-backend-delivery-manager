@@ -5,7 +5,7 @@ import {
   DeliveryRankingPaginatedModel,
 } from "../../../../domain/models/order-delivery/delivery-ranking";
 import { HttpRequest } from "../../../protocols/http";
-import { badRequest, ok, serverError } from "../../../helpers/http/http-helper";
+import { ok, serverError } from "../../../helpers/http/http-helper";
 
 interface SutTypes {
   sut: LoadOrderDeliveryRankingController;
@@ -32,7 +32,7 @@ const makeLoadOrderDeliveryRankingStub = (): LoadOrderDeliveryRanking => {
     async loadByPeriod(
       filter: DeliveryRankingFilter
     ): Promise<DeliveryRankingPaginatedModel> {
-      return new Promise((resolve) => resolve(makeFakeRanking()));
+      return await new Promise((resolve) => resolve(makeFakeRanking()));
     }
   }
   return new LoadOrderDeliveryRankingStub();

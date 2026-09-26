@@ -5,6 +5,6 @@ import { LoadOilChangeConfigRepository } from "../../../protocols/db/oil-change/
 export class DbLoadOilChangeConfig implements LoadOilChangeConfig {
   constructor(private readonly loadOilChangeConfigRepository: LoadOilChangeConfigRepository) {}
   async load(): Promise<OilChangeConfig> {
-    return this.loadOilChangeConfigRepository.load();
+    return await this.loadOilChangeConfigRepository.load();
   }
 }

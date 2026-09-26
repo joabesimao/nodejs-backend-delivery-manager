@@ -16,7 +16,7 @@ const makeFakeConfig = (): OilChangeConfig => ({
 const makeUpdateOilChangeConfigRepositoryStub = (): UpdateOilChangeConfigRepository => {
   class UpdateOilChangeConfigRepositoryStub implements UpdateOilChangeConfigRepository {
     async upsert(intervalKm: number): Promise<OilChangeConfig> {
-      return new Promise((resolve) => resolve(makeFakeConfig()));
+      return await new Promise((resolve) => resolve(makeFakeConfig()));
     }
   }
   return new UpdateOilChangeConfigRepositoryStub();

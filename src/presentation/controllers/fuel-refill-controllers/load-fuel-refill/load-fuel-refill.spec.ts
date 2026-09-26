@@ -27,7 +27,7 @@ interface SutTypes {
 const makeLoadFuelRefillStub = (): LoadFuelRefill => {
   class LoadFuelRefillStub implements LoadFuelRefill {
     async load(params?: LoadFuelRefillParams): Promise<FuelRefill[]> {
-      return new Promise((resolve) => resolve(makeFakeRefills()));
+      return await new Promise((resolve) => resolve(makeFakeRefills()));
     }
   }
   return new LoadFuelRefillStub();

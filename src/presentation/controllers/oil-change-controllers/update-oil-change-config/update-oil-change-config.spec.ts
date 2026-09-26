@@ -19,7 +19,7 @@ interface SutTypes {
 const makeUpdateOilChangeConfigStub = (): UpdateOilChangeConfig => {
   class UpdateOilChangeConfigStub implements UpdateOilChangeConfig {
     async update(data: UpdateOilChangeConfigModel): Promise<OilChangeConfig> {
-      return new Promise((resolve) => resolve(makeFakeConfig()));
+      return await new Promise((resolve) => resolve(makeFakeConfig()));
     }
   }
   return new UpdateOilChangeConfigStub();

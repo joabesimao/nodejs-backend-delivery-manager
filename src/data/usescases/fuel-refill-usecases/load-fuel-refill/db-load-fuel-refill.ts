@@ -5,6 +5,6 @@ import { LoadFuelRefillRepository } from "../../../protocols/db/fuel-refill/load
 export class DbLoadFuelRefill implements LoadFuelRefill {
   constructor(private readonly loadFuelRefillRepository: LoadFuelRefillRepository) {}
   async load(params?: LoadFuelRefillParams): Promise<FuelRefill[]> {
-    return this.loadFuelRefillRepository.loadAll(params);
+    return await this.loadFuelRefillRepository.loadAll(params);
   }
 }

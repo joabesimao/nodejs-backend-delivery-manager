@@ -6,6 +6,6 @@ export class DbUpdateCity implements UpdateCity {
   constructor(private readonly updateCityRepository: UpdateCityRepository) {}
 
   async update(id: number, data: UpdateCityModel): Promise<City> {
-    return this.updateCityRepository.update(id, data);
+    return await this.updateCityRepository.update(id, data);
   }
 }

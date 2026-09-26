@@ -14,7 +14,7 @@ interface SutTypes {
 const makeEncrypt = (): Hasher => {
   class EncryptStub implements Hasher {
     async hash(value: string): Promise<string> {
-      return new Promise((resolve) => resolve("hashed_password"));
+      return await new Promise((resolve) => resolve("hashed_password"));
     }
   }
   return new EncryptStub();
@@ -29,7 +29,7 @@ const makeAddAccountRepository = (): AddAccountRepository => {
         email: "valid_email",
         password: "hashed_password",
       };
-      return new Promise((resolve) => resolve(accountData));
+      return await new Promise((resolve) => resolve(accountData));
     }
   }
   return new AddAccountRepositoryStub();
@@ -38,7 +38,7 @@ const makeAddAccountRepository = (): AddAccountRepository => {
 const makeLoadAccountRepository = (): FindAccountByEmailRepository => {
   class LoadAccountRepositoryByIdStub implements FindAccountByEmailRepository {
     async loadAccountByEmail(email: string): Promise<AccountModel> {
-      return new Promise((resolve) => resolve(null as any));
+      return await new Promise((resolve) => resolve(null as any));
     }
   }
   return new LoadAccountRepositoryByIdStub();
@@ -147,7 +147,7 @@ describe("DbAddAccount Usecase", () => {
       password: "valid_password",
     };
     const loadSpy = jest.spyOn(loadAccountRepositoryStub, "loadAccountByEmail");
-    const account = await sut.add(accountData);
+    await sut.add(accountData);
     expect(loadSpy).toHaveBeenCalledWith("valid_email");
   });
 

@@ -6,6 +6,7 @@ export class DbLoadRegistersById implements LoadOneRegisters {
   constructor(
     private readonly loadRegisterByIdRepository: LoadRegisterByIdRepository
   ) {}
+
   async loadById(id: number): Promise<LoadRegisterModel> {
     const register = await this.loadRegisterByIdRepository.loadById(id);
     return register;

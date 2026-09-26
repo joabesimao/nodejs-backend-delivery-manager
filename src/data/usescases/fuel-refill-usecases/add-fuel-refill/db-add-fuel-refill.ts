@@ -17,6 +17,6 @@ export class DbAddFuelRefill implements AddFuelRefill {
     }
     const previousKm = lastRefill ? lastRefill.km : undefined;
     const kmDriven = previousKm !== undefined ? refill.km - previousKm : undefined;
-    return this.addFuelRefillRepository.add({ ...refill, previousKm, kmDriven });
+    return await this.addFuelRefillRepository.add({ ...refill, previousKm, kmDriven });
   }
 }

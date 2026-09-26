@@ -20,7 +20,7 @@ const makeAddCityModel = (): AddCityModel => ({
 const makeAddCityRepository = (): AddCityRepository => {
   class AddCityRepositoryStub implements AddCityRepository {
     async add(city: AddCityModel): Promise<City> {
-      return new Promise((resolve) => resolve(makeCity()));
+      return await new Promise((resolve) => resolve(makeCity()));
     }
   }
   return new AddCityRepositoryStub();

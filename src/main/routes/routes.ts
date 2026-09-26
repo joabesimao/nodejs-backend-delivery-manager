@@ -1,5 +1,5 @@
 import { OrderStatus } from "@prisma/client";
-import { Request, Router } from "express";
+import { Router } from "express";
 import { makeAddRegisterController } from "../factories/add-register";
 import { adaptRoute } from "../adapters/express-route-adapter";
 import { makeLoadRegisterController } from "../factories/load-register";
@@ -34,7 +34,6 @@ import { makeUpdateCityController } from "../factories/update-city";
 import { makeDeleteCityController } from "../factories/delete-city";
 import { makeUpdateNeighborhoodController } from "../factories/update-neighborhood";
 import { makeDeleteNeighborhoodController } from "../factories/delete-neighborhood";
-import { getAccountScope } from "../realtime/store-scope";
 import { prisma } from "../../infra/db/mysql/helpers";
 import { makeRefreshTokenController } from "../factories/refresh-token-factory";
 import { makeLoadOrderDeliveryRankingController } from "../factories/load-order-delivery-ranking";
@@ -87,7 +86,7 @@ export default (router: Router): void => {
         !Number.isNaN(parsedEnd.getTime());
 
       const ordersWhere = hasValidRange
-        ? { data: { gte: parsedStart as Date, lte: parsedEnd as Date } }
+        ? { data: { gte: parsedStart, lte: parsedEnd } }
         : undefined;
 
       const [
@@ -139,8 +138,8 @@ export default (router: Router): void => {
 
       let previousDeliveredRevenue: number | null = null;
       if (hasValidRange) {
-        const rangeMs = (parsedEnd as Date).getTime() - (parsedStart as Date).getTime();
-        const previousEnd = new Date((parsedStart as Date).getTime() - 1);
+        const rangeMs = (parsedEnd).getTime() - (parsedStart).getTime();
+        const previousEnd = new Date((parsedStart).getTime() - 1);
         const previousStart = new Date(previousEnd.getTime() - rangeMs);
 
         const previousRevenueAgg = await prisma.orderDelivery.aggregate({
@@ -225,7 +224,7 @@ export default (router: Router): void => {
           });
         }
 
-        totalsByDay.get(dateKey)!.total += 1;
+        totalsByDay.get(dateKey).total += 1;
       });
 
       const days = Array.from(totalsByDay.values()).sort((a, b) =>
@@ -241,7 +240,7 @@ export default (router: Router): void => {
             finishedWithDuration.reduce(
               (sum, order) =>
                 sum +
-                ((order.finishedAt as Date).getTime() - order.data.getTime()) / 60000,
+                ((order.finishedAt).getTime() - order.data.getTime()) / 60000,
               0,
             ) / finishedWithDuration.length,
           )
@@ -282,7 +281,7 @@ export default (router: Router): void => {
         !Number.isNaN(parsedEnd.getTime());
 
       const ordersWhere = hasValidRange
-        ? { data: { gte: parsedStart as Date, lte: parsedEnd as Date } }
+        ? { data: { gte: parsedStart, lte: parsedEnd } }
         : undefined;
 
       const orders = await prisma.orderDelivery.findMany({

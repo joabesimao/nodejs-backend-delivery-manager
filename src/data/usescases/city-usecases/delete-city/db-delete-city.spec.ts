@@ -9,7 +9,7 @@ interface SutTypes {
 const makeDeleteCityRepository = (): DeleteCityRepository => {
   class DeleteCityRepositoryStub implements DeleteCityRepository {
     async deleteOne(id: number): Promise<string> {
-      return new Promise((resolve) => resolve("Cidade Deletada com Sucesso!"));
+      return await new Promise((resolve) => resolve("Cidade Deletada com Sucesso!"));
     }
   }
   return new DeleteCityRepositoryStub();

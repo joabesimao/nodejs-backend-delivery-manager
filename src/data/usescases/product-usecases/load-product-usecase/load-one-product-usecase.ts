@@ -1,5 +1,4 @@
-import {LoadProductById,LoadProductByIdRepository,Product,ProductModel
-} from "./db-load-product-usecase-protocols";
+import { LoadProductById, LoadProductByIdRepository, Product } from "./db-load-product-usecase-protocols";
 
 export class DbLoadOneProduct implements LoadProductById {
   constructor(private readonly addProductRepository: LoadProductByIdRepository) {}
@@ -7,8 +6,4 @@ export class DbLoadOneProduct implements LoadProductById {
           const result = await this.addProductRepository.getOneProduct(id);
     return result;
     }
-
-  
 }
-
-

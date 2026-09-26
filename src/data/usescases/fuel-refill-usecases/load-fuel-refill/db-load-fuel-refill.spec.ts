@@ -23,7 +23,7 @@ const makeFakeRefills = (): FuelRefill[] => [
 const makeLoadFuelRefillRepositoryStub = (): LoadFuelRefillRepository => {
   class LoadFuelRefillRepositoryStub implements LoadFuelRefillRepository {
     async loadAll(params?: any): Promise<FuelRefill[]> {
-      return new Promise((resolve) => resolve(makeFakeRefills()));
+      return await new Promise((resolve) => resolve(makeFakeRefills()));
     }
   }
   return new LoadFuelRefillRepositoryStub();

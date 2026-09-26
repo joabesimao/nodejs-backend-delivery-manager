@@ -16,7 +16,7 @@ interface SutTypes {
 const makeLoadOilChangeConfigStub = (): LoadOilChangeConfig => {
   class LoadOilChangeConfigStub implements LoadOilChangeConfig {
     async load(): Promise<OilChangeConfig> {
-      return new Promise((resolve) => resolve(makeFakeConfig()));
+      return await new Promise((resolve) => resolve(makeFakeConfig()));
     }
   }
   return new LoadOilChangeConfigStub();

@@ -11,6 +11,6 @@ export class DbLoadAccounts implements LoadAccounts {
   ) {}
 
   async load(filter?: LoadAccountsFilter): Promise<PublicAccountModel[]> {
-    return this.loadAccountsRepository.loadAll(filter);
+    return await this.loadAccountsRepository.loadAll(filter);
   }
 }

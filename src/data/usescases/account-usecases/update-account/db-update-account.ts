@@ -60,7 +60,7 @@ export class DbUpdateAccount implements UpdateAccount {
       ? await this.hasher.hash(data.password)
       : undefined;
 
-    return this.updateAccountRepository.updateById(id, {
+    return await this.updateAccountRepository.updateById(id, {
       ...data,
       password,
     });

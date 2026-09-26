@@ -29,7 +29,7 @@ const makeFakeAccountModel = (): AccountModel => ({
 const makeAddAccount = (): AddAccount => {
   class AddAccountStub implements AddAccount {
     async add(account: AddAccountModel): Promise<AccountModel> {
-      return new Promise((resolve) => resolve(makeFakeAccountModel()));
+      return await new Promise((resolve) => resolve(makeFakeAccountModel()));
     }
   }
   return new AddAccountStub();
@@ -166,9 +166,7 @@ describe("Signup Controller", () => {
     const { sut, authenticationStub } = makeSut();
     jest
       .spyOn(authenticationStub, "auth")
-      .mockReturnValueOnce(
-        new Promise((resolve, rejects) => rejects(new Error()))
-      );
+      .mockRejectedValueOnce(new Error());
     const httpRequest = {
       body: {
         email: "any_email@email.com",

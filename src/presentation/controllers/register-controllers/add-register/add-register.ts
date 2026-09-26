@@ -12,6 +12,7 @@ export class AddRegisterController implements Controller {
     private readonly validationClient: Validation,
     private readonly validationAddress: Validation
   ) {}
+
   async handle(httpRequest: HttpRequest): Promise<HttpResponse> {
     try {
       const { client, address } = httpRequest.body;
@@ -40,8 +41,8 @@ export class AddRegisterController implements Controller {
       }
 
       const result = await this.addRegister.add({
-        client: client,
-        address: address,
+        client,
+        address,
       });
 
       return ok(result);

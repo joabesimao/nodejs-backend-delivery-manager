@@ -12,27 +12,25 @@ export class JwtAdapter implements Encrypter, Decrypter {
   constructor(private readonly secret: string) {}
 
   async encrypt(value: string, options?: EncryptOptions): Promise<string> {
-    const token = await jwt.sign(
+    const signOptions: SignOptions | undefined = options?.expiresIn
+      ? { expiresIn: options.expiresIn as SignOptions["expiresIn"] }
+      : undefined;
+
+    return jwt.sign(
       {
         id: value,
         type: options?.type ?? "access",
       },
       this.secret,
-      options?.expiresIn
-        ? ({
-            expiresIn: options.expiresIn,
-          } as SignOptions)
-        : undefined,
+      signOptions,
     );
-
-    return token;
   }
 
   async decrypt(value: string): Promise<string> {
     let payload: JwtPayload;
 
     try {
-      payload = (await jwt.verify(value, this.secret)) as JwtPayload;
+      payload = jwt.verify(value, this.secret) as JwtPayload;
     } catch {
       return null;
     }
@@ -46,8 +44,7 @@ export class JwtAdapter implements Encrypter, Decrypter {
 
   async decode(value: string): Promise<JwtPayload | null> {
     try {
-      const payload = (await jwt.verify(value, this.secret)) as JwtPayload;
-      return payload;
+      return jwt.verify(value, this.secret) as JwtPayload;
     } catch {
       return null;
     }

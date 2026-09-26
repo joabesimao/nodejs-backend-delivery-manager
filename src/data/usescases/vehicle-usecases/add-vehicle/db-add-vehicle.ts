@@ -5,6 +5,6 @@ import { AddVehicleRepository } from "../../../protocols/db/vehicle/add-vehicle"
 export class DbAddVehicle implements AddVehicle {
   constructor(private readonly addVehicleRepository: AddVehicleRepository) {}
   async add(vehicle: AddVehicleModel): Promise<Vehicle> {
-    return this.addVehicleRepository.add(vehicle);
+    return await this.addVehicleRepository.add(vehicle);
   }
 }
