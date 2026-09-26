@@ -11,6 +11,9 @@ import {
   ClientModel,
 } from "../../../../domain/models/client/client-model";
 import { AddClientModel } from "../../../../domain/usescases/client/add-client";
+import { pickDefined } from "../helpers/pick-defined";
+
+const onlyDigits = (value: string): string => value.replace(/\D/g, "");
 
 export class ClientMysqlRepository
   implements
@@ -18,31 +21,14 @@ export class ClientMysqlRepository
     LoadClientRepository,
     LoadOneClientRepository,
     UpdateClientRepository,
-    DeleteClientRepository
-{
+    DeleteClientRepository {
   constructor(private readonly prisma: PrismaClient) {}
 
   async add(client: AddClientModel): Promise<ClientModel> {
-    const cpfClean = client.cpf.replace(/\D/g, "");
-    
-    // Verificar se CPF já existe
-    const existingClient = await this.prisma.client.findFirst({
-      where: { cpf: cpfClean },
+    const { name, cpf, phone } = client;
+    return await this.prisma.client.create({
+      data: { name, phone, cpf: onlyDigits(cpf) },
     });
-
-    if (existingClient) {
-      throw new Error(`CPF ${client.cpf} já cadastrado no sistema.`);
-    }
-
-    const createClient = await this.prisma.client.create({
-      data: {
-        name: client.name,
-        cpf: cpfClean,
-        phone: client.phone,
-      },
-    });
-
-    return createClient;
   }
 
   async loadAll(): Promise<ClientModel[]> {
@@ -66,20 +52,20 @@ export class ClientMysqlRepository
   }
 
   async update(id: number, infoToUpdate: Client): Promise<Client> {
-    const updateClient = await this.prisma.client.update({
+    const { cpf, ...rest } = pickDefined(infoToUpdate, ["name", "cpf", "phone", "status"]);
+    return await this.prisma.client.update({
       where: { id: Number(id) },
       data: {
-        ...infoToUpdate,
+        ...rest,
+        ...(cpf !== undefined && { cpf: onlyDigits(cpf) }),
       },
     });
-    return updateClient;
   }
 
   async deleteOne(id: number): Promise<string> {
-    const deleteOneClient = await this.prisma.client.delete({
+    await this.prisma.client.delete({
       where: { id: Number(id) },
     });
-
     return "Deletado com sucesso!";
   }
 }

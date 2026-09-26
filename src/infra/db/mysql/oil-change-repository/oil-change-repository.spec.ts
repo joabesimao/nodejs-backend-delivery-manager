@@ -16,8 +16,6 @@ const makeFakeLog = () => ({
 
 const makeFakePrisma = () => ({
   oilChangeConfig: {
-    findUnique: jest.fn().mockResolvedValue(makeFakeConfig()),
-    create: jest.fn().mockResolvedValue(makeFakeConfig()),
     upsert: jest.fn().mockResolvedValue(makeFakeConfig()),
   },
   oilChangeLog: {
@@ -37,26 +35,20 @@ const makeSut = (): { sut: OilChangeMysqlRepository; prisma: FakePrisma } => {
 
 describe("OilChange MySql Repository", () => {
   describe("load()", () => {
-    test("Should return existing config if found", async () => {
+    test("Should upsert the config keeping the existing values", async () => {
       const { sut, prisma } = makeSut();
       const config = await sut.load();
-      expect(prisma.oilChangeConfig.findUnique).toHaveBeenCalledWith({ where: { id: 1 } });
-      expect(prisma.oilChangeConfig.create).not.toHaveBeenCalled();
+      expect(prisma.oilChangeConfig.upsert).toHaveBeenCalledWith({
+        where: { id: 1 },
+        update: {},
+        create: { id: 1, intervalKm: 800 },
+      });
       expect(config).toEqual(makeFakeConfig());
     });
 
-    test("Should create a default config if none exists", async () => {
+    test("Should throw if prisma.oilChangeConfig.upsert throws", async () => {
       const { sut, prisma } = makeSut();
-      prisma.oilChangeConfig.findUnique.mockResolvedValueOnce(null);
-      await sut.load();
-      expect(prisma.oilChangeConfig.create).toHaveBeenCalledWith({
-        data: { id: 1, intervalKm: 800 },
-      });
-    });
-
-    test("Should throw if prisma.oilChangeConfig.findUnique throws", async () => {
-      const { sut, prisma } = makeSut();
-      prisma.oilChangeConfig.findUnique.mockRejectedValueOnce(new Error());
+      prisma.oilChangeConfig.upsert.mockRejectedValueOnce(new Error());
       await expect(sut.load()).rejects.toThrow();
     });
   });

@@ -17,17 +17,25 @@ const makeFakePrisma = () => ({
   register: {
     create: jest.fn().mockResolvedValue(makeFakeRegister()),
     findUnique: jest.fn().mockResolvedValue(makeFakeRegister()),
-    findFirst: jest.fn().mockResolvedValue({ id: 1 }),
+    findFirst: jest.fn().mockResolvedValue(makeFakeRegister()),
     update: jest.fn().mockResolvedValue(makeFakeRegister()),
-    delete: jest.fn().mockResolvedValue({}),
+    delete: jest.fn().mockResolvedValue({ id: 1, clientId: 2, addressId: 3 }),
     findMany: jest.fn().mockResolvedValue([makeFakeRegister()]),
   },
+  client: {
+    delete: jest.fn().mockResolvedValue({}),
+  },
+  address: {
+    delete: jest.fn().mockResolvedValue({}),
+  },
+  $transaction: jest.fn(),
 });
 
 type FakePrisma = ReturnType<typeof makeFakePrisma>;
 
 const makeSut = (): { sut: RegisterMySqlRepository; prisma: FakePrisma } => {
   const prisma = makeFakePrisma();
+  prisma.$transaction.mockImplementation((work) => work(prisma));
   const sut = new RegisterMySqlRepository(prisma as any);
   return { sut, prisma };
 };
@@ -108,20 +116,11 @@ describe("Register MySql Repository", () => {
   });
 
   describe("findByName()", () => {
-    test("Should call prisma.register.findFirst with correct name", async () => {
+    test("Should call prisma.register.findFirst with correct name and include", async () => {
       const { sut, prisma } = makeSut();
       await sut.findByName("any_name");
       expect(prisma.register.findFirst).toHaveBeenCalledWith({
         where: { client: { name: "any_name" } },
-      });
-    });
-
-    test("Should call prisma.register.findUnique with the id returned by findFirst", async () => {
-      const { sut, prisma } = makeSut();
-      prisma.register.findFirst.mockResolvedValueOnce({ id: 5 });
-      await sut.findByName("any_name");
-      expect(prisma.register.findUnique).toHaveBeenCalledWith({
-        where: { id: 5 },
         include: { client: true, address: true },
       });
     });
@@ -132,28 +131,23 @@ describe("Register MySql Repository", () => {
       expect(register).toEqual(makeFakeRegister());
     });
 
+    test("Should return null if no register is found", async () => {
+      const { sut, prisma } = makeSut();
+      prisma.register.findFirst.mockResolvedValueOnce(null);
+      const register = await sut.findByName("any_name");
+      expect(register).toBeNull();
+    });
+
     test("Should throw if prisma.register.findFirst throws", async () => {
       const { sut, prisma } = makeSut();
       prisma.register.findFirst.mockRejectedValueOnce(new Error());
-      await expect(sut.findByName("any_name")).rejects.toThrow();
-    });
-
-    test("Should throw if prisma.register.findFirst resolves null (no register found)", async () => {
-      const { sut, prisma } = makeSut();
-      prisma.register.findFirst.mockResolvedValueOnce(null);
-      await expect(sut.findByName("any_name")).rejects.toThrow();
-    });
-
-    test("Should throw if prisma.register.findUnique throws", async () => {
-      const { sut, prisma } = makeSut();
-      prisma.register.findUnique.mockRejectedValueOnce(new Error());
       await expect(sut.findByName("any_name")).rejects.toThrow();
     });
   });
 
   describe("updateOneRegisterById()", () => {
     const fakeInfo = {
-      client: { name: "new_name", cpf: "new_cpf", phone: "new_phone" },
+      client: { name: "new_name", cpf: "98765432100", phone: "new_phone" },
       address: {
         street: "new_street",
         neighborhood: "new_neighborhood",
@@ -171,7 +165,7 @@ describe("Register MySql Repository", () => {
         data: {
           client: {
             update: {
-              data: { ...fakeInfo.client },
+              data: { name: "new_name", cpf: "98765432100", phone: "new_phone" },
             },
           },
           address: {
@@ -185,6 +179,21 @@ describe("Register MySql Repository", () => {
               },
             },
           },
+        },
+      });
+    });
+
+    test("Should ignore client and address fields outside the whitelist", async () => {
+      const { sut, prisma } = makeSut();
+      await sut.updateOneRegisterById(1, {
+        client: { id: 999, name: "new_name", cpf: "123.456.789-00" },
+        address: { id: 999, numberHouse: "10" },
+      } as any);
+      expect(prisma.register.update).toHaveBeenCalledWith({
+        where: { id: 1 },
+        data: {
+          client: { update: { data: { name: "new_name", cpf: "12345678900" } } },
+          address: { update: { data: { numberHouse: 10 } } },
         },
       });
     });
@@ -211,6 +220,22 @@ describe("Register MySql Repository", () => {
       expect(prisma.register.delete).toHaveBeenCalledWith({
         where: { id: 1 },
       });
+    });
+
+    test("Should delete the register, its client and its address in one transaction", async () => {
+      const { sut, prisma } = makeSut();
+      await sut.deleteById(1);
+      expect(prisma.$transaction).toHaveBeenCalledTimes(1);
+      expect(prisma.client.delete).toHaveBeenCalledWith({ where: { id: 2 } });
+      expect(prisma.address.delete).toHaveBeenCalledWith({ where: { id: 3 } });
+    });
+
+    test("Should not delete client or address if register delete fails", async () => {
+      const { sut, prisma } = makeSut();
+      prisma.register.delete.mockRejectedValueOnce(new Error());
+      await expect(sut.deleteById(1)).rejects.toThrow();
+      expect(prisma.client.delete).not.toHaveBeenCalled();
+      expect(prisma.address.delete).not.toHaveBeenCalled();
     });
 
     test("Should return success message", async () => {

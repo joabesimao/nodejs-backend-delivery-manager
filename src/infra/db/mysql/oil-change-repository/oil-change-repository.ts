@@ -24,22 +24,19 @@ export class OilChangeMysqlRepository
     LoadOilChangeLogRepository,
     FindOilChangeLogByIdRepository,
     UpdateOilChangeLogRepository,
-    DeleteOilChangeLogRepository
-{
+    DeleteOilChangeLogRepository {
   constructor(private readonly prisma: PrismaClient) {}
 
   async load(): Promise<OilChangeConfig> {
-    const config = await this.prisma.oilChangeConfig.findUnique({ where: { id: CONFIG_ID } });
-    if (config) {
-      return config;
-    }
-    return this.prisma.oilChangeConfig.create({
-      data: { id: CONFIG_ID, intervalKm: DEFAULT_INTERVAL_KM },
+    return await this.prisma.oilChangeConfig.upsert({
+      where: { id: CONFIG_ID },
+      update: {},
+      create: { id: CONFIG_ID, intervalKm: DEFAULT_INTERVAL_KM },
     });
   }
 
   async upsert(intervalKm: number): Promise<OilChangeConfig> {
-    return this.prisma.oilChangeConfig.upsert({
+    return await this.prisma.oilChangeConfig.upsert({
       where: { id: CONFIG_ID },
       update: { intervalKm },
       create: { id: CONFIG_ID, intervalKm },
@@ -53,7 +50,7 @@ export class OilChangeMysqlRepository
     nextChangeKm: number;
     changeDate: Date;
   }): Promise<OilChangeLog> {
-    return this.prisma.oilChangeLog.create({
+    return await this.prisma.oilChangeLog.create({
       data: {
         vehicleId: data.vehicleId,
         deliverymanId: data.deliverymanId,
@@ -66,14 +63,14 @@ export class OilChangeMysqlRepository
   }
 
   async findLastByVehicle(vehicleId: number): Promise<OilChangeLog | null> {
-    return this.prisma.oilChangeLog.findFirst({
+    return await this.prisma.oilChangeLog.findFirst({
       where: { vehicleId },
       orderBy: [{ changeDate: "desc" }, { id: "desc" }],
     });
   }
 
   async loadAll(params?: LoadOilChangeLogParams): Promise<OilChangeLog[]> {
-    return this.prisma.oilChangeLog.findMany({
+    return await this.prisma.oilChangeLog.findMany({
       where: {
         ...(params?.vehicleId && { vehicleId: params.vehicleId }),
         ...(params?.deliverymanId && { deliverymanId: params.deliverymanId }),
@@ -84,14 +81,14 @@ export class OilChangeMysqlRepository
   }
 
   async findLogById(id: number): Promise<OilChangeLog | null> {
-    return this.prisma.oilChangeLog.findUnique({
+    return await this.prisma.oilChangeLog.findUnique({
       where: { id: Number(id) },
       include: { vehicle: true, deliveryman: true },
     });
   }
 
   async updateLog(id: number, data: UpdateOilChangeLogModel & { nextChangeKm: number }): Promise<OilChangeLog> {
-    return this.prisma.oilChangeLog.update({
+    return await this.prisma.oilChangeLog.update({
       where: { id: Number(id) },
       data: {
         ...(data.vehicleId !== undefined && { vehicleId: data.vehicleId }),
