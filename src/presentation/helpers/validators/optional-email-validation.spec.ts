@@ -33,6 +33,13 @@ describe("Optional email validation", () => {
     expect(error).toEqual(new InvalidParamError("email"));
   });
 
+  test("Should validate null instead of treating it as absent", async () => {
+    const { sut, emailValidatorStub } = makeSut();
+    jest.spyOn(emailValidatorStub, "isValid").mockResolvedValueOnce(false);
+    const error = await sut.validate({ email: null });
+    expect(error).toEqual(new InvalidParamError("email"));
+  });
+
   test("Should return undefined if emailValidator returns true", async () => {
     const { sut } = makeSut();
     const error = await sut.validate({ email: "any_email@email.com" });

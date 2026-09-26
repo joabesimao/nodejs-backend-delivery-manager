@@ -10,7 +10,7 @@ export class OptionalEmailValidation implements Validation {
 
   async validate(input: any): Promise<Error> {
     const value = input[this.fieldName];
-    if (value === undefined || value === null) return;
+    if (value === undefined) return;
 
     if (!(await this.emailValidator.isValid(value))) {
       return new InvalidParamError(this.fieldName);
