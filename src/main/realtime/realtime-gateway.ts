@@ -60,8 +60,7 @@ export const setupRealtimeGateway = (httpServer: HttpServer): void => {
         return;
       }
 
-      const payload = await jwtAdapter.decode(authToken);
-      const accountId = Number(payload?.id || 0);
+      const accountId = Number((await jwtAdapter.decrypt(authToken)) || 0);
 
       if (!accountId) {
         next(new Error("Token invalido"));
@@ -83,6 +82,7 @@ export const setupRealtimeGateway = (httpServer: HttpServer): void => {
           email: true,
           role: true,
           unitStoreId: true,
+          active: true,
         },
       });
 
@@ -91,12 +91,19 @@ export const setupRealtimeGateway = (httpServer: HttpServer): void => {
         return;
       }
 
+      const { active, ...sessionAccount } = account;
+
+      if (active === false) {
+        next(new Error("Conta inativa"));
+        return;
+      }
+
       const networkRoom = scope.rootStoreId
         ? `network:${scope.rootStoreId}`
         : "network:global";
 
       socket.data.session = {
-        account,
+        account: sessionAccount,
         scope,
         networkRoom,
       };

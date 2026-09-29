@@ -6,8 +6,8 @@ jest.mock("jsonwebtoken", () => ({
     return "any_token";
   },
 
-  verify(): { id: string } {
-    return { id: "any_id" };
+  verify(): { id: string; type: string } {
+    return { id: "any_id", type: "access" };
   },
 }));
 
@@ -74,6 +74,24 @@ describe("Jwt Adapter", () => {
       const token = await sut.decrypt("any_value");
       expect(token).toBeNull();
     });
+
+    test("Should return null if verify returns a refresh token payload", async () => {
+      const sut = makeSut();
+      jest
+        .spyOn(jwt, "verify")
+        .mockImplementationOnce(() => ({ id: "any_id", type: "refresh" }));
+      const token = await sut.decrypt("any_value");
+      expect(token).toBeNull();
+    });
+
+    test("Should return null if verify returns a payload without type", async () => {
+      const sut = makeSut();
+      jest
+        .spyOn(jwt, "verify")
+        .mockImplementationOnce(() => ({ id: "any_id" }));
+      const token = await sut.decrypt("any_value");
+      expect(token).toBeNull();
+    });
   });
 
   describe("decode()", () => {
@@ -87,7 +105,7 @@ describe("Jwt Adapter", () => {
     test("Should return the payload on decode success", async () => {
       const sut = makeSut();
       const payload = await sut.decode("any_token");
-      expect(payload).toEqual({ id: "any_id" });
+      expect(payload).toEqual({ id: "any_id", type: "access" });
     });
 
     test("Should return null if verify throws", async () => {

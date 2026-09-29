@@ -125,6 +125,19 @@ describe("RefreshToken Controller", () => {
     expect(revokeSpy).toHaveBeenCalledWith(1, null, null);
   });
 
+  test("Should return 401 and revoke the refresh token if the account is inactive", async () => {
+    const { sut, jwtAdapter, accountRepository } = makeSut();
+    const refreshToken = await jwtAdapter.encrypt("1", { type: "refresh" });
+    jest.spyOn(accountRepository, "loadByToken").mockResolvedValueOnce({
+      ...makeFakeAccount(refreshToken),
+      active: false,
+    });
+    const revokeSpy = jest.spyOn(accountRepository, "updateRefreshToken");
+    const httpResponse = await sut.handle(makeFakeRequest(refreshToken));
+    expect(httpResponse).toEqual(unauthorized());
+    expect(revokeSpy).toHaveBeenCalledWith(1, null, null);
+  });
+
   test("Should return 401 if the stored refresh token has expired", async () => {
     const { sut, jwtAdapter, accountRepository } = makeSut();
     const refreshToken = await jwtAdapter.encrypt("1", { type: "refresh" });

@@ -3,6 +3,7 @@ import {
   CompareFieldsValidation,
   OptionalEmailValidation,
   OptionalFieldTypeValidation,
+  PasswordValidation,
   ValidationComposite,
 } from "../../presentation/helpers/validators";
 import { Validation } from "../../presentation/protocols/validation";
@@ -19,6 +20,7 @@ export const makeUpdateAccountValidation = (): ValidationComposite => {
       "entregador",
       "user",
     ]),
+    new PasswordValidation("password", true),
     new CompareFieldsValidation("password", "passwordConfirmation"),
   ];
   return new ValidationComposite(validations);

@@ -1,6 +1,7 @@
 import {
   ValidationComposite,
   EmailValidation,
+  OptionalFieldTypeValidation,
   RequireFieldsValidation,
 } from "../../presentation/helpers/validators";
 import { Validation } from "../../presentation/protocols/validation";
@@ -12,5 +13,7 @@ export const makeLoginValidation = (): ValidationComposite => {
     validations.push(new RequireFieldsValidation(field));
   }
   validations.push(new EmailValidation("email", new EmailValidatorAdapter()));
+  // Só o tipo: sem tamanho mínimo, para não bloquear contas antigas.
+  validations.push(new OptionalFieldTypeValidation("password", "string"));
   return new ValidationComposite(validations);
 };

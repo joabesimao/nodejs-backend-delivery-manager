@@ -41,6 +41,15 @@ export class RefreshTokenController implements Controller {
         return unauthorized();
       }
 
+      if (account.active === false) {
+        await this.accountRepository.updateRefreshToken(
+          account.id,
+          null,
+          null,
+        );
+        return unauthorized();
+      }
+
       const incomingHash = hashToken(refreshToken);
       const expired =
         !account.refreshTokenExpiresAt ||

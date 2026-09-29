@@ -6,18 +6,19 @@ import { makeAddFuelRefillController } from "../factories/add-fuel-refill";
 import { makeLoadFuelRefillController } from "../factories/load-fuel-refill";
 import { makeUpdateFuelRefillController } from "../factories/update-fuel-refill";
 import { makeDeleteFuelRefillController } from "../factories/delete-fuel-refill";
+import { FIELD_WRITE_ROLES, FLEET_READ_ROLES } from "../config/roles";
 
 const auth = (roles?: string[]) => adaptMiddleware(makeAuthMiddleware(roles));
 
 export default (router: Router): void => {
   router.get(
     "/fuel-refill",
-    auth(["admin", "gerente_estoque", "entregador"]),
+    auth(FLEET_READ_ROLES),
     adaptRoute(makeLoadFuelRefillController())
   );
   router.post(
     "/fuel-refill",
-    auth(["admin", "gerente_estoque", "entregador"]),
+    auth(FIELD_WRITE_ROLES),
     adaptRoute(makeAddFuelRefillController())
   );
   router.put(

@@ -35,7 +35,9 @@ export class JwtAdapter implements Encrypter, Decrypter {
       return null;
     }
 
-    if (!payload?.id) {
+    // Only access tokens may authenticate requests; refresh tokens are
+    // accepted exclusively by the refresh-token flow (via decode()).
+    if (!payload?.id || payload.type !== "access") {
       return null;
     }
 
