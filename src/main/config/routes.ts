@@ -1,14 +1,20 @@
 import { Express, Router } from "express";
-import fg from "fast-glob";
+import mainRoutes from "../routes/routes";
+import vehicleRoutes from "../routes/vehicle-routes";
+import fuelRefillRoutes from "../routes/fuel-refill-routes";
+import oilChangeRoutes from "../routes/oil-change-routes";
+
+// Imports estáticos: funcionam tanto em TS (dev) quanto no JS compilado (dist)
+// e garantem que todas as rotas existam antes do servidor aceitar requisições.
+const routeModules = [
+  mainRoutes,
+  vehicleRoutes,
+  fuelRefillRoutes,
+  oilChangeRoutes,
+];
 
 export default (app: Express): void => {
   const router = Router();
   app.use("/api", router);
-  fg.sync("**/src/main/routes/**routes.ts").forEach((file) => {
-    import(`../../../${file}`)
-      .then((routeModule) => routeModule.default(router))
-      .catch((error) => {
-        console.error(`[routes] Falha ao carregar rotas de ${file}:`, error);
-      });
-  });
+  routeModules.forEach((registerRoutes) => registerRoutes(router));
 };

@@ -7,7 +7,7 @@
   },
   "scripts": {
     "prepare": "husky",
-    "start": "node dist/main/server.js ",
+    "start": "node dist/src/main/server.js",
     "build": "rimraf dist && tsc",
     "dev": "nodemon",
     "dev:once": "sucrase-node src/main/server.ts",
