@@ -6,4 +6,5 @@ export interface UpdateOrderDeliveryModel {
   status?: OrderStatus;
   deliverymanId?: number;
   accountId?: number;
+  accountRole?: string;
 }

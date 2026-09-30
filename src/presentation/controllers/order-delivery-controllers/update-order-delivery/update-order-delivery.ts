@@ -1,6 +1,12 @@
 import { UpdateOrderDelivery } from "../../../../domain/usescases/order-delivery/update-order-delivery";
-import { badRequest, ok, serverError } from "../../../helpers/http/http-helper";
+import {
+  badRequest,
+  forbidden,
+  ok,
+  serverError,
+} from "../../../helpers/http/http-helper";
 import { InvalidParamError } from "../../../errors/invalid-params-error";
+import { OrderFieldChangeDeniedError } from "../../../errors/order-field-change-denied-error";
 import { Controller } from "../../../protocols/controller";
 import { HttpRequest, HttpResponse } from "../../../protocols/http";
 
@@ -47,9 +53,11 @@ export class UpdateOrderDeliveryController implements Controller {
         return badRequest(new InvalidParamError("id"));
       }
 
+      // accountId/accountRole vêm do token (auth), nunca do corpo.
       const requestBody: Record<string, unknown> = {
         ...httpRequest.body,
         accountId,
+        accountRole: httpRequest.headers?.accountRole,
       };
 
       if (requestBody.amount !== undefined) {
@@ -78,6 +86,9 @@ export class UpdateOrderDeliveryController implements Controller {
       );
       return ok(updateOrderDelivery);
     } catch (error) {
+      if (error instanceof OrderFieldChangeDeniedError) {
+        return forbidden(error);
+      }
       return serverError(error);
     }
   }
