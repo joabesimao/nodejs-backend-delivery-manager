@@ -186,7 +186,7 @@ export default (router: Router): void => {
       });
     } catch (error) {
       console.error("[dashboard/overview] Erro ao carregar dados:", error);
-      res.status(500).json({ error: "Falha ao carregar dados do dashboard", details: String(error) });
+      res.status(500).json({ error: "Falha ao carregar dados do dashboard" });
     }
   });
 
@@ -270,7 +270,7 @@ export default (router: Router): void => {
       console.error("[dashboard/performance] Erro ao carregar dados:", error);
       res
         .status(500)
-        .json({ error: "Falha ao carregar desempenho do dashboard", details: String(error) });
+        .json({ error: "Falha ao carregar desempenho do dashboard" });
     }
   });
 

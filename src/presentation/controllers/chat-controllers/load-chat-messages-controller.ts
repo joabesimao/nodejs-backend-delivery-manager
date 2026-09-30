@@ -83,7 +83,7 @@ export class LoadChatMessagesController implements Controller {
       console.error("LoadChatMessagesController error:", error);
       return {
         statusCode: 500,
-        body: { error: "Falha ao carregar mensagens", details: String(error) },
+        body: { error: "Falha ao carregar mensagens" },
       };
     }
   }

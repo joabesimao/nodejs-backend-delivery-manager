@@ -183,13 +183,13 @@ describe("LoadChatMessages Controller", () => {
     });
   });
 
-  test("Should return 500 with details if prisma throws", async () => {
+  test("Should return 500 without internal details if prisma throws", async () => {
     (prisma.chatMessage.findMany as jest.Mock).mockRejectedValueOnce(new Error("boom"));
     const sut = makeSut();
     const httpResponse = await sut.handle(makeFakeRequest());
     expect(httpResponse).toEqual({
       statusCode: 500,
-      body: { error: "Falha ao carregar mensagens", details: String(new Error("boom")) },
+      body: { error: "Falha ao carregar mensagens" },
     });
   });
 });
