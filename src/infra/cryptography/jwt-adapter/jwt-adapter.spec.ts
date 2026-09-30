@@ -28,6 +28,28 @@ describe("Jwt Adapter", () => {
       );
     });
 
+    test("Should add a random jwtid when signing a refresh token", async () => {
+      const sut = makeSut();
+      const signSpy = jest.spyOn(jwt, "sign");
+      await sut.encrypt("any_value", { type: "refresh", expiresIn: "7d" });
+      expect(signSpy).toHaveBeenLastCalledWith(
+        { id: "any_value", type: "refresh" },
+        "secret",
+        { expiresIn: "7d", jwtid: expect.any(String) }
+      );
+    });
+
+    test("Should not add a jwtid when signing an access token", async () => {
+      const sut = makeSut();
+      const signSpy = jest.spyOn(jwt, "sign");
+      await sut.encrypt("any_value", { type: "access", expiresIn: "15m" });
+      expect(signSpy).toHaveBeenLastCalledWith(
+        { id: "any_value", type: "access" },
+        "secret",
+        { expiresIn: "15m" }
+      );
+    });
+
     test("Should return a token on sign success", async () => {
       const sut = makeSut();
       const token = await sut.encrypt("any_value");

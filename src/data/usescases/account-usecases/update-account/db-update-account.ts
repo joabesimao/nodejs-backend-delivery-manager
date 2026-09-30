@@ -10,6 +10,7 @@ import { FindAccountByEmailRepository } from "../../../protocols/db/account/find
 import { Hasher } from "../../../protocols/criptography/hasher";
 import { CountActiveAdminsRepository } from "../../../protocols/db/account/count-active-admins-repository";
 import { LoadAccountByIdRepository } from "../../../protocols/db/account/load-account-by-id-repository";
+import { UpdateRefreshTokenRepository } from "../../../protocols/db/access-token-repository/update-refresh-token-repository";
 import { UpdateAccountRepository } from "../../../protocols/db/account/update-account-repository";
 
 export class DbUpdateAccount implements UpdateAccount {
@@ -19,6 +20,7 @@ export class DbUpdateAccount implements UpdateAccount {
     private readonly countActiveAdminsRepository: CountActiveAdminsRepository,
     private readonly updateAccountRepository: UpdateAccountRepository,
     private readonly hasher: Hasher,
+    private readonly updateRefreshTokenRepository: UpdateRefreshTokenRepository,
   ) {}
 
   async update(
@@ -60,9 +62,16 @@ export class DbUpdateAccount implements UpdateAccount {
       ? await this.hasher.hash(data.password)
       : undefined;
 
-    return await this.updateAccountRepository.updateById(id, {
+    const updated = await this.updateAccountRepository.updateById(id, {
       ...data,
       password,
     });
+
+    // Troca de senha ou desativação encerra as sessões existentes.
+    if (password || data.active === false) {
+      await this.updateRefreshTokenRepository.updateRefreshToken(id, null, null);
+    }
+
+    return updated;
   }
 }

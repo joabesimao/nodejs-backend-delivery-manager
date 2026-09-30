@@ -1,5 +1,6 @@
 import { JwtAdapter } from "../../../../infra/cryptography/jwt-adapter/jwt-adapter";
 import { AccountMySqlRepository } from "../../../../infra/db/mysql/account-repository/account-repository";
+import { AccountModel } from "../../../../domain/models/account/account-model";
 import { hashToken } from "../../../../utils/hash-token";
 import {
   badRequest,
@@ -10,6 +11,10 @@ import {
 import { Controller } from "../../../protocols/controller";
 import { HttpRequest, HttpResponse } from "../../../protocols/http";
 import { Validation } from "../../../protocols/validation";
+
+// Janela em que o refresh token anterior ainda é aceito após a rotação,
+// para requisições concorrentes (várias abas) não derrubarem a sessão.
+export const REFRESH_TOKEN_GRACE_PERIOD_MS = 30 * 1000;
 
 export class RefreshTokenController implements Controller {
   constructor(
@@ -42,61 +47,83 @@ export class RefreshTokenController implements Controller {
       }
 
       if (account.active === false) {
-        await this.accountRepository.updateRefreshToken(
-          account.id,
-          null,
-          null,
-        );
+        await this.revoke(account.id);
         return unauthorized();
       }
 
       const incomingHash = hashToken(refreshToken);
-      const expired =
-        !account.refreshTokenExpiresAt ||
-        account.refreshTokenExpiresAt.getTime() < Date.now();
 
-      if (
-        !account.refreshTokenHash ||
-        account.refreshTokenHash !== incomingHash ||
-        expired
-      ) {
-        // Unknown, mismatched (already rotated) or expired refresh token:
-        // revoke defensively to stop any further use of this account's chain.
-        await this.accountRepository.updateRefreshToken(
-          account.id,
-          null,
-          null,
+      if (account.refreshTokenHash && account.refreshTokenHash === incomingHash) {
+        const expired =
+          !account.refreshTokenExpiresAt ||
+          account.refreshTokenExpiresAt.getTime() < Date.now();
+        if (expired) {
+          await this.revoke(account.id);
+          return unauthorized();
+        }
+
+        const accessToken = await this.issueAccessToken(account.id);
+        const newRefreshToken = await this.jwtAdapter.encrypt(
+          String(account.id),
+          {
+            type: "refresh",
+            expiresIn: this.refreshTokenExpiresIn,
+          },
         );
-        return unauthorized();
+        const decoded = await this.jwtAdapter.decode(newRefreshToken);
+        const newExpiresAt = decoded?.exp ? new Date(decoded.exp * 1000) : null;
+
+        const rotated = await this.accountRepository.rotateRefreshToken(
+          account.id,
+          incomingHash,
+          hashToken(newRefreshToken),
+          newExpiresAt,
+        );
+
+        if (rotated) {
+          return ok({ accessToken, refreshToken: newRefreshToken });
+        }
+
+        // Outra requisição concorrente (ex.: outra aba) rotacionou primeiro:
+        // devolve só o access token e mantém o refresh token que ela gravou.
+        return ok({ accessToken });
       }
 
-      const accessToken = await this.jwtAdapter.encrypt(String(account.id), {
-        type: "access",
-        expiresIn: this.accessTokenExpiresIn,
-      });
+      if (this.isWithinGracePeriod(account, incomingHash)) {
+        // Token anterior reapresentado logo após a rotação (corrida entre abas).
+        return ok({ accessToken: await this.issueAccessToken(account.id) });
+      }
 
-      const newRefreshToken = await this.jwtAdapter.encrypt(
-        String(account.id),
-        {
-          type: "refresh",
-          expiresIn: this.refreshTokenExpiresIn,
-        },
-      );
-
-      const decoded = await this.jwtAdapter.decode(newRefreshToken);
-      const newExpiresAt = decoded?.exp ? new Date(decoded.exp * 1000) : null;
-      await this.accountRepository.updateRefreshToken(
-        account.id,
-        hashToken(newRefreshToken),
-        newExpiresAt,
-      );
-
-      return ok({
-        accessToken,
-        refreshToken: newRefreshToken,
-      });
+      // Token desconhecido ou reutilizado fora da janela de tolerância:
+      // possível roubo, revoga a cadeia inteira.
+      await this.revoke(account.id);
+      return unauthorized();
     } catch (error) {
       return serverError(error);
     }
+  }
+
+  private isWithinGracePeriod(
+    account: AccountModel,
+    incomingHash: string,
+  ): boolean {
+    return (
+      !!account.previousRefreshTokenHash &&
+      account.previousRefreshTokenHash === incomingHash &&
+      !!account.refreshTokenRotatedAt &&
+      Date.now() - account.refreshTokenRotatedAt.getTime() <=
+        REFRESH_TOKEN_GRACE_PERIOD_MS
+    );
+  }
+
+  private async issueAccessToken(accountId: number): Promise<string> {
+    return await this.jwtAdapter.encrypt(String(accountId), {
+      type: "access",
+      expiresIn: this.accessTokenExpiresIn,
+    });
+  }
+
+  private async revoke(accountId: number): Promise<void> {
+    await this.accountRepository.updateRefreshToken(accountId, null, null);
   }
 }

@@ -3,6 +3,7 @@ import {
   EncryptOptions,
   Encrypter,
 } from "../../../data/protocols/criptography/encrypter";
+import { randomUUID } from "crypto";
 import jwt, { SignOptions } from "jsonwebtoken";
 import { Decrypter } from "../../../data/protocols/criptography/decrypter";
 
@@ -12,9 +13,14 @@ export class JwtAdapter implements Encrypter, Decrypter {
   constructor(private readonly secret: string) {}
 
   async encrypt(value: string, options?: EncryptOptions): Promise<string> {
-    const signOptions: SignOptions | undefined = options?.expiresIn
-      ? { expiresIn: options.expiresIn as SignOptions["expiresIn"] }
-      : undefined;
+    const signOptions: SignOptions = {
+      ...(options?.expiresIn && {
+        expiresIn: options.expiresIn as SignOptions["expiresIn"],
+      }),
+      // jti aleatório: sem ele, dois refresh tokens emitidos no mesmo segundo
+      // seriam idênticos e a detecção de reuso não os distinguiria.
+      ...(options?.type === "refresh" && { jwtid: randomUUID() }),
+    };
 
     return jwt.sign(
       {
@@ -22,7 +28,7 @@ export class JwtAdapter implements Encrypter, Decrypter {
         type: options?.type ?? "access",
       },
       this.secret,
-      signOptions,
+      Object.keys(signOptions).length ? signOptions : undefined,
     );
   }
 
