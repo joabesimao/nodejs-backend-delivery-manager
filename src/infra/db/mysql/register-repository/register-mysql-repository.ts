@@ -10,6 +10,7 @@ import { UpdateRegisterRepository } from "../../../../data/protocols/db/register
 import { LoadRegisterModel } from "../../../../domain/models/register/register-load-model";
 import { RegisterModel } from "../../../../domain/models/register/register-model";
 import { AddRegisterModel } from "../../../../domain/usescases/register/add-register";
+import { onlyDigits } from "../helpers/only-digits";
 import { pickDefined } from "../helpers/pick-defined";
 
 const REGISTER_INCLUDE = { client: true, address: true } as const;
@@ -30,7 +31,7 @@ export class RegisterMySqlRepository
         client: {
           create: {
             name: dataInfo.client.name,
-            cpf: dataInfo.client.cpf,
+            cpf: onlyDigits(dataInfo.client.cpf),
             phone: dataInfo.client.phone,
           },
         },
@@ -86,7 +87,7 @@ export class RegisterMySqlRepository
           update: {
             data: {
               ...clientData,
-              ...(cpf !== undefined && { cpf: cpf.replace(/\D/g, "") }),
+              ...(cpf !== undefined && { cpf: onlyDigits(cpf) }),
             },
           },
         },
