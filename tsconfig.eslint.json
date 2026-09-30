@@ -1,5 +1,5 @@
 {
   "extends": "./tsconfig.json",
-  "include": ["src", "config"],
+  "include": ["src", "config", "prisma/seed.ts"],
   "exclude": []
 }

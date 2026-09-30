@@ -41,7 +41,7 @@ export const setupRealtimeGateway = (httpServer: HttpServer): void => {
   const io = new Server(httpServer, {
     path: "/socket.io",
     cors: {
-      origin: "*",
+      origin: env.CORS_ORIGINS ?? "*",
       methods: ["GET", "POST"],
     },
   });

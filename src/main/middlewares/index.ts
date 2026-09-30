@@ -2,3 +2,4 @@ export * from "./body-parser";
 export * from "./content-type";
 export * from "./cors";
 export * from "./rate-limit";
+export * from "./error-handler";
