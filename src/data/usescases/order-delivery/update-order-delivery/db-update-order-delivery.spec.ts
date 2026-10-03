@@ -3,7 +3,10 @@ import { OrderDeliveryModel } from "../../../../domain/models/order-delivery/ord
 import { UpdateOrderDeliveryModel } from "../../../../domain/models/order-delivery/update-order-delivery";
 import { UpdateOrderDeliveryRepository } from "../../../protocols/db/order-delivery/update-order-delivery";
 import { LoadOrderDeliveryByIdRepository } from "../../../protocols/db/order-delivery/load-order-delivery";
-import { OrderFieldChangeDeniedError } from "../../../../presentation/errors";
+import {
+  OrderFieldChangeDeniedError,
+  OrderStatusTransitionError,
+} from "../../../../presentation/errors";
 
 const makeFakeUpdateOrderDelivery = (): UpdateOrderDeliveryModel => ({
   amount: 1,
@@ -182,13 +185,56 @@ describe("DbUpdateOrderDelivery", () => {
     });
   });
 
-  test("Should not check restricted fields for other roles", async () => {
-    const { sut, loadOrderDeliveryByIdRepositoryStub } = makeSut();
-    const loadSpy = jest.spyOn(
-      loadOrderDeliveryByIdRepositoryStub,
-      "getOneOrderOfDelivery"
-    );
-    await sut.update(2, { amount: 1, quantity: "1", deliverymanId: 8, accountRole: "user" });
-    expect(loadSpy).not.toHaveBeenCalled();
+  test("Should allow other roles to change amount and deliveryman", async () => {
+    const { sut, updateOrderDeliveryRepositoryStub } = makeSut();
+    const updateSpy = jest.spyOn(updateOrderDeliveryRepositoryStub, "updateOrder");
+    const info: UpdateOrderDeliveryModel = {
+      amount: 1,
+      quantity: "1",
+      deliverymanId: 8,
+      accountRole: "user",
+    };
+    await sut.update(2, info);
+    expect(updateSpy).toHaveBeenCalledWith(2, info);
+  });
+
+  describe("status transitions", () => {
+    const mockCurrentStatus = (
+      stub: LoadOrderDeliveryByIdRepository,
+      status: OrderDeliveryModel["status"]
+    ): void => {
+      jest
+        .spyOn(stub, "getOneOrderOfDelivery")
+        .mockResolvedValueOnce({ ...makeCurrentOrder(), status });
+    };
+
+    test.each([
+      ["actived", "delivered"],
+      ["actived", "finished"],
+      ["delivered", "finished"],
+      ["delivered", "delivered"],
+    ] as const)("Should allow %s -> %s", async (from, to) => {
+      const { sut, loadOrderDeliveryByIdRepositoryStub, updateOrderDeliveryRepositoryStub } = makeSut();
+      mockCurrentStatus(loadOrderDeliveryByIdRepositoryStub, from);
+      const updateSpy = jest.spyOn(updateOrderDeliveryRepositoryStub, "updateOrder");
+      await sut.update(2, { status: to, accountRole: "admin" });
+      expect(updateSpy).toHaveBeenCalled();
+    });
+
+    test.each([
+      ["delivered", "actived"],
+      ["finished", "actived"],
+      ["finished", "delivered"],
+      ["finished", "finished"],
+      ["finished", undefined],
+    ] as const)("Should reject %s -> %s", async (from, to) => {
+      const { sut, loadOrderDeliveryByIdRepositoryStub, updateOrderDeliveryRepositoryStub } = makeSut();
+      mockCurrentStatus(loadOrderDeliveryByIdRepositoryStub, from);
+      const updateSpy = jest.spyOn(updateOrderDeliveryRepositoryStub, "updateOrder");
+      await expect(
+        sut.update(2, { status: to, quantity: "3", accountRole: "admin" })
+      ).rejects.toThrow(OrderStatusTransitionError);
+      expect(updateSpy).not.toHaveBeenCalled();
+    });
   });
 });

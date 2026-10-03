@@ -9,3 +9,4 @@ export * from "./invalid-km-error";
 export * from "./vehicle-in-use-error";
 export * from "./weak-password-error";
 export * from "./order-field-change-denied-error";
+export * from "./order-status-transition-error";

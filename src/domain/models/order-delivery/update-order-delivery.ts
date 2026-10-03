@@ -1,8 +1,8 @@
 import { OrderStatus } from "./order-delivery";
 
 export interface UpdateOrderDeliveryModel {
-  quantity: string;
-  amount: number;
+  quantity?: string;
+  amount?: number;
   status?: OrderStatus;
   deliverymanId?: number;
   accountId?: number;

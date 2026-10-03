@@ -2,8 +2,18 @@ import { UpdateOrderDeliveryController } from "./update-order-delivery";
 import { UpdateOrderDelivery } from "../../../../domain/usescases/order-delivery/update-order-delivery";
 import { OrderDeliveryModel } from "../../../../domain/models/order-delivery/order-delivery";
 import { UpdateOrderDeliveryModel } from "../../../../domain/models/order-delivery/update-order-delivery";
-import { OrderFieldChangeDeniedError } from "../../../errors";
-import { forbidden, ok, serverError } from "../../../helpers/http/http-helper";
+import {
+  InvalidParamError,
+  OrderFieldChangeDeniedError,
+  OrderStatusTransitionError,
+} from "../../../errors";
+import {
+  badRequest,
+  conflict,
+  forbidden,
+  ok,
+  serverError,
+} from "../../../helpers/http/http-helper";
 import { HttpRequest } from "../../../protocols/http";
 
 const makeFakeOrder = (): OrderDeliveryModel =>
@@ -50,6 +60,49 @@ describe("UpdateOrderDelivery Controller", () => {
     const sut = new UpdateOrderDeliveryController(updateOrderDelivery);
     const httpResponse = await sut.handle(makeRequest({ amount: 1 }));
     expect(httpResponse).toEqual(forbidden(new OrderFieldChangeDeniedError()));
+  });
+
+  test("Should return 409 if the usecase denies the status transition", async () => {
+    const updateOrderDelivery = makeUpdateOrderDelivery();
+    const error = new OrderStatusTransitionError("finished");
+    jest.spyOn(updateOrderDelivery, "update").mockRejectedValueOnce(error);
+    const sut = new UpdateOrderDeliveryController(updateOrderDelivery);
+    const httpResponse = await sut.handle(makeRequest());
+    expect(httpResponse).toEqual(conflict(error));
+  });
+
+  test.each(["canceled", "", null, 1])(
+    "Should return 400 if status is %p",
+    async (status) => {
+      const updateOrderDelivery = makeUpdateOrderDelivery();
+      const updateSpy = jest.spyOn(updateOrderDelivery, "update");
+      const sut = new UpdateOrderDeliveryController(updateOrderDelivery);
+      const httpResponse = await sut.handle(makeRequest({ status }));
+      expect(httpResponse).toEqual(badRequest(new InvalidParamError("status")));
+      expect(updateSpy).not.toHaveBeenCalled();
+    }
+  );
+
+  test.each(["", "   ", null, {}])(
+    "Should return 400 if quantity is %p",
+    async (quantity) => {
+      const sut = new UpdateOrderDeliveryController(makeUpdateOrderDelivery());
+      const httpResponse = await sut.handle(makeRequest({ quantity }));
+      expect(httpResponse).toEqual(
+        badRequest(new InvalidParamError("quantity"))
+      );
+    }
+  );
+
+  test("Should normalize quantity to a trimmed string", async () => {
+    const updateOrderDelivery = makeUpdateOrderDelivery();
+    const updateSpy = jest.spyOn(updateOrderDelivery, "update");
+    const sut = new UpdateOrderDeliveryController(updateOrderDelivery);
+    await sut.handle(makeRequest({ quantity: 3 }));
+    expect(updateSpy).toHaveBeenCalledWith(
+      1,
+      expect.objectContaining({ quantity: "3" }) as UpdateOrderDeliveryModel
+    );
   });
 
   test("Should return 500 on unexpected errors", async () => {
