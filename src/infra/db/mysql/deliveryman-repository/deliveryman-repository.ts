@@ -5,6 +5,10 @@ import { LoadDeliverymanRepository } from "../../../../data/protocols/db/deliver
 import { UpdateDeliverymanRepository } from "../../../../data/protocols/db/deliveryman/update-deliveryman";
 import { Deliveryman } from "../../../../domain/models/deliveryman/deliveryman-model";
 import { AddDeliverymanModel } from "../../../../domain/usescases/deliveryman/add-deliveryman";
+import { onlyDigits } from "../helpers/only-digits";
+
+const normalizeCpf = (cpf?: string | null): string | null =>
+  (cpf && onlyDigits(cpf)) || null;
 
 export class DeliverymanMysqlRepository
   implements LoadDeliverymanRepository, AddDeliverymanRepository, UpdateDeliverymanRepository, DeleteDeliverymanRepository {
@@ -29,7 +33,7 @@ export class DeliverymanMysqlRepository
         lastName: deliveryman.lastName,
         numberQualification: deliveryman.numberQualification,
         phone: deliveryman.phone,
-        cpf: deliveryman.cpf || null,
+        cpf: normalizeCpf(deliveryman.cpf),
       },
     });
   }
@@ -42,7 +46,7 @@ export class DeliverymanMysqlRepository
         ...(data.lastName && { lastName: data.lastName }),
         ...(data.phone && { phone: data.phone }),
         ...(data.numberQualification && { numberQualification: data.numberQualification }),
-        ...(data.cpf !== undefined && { cpf: data.cpf || null }),
+        ...(data.cpf !== undefined && { cpf: normalizeCpf(data.cpf) }),
       },
     });
   }

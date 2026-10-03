@@ -1,6 +1,7 @@
 import { Prisma, PrismaClient } from "@prisma/client";
 import { UpdateAccessTokenRepository } from "../../../../data/protocols/db/access-token-repository/update-access-token-repository";
 import { UpdateRefreshTokenRepository } from "../../../../data/protocols/db/access-token-repository/update-refresh-token-repository";
+import { RotateRefreshTokenRepository } from "../../../../data/protocols/db/access-token-repository/rotate-refresh-token-repository";
 import { DeleteAccountRepository } from "../../../../data/protocols/db/account/delete-account-repository";
 import { FindAccountByEmailRepository } from "../../../../data/protocols/db/account/find-account-by-email-repository";
 import { LoadAccountByTokenRepository } from "../../../../data/protocols/db/account/load-account-by-token-repository";
@@ -27,6 +28,7 @@ export class AccountMySqlRepository
     FindAccountByEmailRepository,
     UpdateAccessTokenRepository,
     UpdateRefreshTokenRepository,
+    RotateRefreshTokenRepository,
     LoadAccountByTokenRepository,
     DeleteAccountRepository,
     LoadAccountsRepository,
@@ -59,8 +61,31 @@ export class AccountMySqlRepository
   ): Promise<void> {
     await this.prisma.account.update({
       where: { id },
-      data: { refreshTokenHash, refreshTokenExpiresAt: expiresAt },
+      data: {
+        refreshTokenHash,
+        refreshTokenExpiresAt: expiresAt,
+        previousRefreshTokenHash: null,
+        refreshTokenRotatedAt: null,
+      },
     });
+  }
+
+  async rotateRefreshToken(
+    id: number,
+    currentHash: string,
+    newHash: string,
+    expiresAt: Date | null
+  ): Promise<boolean> {
+    const { count } = await this.prisma.account.updateMany({
+      where: { id, refreshTokenHash: currentHash },
+      data: {
+        refreshTokenHash: newHash,
+        refreshTokenExpiresAt: expiresAt,
+        previousRefreshTokenHash: currentHash,
+        refreshTokenRotatedAt: new Date(),
+      },
+    });
+    return count === 1;
   }
 
   async loadAccountByEmail(email: string): Promise<AccountModel> {

@@ -21,4 +21,19 @@ describe("Require fields validation", () => {
     });
     expect(error).toBeFalsy();
   });
+
+  test.each([null, "", "   "])(
+    "Should return a MissingParamError if field is %p",
+    (value) => {
+      const sut = makeSut();
+      expect(sut.validate({ field: value })).toEqual(
+        new MissingParamError("field")
+      );
+    }
+  );
+
+  test.each([0, false])("Should not return if field is %p", (value) => {
+    const sut = makeSut();
+    expect(sut.validate({ field: value })).toBeFalsy();
+  });
 });

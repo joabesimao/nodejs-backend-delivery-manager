@@ -2,8 +2,22 @@ import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcrypt";
 
 const prisma = new PrismaClient();
-const DEFAULT_ADMIN_EMAIL = "admin@fastone.local";
-const DEFAULT_ADMIN_PASSWORD = "12345678";
+const DEFAULT_ADMIN_EMAIL = process.env.SEED_ADMIN_EMAIL || "admin@fastone.local";
+// Senha de demonstração: só vale fora de produção.
+const DEMO_ADMIN_PASSWORD = "12345678";
+
+const resolveAdminPassword = (): string => {
+  const password = process.env.SEED_ADMIN_PASSWORD;
+  if (password) {
+    return password;
+  }
+  if (process.env.NODE_ENV === "production") {
+    throw new Error(
+      "Defina SEED_ADMIN_PASSWORD para rodar o seed em produção (a senha de demonstração não é permitida).",
+    );
+  }
+  return DEMO_ADMIN_PASSWORD;
+};
 
 const initialClients = [
   {
@@ -73,14 +87,15 @@ const initialNeighborhoods = [
 async function main() {
   console.log("🌱 Iniciando seed...");
 
-  const adminPasswordHash = await bcrypt.hash(DEFAULT_ADMIN_PASSWORD, 12);
-
   const existingAdmin = await prisma.account.findUnique({
     where: { email: DEFAULT_ADMIN_EMAIL },
     select: { id: true },
   });
 
+  // Nunca altera um admin existente: rodar o seed de novo não pode
+  // redefinir a senha de uma conta em uso.
   if (!existingAdmin) {
+    const adminPasswordHash = await bcrypt.hash(resolveAdminPassword(), 12);
     await prisma.account.create({
       data: {
         name: "Administrador",
@@ -91,15 +106,7 @@ async function main() {
     });
     console.log("✅ Conta admin padrão criada");
   } else {
-    await prisma.account.update({
-      where: { email: DEFAULT_ADMIN_EMAIL },
-      data: {
-        name: "Administrador",
-        password: adminPasswordHash,
-        role: "admin",
-      },
-    });
-    console.log("✅ Conta admin padrão atualizada");
+    console.log("ℹ️  Conta admin padrão já existe, mantida sem alterações");
   }
 
   // Seed de cidades

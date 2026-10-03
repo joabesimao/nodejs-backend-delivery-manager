@@ -55,6 +55,14 @@ import { makeUpdateProductController } from "../factories/update-product";
 import { makeDeleteProductController } from "../factories/delete-product";
 import { makeLogoutController } from "../factories/logout-factory";
 import { makeAddStaffAccountController } from "../factories/add-staff-account";
+import {
+  ADMIN_ROLES,
+  CATALOG_READ_ROLES,
+  DASHBOARD_READ_ROLES,
+  FIELD_WRITE_ROLES,
+  OPERATOR_WRITE_ROLES,
+} from "../config/roles";
+import { loginRateLimit, refreshRateLimit } from "../middlewares";
 
 const auth = (roles?: string[]) => adaptMiddleware(makeAuthMiddleware(roles));
 
@@ -71,7 +79,7 @@ export default (router: Router): void => {
     auth(),
     adaptRoute(makeLoadOrderDeliveryRankingController()),
   );
-  router.get("/dashboard/overview", auth(), async (req, res) => {
+  router.get("/dashboard/overview", auth(DASHBOARD_READ_ROLES), async (req, res) => {
     try {
       const startDateParam =
         typeof req.query.startDate === "string" ? req.query.startDate : undefined;
@@ -178,11 +186,11 @@ export default (router: Router): void => {
       });
     } catch (error) {
       console.error("[dashboard/overview] Erro ao carregar dados:", error);
-      res.status(500).json({ error: "Falha ao carregar dados do dashboard", details: String(error) });
+      res.status(500).json({ error: "Falha ao carregar dados do dashboard" });
     }
   });
 
-  router.get("/dashboard/performance", auth(), async (req, res) => {
+  router.get("/dashboard/performance", auth(DASHBOARD_READ_ROLES), async (req, res) => {
     try {
       const now = new Date();
       const defaultEnd = new Date(now);
@@ -262,11 +270,11 @@ export default (router: Router): void => {
       console.error("[dashboard/performance] Erro ao carregar dados:", error);
       res
         .status(500)
-        .json({ error: "Falha ao carregar desempenho do dashboard", details: String(error) });
+        .json({ error: "Falha ao carregar desempenho do dashboard" });
     }
   });
 
-  router.get("/dashboard/reports", auth(), async (req, res) => {
+  router.get("/dashboard/reports", auth(DASHBOARD_READ_ROLES), async (req, res) => {
     try {
       const startDateParam =
         typeof req.query.startDate === "string" ? req.query.startDate : undefined;
@@ -447,31 +455,39 @@ export default (router: Router): void => {
     adaptRoute(makeLoadOrderByIdController()),
   );
   router.get("/client/:id", auth(), adaptRoute(makeLoadOneClientController()));
-  router.get("/city", auth(), adaptRoute(makeLoadCityController()));
+  router.get(
+    "/city",
+    auth(CATALOG_READ_ROLES),
+    adaptRoute(makeLoadCityController()),
+  );
   router.get(
     "/neighborhood",
-    auth(),
+    auth(CATALOG_READ_ROLES),
     adaptRoute(makeLoadNeighborhoodController()),
   );
   router.get(
     "/deliveryman",
-    auth(),
+    auth(CATALOG_READ_ROLES),
     adaptRoute(makeLoadDeliverymanController()),
   );
-  router.get("/product", auth(), adaptRoute(makeLoadProductController()));
+  router.get(
+    "/product",
+    auth(CATALOG_READ_ROLES),
+    adaptRoute(makeLoadProductController()),
+  );
   router.get(
     "/product/:id",
-    auth(),
+    auth(CATALOG_READ_ROLES),
     adaptRoute(makeLoadOneProductController()),
   );
   router.post(
     "/city",
-    auth(["admin", "gerente_estoque"]),
+    auth(OPERATOR_WRITE_ROLES),
     adaptRoute(makeAddCityController()),
   );
   router.post(
     "/neighborhood",
-    auth(["admin", "gerente_estoque"]),
+    auth(OPERATOR_WRITE_ROLES),
     adaptRoute(makeAddNeighborhoodController()),
   );
   router.post(
@@ -481,12 +497,12 @@ export default (router: Router): void => {
   );
   router.post(
     "/product",
-    auth(["admin", "gerente_estoque"]),
+    auth(OPERATOR_WRITE_ROLES),
     adaptRoute(makeAddProductController()),
   );
   router.post(
     "/register",
-    auth(["admin", "gerente_estoque"]),
+    auth(OPERATOR_WRITE_ROLES),
     adaptRoute(makeAddRegisterController()),
   );
 
@@ -495,8 +511,7 @@ export default (router: Router): void => {
    * /signup:
    *   post:
    *     tags: [Auth]
-   *     summary: Cria uma conta pública (sempre com role "user")
-   *     security: []
+   *     summary: Cria uma conta com role "user" (somente admin)
    *     requestBody:
    *       required: true
    *       content:
@@ -529,7 +544,12 @@ export default (router: Router): void => {
    *       403:
    *         description: E-mail já em uso
    */
-  router.post("/signup", adaptRoute(makeSignupController()));
+  router.post(
+    "/signup",
+    loginRateLimit,
+    auth(ADMIN_ROLES),
+    adaptRoute(makeSignupController()),
+  );
 
   /**
    * @swagger
@@ -568,7 +588,11 @@ export default (router: Router): void => {
    *       401:
    *         description: Credenciais inválidas
    */
-  router.post("/login", adaptRoute(makeLoginController()));
+  router.post(
+    "/login",
+    loginRateLimit,
+    adaptRoute(makeLoginController()),
+  );
 
   /**
    * @swagger
@@ -604,7 +628,11 @@ export default (router: Router): void => {
    *       401:
    *         description: Refresh token inválido, expirado ou já utilizado
    */
-  router.post("/refresh-token", adaptRoute(makeRefreshTokenController()));
+  router.post(
+    "/refresh-token",
+    refreshRateLimit,
+    adaptRoute(makeRefreshTokenController()),
+  );
 
   /**
    * @swagger
@@ -691,32 +719,32 @@ export default (router: Router): void => {
 
   router.post(
     "/orderDelivery",
-    auth(["admin", "gerente_estoque"]),
+    auth(OPERATOR_WRITE_ROLES),
     adaptRoute(makeAddOrderDeliveryController()),
   );
   router.post(
     "/orderDelivery/:id",
-    auth(["admin", "gerente_estoque"]),
+    auth(OPERATOR_WRITE_ROLES),
     adaptRoute(makeAddOrderDeliveryController()),
   );
   router.put(
     "/register/:id",
-    auth(["admin", "gerente_estoque"]),
+    auth(OPERATOR_WRITE_ROLES),
     adaptRoute(makeUpdateRegisterController()),
   );
   router.put(
     "/client/:id",
-    auth(["admin", "gerente_estoque"]),
+    auth(OPERATOR_WRITE_ROLES),
     adaptRoute(makeUpdateClientController()),
   );
   router.put(
     "/address/:id",
-    auth(["admin", "gerente_estoque"]),
+    auth(OPERATOR_WRITE_ROLES),
     adaptRoute(makeUpdateAddressController()),
   );
   router.put(
     "/orderDelivery/:id",
-    auth(["admin", "entregador"]),
+    auth(FIELD_WRITE_ROLES),
     adaptRoute(makeUpdateOrderDeliveryController()),
   );
   router.put(
@@ -726,17 +754,17 @@ export default (router: Router): void => {
   );
   router.put(
     "/product/:id",
-    auth(["admin", "gerente_estoque"]),
+    auth(OPERATOR_WRITE_ROLES),
     adaptRoute(makeUpdateProductController()),
   );
   router.put(
     "/city/:id",
-    auth(["admin", "gerente_estoque"]),
+    auth(OPERATOR_WRITE_ROLES),
     adaptRoute(makeUpdateCityController()),
   );
   router.put(
     "/neighborhood/:id",
-    auth(["admin", "gerente_estoque"]),
+    auth(OPERATOR_WRITE_ROLES),
     adaptRoute(makeUpdateNeighborhoodController()),
   );
   router.delete(

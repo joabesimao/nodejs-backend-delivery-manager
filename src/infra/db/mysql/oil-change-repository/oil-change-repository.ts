@@ -1,6 +1,5 @@
 import { PrismaClient } from "@prisma/client";
 import { AddOilChangeLogRepository } from "../../../../data/protocols/db/oil-change/add-oil-change-log";
-import { FindLastOilChangeLogRepository } from "../../../../data/protocols/db/oil-change/find-last-oil-change-log";
 import { LoadOilChangeConfigRepository } from "../../../../data/protocols/db/oil-change/load-oil-change-config";
 import { LoadOilChangeLogRepository } from "../../../../data/protocols/db/oil-change/load-oil-change-log";
 import { FindOilChangeLogByIdRepository } from "../../../../data/protocols/db/oil-change/find-oil-change-log-by-id";
@@ -20,7 +19,6 @@ export class OilChangeMysqlRepository
     LoadOilChangeConfigRepository,
     UpdateOilChangeConfigRepository,
     AddOilChangeLogRepository,
-    FindLastOilChangeLogRepository,
     LoadOilChangeLogRepository,
     FindOilChangeLogByIdRepository,
     UpdateOilChangeLogRepository,
@@ -59,13 +57,6 @@ export class OilChangeMysqlRepository
         changeDate: data.changeDate,
       },
       include: { vehicle: true, deliveryman: true },
-    });
-  }
-
-  async findLastByVehicle(vehicleId: number): Promise<OilChangeLog | null> {
-    return await this.prisma.oilChangeLog.findFirst({
-      where: { vehicleId },
-      orderBy: [{ changeDate: "desc" }, { id: "desc" }],
     });
   }
 

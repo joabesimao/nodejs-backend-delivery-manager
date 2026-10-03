@@ -1,4 +1,4 @@
-import { DbAuthentication } from "./db-authentication";
+import { DbAuthentication, DUMMY_PASSWORD_HASH } from "./db-authentication";
 import { AccountModel } from "../../../domain/models/account/account-model";
 import { LoadAccountByEmailRepository } from "../../../data/protocols/authentication/load-account-by-email-repository";
 import { HashComparer } from "../../../data/protocols/criptography/hash-comparer";
@@ -140,6 +140,16 @@ describe("DbAuthentication UseCase", () => {
     expect(authResult).toBeNull();
   });
 
+  test("Should compare against the dummy hash if the account does not exist", async () => {
+    const { sut, loadAccountByEmailRepositoryStub, hashCompareStub } = makeSut();
+    jest
+      .spyOn(loadAccountByEmailRepositoryStub, "loadAccountByEmail")
+      .mockResolvedValueOnce(null as unknown as AccountModel);
+    const compareSpy = jest.spyOn(hashCompareStub, "compare");
+    await sut.auth(makeFakeAuthentication());
+    expect(compareSpy).toHaveBeenCalledWith("any_password", DUMMY_PASSWORD_HASH);
+  });
+
   test("Should call HashComparer with correct values", async () => {
     const { sut, hashCompareStub } = makeSut();
     const compareSpy = jest
@@ -202,7 +212,7 @@ describe("DbAuthentication UseCase", () => {
   });
 
   test("Should return null if account is inactive", async () => {
-    const { sut, loadAccountByEmailRepositoryStub } = makeSut();
+    const { sut, loadAccountByEmailRepositoryStub, hashCompareStub } = makeSut();
     jest
       .spyOn(loadAccountByEmailRepositoryStub, "loadAccountByEmail")
       .mockReturnValueOnce(
@@ -210,8 +220,10 @@ describe("DbAuthentication UseCase", () => {
           resolve({ ...fakeAccount(), active: false }),
         ),
       );
+    const compareSpy = jest.spyOn(hashCompareStub, "compare");
     const authResult = await sut.auth(makeFakeAuthentication());
     expect(authResult).toBeNull();
+    expect(compareSpy).toHaveBeenCalledWith("any_password", DUMMY_PASSWORD_HASH);
   });
 
   test("Should call UpdateAccessTokenRepository with correct values", async () => {

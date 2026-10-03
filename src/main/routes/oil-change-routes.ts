@@ -8,6 +8,7 @@ import { makeUpdateOilChangeLogController } from "../factories/update-oil-change
 import { makeDeleteOilChangeLogController } from "../factories/delete-oil-change-log";
 import { makeLoadOilChangeConfigController } from "../factories/load-oil-change-config";
 import { makeUpdateOilChangeConfigController } from "../factories/update-oil-change-config";
+import { FIELD_WRITE_ROLES, FLEET_READ_ROLES } from "../config/roles";
 
 const auth = (roles?: string[]) => adaptMiddleware(makeAuthMiddleware(roles));
 
@@ -24,12 +25,12 @@ export default (router: Router): void => {
   );
   router.get(
     "/oil-change-log",
-    auth(["admin", "gerente_estoque", "entregador"]),
+    auth(FLEET_READ_ROLES),
     adaptRoute(makeLoadOilChangeLogController())
   );
   router.post(
     "/oil-change-log",
-    auth(["admin", "gerente_estoque", "entregador"]),
+    auth(FIELD_WRITE_ROLES),
     adaptRoute(makeAddOilChangeLogController())
   );
   router.put(

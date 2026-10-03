@@ -1,8 +1,18 @@
 import { UpdateOrderDelivery } from "../../../../domain/usescases/order-delivery/update-order-delivery";
-import { badRequest, ok, serverError } from "../../../helpers/http/http-helper";
+import {
+  badRequest,
+  conflict,
+  forbidden,
+  ok,
+  serverError,
+} from "../../../helpers/http/http-helper";
 import { InvalidParamError } from "../../../errors/invalid-params-error";
+import { OrderFieldChangeDeniedError } from "../../../errors/order-field-change-denied-error";
+import { OrderStatusTransitionError } from "../../../errors/order-status-transition-error";
 import { Controller } from "../../../protocols/controller";
 import { HttpRequest, HttpResponse } from "../../../protocols/http";
+
+const ORDER_STATUSES = ["actived", "delivered", "finished"];
 
 const parseAmount = (value: unknown): number => {
   if (typeof value === "number") {
@@ -47,9 +57,11 @@ export class UpdateOrderDeliveryController implements Controller {
         return badRequest(new InvalidParamError("id"));
       }
 
+      // accountId/accountRole vêm do token (auth), nunca do corpo.
       const requestBody: Record<string, unknown> = {
         ...httpRequest.body,
         accountId,
+        accountRole: httpRequest.headers?.accountRole,
       };
 
       if (requestBody.amount !== undefined) {
@@ -58,6 +70,25 @@ export class UpdateOrderDeliveryController implements Controller {
           return badRequest(new InvalidParamError("amount"));
         }
         requestBody.amount = parsedAmount;
+      }
+
+      if (
+        requestBody.status !== undefined &&
+        !ORDER_STATUSES.includes(requestBody.status as string)
+      ) {
+        return badRequest(new InvalidParamError("status"));
+      }
+
+      if (requestBody.quantity !== undefined) {
+        const quantity =
+          typeof requestBody.quantity === "number" ||
+          typeof requestBody.quantity === "string"
+            ? String(requestBody.quantity).trim()
+            : "";
+        if (!quantity) {
+          return badRequest(new InvalidParamError("quantity"));
+        }
+        requestBody.quantity = quantity;
       }
 
       if (
@@ -78,6 +109,12 @@ export class UpdateOrderDeliveryController implements Controller {
       );
       return ok(updateOrderDelivery);
     } catch (error) {
+      if (error instanceof OrderFieldChangeDeniedError) {
+        return forbidden(error);
+      }
+      if (error instanceof OrderStatusTransitionError) {
+        return conflict(error);
+      }
       return serverError(error);
     }
   }

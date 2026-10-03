@@ -1,6 +1,7 @@
 import {
   ValidationComposite,
   RequireFieldsValidation,
+  PositiveNumberValidation,
   OptionalFieldTypeValidation,
   ProductVariationsValidation,
   ProductImageValidation,
@@ -16,6 +17,7 @@ export const makeAddProductValidation = (): ValidationComposite => {
     validations.push(new RequireFieldsValidation(field));
   }
   validations.push(
+    new PositiveNumberValidation("price"),
     new OptionalFieldTypeValidation("subcategory", "string"),
     new OptionalFieldTypeValidation("brand", "string"),
     new OptionalFieldTypeValidation("model", "string"),

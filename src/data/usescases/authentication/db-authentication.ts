@@ -10,6 +10,12 @@ import { UpdateAccessTokenRepository } from "../../../data/protocols/db/access-t
 import { UpdateRefreshTokenRepository } from "../../../data/protocols/db/access-token-repository/update-refresh-token-repository";
 import { hashToken } from "../../../utils/hash-token";
 
+// Hash bcrypt (custo 12) de um valor aleatório descartado. Comparar contra ele
+// quando a conta não existe/está inativa iguala o tempo de resposta do login
+// e evita descobrir e-mails cadastrados pela latência.
+export const DUMMY_PASSWORD_HASH =
+  "$2b$12$CBnlJyenfUofytH1vAruj.mf2f.j0udM8EqbdekolXOtTPvVpgGs2";
+
 export class DbAuthentication implements Authentication {
   constructor(
     private readonly loadAccountByEmailRepository: LoadAccountByEmailRepository,
@@ -27,11 +33,11 @@ export class DbAuthentication implements Authentication {
     const accountBd = await this.loadAccountByEmailRepository.loadAccountByEmail(
       authentication.email
     );
-    if (!accountBd) {
-      return null;
-    }
-
-    if (accountBd.active === false) {
+    if (!accountBd || accountBd.active === false) {
+      await this.hashCompare.compare(
+        authentication.password,
+        DUMMY_PASSWORD_HASH
+      );
       return null;
     }
 

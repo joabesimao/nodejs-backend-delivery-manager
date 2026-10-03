@@ -304,8 +304,10 @@ export class OrderDeliveryMySqlRepository
     const updateOrder = await this.prisma.orderDelivery.update({
       where: { id: Number(id) },
       data: {
-        amount: Number(info.amount),
-        quantity: info.quantity,
+        ...(info.amount !== undefined && { amount: Number(info.amount) }),
+        ...(info.quantity !== undefined && { quantity: info.quantity }),
+        // O caso de uso barra pedido já finalizado, então isto só roda na
+        // transição para "finished".
         ...(info.status === "finished" && {
           finishedAt: new Date(),
         }),

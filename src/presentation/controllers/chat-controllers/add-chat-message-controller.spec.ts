@@ -207,6 +207,12 @@ describe("AddChatMessage Controller", () => {
     });
   });
 
+  test("Should not log the message content", async () => {
+    const sut = makeSut();
+    await sut.handle(makeFakeRequest());
+    expect(consoleLogSpy).not.toHaveBeenCalled();
+  });
+
   test("Should return 201 with created message on success", async () => {
     const sut = makeSut();
     const httpResponse = await sut.handle(makeFakeRequest());
@@ -216,7 +222,7 @@ describe("AddChatMessage Controller", () => {
     });
   });
 
-  test("Should return 500 with error message if prisma.chatMessage.create throws", async () => {
+  test("Should return 500 without the internal error message if prisma.chatMessage.create throws", async () => {
     (prisma.chatMessage.create as jest.Mock).mockRejectedValueOnce(
       new Error("db_error")
     );
@@ -224,7 +230,7 @@ describe("AddChatMessage Controller", () => {
     const httpResponse = await sut.handle(makeFakeRequest());
     expect(httpResponse).toEqual({
       statusCode: 500,
-      body: { error: "db_error" },
+      body: { error: "Falha ao enviar mensagem" },
     });
   });
 
@@ -244,7 +250,7 @@ describe("AddChatMessage Controller", () => {
     const httpResponse = await sut.handle(makeFakeRequest());
     expect(httpResponse).toEqual({
       statusCode: 500,
-      body: { error: "string_error" },
+      body: { error: "Falha ao enviar mensagem" },
     });
   });
 });

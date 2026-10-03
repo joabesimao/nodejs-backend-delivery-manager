@@ -19,7 +19,6 @@ const makeFakeRefill = () => ({
 const makeFakePrisma = () => ({
   fuelRefill: {
     create: jest.fn().mockResolvedValue(makeFakeRefill()),
-    findFirst: jest.fn().mockResolvedValue(makeFakeRefill()),
     findMany: jest.fn().mockResolvedValue([makeFakeRefill()]),
     findUnique: jest.fn().mockResolvedValue(makeFakeRefill()),
     update: jest.fn().mockResolvedValue(makeFakeRefill()),
@@ -72,23 +71,6 @@ describe("FuelRefill MySql Repository", () => {
           refillDate: new Date("2026-09-23T00:00:00.000Z"),
         })
       ).rejects.toThrow();
-    });
-  });
-
-  describe("findLastByVehicle()", () => {
-    test("Should call prisma.fuelRefill.findFirst with correct values", async () => {
-      const { sut, prisma } = makeSut();
-      await sut.findLastByVehicle(1);
-      expect(prisma.fuelRefill.findFirst).toHaveBeenCalledWith({
-        where: { vehicleId: 1 },
-        orderBy: [{ refillDate: "desc" }, { id: "desc" }],
-      });
-    });
-
-    test("Should throw if prisma.fuelRefill.findFirst throws", async () => {
-      const { sut, prisma } = makeSut();
-      prisma.fuelRefill.findFirst.mockRejectedValueOnce(new Error());
-      await expect(sut.findLastByVehicle(1)).rejects.toThrow();
     });
   });
 

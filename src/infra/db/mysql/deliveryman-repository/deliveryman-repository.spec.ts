@@ -77,14 +77,22 @@ describe("Deliveryman MySql Repository", () => {
       lastName: "any_last_name",
       numberQualification: "any_qualification",
       phone: "any_phone",
-      cpf: "any_cpf",
+      cpf: "123.456.789-01",
     };
 
     test("Should call prisma.deliveryman.create with correct values", async () => {
       const { sut, prisma } = makeSut();
       await sut.add(fakeAddDeliveryman);
       expect(prisma.deliveryman.create).toHaveBeenCalledWith({
-        data: fakeAddDeliveryman,
+        data: { ...fakeAddDeliveryman, cpf: "12345678901" },
+      });
+    });
+
+    test("Should store a null cpf when it is empty", async () => {
+      const { sut, prisma } = makeSut();
+      await sut.add({ ...fakeAddDeliveryman, cpf: "" });
+      expect(prisma.deliveryman.create).toHaveBeenCalledWith({
+        data: { ...fakeAddDeliveryman, cpf: null },
       });
     });
 
@@ -118,6 +126,15 @@ describe("Deliveryman MySql Repository", () => {
           phone: "new_phone",
           numberQualification: "new_qualification",
         },
+      });
+    });
+
+    test("Should normalize the cpf on update", async () => {
+      const { sut, prisma } = makeSut();
+      await sut.update(1, { cpf: "123.456.789-01" });
+      expect(prisma.deliveryman.update).toHaveBeenCalledWith({
+        where: { id: 1 },
+        data: { cpf: "12345678901" },
       });
     });
 

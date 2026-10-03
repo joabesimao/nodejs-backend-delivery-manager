@@ -109,7 +109,7 @@ O servidor estará rodando em `http://localhost:3000`
 
 | Método | Rota | Descrição | Auth |
 |--------|------|-----------|------|
-| POST | `/api/signup` | Criar nova conta | ❌ |
+| POST | `/api/signup` | Criar nova conta (role `user`) | ✅ admin |
 | POST | `/api/login` | Login | ❌ |
 | POST | `/api/refresh-token` | Renovar token | ❌ |
 
@@ -378,8 +378,21 @@ DB_PASSWORD=mypassword                      # Senha do MySQL
 DATABASE_URL=mysql://user:pass@host/db     # URL de conexão completa
 
 # Autenticação
-JWT_SECRET=fastone_jwt_secret_here          # Chave secreta para JWT
+JWT_SECRET=fastone_jwt_secret_here          # Chave secreta para JWT (openssl rand -hex 32)
+
+# Ambiente
+NODE_ENV=development                        # development | test | production
+CORS_ORIGINS=http://localhost:5173          # Origens do frontend (vírgula); obrigatória em produção
+
+# Seed (opcional)
+SEED_ADMIN_EMAIL=admin@fastone.local        # E-mail do admin criado pelo seed
+SEED_ADMIN_PASSWORD=                        # Obrigatória com NODE_ENV=production
 ```
+
+> Com `NODE_ENV=production`, a API não sobe se o `JWT_SECRET` tiver menos de 32
+> caracteres, for um dos valores de exemplo deste repositório ou se `CORS_ORIGINS`
+> não estiver definida. O seed só cria o
+> admin quando ele ainda não existe — rodar de novo não altera a senha.
 
 ---
 

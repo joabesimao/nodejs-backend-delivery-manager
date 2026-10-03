@@ -1,6 +1,7 @@
 import {
   ValidationComposite,
   EmailValidation,
+  OptionalFieldTypeValidation,
   RequireFieldsValidation,
 } from "../../presentation/helpers/validators";
 import { makeLoginValidation } from "./login-validation";
@@ -26,6 +27,7 @@ describe("Login validation Factory", () => {
       validations.push(new RequireFieldsValidation(field));
     }
     validations.push(new EmailValidation("email", makeEmailValidator()));
+    validations.push(new OptionalFieldTypeValidation("password", "string"));
     expect(ValidationComposite).toHaveBeenCalledWith(validations);
   });
 });

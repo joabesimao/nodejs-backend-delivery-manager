@@ -11,9 +11,8 @@ import {
   ClientModel,
 } from "../../../../domain/models/client/client-model";
 import { AddClientModel } from "../../../../domain/usescases/client/add-client";
+import { onlyDigits } from "../helpers/only-digits";
 import { pickDefined } from "../helpers/pick-defined";
-
-const onlyDigits = (value: string): string => value.replace(/\D/g, "");
 
 export class ClientMysqlRepository
   implements

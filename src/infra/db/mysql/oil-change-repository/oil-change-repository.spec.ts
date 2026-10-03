@@ -20,7 +20,6 @@ const makeFakePrisma = () => ({
   },
   oilChangeLog: {
     create: jest.fn().mockResolvedValue(makeFakeLog()),
-    findFirst: jest.fn().mockResolvedValue(makeFakeLog()),
     findMany: jest.fn().mockResolvedValue([makeFakeLog()]),
   },
 });
@@ -88,23 +87,6 @@ describe("OilChange MySql Repository", () => {
       await expect(
         sut.add({ vehicleId: 1, deliverymanId: 1, km: 1000, nextChangeKm: 1800, changeDate: new Date("2026-09-23T00:00:00.000Z") })
       ).rejects.toThrow();
-    });
-  });
-
-  describe("findLastByVehicle()", () => {
-    test("Should call prisma.oilChangeLog.findFirst with correct values", async () => {
-      const { sut, prisma } = makeSut();
-      await sut.findLastByVehicle(1);
-      expect(prisma.oilChangeLog.findFirst).toHaveBeenCalledWith({
-        where: { vehicleId: 1 },
-        orderBy: [{ changeDate: "desc" }, { id: "desc" }],
-      });
-    });
-
-    test("Should throw if prisma.oilChangeLog.findFirst throws", async () => {
-      const { sut, prisma } = makeSut();
-      prisma.oilChangeLog.findFirst.mockRejectedValueOnce(new Error());
-      await expect(sut.findLastByVehicle(1)).rejects.toThrow();
     });
   });
 

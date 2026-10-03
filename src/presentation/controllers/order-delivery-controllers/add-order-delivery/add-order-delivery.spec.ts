@@ -99,7 +99,6 @@ describe("addOrderDelivery Controller", () => {
       registerId: 1,
       deliverymanId: 2,
       amount: 1,
-      data: new Date("2022-10-10T00:00:00.000Z"),
       quantity: "12",
       accountId: undefined,
     });
@@ -241,6 +240,21 @@ describe("addOrderDelivery Controller", () => {
     const httpResponse = await sut.handle(makeFakeRequest());
     expect(httpResponse).toEqual(
       badRequest(new Error("Cadastro nao encontrado"))
+    );
+  });
+
+  test("Should return a generic badRequest (without Prisma details) on foreign key errors", async () => {
+    const { sut, addOrderDeliveryStub } = makeSut();
+    jest
+      .spyOn(addOrderDeliveryStub, "addOrderDelivery")
+      .mockRejectedValueOnce(
+        new Error(
+          "Invalid `prisma.orderDelivery.create()` invocation: Foreign key constraint violated on the constraint: `OrderDelivery_registerId_fkey`"
+        )
+      );
+    const httpResponse = await sut.handle(makeFakeRequest());
+    expect(httpResponse).toEqual(
+      badRequest(new Error("Dados invalidos para criar pedido"))
     );
   });
 });

@@ -2,6 +2,7 @@ import {
   ValidationComposite,
   CompareFieldsValidation,
   EmailValidation,
+  PasswordValidation,
   RequireFieldsValidation,
 } from "../../presentation/helpers/validators";
 import { makeSignupValidation } from "./signup-validation";
@@ -30,6 +31,7 @@ describe("Signup validation Factory", () => {
       new CompareFieldsValidation("password", "passwordConfirmation")
     );
     validations.push(new EmailValidation("email", makeEmailValidator()));
+    validations.push(new PasswordValidation("password"));
     expect(ValidationComposite).toHaveBeenCalledWith(validations);
   });
 });

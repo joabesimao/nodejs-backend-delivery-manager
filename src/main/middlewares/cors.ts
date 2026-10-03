@@ -1,11 +1,31 @@
-import { Request, Response, NextFunction } from "express";
+import { Request, Response, NextFunction, RequestHandler } from "express";
+import { env } from "../../../config/Env";
 
-export const cors = (req: Request, res: Response, next: NextFunction) => {
-  res.set("access-control-allow-origin", "*");
-  res.set("access-control-allow-headers", "*");
-  res.set("access-control-allow-methods", "*");
-  if (req.method.toUpperCase() === "OPTIONS") {
-    return res.status(204).send();
-  }
-  next();
+const ALLOWED_HEADERS = "Content-Type, x-access-token, Authorization";
+const ALLOWED_METHODS = "GET, POST, PUT, DELETE, OPTIONS";
+
+// Sem lista, libera qualquer origem (só permitido fora de produção pelo Env).
+// Com lista, devolve a própria origem apenas se ela estiver liberada.
+export const makeCors = (allowedOrigins?: string[]): RequestHandler => {
+  return (req: Request, res: Response, next: NextFunction) => {
+    const origin = req.headers.origin;
+
+    if (!allowedOrigins) {
+      res.set("access-control-allow-origin", "*");
+    } else {
+      res.vary("Origin");
+      if (origin && allowedOrigins.includes(origin)) {
+        res.set("access-control-allow-origin", origin);
+      }
+    }
+    res.set("access-control-allow-headers", ALLOWED_HEADERS);
+    res.set("access-control-allow-methods", ALLOWED_METHODS);
+
+    if (req.method.toUpperCase() === "OPTIONS") {
+      return res.status(204).send();
+    }
+    next();
+  };
 };
+
+export const cors = makeCors(env.CORS_ORIGINS);

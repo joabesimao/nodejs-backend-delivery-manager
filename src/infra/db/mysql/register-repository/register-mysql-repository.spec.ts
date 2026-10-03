@@ -41,7 +41,7 @@ const makeSut = (): { sut: RegisterMySqlRepository; prisma: FakePrisma } => {
 };
 
 const makeFakeAddRegister = () => ({
-  client: { name: "any_name", cpf: "any_cpf", phone: "any_phone" },
+  client: { name: "any_name", cpf: "123.456.789-01", phone: "any_phone" },
   address: {
     street: "any_street",
     neighborhood: "any_neighborhood",
@@ -62,7 +62,7 @@ describe("Register MySql Repository", () => {
           client: {
             create: {
               name: fakeRegister.client.name,
-              cpf: fakeRegister.client.cpf,
+              cpf: "12345678901",
               phone: fakeRegister.client.phone,
             },
           },

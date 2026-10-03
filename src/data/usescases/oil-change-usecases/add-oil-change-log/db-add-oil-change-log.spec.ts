@@ -1,16 +1,17 @@
 import { DbAddOilChangeLog } from "./db-add-oil-change-log";
 import { AddOilChangeLogRepository } from "../../../protocols/db/oil-change/add-oil-change-log";
-import { FindLastOilChangeLogRepository } from "../../../protocols/db/oil-change/find-last-oil-change-log";
+import { LoadOilChangeLogRepository } from "../../../protocols/db/oil-change/load-oil-change-log";
 import { LoadOilChangeConfigRepository } from "../../../protocols/db/oil-change/load-oil-change-config";
 import { OilChangeLog } from "../../../../domain/models/oil-change/oil-change-log-model";
 import { OilChangeConfig } from "../../../../domain/models/oil-change/oil-change-config-model";
 import { AddOilChangeLogModel } from "../../../../domain/usescases/oil-change/add-oil-change-log";
+import { KM_OUT_OF_ORDER_MESSAGE } from "../../../helpers/km-sequence";
 import { InvalidKmError } from "../../../../presentation/errors";
 
 interface SutTypes {
   sut: DbAddOilChangeLog;
   loadOilChangeConfigRepositoryStub: LoadOilChangeConfigRepository;
-  findLastOilChangeLogRepositoryStub: FindLastOilChangeLogRepository;
+  loadOilChangeLogRepositoryStub: LoadOilChangeLogRepository;
   addOilChangeLogRepositoryStub: AddOilChangeLogRepository;
 }
 
@@ -46,13 +47,20 @@ const makeLoadOilChangeConfigRepositoryStub = (): LoadOilChangeConfigRepository 
   return new LoadOilChangeConfigRepositoryStub();
 };
 
-const makeFindLastOilChangeLogRepositoryStub = (): FindLastOilChangeLogRepository => {
-  class FindLastOilChangeLogRepositoryStub implements FindLastOilChangeLogRepository {
-    async findLastByVehicle(vehicleId: number): Promise<OilChangeLog | null> {
-      return await new Promise((resolve) => resolve(null));
+const makeExisting = (id: number, km: number, date: string): OilChangeLog => ({
+  ...makeFakeOilChangeLog(),
+  id,
+  km,
+  changeDate: new Date(date),
+});
+
+const makeLoadOilChangeLogRepositoryStub = (): LoadOilChangeLogRepository => {
+  class LoadOilChangeLogRepositoryStub implements LoadOilChangeLogRepository {
+    async loadAll(): Promise<OilChangeLog[]> {
+      return await new Promise((resolve) => resolve([]));
     }
   }
-  return new FindLastOilChangeLogRepositoryStub();
+  return new LoadOilChangeLogRepositoryStub();
 };
 
 const makeAddOilChangeLogRepositoryStub = (): AddOilChangeLogRepository => {
@@ -66,36 +74,53 @@ const makeAddOilChangeLogRepositoryStub = (): AddOilChangeLogRepository => {
 
 const makeSut = (): SutTypes => {
   const loadOilChangeConfigRepositoryStub = makeLoadOilChangeConfigRepositoryStub();
-  const findLastOilChangeLogRepositoryStub = makeFindLastOilChangeLogRepositoryStub();
+  const loadOilChangeLogRepositoryStub = makeLoadOilChangeLogRepositoryStub();
   const addOilChangeLogRepositoryStub = makeAddOilChangeLogRepositoryStub();
   const sut = new DbAddOilChangeLog(
     loadOilChangeConfigRepositoryStub,
-    findLastOilChangeLogRepositoryStub,
+    loadOilChangeLogRepositoryStub,
     addOilChangeLogRepositoryStub
   );
   return {
     sut,
     loadOilChangeConfigRepositoryStub,
-    findLastOilChangeLogRepositoryStub,
+    loadOilChangeLogRepositoryStub,
     addOilChangeLogRepositoryStub,
   };
 };
 
 describe("DbAddOilChangeLog Usecase", () => {
-  test("Should call FindLastOilChangeLogRepository with correct vehicleId", async () => {
-    const { sut, findLastOilChangeLogRepositoryStub } = makeSut();
-    const findSpy = jest.spyOn(findLastOilChangeLogRepositoryStub, "findLastByVehicle");
+  test("Should load the logs of the same vehicle", async () => {
+    const { sut, loadOilChangeLogRepositoryStub } = makeSut();
+    const loadSpy = jest.spyOn(loadOilChangeLogRepositoryStub, "loadAll");
     await sut.add(makeAddOilChangeLogModel());
-    expect(findSpy).toHaveBeenCalledWith(1);
+    expect(loadSpy).toHaveBeenCalledWith({ vehicleId: 1 });
   });
 
-  test("Should throw InvalidKmError if km is lower than or equal to last log km", async () => {
-    const { sut, findLastOilChangeLogRepositoryStub } = makeSut();
-    jest.spyOn(findLastOilChangeLogRepositoryStub, "findLastByVehicle").mockReturnValueOnce(
-      new Promise((resolve) => resolve({ ...makeFakeOilChangeLog(), km: 1000 }))
-    );
+  test("Should throw the default InvalidKmError if km is not greater than the last log", async () => {
+    const { sut, loadOilChangeLogRepositoryStub } = makeSut();
+    jest.spyOn(loadOilChangeLogRepositoryStub, "loadAll").mockResolvedValueOnce([makeExisting(5, 1000, "2026-09-20")]);
     const promise = sut.add(makeAddOilChangeLogModel());
     await expect(promise).rejects.toEqual(new InvalidKmError());
+  });
+
+  test("Should throw an out-of-order InvalidKmError if a backdated km is not lower than the next log", async () => {
+    const { sut, loadOilChangeLogRepositoryStub } = makeSut();
+    jest
+      .spyOn(loadOilChangeLogRepositoryStub, "loadAll")
+      .mockResolvedValueOnce([makeExisting(6, 1000, "2026-09-30"), makeExisting(5, 800, "2026-09-10")]);
+    const promise = sut.add(makeAddOilChangeLogModel());
+    await expect(promise).rejects.toEqual(new InvalidKmError(KM_OUT_OF_ORDER_MESSAGE));
+  });
+
+  test("Should accept a backdated log that fits between its neighbors", async () => {
+    const { sut, loadOilChangeLogRepositoryStub, addOilChangeLogRepositoryStub } = makeSut();
+    jest
+      .spyOn(loadOilChangeLogRepositoryStub, "loadAll")
+      .mockResolvedValueOnce([makeExisting(6, 1500, "2026-09-30"), makeExisting(5, 800, "2026-09-10")]);
+    const addSpy = jest.spyOn(addOilChangeLogRepositoryStub, "add");
+    await sut.add(makeAddOilChangeLogModel());
+    expect(addSpy).toHaveBeenCalled();
   });
 
   test("Should compute nextChangeKm using the configured interval", async () => {

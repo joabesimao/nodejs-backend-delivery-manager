@@ -2,6 +2,7 @@ import {
   AllowedValuesValidation,
   CompareFieldsValidation,
   EmailValidation,
+  PasswordValidation,
   RequireFieldsValidation,
   ValidationComposite,
 } from "../../presentation/helpers/validators";
@@ -23,6 +24,7 @@ export const makeAddStaffAccountValidation = (): ValidationComposite => {
     new CompareFieldsValidation("password", "passwordConfirmation"),
   );
   validations.push(new EmailValidation("email", new EmailValidatorAdapter()));
+  validations.push(new PasswordValidation("password"));
   validations.push(
     new AllowedValuesValidation("role", [
       "admin",

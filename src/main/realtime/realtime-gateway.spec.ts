@@ -42,17 +42,17 @@ jest.mock("../../infra/db/mysql/helpers", () => ({
 
 jest.mock("../../infra/cryptography/jwt-adapter/jwt-adapter", () => ({
   JwtAdapter: jest.fn().mockImplementation(() => ({
-    decode: jest.fn(),
+    decrypt: jest.fn(),
   })),
 }));
 
 type Ack = (response: unknown) => void;
 
-const jwtDecodeMock = (
+const jwtDecryptMock = (
   (JwtAdapter as unknown as jest.Mock).mock.results[0].value as {
-    decode: jest.Mock;
+    decrypt: jest.Mock;
   }
-).decode;
+).decrypt;
 
 const getAccountScopeMock = getAccountScope as jest.Mock;
 const setRealtimeServerMock = setRealtimeServer as jest.Mock;
@@ -214,7 +214,7 @@ describe("realtime-gateway", () => {
 
     test("Should read the token from handshake.auth.token", async () => {
       const { middleware } = setup();
-      jwtDecodeMock.mockResolvedValue({ id: "1" });
+      jwtDecryptMock.mockResolvedValue("1");
       getAccountScopeMock.mockResolvedValue(defaultScope);
       prismaAccountFindUnique.mockResolvedValue(defaultAccount);
 
@@ -225,13 +225,13 @@ describe("realtime-gateway", () => {
 
       await middleware(socket, next);
 
-      expect(jwtDecodeMock).toHaveBeenCalledWith("auth_token");
+      expect(jwtDecryptMock).toHaveBeenCalledWith("auth_token");
       expect(next).toHaveBeenCalledWith();
     });
 
     test("Should fall back to the x-access-token header when auth.token is absent", async () => {
       const { middleware } = setup();
-      jwtDecodeMock.mockResolvedValue({ id: "1" });
+      jwtDecryptMock.mockResolvedValue("1");
       getAccountScopeMock.mockResolvedValue(defaultScope);
       prismaAccountFindUnique.mockResolvedValue(defaultAccount);
 
@@ -246,13 +246,13 @@ describe("realtime-gateway", () => {
 
       await middleware(socket, next);
 
-      expect(jwtDecodeMock).toHaveBeenCalledWith("header_token");
+      expect(jwtDecryptMock).toHaveBeenCalledWith("header_token");
       expect(next).toHaveBeenCalledWith();
     });
 
     test("Should fall back to handshake.query.token as a last resort", async () => {
       const { middleware } = setup();
-      jwtDecodeMock.mockResolvedValue({ id: "1" });
+      jwtDecryptMock.mockResolvedValue("1");
       getAccountScopeMock.mockResolvedValue(defaultScope);
       prismaAccountFindUnique.mockResolvedValue(defaultAccount);
 
@@ -263,13 +263,13 @@ describe("realtime-gateway", () => {
 
       await middleware(socket, next);
 
-      expect(jwtDecodeMock).toHaveBeenCalledWith("query_token");
+      expect(jwtDecryptMock).toHaveBeenCalledWith("query_token");
       expect(next).toHaveBeenCalledWith();
     });
 
-    test("Should call next with an error when the decoded payload has no id", async () => {
+    test("Should call next with an error when the token is not a valid access token", async () => {
       const { middleware } = setup();
-      jwtDecodeMock.mockResolvedValue({});
+      jwtDecryptMock.mockResolvedValue(null);
 
       const socket = makeSocket({
         handshake: { auth: { token: "any_token" }, headers: {}, query: {} },
@@ -284,7 +284,7 @@ describe("realtime-gateway", () => {
 
     test("Should call next with an error when getAccountScope returns null", async () => {
       const { middleware } = setup();
-      jwtDecodeMock.mockResolvedValue({ id: "1" });
+      jwtDecryptMock.mockResolvedValue("1");
       getAccountScopeMock.mockResolvedValue(null);
 
       const socket = makeSocket({
@@ -300,7 +300,7 @@ describe("realtime-gateway", () => {
 
     test("Should call next with an error when the account record cannot be found", async () => {
       const { middleware } = setup();
-      jwtDecodeMock.mockResolvedValue({ id: "1" });
+      jwtDecryptMock.mockResolvedValue("1");
       getAccountScopeMock.mockResolvedValue(defaultScope);
       prismaAccountFindUnique.mockResolvedValue(null);
 
@@ -314,9 +314,29 @@ describe("realtime-gateway", () => {
       expect(next).toHaveBeenCalledWith(expect.any(Error));
     });
 
-    test("Should call next with an error when decode throws", async () => {
+    test("Should call next with an error when the account is inactive", async () => {
       const { middleware } = setup();
-      jwtDecodeMock.mockRejectedValue(new Error("boom"));
+      jwtDecryptMock.mockResolvedValue("1");
+      getAccountScopeMock.mockResolvedValue(defaultScope);
+      prismaAccountFindUnique.mockResolvedValue({
+        ...defaultAccount,
+        active: false,
+      });
+
+      const socket = makeSocket({
+        handshake: { auth: { token: "any_token" }, headers: {}, query: {} },
+      });
+      const next = jest.fn();
+
+      await middleware(socket, next);
+
+      expect(next).toHaveBeenCalledWith(expect.any(Error));
+      expect(socket.data.session).toBeUndefined();
+    });
+
+    test("Should call next with an error when decrypt throws", async () => {
+      const { middleware } = setup();
+      jwtDecryptMock.mockRejectedValue(new Error("boom"));
 
       const socket = makeSocket({
         handshake: { auth: { token: "any_token" }, headers: {}, query: {} },
@@ -330,7 +350,7 @@ describe("realtime-gateway", () => {
 
     test("Should set socket.data.session with networkRoom based on scope.rootStoreId", async () => {
       const { middleware } = setup();
-      jwtDecodeMock.mockResolvedValue({ id: "1" });
+      jwtDecryptMock.mockResolvedValue("1");
       getAccountScopeMock.mockResolvedValue(defaultScope);
       prismaAccountFindUnique.mockResolvedValue(defaultAccount);
 
@@ -352,7 +372,7 @@ describe("realtime-gateway", () => {
     test("Should use the network:global room when scope.rootStoreId is null", async () => {
       const { middleware } = setup();
       const scopeWithoutRoot = { ...defaultScope, rootStoreId: null };
-      jwtDecodeMock.mockResolvedValue({ id: "1" });
+      jwtDecryptMock.mockResolvedValue("1");
       getAccountScopeMock.mockResolvedValue(scopeWithoutRoot);
       prismaAccountFindUnique.mockResolvedValue(defaultAccount);
 
