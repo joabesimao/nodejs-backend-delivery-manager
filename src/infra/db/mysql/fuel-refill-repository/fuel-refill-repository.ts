@@ -1,6 +1,5 @@
 import { PrismaClient } from "@prisma/client";
 import { AddFuelRefillRepository } from "../../../../data/protocols/db/fuel-refill/add-fuel-refill";
-import { FindLastFuelRefillRepository } from "../../../../data/protocols/db/fuel-refill/find-last-fuel-refill";
 import { LoadFuelRefillRepository } from "../../../../data/protocols/db/fuel-refill/load-fuel-refill";
 import { FindFuelRefillByIdRepository } from "../../../../data/protocols/db/fuel-refill/find-fuel-refill-by-id";
 import { UpdateFuelRefillRepository } from "../../../../data/protocols/db/fuel-refill/update-fuel-refill";
@@ -24,7 +23,6 @@ const toFuelRefill = <T extends { liters: DecimalLike; totalValue: DecimalLike; 
 export class FuelRefillMysqlRepository
   implements
     AddFuelRefillRepository,
-    FindLastFuelRefillRepository,
     LoadFuelRefillRepository,
     FindFuelRefillByIdRepository,
     UpdateFuelRefillRepository,
@@ -58,14 +56,6 @@ export class FuelRefillMysqlRepository
       include: { vehicle: true, deliveryman: true },
     });
     return toFuelRefill(result);
-  }
-
-  async findLastByVehicle(vehicleId: number): Promise<FuelRefill | null> {
-    const result = await this.prisma.fuelRefill.findFirst({
-      where: { vehicleId },
-      orderBy: [{ refillDate: "desc" }, { id: "desc" }],
-    });
-    return result && toFuelRefill(result);
   }
 
   async findById(id: number): Promise<FuelRefill | null> {

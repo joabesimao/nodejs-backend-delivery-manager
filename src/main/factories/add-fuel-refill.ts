@@ -7,7 +7,7 @@ import { makeAddFuelRefillValidation } from "./add-fuel-refill-validation";
 
 export const makeAddFuelRefillController = (): Controller => {
   const fuelRefillRepository = new FuelRefillMysqlRepository(prisma);
-  const addFuelRefill = new DbAddFuelRefill(fuelRefillRepository, fuelRefillRepository);
+  const addFuelRefill = new DbAddFuelRefill(fuelRefillRepository, fuelRefillRepository, fuelRefillRepository);
   const validation = makeAddFuelRefillValidation();
   return new AddFuelRefillController(addFuelRefill, validation);
 };
