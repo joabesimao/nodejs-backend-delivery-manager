@@ -2,6 +2,7 @@ import { Controller } from "../../protocols/controller";
 import { HttpRequest, HttpResponse } from "../../protocols/http";
 import { prisma } from "../../../infra/db/mysql/helpers";
 import { getAccountScope } from "../../../main/realtime/store-scope";
+import { emitChatRealtime } from "../../../main/realtime/realtime-state";
 
 const MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024;
 
@@ -122,6 +123,8 @@ export class AddChatMessageController implements Controller {
           },
         },
       });
+
+      emitChatRealtime("chat:message", scope.rootStoreId, message);
 
       return {
         statusCode: 201,

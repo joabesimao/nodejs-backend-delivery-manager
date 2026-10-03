@@ -13,6 +13,9 @@ export const setRealtimeServer = (server: SocketIOServer): void => {
   io = server;
 };
 
+export const networkRoomFor = (rootStoreId: number | null): string =>
+  rootStoreId ? `network:${rootStoreId}` : "network:global";
+
 export const emitDeliveryRealtime = (
   payload: DeliveryRealtimePayload,
 ): void => {
@@ -20,14 +23,23 @@ export const emitDeliveryRealtime = (
     return;
   }
 
-  const room = payload.rootStoreId
-    ? `network:${payload.rootStoreId}`
-    : "network:global";
-
-  io.to(room).emit("delivery:changed", {
+  io.to(networkRoomFor(payload.rootStoreId)).emit("delivery:changed", {
     eventType: payload.eventType,
     unitStoreId: payload.unitStoreId,
     order: payload.order,
     occurredAt: new Date().toISOString(),
   });
+};
+
+// Mesmos eventos que o gateway emite, para mensagens criadas/apagadas via REST.
+export const emitChatRealtime = (
+  event: "chat:message" | "chat:message-deleted",
+  rootStoreId: number | null,
+  payload: unknown,
+): void => {
+  if (!io) {
+    return;
+  }
+
+  io.to(networkRoomFor(rootStoreId)).emit(event, payload);
 };

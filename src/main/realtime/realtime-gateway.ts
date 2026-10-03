@@ -3,7 +3,7 @@ import { Server } from "socket.io";
 import { env } from "../../../config/Env";
 import { prisma } from "../../infra/db/mysql/helpers";
 import { JwtAdapter } from "../../infra/cryptography/jwt-adapter/jwt-adapter";
-import { setRealtimeServer } from "./realtime-state";
+import { networkRoomFor, setRealtimeServer } from "./realtime-state";
 import { getAccountScope } from "./store-scope";
 
 const jwtAdapter = new JwtAdapter(env.JWT_SECRET);
@@ -16,6 +16,11 @@ interface ChatSendPayload {
 }
 
 const MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024;
+
+// O padrão do socket.io é 1MB, menor que uma imagem de 5MB em base64
+// (~6,7MB). A folga cobre o texto e o envelope da mensagem.
+const MAX_SOCKET_BUFFER_BYTES =
+  Math.ceil((MAX_IMAGE_SIZE_BYTES * 4) / 3) + 256 * 1024;
 
 const estimateBase64Bytes = (base64Value: string): number => {
   const padding = base64Value.match(/=+$/)?.[0].length ?? 0;
@@ -40,6 +45,7 @@ const normalizeBase64 = (imageBase64: string): string => {
 export const setupRealtimeGateway = (httpServer: HttpServer): void => {
   const io = new Server(httpServer, {
     path: "/socket.io",
+    maxHttpBufferSize: MAX_SOCKET_BUFFER_BYTES,
     cors: {
       origin: env.CORS_ORIGINS ?? "*",
       methods: ["GET", "POST"],
@@ -98,9 +104,7 @@ export const setupRealtimeGateway = (httpServer: HttpServer): void => {
         return;
       }
 
-      const networkRoom = scope.rootStoreId
-        ? `network:${scope.rootStoreId}`
-        : "network:global";
+      const networkRoom = networkRoomFor(scope.rootStoreId);
 
       socket.data.session = {
         account: sessionAccount,
@@ -120,7 +124,7 @@ export const setupRealtimeGateway = (httpServer: HttpServer): void => {
         id: number;
         name: string;
         email: string;
-        role: "principal" | "branch";
+        role: string;
         unitStoreId: number | null;
       };
       scope: {
@@ -325,11 +329,14 @@ export const setupRealtimeGateway = (httpServer: HttpServer): void => {
             return;
           }
 
-          // Only sender or principal can delete
-          if (
-            message.senderId !== session.account.id &&
-            session.account.role !== "principal"
-          ) {
+          // Só o remetente ou um admin (dentro das lojas visíveis) apaga.
+          const isOwner = message.senderId === session.account.id;
+          const isAdmin = session.account.role === "admin";
+          const outOfScope =
+            session.scope.visibleUnitIds.length > 0 &&
+            !session.scope.visibleUnitIds.includes(message.unitStoreId);
+
+          if ((!isOwner && !isAdmin) || outOfScope) {
             ack?.({ ok: false, error: "Sem permissão para deletar" });
             return;
           }
