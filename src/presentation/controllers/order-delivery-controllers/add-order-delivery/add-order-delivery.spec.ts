@@ -99,7 +99,6 @@ describe("addOrderDelivery Controller", () => {
       registerId: 1,
       deliverymanId: 2,
       amount: 1,
-      data: new Date("2022-10-10T00:00:00.000Z"),
       quantity: "12",
       accountId: undefined,
     });

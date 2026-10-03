@@ -55,7 +55,6 @@ const makeSut = (): SutTypes => {
 const makeAddOrderDelivery = (): AddOrderDeliveryModel => ({
   registerId: 1,
   amount: 10,
-  data: new Date("2022-10-10"),
   quantity: "6",
 });
 

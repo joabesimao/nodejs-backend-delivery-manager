@@ -65,8 +65,8 @@ export class AddOrderDeliveryController implements Controller {
         return badRequest(error);
       }
 
-      const { amount, data, quantity, registerId, deliverymanId } =
-        httpRequest.body;
+      // `data` não é aceito do cliente: a data do pedido é sempre a do servidor.
+      const { amount, quantity, registerId, deliverymanId } = httpRequest.body;
       const accountId =
         Number(httpRequest.headers?.accountId || 0) || undefined;
 
@@ -96,7 +96,6 @@ export class AddOrderDeliveryController implements Controller {
         registerId: parsedRegisterId,
         deliverymanId: parsedDeliverymanId,
         amount: parsedAmount,
-        data: data ? new Date(data) : new Date(),
         quantity: String(quantity),
         accountId,
       });
