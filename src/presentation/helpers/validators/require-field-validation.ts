@@ -4,7 +4,12 @@ import { Validation } from "../../protocols/validation";
 export class RequireFieldsValidation implements Validation {
   constructor(private readonly fieldName: string) {}
   validate(input: any): Error {
-    if (!input[this.fieldName]) {
+    const value = input[this.fieldName];
+    if (
+      value === undefined ||
+      value === null ||
+      (typeof value === "string" && value.trim() === "")
+    ) {
       return new MissingParamError(this.fieldName);
     }
   }
