@@ -2,6 +2,7 @@ import { AddChatMessageController } from "./add-chat-message-controller";
 import { HttpRequest } from "../../protocols/http";
 import { prisma } from "../../../infra/db/mysql/helpers";
 import { getAccountScope } from "../../../main/realtime/store-scope";
+import { emitChatRealtime } from "../../../main/realtime/realtime-state";
 
 jest.mock("../../../infra/db/mysql/helpers", () => ({
   prisma: {
@@ -13,6 +14,10 @@ jest.mock("../../../infra/db/mysql/helpers", () => ({
 
 jest.mock("../../../main/realtime/store-scope", () => ({
   getAccountScope: jest.fn(),
+}));
+
+jest.mock("../../../main/realtime/realtime-state", () => ({
+  emitChatRealtime: jest.fn(),
 }));
 
 const makeFakeRequest = (): HttpRequest => ({
@@ -220,6 +225,12 @@ describe("AddChatMessage Controller", () => {
       statusCode: 201,
       body: makeFakeMessage(),
     });
+  });
+
+  test("Should broadcast the created message to the network room", async () => {
+    const sut = makeSut();
+    await sut.handle(makeFakeRequest());
+    expect(emitChatRealtime).toHaveBeenCalledWith("chat:message", 10, makeFakeMessage());
   });
 
   test("Should return 500 without the internal error message if prisma.chatMessage.create throws", async () => {

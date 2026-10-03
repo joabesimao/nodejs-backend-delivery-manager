@@ -1,6 +1,8 @@
 import { DeleteChatMessageController } from "./delete-chat-message-controller";
 import { HttpRequest } from "../../protocols/http";
 import { prisma } from "../../../infra/db/mysql/helpers";
+import { getAccountScope } from "../../../main/realtime/store-scope";
+import { emitChatRealtime } from "../../../main/realtime/realtime-state";
 
 jest.mock("../../../infra/db/mysql/helpers", () => ({
   prisma: {
@@ -14,6 +16,14 @@ jest.mock("../../../infra/db/mysql/helpers", () => ({
   },
 }));
 
+jest.mock("../../../main/realtime/store-scope", () => ({
+  getAccountScope: jest.fn(),
+}));
+
+jest.mock("../../../main/realtime/realtime-state", () => ({
+  emitChatRealtime: jest.fn(),
+}));
+
 const makeFakeRequest = (): HttpRequest => ({
   headers: { accountId: 1 },
   params: { id: 5 },
@@ -22,6 +32,7 @@ const makeFakeRequest = (): HttpRequest => ({
 const makeFakeMessage = () => ({
   id: 5,
   senderId: 1,
+  unitStoreId: 10,
   sender: { id: 1, role: "user" },
 });
 
@@ -32,6 +43,7 @@ describe("DeleteChatMessage Controller", () => {
     (prisma.chatMessage.findUnique as jest.Mock).mockResolvedValue(makeFakeMessage());
     (prisma.account.findUnique as jest.Mock).mockResolvedValue({ role: "user" });
     (prisma.chatMessage.delete as jest.Mock).mockResolvedValue({});
+    (getAccountScope as jest.Mock).mockResolvedValue({ rootStoreId: 3, visibleUnitIds: [10] });
   });
 
   afterEach(() => {
@@ -94,6 +106,7 @@ describe("DeleteChatMessage Controller", () => {
     const sut = makeSut();
     const httpResponse = await sut.handle(makeFakeRequest());
     expect(prisma.chatMessage.delete).toHaveBeenCalledWith({ where: { id: 5 } });
+    expect(emitChatRealtime).toHaveBeenCalledWith("chat:message-deleted", 3, { messageId: 5 });
     expect(httpResponse).toEqual({
       statusCode: 200,
       body: { success: true, message: "Mensagem deletada com sucesso" },
@@ -104,6 +117,7 @@ describe("DeleteChatMessage Controller", () => {
     (prisma.chatMessage.findUnique as jest.Mock).mockResolvedValueOnce({
       id: 5,
       senderId: 2,
+      unitStoreId: 10,
       sender: { id: 2, role: "user" },
     });
     (prisma.account.findUnique as jest.Mock).mockResolvedValueOnce({ role: "admin" });
@@ -113,6 +127,16 @@ describe("DeleteChatMessage Controller", () => {
       statusCode: 200,
       body: { success: true, message: "Mensagem deletada com sucesso" },
     });
+  });
+
+  test("Should return 403 if the message is outside the visible units, even for admin", async () => {
+    (prisma.chatMessage.findUnique as jest.Mock).mockResolvedValueOnce({ ...makeFakeMessage(), senderId: 2, unitStoreId: 77 });
+    (prisma.account.findUnique as jest.Mock).mockResolvedValueOnce({ role: "admin" });
+    const sut = makeSut();
+    const httpResponse = await sut.handle(makeFakeRequest());
+    expect(httpResponse.statusCode).toBe(403);
+    expect(prisma.chatMessage.delete).not.toHaveBeenCalled();
+    expect(emitChatRealtime).not.toHaveBeenCalled();
   });
 
   test("Should return 401 when request has no headers or params at all", async () => {

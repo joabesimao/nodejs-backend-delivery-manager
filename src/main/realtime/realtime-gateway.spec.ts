@@ -20,6 +20,7 @@ jest.mock("socket.io", () => ({
 }));
 
 jest.mock("./realtime-state", () => ({
+  ...jest.requireActual("./realtime-state"),
   setRealtimeServer: jest.fn(),
 }));
 
@@ -112,13 +113,13 @@ const defaultAccount: {
   id: number;
   name: string;
   email: string;
-  role: "principal" | "branch";
+  role: string;
   unitStoreId: number | null;
 } = {
   id: 1,
   name: "Any Name",
   email: "any@mail.com",
-  role: "branch",
+  role: "user",
   unitStoreId: 5,
 };
 
@@ -181,6 +182,17 @@ describe("realtime-gateway", () => {
           cors: expect.objectContaining({ origin: "*" }),
         }),
       );
+    });
+
+    test("Should raise maxHttpBufferSize so a 5MB base64 image fits", () => {
+      const httpServer = {} as unknown as HttpServer;
+      setupRealtimeGateway(httpServer);
+
+      const options = (Server as unknown as jest.Mock).mock.calls[0][1] as {
+        maxHttpBufferSize: number;
+      };
+      const base64ImageBytes = Math.ceil((5 * 1024 * 1024 * 4) / 3);
+      expect(options.maxHttpBufferSize).toBeGreaterThan(base64ImageBytes);
     });
   });
 
@@ -711,14 +723,15 @@ describe("realtime-gateway", () => {
       });
     });
 
-    test("Should ack an error when a non-owner, non-principal account tries to delete it", async () => {
+    test("Should ack an error when a non-owner, non-admin account tries to delete it", async () => {
       const socket = makeSessionSocket({
-        account: { id: 1, role: "branch" },
+        account: { id: 1, role: "user" },
       });
       const handler = await getHandler(socket);
       prismaChatMessageFindUnique.mockResolvedValue({
         id: 1,
         senderId: 999,
+        unitStoreId: 5,
       });
       const ack = jest.fn();
 
@@ -733,10 +746,10 @@ describe("realtime-gateway", () => {
 
     test("Should allow the sender to delete their own message", async () => {
       const socket = makeSessionSocket({
-        account: { id: 1, role: "branch" },
+        account: { id: 1, role: "user" },
       });
       const handler = await getHandler(socket);
-      prismaChatMessageFindUnique.mockResolvedValue({ id: 1, senderId: 1 });
+      prismaChatMessageFindUnique.mockResolvedValue({ id: 1, senderId: 1, unitStoreId: 5 });
       const ack = jest.fn();
 
       await handler({ messageId: 1 }, ack);
@@ -750,14 +763,15 @@ describe("realtime-gateway", () => {
       expect(ack).toHaveBeenCalledWith({ ok: true });
     });
 
-    test("Should allow a principal account to delete someone else's message", async () => {
+    test("Should allow an admin to delete someone else's message", async () => {
       const socket = makeSessionSocket({
-        account: { id: 1, role: "principal" },
+        account: { id: 1, role: "admin" },
       });
       const handler = await getHandler(socket);
       prismaChatMessageFindUnique.mockResolvedValue({
         id: 1,
         senderId: 999,
+        unitStoreId: 5,
       });
       const ack = jest.fn();
 
@@ -769,12 +783,34 @@ describe("realtime-gateway", () => {
       expect(ack).toHaveBeenCalledWith({ ok: true });
     });
 
-    test("Should ack ok:false when deleting the message fails", async () => {
+    test("Should not let an admin delete a message outside the visible units", async () => {
       const socket = makeSessionSocket({
-        account: { id: 1, role: "principal" },
+        account: { id: 1, role: "admin" },
+        scope: { visibleUnitIds: [5] },
       });
       const handler = await getHandler(socket);
-      prismaChatMessageFindUnique.mockResolvedValue({ id: 1, senderId: 1 });
+      prismaChatMessageFindUnique.mockResolvedValue({
+        id: 1,
+        senderId: 999,
+        unitStoreId: 77,
+      });
+      const ack = jest.fn();
+
+      await handler({ messageId: 1 }, ack);
+
+      expect(ack).toHaveBeenCalledWith({
+        ok: false,
+        error: "Sem permissão para deletar",
+      });
+      expect(prismaChatMessageDelete).not.toHaveBeenCalled();
+    });
+
+    test("Should ack ok:false when deleting the message fails", async () => {
+      const socket = makeSessionSocket({
+        account: { id: 1, role: "admin" },
+      });
+      const handler = await getHandler(socket);
+      prismaChatMessageFindUnique.mockResolvedValue({ id: 1, senderId: 1, unitStoreId: 5 });
       prismaChatMessageDelete.mockRejectedValue(new Error("db error"));
       const ack = jest.fn();
 
