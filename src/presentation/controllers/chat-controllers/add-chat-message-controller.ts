@@ -3,6 +3,7 @@ import { HttpRequest, HttpResponse } from "../../protocols/http";
 import { prisma } from "../../../infra/db/mysql/helpers";
 import { getAccountScope } from "../../../main/realtime/store-scope";
 import { emitChatRealtime } from "../../../main/realtime/realtime-state";
+import { NotifyChatMessage } from "../../../domain/usescases/notification/notify-chat-message";
 
 const MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024;
 
@@ -27,6 +28,8 @@ const normalizeBase64 = (imageBase64: string): string => {
 };
 
 export class AddChatMessageController implements Controller {
+  constructor(private readonly notifyChatMessage?: NotifyChatMessage) {}
+
   async handle(httpRequest: HttpRequest): Promise<HttpResponse> {
     try {
       const accountId = Number(httpRequest.headers?.accountId || 0);
@@ -125,6 +128,15 @@ export class AddChatMessageController implements Controller {
       });
 
       emitChatRealtime("chat:message", scope.rootStoreId, message);
+      void this.notifyChatMessage?.notify({
+        messageId: message.id,
+        unitStoreId: message.unitStoreId,
+        unitStoreName: message.unitStore?.name,
+        senderId: message.senderId,
+        senderName: message.sender?.name,
+        text: message.text,
+        hasImage: Boolean(message.imageBase64),
+      });
 
       return {
         statusCode: 201,

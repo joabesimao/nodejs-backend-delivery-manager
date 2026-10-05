@@ -18,15 +18,18 @@ export class AddFuelRefillController implements Controller {
         return badRequest(error);
       }
       const { vehicleId, deliverymanId, km, liters, pricePerLiter, totalValue, refillDate } = httpRequest.body;
-      const result = await this.addFuelRefill.add({
-        vehicleId: Number(vehicleId),
-        deliverymanId: Number(deliverymanId),
-        km: Number(km),
-        liters: Number(liters),
-        pricePerLiter: Number(pricePerLiter),
-        totalValue: Number(totalValue),
-        refillDate: new Date(refillDate),
-      });
+      const result = await this.addFuelRefill.add(
+        {
+          vehicleId: Number(vehicleId),
+          deliverymanId: Number(deliverymanId),
+          km: Number(km),
+          liters: Number(liters),
+          pricePerLiter: Number(pricePerLiter),
+          totalValue: Number(totalValue),
+          refillDate: new Date(refillDate),
+        },
+        { actorAccountId: Number(httpRequest.headers?.accountId) || undefined }
+      );
       return ok(result);
     } catch (error) {
       if (error instanceof InvalidKmError) {

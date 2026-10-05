@@ -1,3 +1,4 @@
+import { ActorContext } from "../../models/actor-context";
 import { OilChangeLog } from "../../models/oil-change/oil-change-log-model";
 
 export interface AddOilChangeLogModel {
@@ -8,5 +9,5 @@ export interface AddOilChangeLogModel {
 }
 
 export interface AddOilChangeLog {
-  add(log: AddOilChangeLogModel): Promise<OilChangeLog>;
+  add(log: AddOilChangeLogModel, context?: ActorContext): Promise<OilChangeLog>;
 }
