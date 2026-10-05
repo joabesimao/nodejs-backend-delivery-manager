@@ -73,7 +73,14 @@ describe("AddOilChangeLog Controller", () => {
       deliverymanId: 1,
       km: 1000,
       changeDate: new Date("2026-09-23"),
-    });
+    }, { actorAccountId: undefined });
+  });
+
+  test("Should pass the authenticated account as the actor", async () => {
+    const { sut, addOilChangeLogStub } = makeSut();
+    const addSpy = jest.spyOn(addOilChangeLogStub, "add");
+    await sut.handle({ ...makeFakeRequest(), headers: { accountId: 7 } });
+    expect(addSpy).toHaveBeenCalledWith(expect.any(Object), { actorAccountId: 7 });
   });
 
   test("Should return 400 if AddOilChangeLog throws InvalidKmError", async () => {

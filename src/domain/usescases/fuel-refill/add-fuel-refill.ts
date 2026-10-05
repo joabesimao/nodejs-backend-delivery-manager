@@ -1,3 +1,4 @@
+import { ActorContext } from "../../models/actor-context";
 import { FuelRefill } from "../../models/fuel-refill/fuel-refill-model";
 
 export interface AddFuelRefillModel {
@@ -11,5 +12,5 @@ export interface AddFuelRefillModel {
 }
 
 export interface AddFuelRefill {
-  add(refill: AddFuelRefillModel): Promise<FuelRefill>;
+  add(refill: AddFuelRefillModel, context?: ActorContext): Promise<FuelRefill>;
 }

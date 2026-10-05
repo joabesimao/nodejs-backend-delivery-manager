@@ -43,3 +43,18 @@ export const emitChatRealtime = (
 
   io.to(networkRoomFor(rootStoreId)).emit(event, payload);
 };
+
+export const accountRoomFor = (accountId: number): string =>
+  `account:${accountId}`;
+
+export const emitToAccount = (
+  accountId: number,
+  event: string,
+  payload: unknown,
+): void => {
+  if (!io) {
+    return;
+  }
+
+  io.to(accountRoomFor(accountId)).emit(event, payload);
+};

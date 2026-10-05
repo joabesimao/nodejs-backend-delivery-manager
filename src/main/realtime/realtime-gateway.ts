@@ -3,10 +3,12 @@ import { Server } from "socket.io";
 import { env } from "../../../config/Env";
 import { prisma } from "../../infra/db/mysql/helpers";
 import { JwtAdapter } from "../../infra/cryptography/jwt-adapter/jwt-adapter";
-import { networkRoomFor, setRealtimeServer } from "./realtime-state";
+import { accountRoomFor, networkRoomFor, setRealtimeServer } from "./realtime-state";
+import { makeNotifyChatMessage } from "../factories/notify-chat-message";
 import { getAccountScope } from "./store-scope";
 
 const jwtAdapter = new JwtAdapter(env.JWT_SECRET);
+const notifyChatMessage = makeNotifyChatMessage();
 
 interface ChatSendPayload {
   text?: string;
@@ -135,6 +137,8 @@ export const setupRealtimeGateway = (httpServer: HttpServer): void => {
     };
 
     void socket.join(session.networkRoom);
+    // Notificações são individuais: cada conta tem a própria sala.
+    void socket.join(accountRoomFor(session.account.id));
 
     const unitRooms = session.scope.visibleUnitIds.map(
       (unitId) => `unit:${unitId}`,
@@ -301,6 +305,15 @@ export const setupRealtimeGateway = (httpServer: HttpServer): void => {
           });
 
           io.to(session.networkRoom).emit("chat:message", message);
+          void notifyChatMessage.notify({
+            messageId: message.id,
+            unitStoreId: message.unitStoreId,
+            unitStoreName: message.unitStore?.name,
+            senderId: message.senderId,
+            senderName: message.sender?.name,
+            text: message.text,
+            hasImage: Boolean(message.imageBase64),
+          });
           ack?.({ ok: true, messageId: message.id });
         } catch {
           ack?.({ ok: false, error: "Falha ao enviar mensagem" });

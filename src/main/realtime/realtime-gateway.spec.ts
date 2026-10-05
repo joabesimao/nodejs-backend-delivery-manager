@@ -41,6 +41,14 @@ jest.mock("../../infra/db/mysql/helpers", () => ({
   },
 }));
 
+const mockNotifyChatMessage = jest.fn().mockResolvedValue(undefined);
+
+jest.mock("../factories/notify-chat-message", () => ({
+  makeNotifyChatMessage: () => ({
+    notify: (...args: unknown[]) => mockNotifyChatMessage(...args),
+  }),
+}));
+
 jest.mock("../../infra/cryptography/jwt-adapter/jwt-adapter", () => ({
   JwtAdapter: jest.fn().mockImplementation(() => ({
     decrypt: jest.fn(),
@@ -413,6 +421,17 @@ describe("realtime-gateway", () => {
       expect(socket.join).toHaveBeenCalledWith("unit:6");
     });
 
+    test("Should join the account room for personal notifications", async () => {
+      const { connectionHandler } = setup();
+      const socket = makeSessionSocket();
+
+      await connectionHandler(socket);
+
+      expect(socket.join).toHaveBeenCalledWith(
+        `account:${socket.data.session.account.id}`,
+      );
+    });
+
     test("Should not query units when visibleUnitIds is empty and emit an empty units list", async () => {
       const { connectionHandler } = setup();
       const socket = makeSessionSocket({ scope: { visibleUnitIds: [] } });
@@ -619,6 +638,35 @@ describe("realtime-gateway", () => {
       expect(mockTo).toHaveBeenCalledWith("network:2");
       expect(mockToEmit).toHaveBeenCalledWith("chat:message", createdMessage);
       expect(ack).toHaveBeenCalledWith({ ok: true, messageId: 99 });
+    });
+
+    test("Should notify the chat message recipients after sending", async () => {
+      const socket = makeSessionSocket({
+        account: { unitStoreId: 5 },
+        scope: { visibleUnitIds: [5] },
+      });
+      const handler = await getHandler(socket);
+      prismaChatMessageCreate.mockResolvedValue({
+        id: 99,
+        unitStoreId: 5,
+        senderId: 1,
+        text: "hello",
+        imageBase64: null,
+        sender: { name: "Any Name" },
+        unitStore: { name: "Loja 5" },
+      });
+
+      await handler({ text: "hello" }, jest.fn());
+
+      expect(mockNotifyChatMessage).toHaveBeenCalledWith({
+        messageId: 99,
+        unitStoreId: 5,
+        unitStoreName: "Loja 5",
+        senderId: 1,
+        senderName: "Any Name",
+        text: "hello",
+        hasImage: false,
+      });
     });
 
     test("Should strip the data: prefix from a base64 image before persisting it", async () => {

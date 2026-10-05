@@ -18,12 +18,15 @@ export class AddOilChangeLogController implements Controller {
         return badRequest(error);
       }
       const { vehicleId, deliverymanId, km, changeDate } = httpRequest.body;
-      const result = await this.addOilChangeLog.add({
-        vehicleId: Number(vehicleId),
-        deliverymanId: Number(deliverymanId),
-        km: Number(km),
-        changeDate: new Date(changeDate),
-      });
+      const result = await this.addOilChangeLog.add(
+        {
+          vehicleId: Number(vehicleId),
+          deliverymanId: Number(deliverymanId),
+          km: Number(km),
+          changeDate: new Date(changeDate),
+        },
+        { actorAccountId: Number(httpRequest.headers?.accountId) || undefined }
+      );
       return ok(result);
     } catch (error) {
       if (error instanceof InvalidKmError) {

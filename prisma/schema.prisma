@@ -18,6 +18,7 @@ model Account {
   unitStoreId              Int?
   unitStore                UnitStore?    @relation(fields: [unitStoreId], references: [id])
   messages                 ChatMessage[]
+  notifications            Notification[]
   refreshTokenHash         String?       @db.VarChar(64)
   refreshTokenExpiresAt    DateTime?
   previousRefreshTokenHash String?       @db.VarChar(64)
@@ -209,4 +210,33 @@ model ProductVariation {
   product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 
   @@index([productId])
+}
+
+enum NotificationType {
+  chat_message
+  oil_change_due
+  oil_change_created
+  fuel_refill_created
+  admin_notice
+}
+
+model Notification {
+  id          Int              @id @default(autoincrement())
+  recipientId Int
+  recipient   Account          @relation(fields: [recipientId], references: [id], onDelete: Cascade)
+  type        NotificationType
+  title       String
+  body        String           @db.Text
+  link        String?
+  data        Json?
+  // Agrupa (chat) ou evita repetir (óleo) notificações do mesmo assunto.
+  dedupeKey   String?
+  readAt      DateTime?
+  // Exclusão lógica: a linha continua valendo para o dedupe "skip".
+  deletedAt   DateTime?
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  @@index([recipientId, readAt, updatedAt])
+  @@index([recipientId, dedupeKey])
 }
