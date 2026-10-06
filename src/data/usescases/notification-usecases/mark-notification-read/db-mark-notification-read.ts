@@ -14,7 +14,6 @@ export class DbMarkNotificationRead implements MarkNotificationRead {
   async markRead(recipientId: number, id: number): Promise<Notification | null> {
     const notification = await this.markNotificationReadRepository.markRead(recipientId, id);
     if (notification) {
-      // Mantém as outras abas do mesmo usuário em sincronia.
       const unreadCount = await this.countUnreadNotificationsRepository.countUnread(recipientId);
       this.notificationPublisher.publishRead(recipientId, { ids: [id], unreadCount });
     }

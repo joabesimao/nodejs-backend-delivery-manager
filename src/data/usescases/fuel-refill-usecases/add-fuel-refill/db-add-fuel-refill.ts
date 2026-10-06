@@ -26,7 +26,6 @@ export class DbAddFuelRefill implements AddFuelRefill {
     const previousKm = neighbors.previous?.km;
     const kmDriven = previousKm !== undefined ? refill.km - previousKm : undefined;
     const created = await this.addFuelRefillRepository.add({ ...refill, previousKm, kmDriven });
-    // Lançamento retroativo: o seguinte passa a ter este como anterior.
     if (neighbors.next) {
       await this.recalculateFuelRefillKmRepository.recalculateKmChain(refill.vehicleId);
     }

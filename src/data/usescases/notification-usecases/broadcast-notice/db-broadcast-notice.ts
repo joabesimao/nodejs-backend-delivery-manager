@@ -14,7 +14,6 @@ export class DbBroadcastNotice implements BroadcastNotice {
   ) {}
 
   async broadcast(notice: BroadcastNoticeModel): Promise<number> {
-    // null = remetente sem unidade, sem restrição de escopo.
     const visibleUnitIds = await this.loadAccountVisibleUnitIdsRepository.loadVisibleUnitIds(notice.senderId);
     let unitStoreIds = visibleUnitIds ?? undefined;
     if (notice.unitStoreId) {

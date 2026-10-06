@@ -7,8 +7,6 @@ import { CountUnreadNotificationsRepository } from "../../../protocols/db/notifi
 import { NotificationPublisher } from "../../../protocols/realtime/notification-publisher";
 import { KeyedLock } from "../../../helpers/keyed-lock";
 
-// Notificação é efeito colateral: falhas são registradas e nunca propagadas,
-// para não derrubar a operação que a disparou.
 export class DbNotifyAccounts implements NotifyAccounts {
   constructor(
     private readonly addNotificationRepository: AddNotificationRepository,
@@ -16,7 +14,6 @@ export class DbNotifyAccounts implements NotifyAccounts {
     private readonly updateNotificationContentRepository: UpdateNotificationContentRepository,
     private readonly countUnreadNotificationsRepository: CountUnreadNotificationsRepository,
     private readonly notificationPublisher: NotificationPublisher,
-    // Compartilhada entre instâncias para serializar o dedupe do mesmo destinatário.
     private readonly dedupeLock: KeyedLock = new KeyedLock()
   ) {}
 
@@ -45,7 +42,6 @@ export class DbNotifyAccounts implements NotifyAccounts {
     if (!dedupeKey || !model.dedupe) {
       return await this.create(recipientId, model);
     }
-    // Busca + cria/atualiza não é atômico: sem a trava, dois eventos simultâneos duplicariam a notificação.
     return await this.dedupeLock.run(`${recipientId}:${dedupeKey}`, async () =>
       await this.saveDeduped(recipientId, model, dedupeKey)
     );
@@ -58,7 +54,6 @@ export class DbNotifyAccounts implements NotifyAccounts {
   ): Promise<Notification | null> {
     const existing = await this.findNotificationByDedupeKeyRepository.findByDedupeKey(recipientId, dedupeKey, {
       unreadOnly: model.dedupe === "aggregate",
-      // Aviso excluído pelo usuário também conta: ele já foi dispensado.
       includeDeleted: model.dedupe === "skip",
     });
     if (!existing) {

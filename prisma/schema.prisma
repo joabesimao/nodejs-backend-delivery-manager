@@ -229,10 +229,8 @@ model Notification {
   body        String           @db.Text
   link        String?
   data        Json?
-  // Agrupa (chat) ou evita repetir (óleo) notificações do mesmo assunto.
   dedupeKey   String?
   readAt      DateTime?
-  // Exclusão lógica: a linha continua valendo para o dedupe "skip".
   deletedAt   DateTime?
   createdAt   DateTime         @default(now())
   updatedAt   DateTime         @updatedAt

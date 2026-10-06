@@ -65,7 +65,6 @@ export class AddOrderDeliveryController implements Controller {
         return badRequest(error);
       }
 
-      // `data` não é aceito do cliente: a data do pedido é sempre a do servidor.
       const { amount, quantity, registerId, deliverymanId } = httpRequest.body;
       const accountId =
         Number(httpRequest.headers?.accountId || 0) || undefined;
@@ -124,7 +123,6 @@ export class AddOrderDeliveryController implements Controller {
         return badRequest(new Error(message));
       }
 
-      // Erro cru do Prisma: não repassa detalhes do banco ao cliente.
       if (message.includes("Foreign key constraint")) {
         return badRequest(new Error("Dados invalidos para criar pedido"));
       }

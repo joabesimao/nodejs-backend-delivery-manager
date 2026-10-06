@@ -89,7 +89,6 @@ export class NotificationMysqlRepository
   }
 
   async load(params: LoadNotificationsParams): Promise<LoadNotificationsResult> {
-    // Busca um a mais para saber se há próxima página.
     const rows = await this.prisma.notification.findMany({
       where: {
         recipientId: params.recipientId,
@@ -133,7 +132,6 @@ export class NotificationMysqlRepository
   }
 
   async delete(recipientId: number, id: number): Promise<boolean> {
-    // Lógica: o dedupe "skip" precisa enxergar avisos que o usuário já dispensou.
     const result = await this.prisma.notification.updateMany({
       where: { id, recipientId, deletedAt: null },
       data: { deletedAt: new Date() },

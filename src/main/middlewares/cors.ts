@@ -4,8 +4,6 @@ import { env } from "../../../config/Env";
 const ALLOWED_HEADERS = "Content-Type, x-access-token, Authorization";
 const ALLOWED_METHODS = "GET, POST, PUT, DELETE, OPTIONS";
 
-// Sem lista, libera qualquer origem (só permitido fora de produção pelo Env).
-// Com lista, devolve a própria origem apenas se ela estiver liberada.
 export const makeCors = (allowedOrigins?: string[]): RequestHandler => {
   return (req: Request, res: Response, next: NextFunction) => {
     const origin = req.headers.origin;

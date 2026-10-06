@@ -42,7 +42,6 @@ export class AddChatMessageController implements Controller {
         };
       }
 
-      // Validar payload
       const text = String(body.text || "").trim();
       const imageBase64 = body.imageBase64 ? String(body.imageBase64) : null;
       const imageMimeType = body.imageMimeType ? String(body.imageMimeType) : null;
@@ -55,7 +54,6 @@ export class AddChatMessageController implements Controller {
         };
       }
 
-      // Verificar permissão e obter scope
       const scope = await getAccountScope(prisma, accountId);
 
       if (!scope) {
@@ -65,7 +63,6 @@ export class AddChatMessageController implements Controller {
         };
       }
 
-      // Se unitStoreId não foi fornecido, usar o primeiro da lista de visíveis
       if (!unitStoreId) {
         if (scope.visibleUnitIds.length === 0) {
           return {
@@ -76,7 +73,6 @@ export class AddChatMessageController implements Controller {
         unitStoreId = scope.visibleUnitIds[0];
       }
 
-      // Verificar se tem permissão para a loja específica
       if (!scope.visibleUnitIds.includes(unitStoreId)) {
         return {
           statusCode: 403,
@@ -84,7 +80,6 @@ export class AddChatMessageController implements Controller {
         };
       }
 
-      // Validar tamanho da imagem
       if (imageBase64) {
         const normalizedBase64 = normalizeBase64(imageBase64);
         const sizeInBytes = estimateBase64Bytes(normalizedBase64);
@@ -99,7 +94,6 @@ export class AddChatMessageController implements Controller {
         }
       }
 
-      // Salvar mensagem
       const message = await prisma.chatMessage.create({
         data: {
           unitStoreId,

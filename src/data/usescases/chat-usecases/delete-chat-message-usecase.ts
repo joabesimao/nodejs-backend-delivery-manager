@@ -1,5 +1,3 @@
-// Protocolo de use case para deletar mensagem de chat
-
 export interface DeleteChatMessageUseCaseRequest {
   messageId: number;
   accountId: number;

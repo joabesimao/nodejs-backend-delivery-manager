@@ -25,7 +25,6 @@ export class GetChatStatisticsController implements Controller {
         ? { unitStoreId: { in: scope.visibleUnitIds } }
         : undefined;
 
-      // Estatísticas básicas
       const totalMessages = await prisma.chatMessage.count({
         where: whereClause,
       });
@@ -44,7 +43,6 @@ export class GetChatStatisticsController implements Controller {
         },
       });
 
-      // Mensagens hoje
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       const tomorrow = new Date(today);
@@ -60,21 +58,18 @@ export class GetChatStatisticsController implements Controller {
         },
       });
 
-      // Usuários únicos
       const uniqueSenders = await prisma.chatMessage.findMany({
         where: whereClause,
         select: { senderId: true },
         distinct: ["senderId"],
       });
 
-      // Lojas com atividade
       const activeUnits = await prisma.chatMessage.findMany({
         where: whereClause,
         select: { unitStoreId: true },
         distinct: ["unitStoreId"],
       });
 
-      // Última mensagem
       const lastMessage = await prisma.chatMessage.findFirst({
         where: whereClause,
         orderBy: { createdAt: "desc" },
@@ -84,7 +79,6 @@ export class GetChatStatisticsController implements Controller {
         },
       });
 
-      // Mensagens por hora (últimas 24h)
       const messagesByHour = [];
       for (let i = 23; i >= 0; i--) {
         const hourStart = new Date();

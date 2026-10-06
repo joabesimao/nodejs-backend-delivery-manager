@@ -2,8 +2,6 @@ import { LoadChatMessagesController } from "./load-chat-messages-controller";
 import { HttpRequest } from "../../protocols/http";
 import { prisma } from "../../../infra/db/mysql/helpers";
 import { getAccountScope } from "../../../main/realtime/store-scope";
-// Lightweight touch of the chat-usecases barrel file so its pure re-exports
-// (interfaces with no runtime logic) are counted as covered.
 import "../../../data/usescases/chat-usecases";
 
 jest.mock("../../../infra/db/mysql/helpers", () => ({

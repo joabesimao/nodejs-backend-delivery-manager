@@ -80,7 +80,6 @@ export const getAccountScope = async (
     return null;
   }
 
-  // admin é equivalente a principal (acesso total), user é equivalente a branch (acesso limitado)
   const normalizedRole = account.role === "admin" ? "principal" : "branch";
 
   if (!account.unitStoreId) {

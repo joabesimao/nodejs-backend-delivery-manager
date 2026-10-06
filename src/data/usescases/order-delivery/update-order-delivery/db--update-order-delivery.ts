@@ -11,10 +11,8 @@ import {
 import { LoadOrderDeliveryByIdRepository } from "../../../protocols/db/order-delivery/load-order-delivery";
 import { UpdateOrderDeliveryRepository } from "../../../protocols/db/order-delivery/update-order-delivery";
 
-// Roles que só podem mudar o status: valor e entregador ficam travados.
 const STATUS_ONLY_ROLES = ["entregador"];
 
-// O status só avança; pedido finalizado não pode mais ser alterado.
 const STATUS_SEQUENCE: OrderStatus[] = ["actived", "delivered", "finished"];
 
 const isProvided = (value: unknown): boolean =>
@@ -66,8 +64,6 @@ export class DbUpdateOrderDelivery implements UpdateOrderDelivery {
     }
   }
 
-  // O frontend reenvia valor e entregador ao finalizar; mandar os mesmos
-  // valores é permitido, alterá-los não.
   private ensureRestrictedFieldsUnchanged(
     current: OrderDeliveryModel,
     info: UpdateOrderDeliveryModel

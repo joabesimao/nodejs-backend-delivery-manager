@@ -30,12 +30,10 @@ export class LoadChatMessagesController implements Controller {
 
       const whereClause: any = {};
 
-      // Filtrar por escopo visível
       if (scope.visibleUnitIds.length) {
         whereClause.unitStoreId = { in: scope.visibleUnitIds };
       }
 
-      // Filtrar por loja específica se solicitado
       if (unitStoreId && scope.visibleUnitIds.includes(unitStoreId)) {
         whereClause.unitStoreId = unitStoreId;
       }
