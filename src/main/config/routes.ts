@@ -6,8 +6,6 @@ import fuelRefillRoutes from "../routes/fuel-refill-routes";
 import oilChangeRoutes from "../routes/oil-change-routes";
 import notificationRoutes from "../routes/notification-routes";
 
-// Imports estáticos: funcionam tanto em TS (dev) quanto no JS compilado (dist)
-// e garantem que todas as rotas existam antes do servidor aceitar requisições.
 const routeModules = [
   mainRoutes,
   vehicleRoutes,

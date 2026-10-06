@@ -2,13 +2,10 @@ import { NextFunction, Request, Response } from "express";
 
 type HttpError = Error & { type?: string; status?: number };
 
-// Rota /api inexistente: responde JSON em vez do HTML padrão do Express.
 export const notFound = (_req: Request, res: Response): void => {
   res.status(404).json({ error: "Rota não encontrada" });
 };
 
-// Último middleware do app: substitui o handler padrão do Express, que devolve
-// HTML com stack trace quando NODE_ENV não é "production".
 export const errorHandler = (
   error: HttpError,
   req: Request,

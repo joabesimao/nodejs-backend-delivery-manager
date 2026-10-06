@@ -7,7 +7,6 @@ import { LoadOilChangeLogRepository } from "../../../protocols/db/oil-change/loa
 import { LoadNotificationRecipientsRepository } from "../../../protocols/db/notification/load-notification-recipients";
 import { describeVehicle, formatKm } from "../../../helpers/vehicle-label";
 
-// Antecedência, em km, do aviso de troca de óleo próxima.
 export const OIL_CHANGE_WARNING_KM = 500;
 
 export class NotifyingAddFuelRefill implements AddFuelRefill {
@@ -30,7 +29,6 @@ export class NotifyingAddFuelRefill implements AddFuelRefill {
   }
 
   private async notifyManagers(refill: FuelRefill, actorAccountId?: number): Promise<void> {
-    // Veículos não têm unidade: os avisos vão para todos os gestores.
     const managerIds = await this.loadNotificationRecipientsRepository.loadRecipientIds({
       roles: this.managerRoles,
     });
@@ -53,7 +51,6 @@ export class NotifyingAddFuelRefill implements AddFuelRefill {
 
   private async notifyOilChangeDue(refill: FuelRefill, vehicleLabel: string, managerIds: number[]): Promise<void> {
     const [lastChange] = await this.loadOilChangeLogRepository.loadAll({ vehicleId: refill.vehicleId });
-    // Abastecimento anterior à última troca (lançamento retroativo) não diz nada sobre a próxima.
     if (!lastChange || refill.km < lastChange.km) {
       return;
     }
@@ -64,7 +61,6 @@ export class NotifyingAddFuelRefill implements AddFuelRefill {
     const overdue = remainingKm <= 0;
     const expected = `prevista em ${formatKm(lastChange.nextChangeKm)}`;
 
-    // O autor também recebe: é um alerta sobre o veículo, não um eco da própria ação.
     await this.notifyAccounts.notify({
       recipientIds: managerIds,
       type: "oil_change_due",
@@ -74,7 +70,6 @@ export class NotifyingAddFuelRefill implements AddFuelRefill {
         : `${vehicleLabel}: faltam ${formatKm(remainingKm)} para a troca (${expected}).`,
       link: "/cadastros/troca-oleo",
       data: { vehicleId: refill.vehicleId, nextChangeKm: lastChange.nextChangeKm, currentKm: refill.km },
-      // Um aviso de "próxima" e um de "vencida" por ciclo de troca.
       dedupeKey: `oil:vehicle:${refill.vehicleId}:${lastChange.nextChangeKm}:${overdue ? "overdue" : "soon"}`,
       dedupe: "skip",
     });

@@ -12,7 +12,6 @@ import { ADMIN_ROLES } from "../config/roles";
 
 const auth = (roles?: string[]) => adaptMiddleware(makeAuthMiddleware(roles));
 
-// Todas as rotas (exceto broadcast) operam só nas notificações da própria conta.
 export default (router: Router): void => {
   router.get(
     "/notifications",

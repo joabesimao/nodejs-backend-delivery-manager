@@ -12,8 +12,6 @@ import { Controller } from "../../../protocols/controller";
 import { HttpRequest, HttpResponse } from "../../../protocols/http";
 import { Validation } from "../../../protocols/validation";
 
-// Janela em que o refresh token anterior ainda é aceito após a rotação,
-// para requisições concorrentes (várias abas) não derrubarem a sessão.
 export const REFRESH_TOKEN_GRACE_PERIOD_MS = 30 * 1000;
 
 export class RefreshTokenController implements Controller {
@@ -84,18 +82,13 @@ export class RefreshTokenController implements Controller {
           return ok({ accessToken, refreshToken: newRefreshToken });
         }
 
-        // Outra requisição concorrente (ex.: outra aba) rotacionou primeiro:
-        // devolve só o access token e mantém o refresh token que ela gravou.
         return ok({ accessToken });
       }
 
       if (this.isWithinGracePeriod(account, incomingHash)) {
-        // Token anterior reapresentado logo após a rotação (corrida entre abas).
         return ok({ accessToken: await this.issueAccessToken(account.id) });
       }
 
-      // Token desconhecido ou reutilizado fora da janela de tolerância:
-      // possível roubo, revoga a cadeia inteira.
       await this.revoke(account.id);
       return unauthorized();
     } catch (error) {

@@ -31,7 +31,6 @@ export const emitDeliveryRealtime = (
   });
 };
 
-// Mesmos eventos que o gateway emite, para mensagens criadas/apagadas via REST.
 export const emitChatRealtime = (
   event: "chat:message" | "chat:message-deleted",
   rootStoreId: number | null,

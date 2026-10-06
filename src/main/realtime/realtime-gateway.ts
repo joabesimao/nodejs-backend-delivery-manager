@@ -19,8 +19,6 @@ interface ChatSendPayload {
 
 const MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024;
 
-// O padrão do socket.io é 1MB, menor que uma imagem de 5MB em base64
-// (~6,7MB). A folga cobre o texto e o envelope da mensagem.
 const MAX_SOCKET_BUFFER_BYTES =
   Math.ceil((MAX_IMAGE_SIZE_BYTES * 4) / 3) + 256 * 1024;
 
@@ -137,7 +135,6 @@ export const setupRealtimeGateway = (httpServer: HttpServer): void => {
     };
 
     void socket.join(session.networkRoom);
-    // Notificações são individuais: cada conta tem a própria sala.
     void socket.join(accountRoomFor(session.account.id));
 
     const unitRooms = session.scope.visibleUnitIds.map(
@@ -194,7 +191,6 @@ export const setupRealtimeGateway = (httpServer: HttpServer): void => {
       });
     }
 
-    // Fetch chat history
     socket.on("chat:fetch-history", async (ack?: (response: unknown) => void) => {
       try {
         const messages = await prisma.chatMessage.findMany({
@@ -229,7 +225,6 @@ export const setupRealtimeGateway = (httpServer: HttpServer): void => {
       }
     });
 
-    // Send chat message
     socket.on(
       "chat:send",
       async (payload: ChatSendPayload, ack?: (response: unknown) => void) => {
@@ -321,7 +316,6 @@ export const setupRealtimeGateway = (httpServer: HttpServer): void => {
       },
     );
 
-    // Delete chat message
     socket.on(
       "chat:delete-message",
       async (payload: { messageId: number }, ack?: (response: unknown) => void) => {
@@ -342,7 +336,6 @@ export const setupRealtimeGateway = (httpServer: HttpServer): void => {
             return;
           }
 
-          // Só o remetente ou um admin (dentro das lojas visíveis) apaga.
           const isOwner = message.senderId === session.account.id;
           const isAdmin = session.account.role === "admin";
           const outOfScope =
@@ -366,7 +359,6 @@ export const setupRealtimeGateway = (httpServer: HttpServer): void => {
       },
     );
 
-    // Typing indicator
     socket.on("chat:typing", (payload: { isTyping: boolean }) => {
       socket.to(session.networkRoom).emit("chat:typing", {
         accountId: session.account.id,

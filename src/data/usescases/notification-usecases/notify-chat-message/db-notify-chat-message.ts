@@ -22,12 +22,10 @@ export class DbNotifyChatMessage implements NotifyChatMessage {
     private readonly notifyAccounts: NotifyAccounts
   ) {}
 
-  // Não lança: o envio da mensagem já foi concluído quando isto roda.
   async notify(message: NotifyChatMessageModel): Promise<void> {
     try {
       const excludeAccountIds = [message.senderId];
       const networkUnitIds = await this.loadNetworkUnitIdsRepository.loadNetworkUnitIds(message.unitStoreId);
-      // Mesma visibilidade do chat: quem é da unidade e os admins da rede.
       const [unitMembers, networkAdmins] = await Promise.all([
         this.loadNotificationRecipientsRepository.loadRecipientIds({
           unitStoreIds: [message.unitStoreId],

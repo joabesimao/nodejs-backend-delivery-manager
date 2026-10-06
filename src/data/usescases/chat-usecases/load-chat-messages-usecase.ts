@@ -1,5 +1,3 @@
-// Protocolo de use case para carregar mensagens de chat
-
 export interface ChatMessage {
   id: number;
   unitStoreId: number;

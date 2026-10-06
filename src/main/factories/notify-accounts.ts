@@ -5,7 +5,6 @@ import { prisma } from "../../infra/db/mysql/helpers/index";
 import { SocketNotificationPublisher } from "../realtime/socket-notification-publisher";
 import { KeyedLock } from "../../data/helpers/keyed-lock";
 
-// Uma só trava para todas as instâncias (chat via socket e REST, veículos, avisos).
 const dedupeLock = new KeyedLock();
 
 export const makeNotificationRepository = (): NotificationMysqlRepository => new NotificationMysqlRepository(prisma);

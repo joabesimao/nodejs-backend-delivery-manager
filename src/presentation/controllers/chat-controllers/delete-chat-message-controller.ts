@@ -24,7 +24,6 @@ export class DeleteChatMessageController implements Controller {
         };
       }
 
-      // Buscar mensagem
       const message = await prisma.chatMessage.findUnique({
         where: { id: messageId },
         include: {
@@ -41,7 +40,6 @@ export class DeleteChatMessageController implements Controller {
         };
       }
 
-      // Verificar permissão: somente remetente ou admin podem deletar
       const account = await prisma.account.findUnique({
         where: { id: accountId },
         select: { role: true },
@@ -63,7 +61,6 @@ export class DeleteChatMessageController implements Controller {
         };
       }
 
-      // Deletar mensagem
       await prisma.chatMessage.delete({
         where: { id: messageId },
       });

@@ -79,7 +79,6 @@ describe("DbNotifyAccounts", () => {
     const { sut, repository, publisher } = makeSut();
     repository.findByDedupeKey.mockResolvedValueOnce(makeFakeNotification()).mockResolvedValueOnce(null);
     const notified = await sut.notify(makeModel({ dedupeKey: "oil:1", dedupe: "skip" }));
-    // Excluída conta como já avisada.
     expect(repository.findByDedupeKey).toHaveBeenCalledWith(1, "oil:1", { unreadOnly: false, includeDeleted: true });
     expect(notified).toBe(1);
     expect(repository.add).toHaveBeenCalledTimes(1);
@@ -88,7 +87,6 @@ describe("DbNotifyAccounts", () => {
 
   test("Should aggregate concurrent events for the same recipient into one notification", async () => {
     const { sut, repository } = makeSut();
-    // Simula o banco: a busca só enxerga o que já foi gravado.
     const saved: Notification[] = [];
     repository.findByDedupeKey.mockImplementation(async () => saved[saved.length - 1] ?? null);
     repository.add.mockImplementation(async (data) => {

@@ -17,8 +17,6 @@ export class JwtAdapter implements Encrypter, Decrypter {
       ...(options?.expiresIn && {
         expiresIn: options.expiresIn as SignOptions["expiresIn"],
       }),
-      // jti aleatório: sem ele, dois refresh tokens emitidos no mesmo segundo
-      // seriam idênticos e a detecção de reuso não os distinguiria.
       ...(options?.type === "refresh" && { jwtid: randomUUID() }),
     };
 
@@ -41,8 +39,6 @@ export class JwtAdapter implements Encrypter, Decrypter {
       return null;
     }
 
-    // Only access tokens may authenticate requests; refresh tokens are
-    // accepted exclusively by the refresh-token flow (via decode()).
     if (!payload?.id || payload.type !== "access") {
       return null;
     }

@@ -798,7 +798,6 @@ export default (router: Router): void => {
     adaptRoute(makeDeleteNeighborhoodController()),
   );
 
-  // Chat endpoints
   router.get(
     "/chat/messages",
     auth(),

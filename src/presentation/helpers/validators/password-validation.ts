@@ -2,7 +2,6 @@ import { InvalidParamError, WeakPasswordError } from "../../errors";
 import { Validation } from "../../protocols/validation";
 
 export const PASSWORD_MIN_LENGTH = 8;
-// bcrypt ignora tudo que passa de 72 bytes.
 export const PASSWORD_MAX_BYTES = 72;
 
 export class PasswordValidation implements Validation {

@@ -3,8 +3,6 @@ import { z } from "zod";
 
 dotenv.config();
 
-// Valores de exemplo publicados no repositório (.env.public, README). Qualquer
-// pessoa conhece esses segredos, então nunca podem ser usados em produção.
 export const PUBLIC_PLACEHOLDER_SECRETS = [
   "fastone_jwt_secret_public_change_me",
   "fastone_jwt_secret_here",
@@ -30,9 +28,6 @@ export const envSchema = z
     JWT_ACCESS_EXPIRES_IN: z.string().default("15m"),
     JWT_REFRESH_EXPIRES_IN: z.string().default("7d"),
 
-    // Origens liberadas no CORS, separadas por vírgula
-    // (ex.: "https://app.exemplo.com,http://localhost:5173").
-    // Sem valor, qualquer origem é aceita — permitido só fora de produção.
     CORS_ORIGINS: z
       .string()
       .optional()

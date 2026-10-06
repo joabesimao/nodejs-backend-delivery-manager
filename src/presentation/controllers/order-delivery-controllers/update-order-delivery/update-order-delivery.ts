@@ -57,7 +57,6 @@ export class UpdateOrderDeliveryController implements Controller {
         return badRequest(new InvalidParamError("id"));
       }
 
-      // accountId/accountRole vêm do token (auth), nunca do corpo.
       const requestBody: Record<string, unknown> = {
         ...httpRequest.body,
         accountId,

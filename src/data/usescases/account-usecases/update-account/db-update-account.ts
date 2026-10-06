@@ -67,7 +67,6 @@ export class DbUpdateAccount implements UpdateAccount {
       password,
     });
 
-    // Troca de senha ou desativação encerra as sessões existentes.
     if (password || data.active === false) {
       await this.updateRefreshTokenRepository.updateRefreshToken(id, null, null);
     }

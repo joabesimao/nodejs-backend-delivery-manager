@@ -9,7 +9,6 @@ const tooManyRequests = (_req: Request, res: Response): void => {
     .json({ error: "Muitas tentativas. Tente novamente mais tarde." });
 };
 
-// Conta só as tentativas que falham, para não travar quem acerta a senha.
 export const loginRateLimit = rateLimit({
   windowMs: FIFTEEN_MINUTES_MS,
   limit: 10,
