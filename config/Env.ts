@@ -17,6 +17,7 @@ export const envSchema = z
       .enum(["development", "test", "production"])
       .default("development"),
     PORT: z.coerce.number().default(3000),
+    VERCEL: z.string().optional(),
 
     DATABASE_URL: z.string().url(),
 
