@@ -6,11 +6,7 @@ import {
 
 const makeEnv = (overrides: Record<string, string | undefined> = {}) => ({
   PORT: "3000",
-  DB_HOST: "localhost",
-  DB_PORT: "3306",
-  DB_NAME: "db",
-  DB_USER: "user",
-  DB_PASSWORD: "pass",
+  DATABASE_URL: "postgresql://user:pass@localhost:5432/db",
   JWT_SECRET: "a".repeat(JWT_SECRET_MIN_LENGTH_PRODUCTION),
   ...overrides,
 });

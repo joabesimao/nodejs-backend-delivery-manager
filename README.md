@@ -5,7 +5,7 @@
 ![version](https://img.shields.io/badge/version-1.0.0-0ea5e9.svg?style=flat-square)
 ![node](https://img.shields.io/badge/Node.js-20-339933?logo=node.js&logoColor=white&style=flat-square)
 ![typescript](https://img.shields.io/badge/TypeScript-5.x-3178c6?logo=typescript&logoColor=white&style=flat-square)
-![mysql](https://img.shields.io/badge/MySQL-8-4479A1?logo=mysql&logoColor=white&style=flat-square)
+![postgres](https://img.shields.io/badge/PostgreSQL-Neon-4169E1?logo=postgresql&logoColor=white&style=flat-square)
 ![docker](https://img.shields.io/badge/Docker-ready-2496ED?logo=docker&logoColor=white&style=flat-square)
 ![express](https://img.shields.io/badge/Express-4.x-000000?logo=express&logoColor=white&style=flat-square)
 ![prisma](https://img.shields.io/badge/Prisma-ORM-2D3748?logo=prisma&logoColor=white&style=flat-square)
@@ -39,7 +39,7 @@ API RESTful completa para gerenciamento de entregas, clientes, pedidos e relató
 
 - **Node.js** 20+
 - **npm** 10+
-- **MySQL** 8+ (ou Docker)
+- **PostgreSQL** 16+ (Docker local ou [Neon](https://neon.tech))
 - **Git**
 
 ---
@@ -69,12 +69,8 @@ Edite o `.env` com suas configurações:
 
 ```env
 PORT=3000
-DB_HOST=localhost
-DB_PORT=3306
-DB_NAME=CadClient
-DB_USER=seu_usuario
-DB_PASSWORD=sua_senha
-DATABASE_URL=mysql://seu_usuario:sua_senha@localhost:3306/CadClient
+DATABASE_URL=postgresql://seu_usuario:sua_senha@localhost:5432/CadClient
+DIRECT_URL=postgresql://seu_usuario:sua_senha@localhost:5432/CadClient
 JWT_SECRET=sua_chave_secreta_aqui
 ```
 
@@ -369,13 +365,9 @@ npm run test:unit:coverage
 # Servidor
 PORT=3000                                    # Porta do servidor
 
-# Banco de Dados MySQL
-DB_HOST=localhost                           # Host do MySQL
-DB_PORT=3306                                # Porta do MySQL
-DB_NAME=CadClient                           # Nome do banco
-DB_USER=myuser                              # Usuário do MySQL
-DB_PASSWORD=mypassword                      # Senha do MySQL
-DATABASE_URL=mysql://user:pass@host/db     # URL de conexão completa
+# Banco de Dados PostgreSQL (Neon em produção)
+DATABASE_URL=postgresql://user:pass@host/db?sslmode=require  # Neon: string "pooled" (host -pooler), usada pela API
+DIRECT_URL=postgresql://user:pass@host/db?sslmode=require    # Neon: string direta, usada pelo prisma migrate
 
 # Autenticação
 JWT_SECRET=fastone_jwt_secret_here          # Chave secreta para JWT (openssl rand -hex 32)

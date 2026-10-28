@@ -66,9 +66,9 @@ export class SearchChatMessagesController implements Controller {
 
       if (searchText) {
         whereClause.OR = [
-          { text: { contains: searchText } },
-          { sender: { name: { contains: searchText } } },
-          { unitStore: { name: { contains: searchText } } },
+          { text: { contains: searchText, mode: "insensitive" } },
+          { sender: { name: { contains: searchText, mode: "insensitive" } } },
+          { unitStore: { name: { contains: searchText, mode: "insensitive" } } },
         ];
       }
 

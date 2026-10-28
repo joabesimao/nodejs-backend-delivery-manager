@@ -144,7 +144,7 @@ describe("Product MySql Repository", () => {
       });
       expect(prisma.product.findMany).toHaveBeenCalledWith({
         where: {
-          name: { contains: "abc" },
+          name: { contains: "abc", mode: "insensitive" },
           category: "cat",
           price: { gte: 5, lte: 15 },
         },

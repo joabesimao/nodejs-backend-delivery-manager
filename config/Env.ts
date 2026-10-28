@@ -16,13 +16,9 @@ export const envSchema = z
     NODE_ENV: z
       .enum(["development", "test", "production"])
       .default("development"),
-    PORT: z.coerce.number(),
+    PORT: z.coerce.number().default(3000),
 
-    DB_HOST: z.string(),
-    DB_PORT: z.coerce.number(),
-    DB_NAME: z.string(),
-    DB_USER: z.string(),
-    DB_PASSWORD: z.string(),
+    DATABASE_URL: z.string().url(),
 
     JWT_SECRET: z.string().min(1),
     JWT_ACCESS_EXPIRES_IN: z.string().default("15m"),

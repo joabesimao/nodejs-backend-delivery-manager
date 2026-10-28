@@ -1,23 +1,22 @@
 services:
-  mysql:
-    image: mysql:8.0
-    container_name: fastone_mysql_public
+  postgres:
+    image: postgres:16-alpine
+    container_name: fastone_postgres_public
     restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: rootpassword
-      MYSQL_DATABASE: CadClient
-      MYSQL_USER: myuser
-      MYSQL_PASSWORD: mypassword
+      POSTGRES_DB: CadClient
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
     ports:
       # Só acessível pela própria máquina; a API usa a rede interna do compose.
-      - "127.0.0.1:3306:3306"
+      - "127.0.0.1:5432:5432"
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-prootpassword"]
+      test: ["CMD-SHELL", "pg_isready -U myuser -d CadClient"]
       interval: 10s
       timeout: 5s
       retries: 10
     volumes:
-      - mysql_public_data:/var/lib/mysql
+      - postgres_public_data:/var/lib/postgresql/data
 
   api:
     build:
@@ -28,7 +27,7 @@ services:
     env_file:
       - .env.public
     depends_on:
-      mysql:
+      postgres:
         condition: service_healthy
     ports:
       - "3000:3000"
@@ -50,4 +49,4 @@ services:
       - "5173:80"
 
 volumes:
-  mysql_public_data:
+  postgres_public_data:

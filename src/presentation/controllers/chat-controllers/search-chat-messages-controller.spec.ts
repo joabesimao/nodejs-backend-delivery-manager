@@ -155,9 +155,9 @@ describe("SearchChatMessages Controller", () => {
       expect.objectContaining({
         where: expect.objectContaining({
           OR: [
-            { text: { contains: "hello" } },
-            { sender: { name: { contains: "hello" } } },
-            { unitStore: { name: { contains: "hello" } } },
+            { text: { contains: "hello", mode: "insensitive" } },
+            { sender: { name: { contains: "hello", mode: "insensitive" } } },
+            { unitStore: { name: { contains: "hello", mode: "insensitive" } } },
           ],
         }),
       })
