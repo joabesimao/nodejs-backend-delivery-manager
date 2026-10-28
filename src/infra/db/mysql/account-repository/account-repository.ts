@@ -109,8 +109,8 @@ export class AccountMySqlRepository
         ...(filter?.q
           ? {
               OR: [
-                { name: { contains: filter.q } },
-                { email: { contains: filter.q } },
+                { name: { contains: filter.q, mode: "insensitive" } },
+                { email: { contains: filter.q, mode: "insensitive" } },
               ],
             }
           : {}),

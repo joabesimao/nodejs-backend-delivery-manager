@@ -4,8 +4,9 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model Account {
@@ -175,7 +176,7 @@ model ChatMessage {
   unitStoreId   Int
   senderId      Int
   text          String?
-  imageBase64   String?   @db.LongText
+  imageBase64   String?   @db.Text
   imageMimeType String?
   createdAt     DateTime  @default(now())
   unitStore     UnitStore @relation(fields: [unitStoreId], references: [id])
@@ -197,7 +198,7 @@ model Product {
   barcode       String?            @unique
   status        Boolean            @default(true)
   notes         String?            @db.Text
-  imageBase64   String?            @db.LongText
+  imageBase64   String?            @db.Text
   imageMimeType String?
   variations    ProductVariation[]
 }

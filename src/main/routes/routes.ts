@@ -375,9 +375,9 @@ export default (router: Router): void => {
           where: {
             OR: [
               ...(numericId !== undefined ? [{ id: numericId }] : []),
-              { Register: { client: { name: { contains: term } } } },
-              { deliveryman: { name: { contains: term } } },
-              { deliveryman: { lastName: { contains: term } } },
+              { Register: { client: { name: { contains: term, mode: "insensitive" } } } },
+              { deliveryman: { name: { contains: term, mode: "insensitive" } } },
+              { deliveryman: { lastName: { contains: term, mode: "insensitive" } } },
             ],
           },
           include: {
@@ -390,9 +390,9 @@ export default (router: Router): void => {
         prisma.client.findMany({
           where: {
             OR: [
-              { name: { contains: term } },
-              { cpf: { contains: term } },
-              { phone: { contains: term } },
+              { name: { contains: term, mode: "insensitive" } },
+              { cpf: { contains: term, mode: "insensitive" } },
+              { phone: { contains: term, mode: "insensitive" } },
             ],
           },
           take: RESULT_LIMIT,
@@ -400,9 +400,9 @@ export default (router: Router): void => {
         prisma.deliveryman.findMany({
           where: {
             OR: [
-              { name: { contains: term } },
-              { lastName: { contains: term } },
-              { phone: { contains: term } },
+              { name: { contains: term, mode: "insensitive" } },
+              { lastName: { contains: term, mode: "insensitive" } },
+              { phone: { contains: term, mode: "insensitive" } },
             ],
           },
           take: RESULT_LIMIT,

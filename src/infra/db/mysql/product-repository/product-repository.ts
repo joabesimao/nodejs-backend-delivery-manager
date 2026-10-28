@@ -70,7 +70,7 @@ export class ProductMysqlRepository
     const { name, category, priceMin, priceMax, limit, offset } = filter;
 
     const where: any = {};
-    if (name) where.name = { contains: name };
+    if (name) where.name = { contains: name, mode: "insensitive" };
     if (category) where.category = category;
     if (priceMin !== undefined || priceMax !== undefined) {
       where.price = {};

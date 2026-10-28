@@ -1,10 +1,10 @@
 import { createServer } from "http";
 import { env } from "../../config/Env";
-import { pool } from "../infra/db/mysql/helpers/";
+import { prisma } from "../infra/db/mysql/helpers/";
 import { setupRealtimeGateway } from "./realtime/realtime-gateway";
 
-pool
-  .getConnection()
+prisma
+  .$connect()
   .then(async () => {
     const app = (await import("./config/app")).default;
     const httpServer = createServer(app);
