@@ -337,6 +337,31 @@ docker-compose -f docker-compose.public.yml logs -f api
 
 ---
 
+## ☁️ Deploy (Neon + Vercel)
+
+**Banco (Neon):** crie o projeto na região `AWS São Paulo (sa-east-1)`, perto da função no Vercel (`gru1`, em `vercel.json`). Copie duas connection strings: a _pooled_ (host com `-pooler`) para `DATABASE_URL` e a direta para `DIRECT_URL`. Aplique as migrations e o seed a partir da sua máquina:
+
+```bash
+DATABASE_URL="<pooled>" DIRECT_URL="<direta>" npm run db:migrate:deploy
+DATABASE_URL="<pooled>" DIRECT_URL="<direta>" SEED_ADMIN_PASSWORD="<senha forte>" npx prisma db seed
+```
+
+**API (Vercel):** importe o repositório no Vercel (o preset Express é detectado). O entrypoint é `src/server.ts`, que exporta o servidor HTTP com o Socket.IO. Configure as variáveis em Production:
+
+| Variável       | Valor                                                   |
+| -------------- | ------------------------------------------------------- |
+| `NODE_ENV`     | `production`                                            |
+| `DATABASE_URL` | connection string _pooled_ do Neon                      |
+| `DIRECT_URL`   | connection string direta do Neon                        |
+| `JWT_SECRET`   | `openssl rand -hex 32`                                  |
+| `CORS_ORIGINS` | URL do app web (ex.: `https://fastone-mobile.vercel.app`) |
+
+As migrations não rodam no build: aplique com `npm run db:migrate:deploy` antes de publicar uma versão que muda o schema.
+
+**Tempo real no Vercel:** o Socket.IO funciona só com o transporte `websocket` (o app já usa). Cada conexão fica presa a uma instância da função e cai quando ela atinge a duração máxima; o cliente reconecta sozinho. Eventos emitidos por uma requisição HTTP só chegam aos sockets da mesma instância. Com mais de uma instância ativa, alguns avisos em tempo real não chegam até a próxima atualização da tela. Para garantir a entrega, use um adapter do Socket.IO com Redis.
+
+---
+
 ## 🧪 Testes
 
 ### Rodar testes unitários
