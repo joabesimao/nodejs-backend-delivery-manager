@@ -19,19 +19,19 @@ const makeControllerStub = (): Controller => {
           name: "Joabe",
         },
       };
-      return new Promise((resolve) => resolve(httpResponse));
+      return await new Promise((resolve) => resolve(httpResponse));
     }
   }
   return new ControllerStub();
 };
 
 const makeLogErrorRepositoryStub = (): LogErrorRepository => {
-  class logErrorRepositoryStub implements LogErrorRepository {
+  class LogErrorRepositoryStub implements LogErrorRepository {
     async log(stack: string): Promise<void> {
-      return new Promise((resolve) => resolve());
+      return await new Promise((resolve) => resolve());
     }
   }
-  return new logErrorRepositoryStub();
+  return new LogErrorRepositoryStub();
 };
 
 const makeSut = (): SutTypes => {

@@ -16,6 +16,7 @@ export const makeUpdateAccountController = (): Controller => {
     accountRepository,
     accountRepository,
     hasher,
+    accountRepository,
   );
 
   return new UpdateAccountController(

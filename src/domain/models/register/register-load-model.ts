@@ -4,5 +4,5 @@ export interface LoadRegisterModel {
   id: number;
   client: ClientModel;
   address: Address;
-  
+
 }

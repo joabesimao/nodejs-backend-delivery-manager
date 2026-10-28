@@ -6,14 +6,13 @@ import { noContent, serverError, unauthorized } from "../../../helpers/http/http
 const makeUpdateRefreshTokenRepository =
   (): UpdateRefreshTokenRepository => {
     class UpdateRefreshTokenRepositoryStub
-      implements UpdateRefreshTokenRepository
-    {
+      implements UpdateRefreshTokenRepository {
       async updateRefreshToken(
         id: number,
         refreshTokenHash: string | null,
         expiresAt: Date | null
       ): Promise<void> {
-        return new Promise((resolve) => resolve());
+        return await new Promise((resolve) => resolve());
       }
     }
     return new UpdateRefreshTokenRepositoryStub();

@@ -23,7 +23,6 @@ export class UpdateChatMessageController implements Controller {
         };
       }
 
-      // Validar payload
       const text = body.text ? String(body.text).trim() : null;
 
       if (text === "") {
@@ -33,7 +32,6 @@ export class UpdateChatMessageController implements Controller {
         };
       }
 
-      // Buscar mensagem
       const message = await prisma.chatMessage.findUnique({
         where: { id: messageId },
         include: {
@@ -50,7 +48,6 @@ export class UpdateChatMessageController implements Controller {
         };
       }
 
-      // Verificar permissão: somente remetente ou admin podem editar
       const account = await prisma.account.findUnique({
         where: { id: accountId },
         select: { role: true },
@@ -66,7 +63,6 @@ export class UpdateChatMessageController implements Controller {
         };
       }
 
-      // Se não tem imagem e quer remover texto, erro
       if (!text && !message.imageBase64) {
         return {
           statusCode: 400,
@@ -74,7 +70,6 @@ export class UpdateChatMessageController implements Controller {
         };
       }
 
-      // Atualizar mensagem
       const updatedMessage = await prisma.chatMessage.update({
         where: { id: messageId },
         data: {

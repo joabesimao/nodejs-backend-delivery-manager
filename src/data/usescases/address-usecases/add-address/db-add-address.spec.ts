@@ -1,10 +1,5 @@
 import { DbAddAddress } from "./db-add-address";
-import { AddClientRepository } from "../../../protocols/db/client/add-client";
 import { AddAddressRepository } from "../../../protocols/db/address/add-address";
-
-import { ClientModel } from "../../../../domain/models/client/client-model";
-import { LoadRegisterModel } from "../../../../domain/models/register/register-load-model";
-import { AddClientModel } from "../../../../domain/usescases/client/add-client";
 import { Address } from "../../../../domain/models/register/address-model";
 import { AddAddressModel } from "../../../../domain/usescases/address/add-address";
 
@@ -24,7 +19,7 @@ const makeAddress = (): Address => ({
 const makeAddressRepository = (): AddAddressRepository => {
   class AddressRepositoryStub implements AddAddressRepository {
     async add(address: AddAddressModel): Promise<Address> {
-      return new Promise((resolve) => resolve(makeAddress()));
+      return await new Promise((resolve) => resolve(makeAddress()));
     }
   }
   return new AddressRepositoryStub();

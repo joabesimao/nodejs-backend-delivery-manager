@@ -5,7 +5,7 @@
 ![version](https://img.shields.io/badge/version-1.0.0-0ea5e9.svg?style=flat-square)
 ![node](https://img.shields.io/badge/Node.js-20-339933?logo=node.js&logoColor=white&style=flat-square)
 ![typescript](https://img.shields.io/badge/TypeScript-5.x-3178c6?logo=typescript&logoColor=white&style=flat-square)
-![mysql](https://img.shields.io/badge/MySQL-8-4479A1?logo=mysql&logoColor=white&style=flat-square)
+![postgres](https://img.shields.io/badge/PostgreSQL-Neon-4169E1?logo=postgresql&logoColor=white&style=flat-square)
 ![docker](https://img.shields.io/badge/Docker-ready-2496ED?logo=docker&logoColor=white&style=flat-square)
 ![express](https://img.shields.io/badge/Express-4.x-000000?logo=express&logoColor=white&style=flat-square)
 ![prisma](https://img.shields.io/badge/Prisma-ORM-2D3748?logo=prisma&logoColor=white&style=flat-square)
@@ -39,7 +39,7 @@ API RESTful completa para gerenciamento de entregas, clientes, pedidos e relató
 
 - **Node.js** 20+
 - **npm** 10+
-- **MySQL** 8+ (ou Docker)
+- **PostgreSQL** 16+ (Docker local ou [Neon](https://neon.tech))
 - **Git**
 
 ---
@@ -69,12 +69,8 @@ Edite o `.env` com suas configurações:
 
 ```env
 PORT=3000
-DB_HOST=localhost
-DB_PORT=3306
-DB_NAME=CadClient
-DB_USER=seu_usuario
-DB_PASSWORD=sua_senha
-DATABASE_URL=mysql://seu_usuario:sua_senha@localhost:3306/CadClient
+DATABASE_URL=postgresql://seu_usuario:sua_senha@localhost:5432/CadClient
+DIRECT_URL=postgresql://seu_usuario:sua_senha@localhost:5432/CadClient
 JWT_SECRET=sua_chave_secreta_aqui
 ```
 
@@ -109,7 +105,7 @@ O servidor estará rodando em `http://localhost:3000`
 
 | Método | Rota | Descrição | Auth |
 |--------|------|-----------|------|
-| POST | `/api/signup` | Criar nova conta | ❌ |
+| POST | `/api/signup` | Criar nova conta (role `user`) | ✅ admin |
 | POST | `/api/login` | Login | ❌ |
 | POST | `/api/refresh-token` | Renovar token | ❌ |
 
@@ -341,6 +337,31 @@ docker-compose -f docker-compose.public.yml logs -f api
 
 ---
 
+## ☁️ Deploy (Neon + Vercel)
+
+**Banco (Neon):** crie o projeto na região `AWS São Paulo (sa-east-1)`, perto da função no Vercel (`gru1`, em `vercel.json`). Copie duas connection strings: a _pooled_ (host com `-pooler`) para `DATABASE_URL` e a direta para `DIRECT_URL`. Aplique as migrations e o seed a partir da sua máquina:
+
+```bash
+DATABASE_URL="<pooled>" DIRECT_URL="<direta>" npm run db:migrate:deploy
+DATABASE_URL="<pooled>" DIRECT_URL="<direta>" SEED_ADMIN_PASSWORD="<senha forte>" npx prisma db seed
+```
+
+**API (Vercel):** importe o repositório no Vercel (o preset Express é detectado). O entrypoint é `src/server.ts`, que exporta o servidor HTTP com o Socket.IO. Configure as variáveis em Production:
+
+| Variável       | Valor                                                   |
+| -------------- | ------------------------------------------------------- |
+| `NODE_ENV`     | `production`                                            |
+| `DATABASE_URL` | connection string _pooled_ do Neon                      |
+| `DIRECT_URL`   | connection string direta do Neon                        |
+| `JWT_SECRET`   | `openssl rand -hex 32`                                  |
+| `CORS_ORIGINS` | URL do app web (ex.: `https://fastone-mobile.vercel.app`) |
+
+As migrations não rodam no build: aplique com `npm run db:migrate:deploy` antes de publicar uma versão que muda o schema.
+
+**Tempo real no Vercel:** o Socket.IO funciona só com o transporte `websocket` (o app já usa). Cada conexão fica presa a uma instância da função e cai quando ela atinge a duração máxima; o cliente reconecta sozinho. Eventos emitidos por uma requisição HTTP só chegam aos sockets da mesma instância. Com mais de uma instância ativa, alguns avisos em tempo real não chegam até a próxima atualização da tela. Para garantir a entrega, use um adapter do Socket.IO com Redis.
+
+---
+
 ## 🧪 Testes
 
 ### Rodar testes unitários
@@ -369,17 +390,26 @@ npm run test:unit:coverage
 # Servidor
 PORT=3000                                    # Porta do servidor
 
-# Banco de Dados MySQL
-DB_HOST=localhost                           # Host do MySQL
-DB_PORT=3306                                # Porta do MySQL
-DB_NAME=CadClient                           # Nome do banco
-DB_USER=myuser                              # Usuário do MySQL
-DB_PASSWORD=mypassword                      # Senha do MySQL
-DATABASE_URL=mysql://user:pass@host/db     # URL de conexão completa
+# Banco de Dados PostgreSQL (Neon em produção)
+DATABASE_URL=postgresql://user:pass@host/db?sslmode=require  # Neon: string "pooled" (host -pooler), usada pela API
+DIRECT_URL=postgresql://user:pass@host/db?sslmode=require    # Neon: string direta, usada pelo prisma migrate
 
 # Autenticação
-JWT_SECRET=fastone_jwt_secret_here          # Chave secreta para JWT
+JWT_SECRET=fastone_jwt_secret_here          # Chave secreta para JWT (openssl rand -hex 32)
+
+# Ambiente
+NODE_ENV=development                        # development | test | production
+CORS_ORIGINS=http://localhost:5173          # Origens do frontend (vírgula); obrigatória em produção
+
+# Seed (opcional)
+SEED_ADMIN_EMAIL=admin@fastone.local        # E-mail do admin criado pelo seed
+SEED_ADMIN_PASSWORD=                        # Obrigatória com NODE_ENV=production
 ```
+
+> Com `NODE_ENV=production`, a API não sobe se o `JWT_SECRET` tiver menos de 32
+> caracteres, for um dos valores de exemplo deste repositório ou se `CORS_ORIGINS`
+> não estiver definida. O seed só cria o
+> admin quando ele ainda não existe — rodar de novo não altera a senha.
 
 ---
 

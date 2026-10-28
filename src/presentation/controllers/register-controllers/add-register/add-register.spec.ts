@@ -48,7 +48,7 @@ interface SutTypes {
 const makeAddRegisterStub = (): AddRegister => {
   class AddRegisterStub implements AddRegister {
     async add(data: AddRegisterModel): Promise<RegisterModel> {
-      return new Promise((resolve) => resolve(makeFakeRegisterModel()));
+      return await new Promise((resolve) => resolve(makeFakeRegisterModel()));
     }
   }
   return new AddRegisterStub();

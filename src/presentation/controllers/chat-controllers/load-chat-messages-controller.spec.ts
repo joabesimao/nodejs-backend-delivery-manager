@@ -2,8 +2,6 @@ import { LoadChatMessagesController } from "./load-chat-messages-controller";
 import { HttpRequest } from "../../protocols/http";
 import { prisma } from "../../../infra/db/mysql/helpers";
 import { getAccountScope } from "../../../main/realtime/store-scope";
-// Lightweight touch of the chat-usecases barrel file so its pure re-exports
-// (interfaces with no runtime logic) are counted as covered.
 import "../../../data/usescases/chat-usecases";
 
 jest.mock("../../../infra/db/mysql/helpers", () => ({
@@ -183,13 +181,13 @@ describe("LoadChatMessages Controller", () => {
     });
   });
 
-  test("Should return 500 with details if prisma throws", async () => {
+  test("Should return 500 without internal details if prisma throws", async () => {
     (prisma.chatMessage.findMany as jest.Mock).mockRejectedValueOnce(new Error("boom"));
     const sut = makeSut();
     const httpResponse = await sut.handle(makeFakeRequest());
     expect(httpResponse).toEqual({
       statusCode: 500,
-      body: { error: "Falha ao carregar mensagens", details: String(new Error("boom")) },
+      body: { error: "Falha ao carregar mensagens" },
     });
   });
 });

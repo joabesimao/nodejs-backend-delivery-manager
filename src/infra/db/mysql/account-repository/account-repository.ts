@@ -1,6 +1,7 @@
 import { Prisma, PrismaClient } from "@prisma/client";
 import { UpdateAccessTokenRepository } from "../../../../data/protocols/db/access-token-repository/update-access-token-repository";
 import { UpdateRefreshTokenRepository } from "../../../../data/protocols/db/access-token-repository/update-refresh-token-repository";
+import { RotateRefreshTokenRepository } from "../../../../data/protocols/db/access-token-repository/rotate-refresh-token-repository";
 import { DeleteAccountRepository } from "../../../../data/protocols/db/account/delete-account-repository";
 import { FindAccountByEmailRepository } from "../../../../data/protocols/db/account/find-account-by-email-repository";
 import { LoadAccountByTokenRepository } from "../../../../data/protocols/db/account/load-account-by-token-repository";
@@ -27,13 +28,13 @@ export class AccountMySqlRepository
     FindAccountByEmailRepository,
     UpdateAccessTokenRepository,
     UpdateRefreshTokenRepository,
+    RotateRefreshTokenRepository,
     LoadAccountByTokenRepository,
     DeleteAccountRepository,
     LoadAccountsRepository,
     LoadAccountByIdRepository,
     CountActiveAdminsRepository,
-    UpdateAccountRepository
-{
+    UpdateAccountRepository {
   constructor(private readonly prisma: PrismaClient) {}
 
   async loadByToken(token: string): Promise<AccountModel> {
@@ -49,11 +50,8 @@ export class AccountMySqlRepository
   }
 
   async updateAccessToken(id: number, token: string): Promise<void> {
-    // Access tokens are short-lived stateless JWTs (no revocation needed),
-    // so there is nothing to persist here by design.
     void id;
     void token;
-    return;
   }
 
   async updateRefreshToken(
@@ -63,20 +61,43 @@ export class AccountMySqlRepository
   ): Promise<void> {
     await this.prisma.account.update({
       where: { id },
-      data: { refreshTokenHash, refreshTokenExpiresAt: expiresAt },
+      data: {
+        refreshTokenHash,
+        refreshTokenExpiresAt: expiresAt,
+        previousRefreshTokenHash: null,
+        refreshTokenRotatedAt: null,
+      },
     });
+  }
+
+  async rotateRefreshToken(
+    id: number,
+    currentHash: string,
+    newHash: string,
+    expiresAt: Date | null
+  ): Promise<boolean> {
+    const { count } = await this.prisma.account.updateMany({
+      where: { id, refreshTokenHash: currentHash },
+      data: {
+        refreshTokenHash: newHash,
+        refreshTokenExpiresAt: expiresAt,
+        previousRefreshTokenHash: currentHash,
+        refreshTokenRotatedAt: new Date(),
+      },
+    });
+    return count === 1;
   }
 
   async loadAccountByEmail(email: string): Promise<AccountModel> {
     const accountById = await this.prisma.account.findUnique({
-      where: { email: email },
+      where: { email },
     });
     return accountById;
   }
 
   async deleteById(id: number): Promise<string> {
     await this.prisma.account.delete({
-      where: { id: id },
+      where: { id },
     });
     return "Conta deletada com sucesso!";
   }
@@ -88,8 +109,8 @@ export class AccountMySqlRepository
         ...(filter?.q
           ? {
               OR: [
-                { name: { contains: filter.q } },
-                { email: { contains: filter.q } },
+                { name: { contains: filter.q, mode: "insensitive" } },
+                { email: { contains: filter.q, mode: "insensitive" } },
               ],
             }
           : {}),
@@ -110,7 +131,7 @@ export class AccountMySqlRepository
   }
 
   async countActiveAdmins(): Promise<number> {
-    return this.prisma.account.count({
+    return await this.prisma.account.count({
       where: { role: "admin", active: true },
     });
   }

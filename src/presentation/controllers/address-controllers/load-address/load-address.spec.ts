@@ -30,7 +30,7 @@ interface SutTypes {
 const makeLoadAddress = (): LoadAddress => {
   class LoadAddressStub implements LoadAddress {
     async load(): Promise<Address[]> {
-      return new Promise((resolve) => resolve(makeFakeAddressList()));
+      return await new Promise((resolve) => resolve(makeFakeAddressList()));
     }
   }
   return new LoadAddressStub();

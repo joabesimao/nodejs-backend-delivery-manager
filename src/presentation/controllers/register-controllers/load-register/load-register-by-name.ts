@@ -1,5 +1,5 @@
 import { LoadOneRegistersByName } from "../../../../domain/usescases/register/load-one-register";
-import { ok, serverError } from "../../../helpers/http/http-helper";
+import { noExists, ok, serverError } from "../../../helpers/http/http-helper";
 import { Controller } from "../../../protocols/controller";
 import { HttpRequest, HttpResponse } from "../../../protocols/http";
 
@@ -10,7 +10,7 @@ export class LoadRegisterByNameController implements Controller {
       const registerByName = await this.loadRegisterByName.loadByName(
         httpRequest.params.name
       );
-      return ok(registerByName);
+      return registerByName ? ok(registerByName) : noExists();
     } catch (error) {
       return serverError(error);
     }

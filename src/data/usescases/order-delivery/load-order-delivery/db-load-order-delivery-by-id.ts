@@ -6,6 +6,7 @@ export class DbLoadOrderDeliveryById implements LoadOrderDeliveryById {
   constructor(
     private readonly loadOrderDeliveryRepositoryById: LoadOrderDeliveryByIdRepository,
   ) {}
+
   async loadOne(id: number, accountId?: number): Promise<OrderDeliveryModel> {
     const findRegister =
       await this.loadOrderDeliveryRepositoryById.getOneOrderOfDelivery(

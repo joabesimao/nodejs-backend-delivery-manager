@@ -22,7 +22,7 @@ interface SutTypes {
 const makeLoadCityStub = (): LoadCity => {
   class LoadCityStub implements LoadCity {
     async load(): Promise<City[]> {
-      return new Promise((resolve) => resolve(makeFakeCityList()));
+      return await new Promise((resolve) => resolve(makeFakeCityList()));
     }
   }
   return new LoadCityStub();

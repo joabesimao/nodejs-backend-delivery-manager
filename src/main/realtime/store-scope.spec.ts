@@ -4,14 +4,14 @@ import {
   resolveRootStoreId,
 } from "./store-scope";
 
-type UnitStoreRow = { id: number; parentStoreId: number | null };
-type AccountRow = { id: number; role: string; unitStoreId: number | null };
+interface UnitStoreRow { id: number; parentStoreId: number | null }
+interface AccountRow { id: number; role: string; unitStoreId: number | null }
 
-type PrismaStubOptions = {
+interface PrismaStubOptions {
   unitStoreById?: Record<number, UnitStoreRow | null>;
   childrenByParentId?: Record<number, UnitStoreRow[]>;
   accountById?: Record<number, AccountRow | null>;
-};
+}
 
 const makePrismaStub = (options: PrismaStubOptions = {}) => {
   const unitStoreById = options.unitStoreById ?? {};

@@ -28,8 +28,7 @@ export class OrderDeliveryMySqlRepository
     LoadOrderDeliveryByIdRepository,
     LoadOrderDeliveryRankingRepository,
     UpdateOrderDeliveryRepository,
-    DeleteOrderDeliveryByIdRepository
-{
+    DeleteOrderDeliveryByIdRepository {
   constructor(private readonly prisma: PrismaClient) {}
   async getAllOrderOfDelivery(
     accountId?: number,
@@ -61,6 +60,7 @@ export class OrderDeliveryMySqlRepository
 
     return allOrderDelivery as unknown as OrderDeliveryModel[];
   }
+
   async addOrderOfDelivery(
     orderOfDelivery: AddOrderDeliveryModel,
   ): Promise<OrderDeliveryModel> {
@@ -304,8 +304,8 @@ export class OrderDeliveryMySqlRepository
     const updateOrder = await this.prisma.orderDelivery.update({
       where: { id: Number(id) },
       data: {
-        amount: Number(info.amount),
-        quantity: info.quantity,
+        ...(info.amount !== undefined && { amount: Number(info.amount) }),
+        ...(info.quantity !== undefined && { quantity: info.quantity }),
         ...(info.status === "finished" && {
           finishedAt: new Date(),
         }),

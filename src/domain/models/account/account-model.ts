@@ -10,4 +10,6 @@ export interface AccountModel {
   unitStoreId?: number | null;
   refreshTokenHash?: string | null;
   refreshTokenExpiresAt?: Date | null;
+  previousRefreshTokenHash?: string | null;
+  refreshTokenRotatedAt?: Date | null;
 }

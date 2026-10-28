@@ -23,7 +23,6 @@ export class LoadChatMessageByIdController implements Controller {
         };
       }
 
-      // Buscar mensagem
       const message = await prisma.chatMessage.findUnique({
         where: { id: messageId },
         include: {
@@ -52,7 +51,6 @@ export class LoadChatMessageByIdController implements Controller {
         };
       }
 
-      // Verificar permissão
       const scope = await getAccountScope(prisma, accountId);
 
       if (!scope || !scope.visibleUnitIds.includes(message.unitStoreId)) {

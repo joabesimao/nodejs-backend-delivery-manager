@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "outDir": "dist",
+    "rootDir": ".",
     "types": ["node", "jest"],
     "module": "commonJS",
     "target": "es2019",

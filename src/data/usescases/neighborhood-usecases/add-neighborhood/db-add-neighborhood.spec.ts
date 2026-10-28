@@ -22,7 +22,7 @@ const makeAddNeighborhoodModel = (): AddNeighborhoodModel => ({
 const makeAddNeighborhoodRepository = (): AddNeighborhoodRepository => {
   class AddNeighborhoodRepositoryStub implements AddNeighborhoodRepository {
     async add(neighborhood: AddNeighborhoodModel): Promise<Neighborhood> {
-      return new Promise((resolve) => resolve(makeNeighborhood()));
+      return await new Promise((resolve) => resolve(makeNeighborhood()));
     }
   }
   return new AddNeighborhoodRepositoryStub();

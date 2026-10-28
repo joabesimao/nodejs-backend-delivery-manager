@@ -1,13 +1,13 @@
-import jwt, { verify } from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 import { JwtAdapter } from "./jwt-adapter";
 
 jest.mock("jsonwebtoken", () => ({
-  async sign(): Promise<string> {
-    return new Promise((resolve) => resolve("any_token"));
+  sign(): string {
+    return "any_token";
   },
 
-  async verify(token: string): Promise<{ id: string }> {
-    return new Promise((resolve) => resolve({ id: "any_id" }));
+  verify(): { id: string; type: string } {
+    return { id: "any_id", type: "access" };
   },
 }));
 
@@ -25,6 +25,28 @@ describe("Jwt Adapter", () => {
         { id: "any_value", type: "access" },
         "secret",
         undefined
+      );
+    });
+
+    test("Should add a random jwtid when signing a refresh token", async () => {
+      const sut = makeSut();
+      const signSpy = jest.spyOn(jwt, "sign");
+      await sut.encrypt("any_value", { type: "refresh", expiresIn: "7d" });
+      expect(signSpy).toHaveBeenLastCalledWith(
+        { id: "any_value", type: "refresh" },
+        "secret",
+        { expiresIn: "7d", jwtid: expect.any(String) }
+      );
+    });
+
+    test("Should not add a jwtid when signing an access token", async () => {
+      const sut = makeSut();
+      const signSpy = jest.spyOn(jwt, "sign");
+      await sut.encrypt("any_value", { type: "access", expiresIn: "15m" });
+      expect(signSpy).toHaveBeenLastCalledWith(
+        { id: "any_value", type: "access" },
+        "secret",
+        { expiresIn: "15m" }
       );
     });
 
@@ -70,7 +92,25 @@ describe("Jwt Adapter", () => {
       const sut = makeSut();
       jest
         .spyOn(jwt, "verify")
-        .mockImplementationOnce(() => new Promise((resolve) => resolve({})) as any);
+        .mockImplementationOnce(() => ({}));
+      const token = await sut.decrypt("any_value");
+      expect(token).toBeNull();
+    });
+
+    test("Should return null if verify returns a refresh token payload", async () => {
+      const sut = makeSut();
+      jest
+        .spyOn(jwt, "verify")
+        .mockImplementationOnce(() => ({ id: "any_id", type: "refresh" }));
+      const token = await sut.decrypt("any_value");
+      expect(token).toBeNull();
+    });
+
+    test("Should return null if verify returns a payload without type", async () => {
+      const sut = makeSut();
+      jest
+        .spyOn(jwt, "verify")
+        .mockImplementationOnce(() => ({ id: "any_id" }));
       const token = await sut.decrypt("any_value");
       expect(token).toBeNull();
     });
@@ -87,7 +127,7 @@ describe("Jwt Adapter", () => {
     test("Should return the payload on decode success", async () => {
       const sut = makeSut();
       const payload = await sut.decode("any_token");
-      expect(payload).toEqual({ id: "any_id" });
+      expect(payload).toEqual({ id: "any_id", type: "access" });
     });
 
     test("Should return null if verify throws", async () => {

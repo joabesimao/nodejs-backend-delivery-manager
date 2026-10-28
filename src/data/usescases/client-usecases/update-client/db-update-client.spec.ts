@@ -1,5 +1,4 @@
 import { DbUpdateClient } from "./db-update-client";
-import { LoadRegisterModel } from "../../../../domain/models/register/register-load-model";
 import { UpdateClientRepository } from "../../../protocols/db/client/update-client";
 import {
   Client,
@@ -20,7 +19,7 @@ interface SutTypes {
 const makeUpdateClientRepository = (): UpdateClientRepository => {
   class UpdateClientRepositoryStub implements UpdateClientRepository {
     async update(id: number, infoToUpdate: Client): Promise<Client> {
-      return new Promise((resolve) => resolve(makeFakeClient()));
+      return await new Promise((resolve) => resolve(makeFakeClient()));
     }
   }
   return new UpdateClientRepositoryStub();

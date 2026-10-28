@@ -36,12 +36,11 @@ const makeFakeRanking = (): DeliveryRankingPaginatedModel => ({
 const makeLoadOrderDeliveryRankingRepositoryStub =
   (): LoadOrderDeliveryRankingRepository => {
     class LoadOrderDeliveryRankingRepositoryStub
-      implements LoadOrderDeliveryRankingRepository
-    {
+      implements LoadOrderDeliveryRankingRepository {
       async getDeliverymanRankingByPeriod(
         filter: DeliveryRankingFilter
       ): Promise<DeliveryRankingPaginatedModel> {
-        return new Promise((resolve) => resolve(makeFakeRanking()));
+        return await new Promise((resolve) => resolve(makeFakeRanking()));
       }
     }
     return new LoadOrderDeliveryRankingRepositoryStub();

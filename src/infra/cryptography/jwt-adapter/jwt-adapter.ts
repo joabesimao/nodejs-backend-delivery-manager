@@ -3,6 +3,7 @@ import {
   EncryptOptions,
   Encrypter,
 } from "../../../data/protocols/criptography/encrypter";
+import { randomUUID } from "crypto";
 import jwt, { SignOptions } from "jsonwebtoken";
 import { Decrypter } from "../../../data/protocols/criptography/decrypter";
 
@@ -12,32 +13,33 @@ export class JwtAdapter implements Encrypter, Decrypter {
   constructor(private readonly secret: string) {}
 
   async encrypt(value: string, options?: EncryptOptions): Promise<string> {
-    const token = await jwt.sign(
+    const signOptions: SignOptions = {
+      ...(options?.expiresIn && {
+        expiresIn: options.expiresIn as SignOptions["expiresIn"],
+      }),
+      ...(options?.type === "refresh" && { jwtid: randomUUID() }),
+    };
+
+    return jwt.sign(
       {
         id: value,
         type: options?.type ?? "access",
       },
       this.secret,
-      options?.expiresIn
-        ? ({
-            expiresIn: options.expiresIn,
-          } as SignOptions)
-        : undefined,
+      Object.keys(signOptions).length ? signOptions : undefined,
     );
-
-    return token;
   }
 
   async decrypt(value: string): Promise<string> {
     let payload: JwtPayload;
 
     try {
-      payload = (await jwt.verify(value, this.secret)) as JwtPayload;
+      payload = jwt.verify(value, this.secret) as JwtPayload;
     } catch {
       return null;
     }
 
-    if (!payload?.id) {
+    if (!payload?.id || payload.type !== "access") {
       return null;
     }
 
@@ -46,8 +48,7 @@ export class JwtAdapter implements Encrypter, Decrypter {
 
   async decode(value: string): Promise<JwtPayload | null> {
     try {
-      const payload = (await jwt.verify(value, this.secret)) as JwtPayload;
-      return payload;
+      return jwt.verify(value, this.secret) as JwtPayload;
     } catch {
       return null;
     }

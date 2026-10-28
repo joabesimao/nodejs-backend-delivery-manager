@@ -24,7 +24,7 @@ interface SutTypes {
 const makeLoadNeighborhoodStub = (): LoadNeighborhood => {
   class LoadNeighborhoodStub implements LoadNeighborhood {
     async load(): Promise<Neighborhood[]> {
-      return new Promise((resolve) => resolve(makeFakeNeighborhoodList()));
+      return await new Promise((resolve) => resolve(makeFakeNeighborhoodList()));
     }
   }
   return new LoadNeighborhoodStub();

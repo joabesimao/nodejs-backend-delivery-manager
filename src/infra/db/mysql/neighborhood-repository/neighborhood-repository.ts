@@ -7,25 +7,24 @@ import { Neighborhood } from "../../../../domain/models/neighborhood/neighborhoo
 import { AddNeighborhoodModel } from "../../../../domain/usescases/neighborhood/add-neighborhood";
 
 export class NeighborhoodMysqlRepository
-  implements LoadNeighborhoodRepository, AddNeighborhoodRepository, UpdateNeighborhoodRepository, DeleteNeighborhoodRepository
-{
+  implements LoadNeighborhoodRepository, AddNeighborhoodRepository, UpdateNeighborhoodRepository, DeleteNeighborhoodRepository {
   constructor(private readonly prisma: PrismaClient) {}
 
   async loadAll(): Promise<Neighborhood[]> {
-    return this.prisma.neighborhood.findMany({
+    return await this.prisma.neighborhood.findMany({
       orderBy: { name: "asc" },
       include: { city: true },
     });
   }
 
   async add(neighborhood: AddNeighborhoodModel): Promise<Neighborhood> {
-    return this.prisma.neighborhood.create({
+    return await this.prisma.neighborhood.create({
       data: { name: neighborhood.name, cityId: neighborhood.cityId },
     });
   }
 
   async update(id: number, data: Partial<Neighborhood>): Promise<Neighborhood> {
-    return this.prisma.neighborhood.update({
+    return await this.prisma.neighborhood.update({
       where: { id: Number(id) },
       data: {
         ...(data.name && { name: data.name }),

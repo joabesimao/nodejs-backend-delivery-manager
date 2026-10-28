@@ -1,4 +1,4 @@
-import { InvalidParamError } from "../../errors";
+import { CpfInUseError } from "../../errors";
 import {
   CpfDuplicateValidation,
   CpfDuplicateValidator,
@@ -46,13 +46,13 @@ describe("CpfDuplicateValidation", () => {
     expect(validateSpy).toHaveBeenCalledWith("12345678900");
   });
 
-  test("Should return InvalidParamError if cpf is duplicate", async () => {
+  test("Should return CpfInUseError if cpf is duplicate", async () => {
     const { sut, cpfValidatorStub } = makeSut();
     jest
       .spyOn(cpfValidatorStub, "validate")
       .mockReturnValueOnce(Promise.resolve(true));
     const error = await sut.validate({ cpf: "12345678900" });
-    expect(error).toEqual(new InvalidParamError("cpf"));
+    expect(error).toEqual(new CpfInUseError());
   });
 
   test("Should not return an error if cpf is not duplicate", async () => {

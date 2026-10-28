@@ -4,22 +4,26 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model Account {
-  id                    Int           @id @default(autoincrement())
-  name                  String
-  email                 String        @unique
-  password              String
-  role                  AccountRole   @default(user)
-  active                Boolean       @default(true)
-  unitStoreId           Int?
-  unitStore             UnitStore?    @relation(fields: [unitStoreId], references: [id])
-  messages              ChatMessage[]
-  refreshTokenHash      String?       @db.VarChar(64)
-  refreshTokenExpiresAt DateTime?
+  id                       Int           @id @default(autoincrement())
+  name                     String
+  email                    String        @unique
+  password                 String
+  role                     AccountRole   @default(user)
+  active                   Boolean       @default(true)
+  unitStoreId              Int?
+  unitStore                UnitStore?    @relation(fields: [unitStoreId], references: [id])
+  messages                 ChatMessage[]
+  notifications            Notification[]
+  refreshTokenHash         String?       @db.VarChar(64)
+  refreshTokenExpiresAt    DateTime?
+  previousRefreshTokenHash String?       @db.VarChar(64)
+  refreshTokenRotatedAt    DateTime?
 }
 
 enum AccountRole {
@@ -102,9 +106,62 @@ model Deliveryman {
   id                   Int             @id @default(autoincrement())
   name                 String
   lastName             String
-  numberQualification  String
+  numberQualification  String          @unique
   phone                String          @unique
+  cpf                  String?         @unique
   deliveries           OrderDelivery[]
+  vehicles             Vehicle[]
+  oilChangeLogs        OilChangeLog[]
+  fuelRefills          FuelRefill[]
+}
+
+model Vehicle {
+  id            Int            @id @default(autoincrement())
+  plate         String         @unique
+  model         String
+  brand         String?
+  deliverymanId Int?
+  deliveryman   Deliveryman?   @relation(fields: [deliverymanId], references: [id])
+  oilChangeLogs OilChangeLog[]
+  fuelRefills   FuelRefill[]
+}
+
+model OilChangeConfig {
+  id         Int      @id @default(autoincrement())
+  intervalKm Int
+  updatedAt  DateTime @updatedAt
+}
+
+model OilChangeLog {
+  id            Int         @id @default(autoincrement())
+  vehicleId     Int
+  vehicle       Vehicle     @relation(fields: [vehicleId], references: [id])
+  deliverymanId Int
+  deliveryman   Deliveryman @relation(fields: [deliverymanId], references: [id])
+  km            Int
+  nextChangeKm  Int
+  changeDate    DateTime
+  createdAt     DateTime    @default(now())
+
+  @@index([vehicleId, changeDate])
+}
+
+model FuelRefill {
+  id            Int         @id @default(autoincrement())
+  vehicleId     Int
+  vehicle       Vehicle     @relation(fields: [vehicleId], references: [id])
+  deliverymanId Int
+  deliveryman   Deliveryman @relation(fields: [deliverymanId], references: [id])
+  km            Int
+  previousKm    Int?
+  kmDriven      Int?
+  liters        Decimal     @db.Decimal(10, 2)
+  pricePerLiter Decimal?    @db.Decimal(10, 3)
+  totalValue    Decimal     @db.Decimal(10, 2)
+  refillDate    DateTime
+  createdAt     DateTime    @default(now())
+
+  @@index([vehicleId, refillDate])
 }
 
 model Neighborhood {
@@ -119,7 +176,7 @@ model ChatMessage {
   unitStoreId   Int
   senderId      Int
   text          String?
-  imageBase64   String?   @db.LongText
+  imageBase64   String?   @db.Text
   imageMimeType String?
   createdAt     DateTime  @default(now())
   unitStore     UnitStore @relation(fields: [unitStoreId], references: [id])
@@ -141,7 +198,7 @@ model Product {
   barcode       String?            @unique
   status        Boolean            @default(true)
   notes         String?            @db.Text
-  imageBase64   String?            @db.LongText
+  imageBase64   String?            @db.Text
   imageMimeType String?
   variations    ProductVariation[]
 }
@@ -154,4 +211,31 @@ model ProductVariation {
   product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 
   @@index([productId])
+}
+
+enum NotificationType {
+  chat_message
+  oil_change_due
+  oil_change_created
+  fuel_refill_created
+  admin_notice
+}
+
+model Notification {
+  id          Int              @id @default(autoincrement())
+  recipientId Int
+  recipient   Account          @relation(fields: [recipientId], references: [id], onDelete: Cascade)
+  type        NotificationType
+  title       String
+  body        String           @db.Text
+  link        String?
+  data        Json?
+  dedupeKey   String?
+  readAt      DateTime?
+  deletedAt   DateTime?
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  @@index([recipientId, readAt, updatedAt])
+  @@index([recipientId, dedupeKey])
 }

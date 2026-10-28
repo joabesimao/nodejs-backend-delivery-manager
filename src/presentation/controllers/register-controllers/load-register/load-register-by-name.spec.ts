@@ -2,7 +2,7 @@ import { LoadRegisterByNameController } from "./load-register-by-name";
 import { LoadRegisterModel } from "../../../../domain/models/register/register-load-model";
 import { LoadOneRegistersByName } from "../../../../domain/usescases/register/load-one-register";
 import { HttpRequest } from "../../../protocols/http";
-import { ok, serverError } from "../../../helpers/http/http-helper";
+import { noExists, ok, serverError } from "../../../helpers/http/http-helper";
 
 const makeFakeRegisters = (): LoadRegisterModel => ({
   id: 1,
@@ -48,7 +48,7 @@ interface SutTypes {
 const makeLoadRegistersByName = (): LoadOneRegistersByName => {
   class LoadRegisterByNameStub implements LoadOneRegistersByName {
     async loadByName(name: string): Promise<LoadRegisterModel> {
-      return new Promise((resolve) => resolve(makeFakeRegisters()));
+      return await new Promise((resolve) => resolve(makeFakeRegisters()));
     }
   }
   return new LoadRegisterByNameStub();
@@ -83,6 +83,13 @@ describe("Load Register by name Controller", () => {
 
     const httpResponse = await sut.handle(fakehttpRequest());
     expect(httpResponse).toEqual(ok(makeFakeRegisters()));
+  });
+
+  test("Should return 400 if no register is found", async () => {
+    const { sut, loadRegisterByNameStub } = makeSut();
+    jest.spyOn(loadRegisterByNameStub, "loadByName").mockResolvedValueOnce(null);
+    const httpResponse = await sut.handle(fakehttpRequest());
+    expect(httpResponse).toEqual(noExists());
   });
 
   test("Should return 500 if LoadOneRegister throws", async () => {

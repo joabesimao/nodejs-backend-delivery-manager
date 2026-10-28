@@ -8,10 +8,9 @@ interface SutTypes {
 
 const makeDeleteNeighborhoodRepository = (): DeleteNeighborhoodRepository => {
   class DeleteNeighborhoodRepositoryStub
-    implements DeleteNeighborhoodRepository
-  {
+    implements DeleteNeighborhoodRepository {
     async deleteOne(id: number): Promise<string> {
-      return new Promise((resolve) =>
+      return await new Promise((resolve) =>
         resolve("Bairro Deletado com Sucesso!")
       );
     }

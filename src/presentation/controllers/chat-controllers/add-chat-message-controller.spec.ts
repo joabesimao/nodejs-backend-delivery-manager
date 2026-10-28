@@ -2,6 +2,7 @@ import { AddChatMessageController } from "./add-chat-message-controller";
 import { HttpRequest } from "../../protocols/http";
 import { prisma } from "../../../infra/db/mysql/helpers";
 import { getAccountScope } from "../../../main/realtime/store-scope";
+import { emitChatRealtime } from "../../../main/realtime/realtime-state";
 
 jest.mock("../../../infra/db/mysql/helpers", () => ({
   prisma: {
@@ -13,6 +14,10 @@ jest.mock("../../../infra/db/mysql/helpers", () => ({
 
 jest.mock("../../../main/realtime/store-scope", () => ({
   getAccountScope: jest.fn(),
+}));
+
+jest.mock("../../../main/realtime/realtime-state", () => ({
+  emitChatRealtime: jest.fn(),
 }));
 
 const makeFakeRequest = (): HttpRequest => ({
@@ -38,7 +43,7 @@ const makeFakeMessage = () => ({
   text: "any_text",
   imageBase64: null,
   imageMimeType: null,
-  createdAt: new Date(),
+  createdAt: new Date("2026-01-01T00:00:00.000Z"),
   sender: { id: 1, name: "any_name", email: "any_email", role: "user", unitStoreId: 10 },
   unitStore: { id: 10, name: "any_store" },
 });
@@ -207,6 +212,12 @@ describe("AddChatMessage Controller", () => {
     });
   });
 
+  test("Should not log the message content", async () => {
+    const sut = makeSut();
+    await sut.handle(makeFakeRequest());
+    expect(consoleLogSpy).not.toHaveBeenCalled();
+  });
+
   test("Should return 201 with created message on success", async () => {
     const sut = makeSut();
     const httpResponse = await sut.handle(makeFakeRequest());
@@ -216,7 +227,13 @@ describe("AddChatMessage Controller", () => {
     });
   });
 
-  test("Should return 500 with error message if prisma.chatMessage.create throws", async () => {
+  test("Should broadcast the created message to the network room", async () => {
+    const sut = makeSut();
+    await sut.handle(makeFakeRequest());
+    expect(emitChatRealtime).toHaveBeenCalledWith("chat:message", 10, makeFakeMessage());
+  });
+
+  test("Should return 500 without the internal error message if prisma.chatMessage.create throws", async () => {
     (prisma.chatMessage.create as jest.Mock).mockRejectedValueOnce(
       new Error("db_error")
     );
@@ -224,7 +241,7 @@ describe("AddChatMessage Controller", () => {
     const httpResponse = await sut.handle(makeFakeRequest());
     expect(httpResponse).toEqual({
       statusCode: 500,
-      body: { error: "db_error" },
+      body: { error: "Falha ao enviar mensagem" },
     });
   });
 
@@ -244,7 +261,7 @@ describe("AddChatMessage Controller", () => {
     const httpResponse = await sut.handle(makeFakeRequest());
     expect(httpResponse).toEqual({
       statusCode: 500,
-      body: { error: "string_error" },
+      body: { error: "Falha ao enviar mensagem" },
     });
   });
 });

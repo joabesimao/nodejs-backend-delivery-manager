@@ -26,7 +26,7 @@ interface SutTypes {
 const makeUpdateRepositoryStub = (): UpdateRegisterRepository => {
   class UpdateRegisterRepositoryStub implements UpdateRegisterRepository {
     async updateOneRegisterById(): Promise<LoadRegisterModel> {
-      return new Promise((resolve) => resolve(makeFakeRegister()));
+      return await new Promise((resolve) => resolve(makeFakeRegister()));
     }
   }
   return new UpdateRegisterRepositoryStub();

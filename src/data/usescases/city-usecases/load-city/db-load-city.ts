@@ -5,6 +5,6 @@ import { LoadCityRepository } from "../../../protocols/db/city/load-city";
 export class DbLoadCity implements LoadCity {
   constructor(private readonly loadCityRepository: LoadCityRepository) {}
   async load(): Promise<City[]> {
-    return this.loadCityRepository.loadAll();
+    return await this.loadCityRepository.loadAll();
   }
 }

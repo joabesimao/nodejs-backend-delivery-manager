@@ -5,6 +5,6 @@ export class DbDeleteCity implements DeleteCity {
   constructor(private readonly deleteCityRepository: DeleteCityRepository) {}
 
   async delete(id: number): Promise<string> {
-    return this.deleteCityRepository.deleteOne(id);
+    return await this.deleteCityRepository.deleteOne(id);
   }
 }

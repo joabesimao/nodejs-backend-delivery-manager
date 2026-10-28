@@ -1,4 +1,7 @@
-import { RefreshTokenController } from "./refresh-token";
+import {
+  REFRESH_TOKEN_GRACE_PERIOD_MS,
+  RefreshTokenController,
+} from "./refresh-token";
 import { JwtAdapter } from "../../../../infra/cryptography/jwt-adapter/jwt-adapter";
 import { AccountMySqlRepository } from "../../../../infra/db/mysql/account-repository/account-repository";
 import { Validation } from "../../../protocols/validation";
@@ -49,6 +52,7 @@ const makeSut = (): SutTypes => {
   jest
     .spyOn(accountRepository, "updateRefreshToken")
     .mockResolvedValue(undefined);
+  jest.spyOn(accountRepository, "rotateRefreshToken").mockResolvedValue(true);
   const sut = new RefreshTokenController(
     validationStub,
     jwtAdapter,
@@ -125,6 +129,19 @@ describe("RefreshToken Controller", () => {
     expect(revokeSpy).toHaveBeenCalledWith(1, null, null);
   });
 
+  test("Should return 401 and revoke the refresh token if the account is inactive", async () => {
+    const { sut, jwtAdapter, accountRepository } = makeSut();
+    const refreshToken = await jwtAdapter.encrypt("1", { type: "refresh" });
+    jest.spyOn(accountRepository, "loadByToken").mockResolvedValueOnce({
+      ...makeFakeAccount(refreshToken),
+      active: false,
+    });
+    const revokeSpy = jest.spyOn(accountRepository, "updateRefreshToken");
+    const httpResponse = await sut.handle(makeFakeRequest(refreshToken));
+    expect(httpResponse).toEqual(unauthorized());
+    expect(revokeSpy).toHaveBeenCalledWith(1, null, null);
+  });
+
   test("Should return 401 if the stored refresh token has expired", async () => {
     const { sut, jwtAdapter, accountRepository } = makeSut();
     const refreshToken = await jwtAdapter.encrypt("1", { type: "refresh" });
@@ -154,13 +171,71 @@ describe("RefreshToken Controller", () => {
     jest
       .spyOn(accountRepository, "loadByToken")
       .mockResolvedValueOnce(makeFakeAccount(refreshToken));
-    const updateSpy = jest.spyOn(accountRepository, "updateRefreshToken");
+    const rotateSpy = jest.spyOn(accountRepository, "rotateRefreshToken");
     const httpResponse = await sut.handle(makeFakeRequest(refreshToken));
-    expect(updateSpy).toHaveBeenCalledWith(
+    expect(rotateSpy).toHaveBeenCalledWith(
       1,
+      hashToken(refreshToken),
       hashToken(httpResponse.body.refreshToken),
       expect.any(Date)
     );
+  });
+
+  test("Should issue a refresh token different from the incoming one", async () => {
+    const { sut, jwtAdapter, accountRepository } = makeSut();
+    const refreshToken = await jwtAdapter.encrypt("1", { type: "refresh" });
+    jest
+      .spyOn(accountRepository, "loadByToken")
+      .mockResolvedValueOnce(makeFakeAccount(refreshToken));
+    const httpResponse = await sut.handle(makeFakeRequest(refreshToken));
+    expect(httpResponse.body.refreshToken).not.toBe(refreshToken);
+  });
+
+  test("Should return only a new accessToken if a concurrent request rotated first", async () => {
+    const { sut, jwtAdapter, accountRepository } = makeSut();
+    const refreshToken = await jwtAdapter.encrypt("1", { type: "refresh" });
+    jest
+      .spyOn(accountRepository, "loadByToken")
+      .mockResolvedValueOnce(makeFakeAccount(refreshToken));
+    jest.spyOn(accountRepository, "rotateRefreshToken").mockResolvedValueOnce(false);
+    const revokeSpy = jest.spyOn(accountRepository, "updateRefreshToken");
+    const httpResponse = await sut.handle(makeFakeRequest(refreshToken));
+    expect(httpResponse.statusCode).toBe(200);
+    expect(typeof httpResponse.body.accessToken).toBe("string");
+    expect(httpResponse.body.refreshToken).toBeUndefined();
+    expect(revokeSpy).not.toHaveBeenCalled();
+  });
+
+  test("Should return only a new accessToken if the previous token is reused within the grace period", async () => {
+    const { sut, jwtAdapter, accountRepository } = makeSut();
+    const previousToken = await jwtAdapter.encrypt("1", { type: "refresh" });
+    jest.spyOn(accountRepository, "loadByToken").mockResolvedValueOnce({
+      ...makeFakeAccount("current_token"),
+      previousRefreshTokenHash: hashToken(previousToken),
+      refreshTokenRotatedAt: new Date(),
+    });
+    const rotateSpy = jest.spyOn(accountRepository, "rotateRefreshToken");
+    const revokeSpy = jest.spyOn(accountRepository, "updateRefreshToken");
+    const httpResponse = await sut.handle(makeFakeRequest(previousToken));
+    expect(httpResponse.statusCode).toBe(200);
+    expect(typeof httpResponse.body.accessToken).toBe("string");
+    expect(httpResponse.body.refreshToken).toBeUndefined();
+    expect(rotateSpy).not.toHaveBeenCalled();
+    expect(revokeSpy).not.toHaveBeenCalled();
+  });
+
+  test("Should return 401 and revoke if the previous token is reused after the grace period", async () => {
+    const { sut, jwtAdapter, accountRepository } = makeSut();
+    const previousToken = await jwtAdapter.encrypt("1", { type: "refresh" });
+    jest.spyOn(accountRepository, "loadByToken").mockResolvedValueOnce({
+      ...makeFakeAccount("current_token"),
+      previousRefreshTokenHash: hashToken(previousToken),
+      refreshTokenRotatedAt: new Date(Date.now() - REFRESH_TOKEN_GRACE_PERIOD_MS - 1000),
+    });
+    const revokeSpy = jest.spyOn(accountRepository, "updateRefreshToken");
+    const httpResponse = await sut.handle(makeFakeRequest(previousToken));
+    expect(httpResponse).toEqual(unauthorized());
+    expect(revokeSpy).toHaveBeenCalledWith(1, null, null);
   });
 
   test("Should return 500 if jwtAdapter.decode throws", async () => {

@@ -12,7 +12,7 @@ interface SutTypes {
 const makeDecrypter = (): Decrypter => {
   class DecrypterStub implements Decrypter {
     async decrypt(value: string): Promise<string> {
-      return new Promise((resolve) => resolve("any_value"));
+      return await new Promise((resolve) => resolve("any_value"));
     }
   }
   return new DecrypterStub();
@@ -21,10 +21,9 @@ const makeDecrypter = (): Decrypter => {
 const makeLoadAccountByTokenRepositoryStub =
   (): LoadAccountByTokenRepository => {
     class LoadAccountByTokenRepositoryStub
-      implements LoadAccountByTokenRepository
-    {
+      implements LoadAccountByTokenRepository {
       async loadByToken(token: string): Promise<AccountModel> {
-        return new Promise((resolve) =>
+        return await new Promise((resolve) =>
           resolve({
             id: 1,
             name: "valid_name",

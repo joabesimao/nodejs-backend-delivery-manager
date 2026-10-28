@@ -10,9 +10,18 @@ describe("Middlewares config", () => {
       .post("/test_middlewares")
       .send({ name: "Joabe" })
       .expect("access-control-allow-origin", "*")
-      .expect("access-control-allow-headers", "*")
-      .expect("access-control-allow-methods", "*")
+      .expect("access-control-allow-headers", "Content-Type, x-access-token, Authorization")
+      .expect("access-control-allow-methods", "GET, POST, PUT, DELETE, OPTIONS")
+      .expect("x-content-type-options", "nosniff")
       .expect("content-type", /json/)
       .expect({ name: "Joabe" });
+  });
+
+  test("Should not expose the x-powered-by header", async () => {
+    app.get("/test_powered_by", (req, res) => {
+      res.send();
+    });
+    const response = await request(app).get("/test_powered_by");
+    expect(response.headers["x-powered-by"]).toBeUndefined();
   });
 });

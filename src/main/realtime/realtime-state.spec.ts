@@ -93,4 +93,26 @@ describe("realtime-state", () => {
       );
     });
   });
+
+  describe("emitChatRealtime()", () => {
+    test("Should do nothing and not throw when no realtime server has been set", () => {
+      const { emitChatRealtime } = loadFreshModule();
+
+      expect(() => emitChatRealtime("chat:message", 2, {})).not.toThrow();
+    });
+
+    test("Should emit the event to the network room", () => {
+      const { emitChatRealtime, setRealtimeServer } = loadFreshModule();
+      const { server, to, emit } = makeFakeServer();
+      setRealtimeServer(server);
+
+      emitChatRealtime("chat:message-deleted", 2, { messageId: 1 });
+      emitChatRealtime("chat:message", null, { id: 1 });
+
+      expect(to).toHaveBeenNthCalledWith(1, "network:2");
+      expect(emit).toHaveBeenNthCalledWith(1, "chat:message-deleted", { messageId: 1 });
+      expect(to).toHaveBeenNthCalledWith(2, "network:global");
+      expect(emit).toHaveBeenNthCalledWith(2, "chat:message", { id: 1 });
+    });
+  });
 });

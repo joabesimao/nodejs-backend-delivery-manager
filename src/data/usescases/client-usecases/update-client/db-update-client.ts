@@ -9,6 +9,7 @@ export class DbUpdateClient implements UpdateClient {
   constructor(
     private readonly updateClientRepository: UpdateClientRepository
   ) {}
+
   async update(id: number, infoToUpdate: ClientModel): Promise<Client> {
     const updateClient = await this.updateClientRepository.update(
       id,

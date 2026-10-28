@@ -3,19 +3,24 @@ import { Server } from "socket.io";
 import { env } from "../../../config/Env";
 import { prisma } from "../../infra/db/mysql/helpers";
 import { JwtAdapter } from "../../infra/cryptography/jwt-adapter/jwt-adapter";
-import { setRealtimeServer } from "./realtime-state";
+import { accountRoomFor, networkRoomFor, setRealtimeServer } from "./realtime-state";
+import { makeNotifyChatMessage } from "../factories/notify-chat-message";
 import { getAccountScope } from "./store-scope";
 
 const jwtAdapter = new JwtAdapter(env.JWT_SECRET);
+const notifyChatMessage = makeNotifyChatMessage();
 
-type ChatSendPayload = {
+interface ChatSendPayload {
   text?: string;
   imageBase64?: string;
   imageMimeType?: string;
   unitStoreId?: number;
-};
+}
 
 const MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024;
+
+const MAX_SOCKET_BUFFER_BYTES =
+  Math.ceil((MAX_IMAGE_SIZE_BYTES * 4) / 3) + 256 * 1024;
 
 const estimateBase64Bytes = (base64Value: string): number => {
   const padding = base64Value.match(/=+$/)?.[0].length ?? 0;
@@ -40,8 +45,9 @@ const normalizeBase64 = (imageBase64: string): string => {
 export const setupRealtimeGateway = (httpServer: HttpServer): void => {
   const io = new Server(httpServer, {
     path: "/socket.io",
+    maxHttpBufferSize: MAX_SOCKET_BUFFER_BYTES,
     cors: {
-      origin: "*",
+      origin: env.CORS_ORIGINS ?? "*",
       methods: ["GET", "POST"],
     },
   });
@@ -60,8 +66,7 @@ export const setupRealtimeGateway = (httpServer: HttpServer): void => {
         return;
       }
 
-      const payload = await jwtAdapter.decode(authToken);
-      const accountId = Number(payload?.id || 0);
+      const accountId = Number((await jwtAdapter.decrypt(authToken)) || 0);
 
       if (!accountId) {
         next(new Error("Token invalido"));
@@ -83,6 +88,7 @@ export const setupRealtimeGateway = (httpServer: HttpServer): void => {
           email: true,
           role: true,
           unitStoreId: true,
+          active: true,
         },
       });
 
@@ -91,12 +97,17 @@ export const setupRealtimeGateway = (httpServer: HttpServer): void => {
         return;
       }
 
-      const networkRoom = scope.rootStoreId
-        ? `network:${scope.rootStoreId}`
-        : "network:global";
+      const { active, ...sessionAccount } = account;
+
+      if (active === false) {
+        next(new Error("Conta inativa"));
+        return;
+      }
+
+      const networkRoom = networkRoomFor(scope.rootStoreId);
 
       socket.data.session = {
-        account,
+        account: sessionAccount,
         scope,
         networkRoom,
       };
@@ -113,7 +124,7 @@ export const setupRealtimeGateway = (httpServer: HttpServer): void => {
         id: number;
         name: string;
         email: string;
-        role: "principal" | "branch";
+        role: string;
         unitStoreId: number | null;
       };
       scope: {
@@ -123,13 +134,14 @@ export const setupRealtimeGateway = (httpServer: HttpServer): void => {
       networkRoom: string;
     };
 
-    socket.join(session.networkRoom);
+    void socket.join(session.networkRoom);
+    void socket.join(accountRoomFor(session.account.id));
 
     const unitRooms = session.scope.visibleUnitIds.map(
       (unitId) => `unit:${unitId}`,
     );
     for (const room of unitRooms) {
-      socket.join(room);
+      void socket.join(room);
     }
 
     try {
@@ -179,7 +191,6 @@ export const setupRealtimeGateway = (httpServer: HttpServer): void => {
       });
     }
 
-    // Fetch chat history
     socket.on("chat:fetch-history", async (ack?: (response: unknown) => void) => {
       try {
         const messages = await prisma.chatMessage.findMany({
@@ -214,7 +225,6 @@ export const setupRealtimeGateway = (httpServer: HttpServer): void => {
       }
     });
 
-    // Send chat message
     socket.on(
       "chat:send",
       async (payload: ChatSendPayload, ack?: (response: unknown) => void) => {
@@ -290,6 +300,15 @@ export const setupRealtimeGateway = (httpServer: HttpServer): void => {
           });
 
           io.to(session.networkRoom).emit("chat:message", message);
+          void notifyChatMessage.notify({
+            messageId: message.id,
+            unitStoreId: message.unitStoreId,
+            unitStoreName: message.unitStore?.name,
+            senderId: message.senderId,
+            senderName: message.sender?.name,
+            text: message.text,
+            hasImage: Boolean(message.imageBase64),
+          });
           ack?.({ ok: true, messageId: message.id });
         } catch {
           ack?.({ ok: false, error: "Falha ao enviar mensagem" });
@@ -297,7 +316,6 @@ export const setupRealtimeGateway = (httpServer: HttpServer): void => {
       },
     );
 
-    // Delete chat message
     socket.on(
       "chat:delete-message",
       async (payload: { messageId: number }, ack?: (response: unknown) => void) => {
@@ -318,11 +336,13 @@ export const setupRealtimeGateway = (httpServer: HttpServer): void => {
             return;
           }
 
-          // Only sender or principal can delete
-          if (
-            message.senderId !== session.account.id &&
-            session.account.role !== "principal"
-          ) {
+          const isOwner = message.senderId === session.account.id;
+          const isAdmin = session.account.role === "admin";
+          const outOfScope =
+            session.scope.visibleUnitIds.length > 0 &&
+            !session.scope.visibleUnitIds.includes(message.unitStoreId);
+
+          if ((!isOwner && !isAdmin) || outOfScope) {
             ack?.({ ok: false, error: "Sem permissão para deletar" });
             return;
           }
@@ -339,7 +359,6 @@ export const setupRealtimeGateway = (httpServer: HttpServer): void => {
       },
     );
 
-    // Typing indicator
     socket.on("chat:typing", (payload: { isTyping: boolean }) => {
       socket.to(session.networkRoom).emit("chat:typing", {
         accountId: session.account.id,

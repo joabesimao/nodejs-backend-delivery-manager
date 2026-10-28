@@ -35,8 +35,7 @@ export class ProductMysqlRepository
     LoadProductRepository,
     LoadProductByIdRepository,
     UpdateProductRepository,
-    DeleteProductByIdRepository
-{
+    DeleteProductByIdRepository {
   constructor(private readonly prisma: PrismaClient) {}
 
   async add(product: AddProductModel): Promise<Product> {
@@ -51,7 +50,7 @@ export class ProductMysqlRepository
         brand: rest.brand,
         model: rest.model,
         unit: rest.unit,
-        barcode: rest.barcode,
+        barcode: rest.barcode || null,
         status: rest.status,
         notes: rest.notes,
         imageBase64: imageBase64 ? normalizeBase64(imageBase64) : imageBase64,
@@ -71,7 +70,7 @@ export class ProductMysqlRepository
     const { name, category, priceMin, priceMax, limit, offset } = filter;
 
     const where: any = {};
-    if (name) where.name = { contains: name };
+    if (name) where.name = { contains: name, mode: "insensitive" };
     if (category) where.category = category;
     if (priceMin !== undefined || priceMax !== undefined) {
       where.price = {};
@@ -117,7 +116,7 @@ export class ProductMysqlRepository
         ...(rest.brand !== undefined && { brand: rest.brand }),
         ...(rest.model !== undefined && { model: rest.model }),
         ...(rest.unit !== undefined && { unit: rest.unit }),
-        ...(rest.barcode !== undefined && { barcode: rest.barcode }),
+        ...(rest.barcode !== undefined && { barcode: rest.barcode || null }),
         ...(rest.status !== undefined && { status: rest.status }),
         ...(rest.notes !== undefined && { notes: rest.notes }),
         ...(imageBase64 !== undefined && {

@@ -1,5 +1,3 @@
-// Protocolo de use case para salvar mensagem de chat
-
 export interface SaveChatMessageUseCaseRequest {
   unitStoreId: number;
   senderId: number;

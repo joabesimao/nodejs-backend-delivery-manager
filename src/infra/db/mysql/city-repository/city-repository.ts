@@ -7,22 +7,21 @@ import { City } from "../../../../domain/models/city/city-model";
 import { AddCityModel } from "../../../../domain/usescases/city/add-city";
 
 export class CityMysqlRepository
-  implements LoadCityRepository, AddCityRepository, UpdateCityRepository, DeleteCityRepository
-{
+  implements LoadCityRepository, AddCityRepository, UpdateCityRepository, DeleteCityRepository {
   constructor(private readonly prisma: PrismaClient) {}
 
   async loadAll(): Promise<City[]> {
-    return this.prisma.city.findMany({
+    return await this.prisma.city.findMany({
       orderBy: { name: "asc" },
     });
   }
 
   async add(city: AddCityModel): Promise<City> {
-    return this.prisma.city.create({ data: { name: city.name } });
+    return await this.prisma.city.create({ data: { name: city.name } });
   }
 
   async update(id: number, data: Partial<City>): Promise<City> {
-    return this.prisma.city.update({
+    return await this.prisma.city.update({
       where: { id: Number(id) },
       data: {
         ...(data.name && { name: data.name }),

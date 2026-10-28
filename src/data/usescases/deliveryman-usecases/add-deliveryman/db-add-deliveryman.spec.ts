@@ -14,6 +14,7 @@ const makeDeliveryman = (): Deliveryman => ({
   lastName: "any_lastName",
   numberQualification: "any_numberQualification",
   phone: "any_phone",
+  cpf: "any_cpf",
 });
 
 const makeAddDeliverymanModel = (): AddDeliverymanModel => ({
@@ -21,12 +22,13 @@ const makeAddDeliverymanModel = (): AddDeliverymanModel => ({
   lastName: "any_lastName",
   numberQualification: "any_numberQualification",
   phone: "any_phone",
+  cpf: "any_cpf",
 });
 
 const makeAddDeliverymanRepository = (): AddDeliverymanRepository => {
   class AddDeliverymanRepositoryStub implements AddDeliverymanRepository {
     async add(deliveryman: AddDeliverymanModel): Promise<Deliveryman> {
-      return new Promise((resolve) => resolve(makeDeliveryman()));
+      return await new Promise((resolve) => resolve(makeDeliveryman()));
     }
   }
   return new AddDeliverymanRepositoryStub();
@@ -51,6 +53,7 @@ describe("DbAddDeliveryman Usecase", () => {
       lastName: "any_lastName",
       numberQualification: "any_numberQualification",
       phone: "any_phone",
+      cpf: "any_cpf",
     });
   });
 

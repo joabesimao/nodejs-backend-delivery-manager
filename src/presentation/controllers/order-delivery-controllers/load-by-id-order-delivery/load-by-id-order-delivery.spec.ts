@@ -60,7 +60,7 @@ interface SutTypes {
 const makeLoadOrderDeliveryStub = (): LoadOrderDeliveryById => {
   class LoadOrderByIdStub implements LoadOrderDeliveryById {
     async loadOne(id: number): Promise<OrderDeliveryModel> {
-      return new Promise((resolve) => resolve(makeOrderDelivery()));
+      return await new Promise((resolve) => resolve(makeOrderDelivery()));
     }
   }
   return new LoadOrderByIdStub();

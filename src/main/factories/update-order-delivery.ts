@@ -6,7 +6,10 @@ import { prisma } from "../../infra/db/mysql/helpers/index";
 
 export const makeUpdateOrderDeliveryController = (): Controller => {
   const updateRepository = new OrderDeliveryMySqlRepository(prisma);
-  const updateOrderDelivery = new DbUpdateOrderDelivery(updateRepository);
+  const updateOrderDelivery = new DbUpdateOrderDelivery(
+    updateRepository,
+    updateRepository
+  );
   const orderDeliveryController = new UpdateOrderDeliveryController(
     updateOrderDelivery
   );

@@ -16,7 +16,7 @@ interface SutTypes {
 const makeUpdateCityRepository = (): UpdateCityRepository => {
   class UpdateCityRepositoryStub implements UpdateCityRepository {
     async update(id: number, data: Partial<City>): Promise<City> {
-      return new Promise((resolve) => resolve(makeFakeCity()));
+      return await new Promise((resolve) => resolve(makeFakeCity()));
     }
   }
   return new UpdateCityRepositoryStub();

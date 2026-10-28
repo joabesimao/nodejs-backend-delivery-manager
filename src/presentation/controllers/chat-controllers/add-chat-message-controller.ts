@@ -2,6 +2,8 @@ import { Controller } from "../../protocols/controller";
 import { HttpRequest, HttpResponse } from "../../protocols/http";
 import { prisma } from "../../../infra/db/mysql/helpers";
 import { getAccountScope } from "../../../main/realtime/store-scope";
+import { emitChatRealtime } from "../../../main/realtime/realtime-state";
+import { NotifyChatMessage } from "../../../domain/usescases/notification/notify-chat-message";
 
 const MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024;
 
@@ -26,28 +28,24 @@ const normalizeBase64 = (imageBase64: string): string => {
 };
 
 export class AddChatMessageController implements Controller {
+  constructor(private readonly notifyChatMessage?: NotifyChatMessage) {}
+
   async handle(httpRequest: HttpRequest): Promise<HttpResponse> {
     try {
-      console.log("1. Handler iniciado");
       const accountId = Number(httpRequest.headers?.accountId || 0);
-      console.log("2. AccountId:", accountId);
       const body = httpRequest.body || {};
 
       if (!accountId) {
-        console.log("3. AccountId vazio, retornando 401");
         return {
           statusCode: 401,
           body: { error: "Não autenticado" },
         };
       }
 
-      // Validar payload
       const text = String(body.text || "").trim();
       const imageBase64 = body.imageBase64 ? String(body.imageBase64) : null;
       const imageMimeType = body.imageMimeType ? String(body.imageMimeType) : null;
       let unitStoreId = Number(body.unitStoreId || 0);
-
-      console.log("4. Payload validado - text:", text, "imageBase64:", !!imageBase64, "unitStoreId:", unitStoreId);
 
       if (!text && !imageBase64) {
         return {
@@ -56,10 +54,7 @@ export class AddChatMessageController implements Controller {
         };
       }
 
-      // Verificar permissão e obter scope
-      console.log("5. Verificando scope da conta...");
       const scope = await getAccountScope(prisma, accountId);
-      console.log("6. Scope:", scope);
 
       if (!scope) {
         return {
@@ -68,21 +63,16 @@ export class AddChatMessageController implements Controller {
         };
       }
 
-      // Se unitStoreId não foi fornecido, usar o primeiro da lista de visíveis
       if (!unitStoreId) {
-        console.log("7. unitStoreId não fornecido, visibleUnitIds:", scope.visibleUnitIds);
         if (scope.visibleUnitIds.length === 0) {
-          console.log("8. Sem unitStore visível, retornando 403");
           return {
             statusCode: 403,
             body: { error: "Sem permissão para enviar para nenhuma loja" },
           };
         }
         unitStoreId = scope.visibleUnitIds[0];
-        console.log("9. unitStoreId definido como:", unitStoreId);
       }
 
-      // Verificar se tem permissão para a loja específica
       if (!scope.visibleUnitIds.includes(unitStoreId)) {
         return {
           statusCode: 403,
@@ -90,7 +80,6 @@ export class AddChatMessageController implements Controller {
         };
       }
 
-      // Validar tamanho da imagem
       if (imageBase64) {
         const normalizedBase64 = normalizeBase64(imageBase64);
         const sizeInBytes = estimateBase64Bytes(normalizedBase64);
@@ -105,8 +94,6 @@ export class AddChatMessageController implements Controller {
         }
       }
 
-      // Salvar mensagem
-      console.log("10. Criando mensagem...");
       const message = await prisma.chatMessage.create({
         data: {
           unitStoreId,
@@ -134,17 +121,26 @@ export class AddChatMessageController implements Controller {
         },
       });
 
-      console.log("11. Mensagem criada:", message.id);
+      emitChatRealtime("chat:message", scope.rootStoreId, message);
+      void this.notifyChatMessage?.notify({
+        messageId: message.id,
+        unitStoreId: message.unitStoreId,
+        unitStoreName: message.unitStore?.name,
+        senderId: message.senderId,
+        senderName: message.sender?.name,
+        text: message.text,
+        hasImage: Boolean(message.imageBase64),
+      });
+
       return {
         statusCode: 201,
         body: message,
       };
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
-      console.error("AddChatMessageController error:", errorMessage, error);
+      console.error("[chat:add] error", error);
       return {
         statusCode: 500,
-        body: { error: errorMessage || "Falha ao enviar mensagem" },
+        body: { error: "Falha ao enviar mensagem" },
       };
     }
   }

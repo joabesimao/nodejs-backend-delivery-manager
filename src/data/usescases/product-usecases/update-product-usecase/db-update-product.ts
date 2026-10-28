@@ -9,6 +9,6 @@ export class DbUpdateProduct implements UpdateProduct {
   constructor(private readonly updateProductRepository: UpdateProductRepository) {}
 
   async update(id: number, info: Partial<ProductModel>): Promise<Product> {
-    return this.updateProductRepository.updateProduct(id, info);
+    return await this.updateProductRepository.updateProduct(id, info);
   }
 }

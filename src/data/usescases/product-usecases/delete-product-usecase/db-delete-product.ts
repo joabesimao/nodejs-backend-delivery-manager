@@ -7,6 +7,6 @@ export class DbDeleteProduct implements DeleteProductById {
   constructor(private readonly deleteProductRepository: DeleteProductByIdRepository) {}
 
   async delete(id: number): Promise<string> {
-    return this.deleteProductRepository.deleteById(id);
+    return await this.deleteProductRepository.deleteById(id);
   }
 }

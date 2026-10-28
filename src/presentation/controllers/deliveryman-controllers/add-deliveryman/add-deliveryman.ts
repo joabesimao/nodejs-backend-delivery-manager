@@ -1,5 +1,6 @@
 import { AddDeliveryman } from "../../../../domain/usescases/deliveryman/add-deliveryman";
-import { badRequest, ok, serverError } from "../../../helpers/http/http-helper";
+import { CpfInUseError, QualificationInUseError } from "../../../errors";
+import { badRequest, conflict, ok, serverError } from "../../../helpers/http/http-helper";
 import { Controller } from "../../../protocols/controller";
 import { HttpRequest, HttpResponse } from "../../../protocols/http";
 import { Validation } from "../../../protocols/validation";
@@ -14,11 +15,20 @@ export class AddDeliverymanController implements Controller {
     try {
       const error = await this.validation.validate(httpRequest.body);
       if (error) {
+        if (error instanceof CpfInUseError || error instanceof QualificationInUseError) {
+          return conflict(error);
+        }
         return badRequest(error);
       }
       const result = await this.addDeliveryman.add(httpRequest.body);
       return ok(result);
     } catch (error) {
+      if (error.code === "P2002" && error.meta?.target?.includes("cpf")) {
+        return conflict(new CpfInUseError());
+      }
+      if (error.code === "P2002" && error.meta?.target?.includes("numberQualification")) {
+        return conflict(new QualificationInUseError());
+      }
       return serverError(error);
     }
   }

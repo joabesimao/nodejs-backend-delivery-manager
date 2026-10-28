@@ -1,6 +1,8 @@
 import { Controller } from "../../protocols/controller";
 import { HttpRequest, HttpResponse } from "../../protocols/http";
 import { prisma } from "../../../infra/db/mysql/helpers";
+import { getAccountScope } from "../../../main/realtime/store-scope";
+import { emitChatRealtime } from "../../../main/realtime/realtime-state";
 
 export class DeleteChatMessageController implements Controller {
   async handle(httpRequest: HttpRequest): Promise<HttpResponse> {
@@ -22,7 +24,6 @@ export class DeleteChatMessageController implements Controller {
         };
       }
 
-      // Buscar mensagem
       const message = await prisma.chatMessage.findUnique({
         where: { id: messageId },
         include: {
@@ -39,7 +40,6 @@ export class DeleteChatMessageController implements Controller {
         };
       }
 
-      // Verificar permissão: somente remetente ou admin podem deletar
       const account = await prisma.account.findUnique({
         where: { id: accountId },
         select: { role: true },
@@ -48,16 +48,25 @@ export class DeleteChatMessageController implements Controller {
       const isOwner = message.senderId === accountId;
       const isAdmin = account?.role === "admin";
 
-      if (!isOwner && !isAdmin) {
+      const scope = await getAccountScope(prisma, accountId);
+      const outOfScope =
+        !!scope &&
+        scope.visibleUnitIds.length > 0 &&
+        !scope.visibleUnitIds.includes(message.unitStoreId);
+
+      if ((!isOwner && !isAdmin) || outOfScope) {
         return {
           statusCode: 403,
           body: { error: "Sem permissão para deletar esta mensagem" },
         };
       }
 
-      // Deletar mensagem
       await prisma.chatMessage.delete({
         where: { id: messageId },
+      });
+
+      emitChatRealtime("chat:message-deleted", scope?.rootStoreId ?? null, {
+        messageId,
       });
 
       return {

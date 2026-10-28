@@ -28,14 +28,12 @@ export class LoadChatMessagesController implements Controller {
       const offset = Number(httpRequest.query?.offset) || 0;
       const unitStoreId = Number(httpRequest.query?.unitStoreId);
 
-      let whereClause: any = {};
+      const whereClause: any = {};
 
-      // Filtrar por escopo visível
       if (scope.visibleUnitIds.length) {
         whereClause.unitStoreId = { in: scope.visibleUnitIds };
       }
 
-      // Filtrar por loja específica se solicitado
       if (unitStoreId && scope.visibleUnitIds.includes(unitStoreId)) {
         whereClause.unitStoreId = unitStoreId;
       }
@@ -83,7 +81,7 @@ export class LoadChatMessagesController implements Controller {
       console.error("LoadChatMessagesController error:", error);
       return {
         statusCode: 500,
-        body: { error: "Falha ao carregar mensagens", details: String(error) },
+        body: { error: "Falha ao carregar mensagens" },
       };
     }
   }

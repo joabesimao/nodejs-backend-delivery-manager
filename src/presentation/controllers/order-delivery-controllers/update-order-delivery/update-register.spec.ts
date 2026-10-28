@@ -66,7 +66,7 @@ const makeUpdateOrderDelivery = (): UpdateOrderDelivery => {
       id: number,
       info: UpdateOrderDeliveryModel
     ): Promise<OrderDeliveryModel> {
-      return new Promise((resolve) => resolve(makeFakeOrder()));
+      return await new Promise((resolve) => resolve(makeFakeOrder()));
     }
   }
   return new UpdateOrderStub();
@@ -188,7 +188,7 @@ describe("Update one Order Delivery Controller", () => {
   test("Should not parse amount when it is undefined in the body", async () => {
     const { sut, updateOrderDeliveryStub } = makeSut();
     const updateSpy = jest.spyOn(updateOrderDeliveryStub, "update");
-    const { amount, ...bodyWithoutAmount } = fakehttpRequest().body as any;
+    const { amount, ...bodyWithoutAmount } = fakehttpRequest().body;
     await sut.handle({
       ...fakehttpRequest(),
       body: bodyWithoutAmount,

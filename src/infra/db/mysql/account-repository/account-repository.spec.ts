@@ -5,6 +5,7 @@ const makeFakePrisma = () => ({
     findUnique: jest.fn(),
     delete: jest.fn(),
     update: jest.fn(),
+    updateMany: jest.fn(),
   },
 });
 
@@ -82,7 +83,12 @@ describe("Account MySql Repository", () => {
       await sut.updateRefreshToken(1, "any_hash", expiresAt);
       expect(prisma.account.update).toHaveBeenCalledWith({
         where: { id: 1 },
-        data: { refreshTokenHash: "any_hash", refreshTokenExpiresAt: expiresAt },
+        data: {
+          refreshTokenHash: "any_hash",
+          refreshTokenExpiresAt: expiresAt,
+          previousRefreshTokenHash: null,
+          refreshTokenRotatedAt: null,
+        },
       });
     });
 
@@ -91,7 +97,12 @@ describe("Account MySql Repository", () => {
       await sut.updateRefreshToken(1, null, null);
       expect(prisma.account.update).toHaveBeenCalledWith({
         where: { id: 1 },
-        data: { refreshTokenHash: null, refreshTokenExpiresAt: null },
+        data: {
+          refreshTokenHash: null,
+          refreshTokenExpiresAt: null,
+          previousRefreshTokenHash: null,
+          refreshTokenRotatedAt: null,
+        },
       });
     });
 
@@ -101,6 +112,38 @@ describe("Account MySql Repository", () => {
       await expect(
         sut.updateRefreshToken(1, "any_hash", new Date()),
       ).rejects.toThrow();
+    });
+  });
+
+  describe("rotateRefreshToken()", () => {
+    test("Should only update when the stored hash still matches the current one", async () => {
+      const { sut, prisma } = makeSut();
+      prisma.account.updateMany.mockResolvedValueOnce({ count: 1 });
+      const expiresAt = new Date();
+      await sut.rotateRefreshToken(1, "current_hash", "new_hash", expiresAt);
+      expect(prisma.account.updateMany).toHaveBeenCalledWith({
+        where: { id: 1, refreshTokenHash: "current_hash" },
+        data: {
+          refreshTokenHash: "new_hash",
+          refreshTokenExpiresAt: expiresAt,
+          previousRefreshTokenHash: "current_hash",
+          refreshTokenRotatedAt: expect.any(Date),
+        },
+      });
+    });
+
+    test("Should return true when the token was rotated", async () => {
+      const { sut, prisma } = makeSut();
+      prisma.account.updateMany.mockResolvedValueOnce({ count: 1 });
+      const rotated = await sut.rotateRefreshToken(1, "current_hash", "new_hash", null);
+      expect(rotated).toBe(true);
+    });
+
+    test("Should return false when another request already rotated the token", async () => {
+      const { sut, prisma } = makeSut();
+      prisma.account.updateMany.mockResolvedValueOnce({ count: 0 });
+      const rotated = await sut.rotateRefreshToken(1, "current_hash", "new_hash", null);
+      expect(rotated).toBe(false);
     });
   });
 

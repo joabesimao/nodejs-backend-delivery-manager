@@ -21,7 +21,6 @@ export class SearchChatMessagesController implements Controller {
         };
       }
 
-      // Parâmetros de busca
       const searchText = String(query.q || "").trim();
       const unitStoreId = Number(query.unitStoreId || 0);
       const senderId = Number(query.senderId || 0);
@@ -32,24 +31,20 @@ export class SearchChatMessagesController implements Controller {
       const hasImage = query.hasImage === "true";
       const hasText = query.hasText === "true";
 
-      let whereClause: any = {};
+      const whereClause: any = {};
 
-      // Filtrar por escopo visível
-      if (scope && scope.visibleUnitIds.length) {
+      if (scope?.visibleUnitIds.length) {
         whereClause.unitStoreId = { in: scope.visibleUnitIds };
       }
 
-      // Filtrar por loja específica
       if (unitStoreId && (!scope || scope.visibleUnitIds.includes(unitStoreId))) {
         whereClause.unitStoreId = unitStoreId;
       }
 
-      // Filtrar por remetente
       if (senderId) {
         whereClause.senderId = senderId;
       }
 
-      // Filtrar por intervalo de data
       if (dateFrom || dateTo) {
         whereClause.createdAt = {};
         if (dateFrom) {
@@ -62,7 +57,6 @@ export class SearchChatMessagesController implements Controller {
         }
       }
 
-      // Filtrar por tipo de conteúdo
       if (hasImage) {
         whereClause.imageBase64 = { not: null };
       }
@@ -70,12 +64,11 @@ export class SearchChatMessagesController implements Controller {
         whereClause.text = { not: null };
       }
 
-      // Buscar por texto
       if (searchText) {
         whereClause.OR = [
-          { text: { contains: searchText } },
-          { sender: { name: { contains: searchText } } },
-          { unitStore: { name: { contains: searchText } } },
+          { text: { contains: searchText, mode: "insensitive" } },
+          { sender: { name: { contains: searchText, mode: "insensitive" } } },
+          { unitStore: { name: { contains: searchText, mode: "insensitive" } } },
         ];
       }
 

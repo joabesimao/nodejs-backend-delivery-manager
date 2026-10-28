@@ -3,6 +3,7 @@ import {
   ValidationComposite,
   ProductVariationsValidation,
   ProductImageValidation,
+  PositiveNumberValidation,
 } from "../../presentation/helpers/validators";
 import { Validation } from "../../presentation/protocols/validation";
 
@@ -10,6 +11,7 @@ export const makeUpdateProductValidation = (): ValidationComposite => {
   const validations: Validation[] = [
     new OptionalFieldTypeValidation("name", "string"),
     new OptionalFieldTypeValidation("price", "number"),
+    new PositiveNumberValidation("price"),
     new OptionalFieldTypeValidation("description", "string"),
     new OptionalFieldTypeValidation("category", "string"),
     new OptionalFieldTypeValidation("subcategory", "string"),

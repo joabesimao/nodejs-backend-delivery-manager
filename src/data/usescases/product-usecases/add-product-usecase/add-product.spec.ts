@@ -32,7 +32,7 @@ interface SutTypes {
 const makeAddProductRepository = (): AddProductRepository => {
   class AddProductRepositoryStub implements AddProductRepository {
     async add(dataInfo: AddProductModel): Promise<Product> {
-      return new Promise((resolve) => resolve(makeFakeProduct()));
+      return await new Promise((resolve) => resolve(makeFakeProduct()));
     }
   }
   return new AddProductRepositoryStub();

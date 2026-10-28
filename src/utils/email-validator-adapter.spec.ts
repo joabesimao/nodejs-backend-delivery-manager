@@ -12,7 +12,7 @@ describe("EmailValidator Adapter", () => {
     const sut = new EmailValidatorAdapter();
     jest
       .spyOn(validator, "isEmail")
-      .mockResolvedValueOnce(false as unknown as never);
+      .mockReturnValueOnce(false);
     const isValid = await sut.isValid("invalid_email@email.com");
     expect(isValid).toBe(false);
   });
@@ -21,6 +21,16 @@ describe("EmailValidator Adapter", () => {
     const sut = new EmailValidatorAdapter();
     const isValid = await sut.isValid("invalid_email@email.com");
     expect(isValid).toBe(true);
+  });
+
+  test("Should return false without calling validator if email is not a string", async () => {
+    const sut = new EmailValidatorAdapter();
+    const emailSpy = jest.spyOn(validator, "isEmail");
+    emailSpy.mockClear();
+    for (const email of [123, { $ne: null }, ["a@b.com"], null, undefined]) {
+      expect(await sut.isValid(email)).toBe(false);
+    }
+    expect(emailSpy).not.toHaveBeenCalled();
   });
 
   test("Should call validator with correct email", async () => {

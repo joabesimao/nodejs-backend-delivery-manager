@@ -28,7 +28,7 @@ interface SutTypes {
 const makeLoadDeliverymanStub = (): LoadDeliveryman => {
   class LoadDeliverymanStub implements LoadDeliveryman {
     async load(): Promise<Deliveryman[]> {
-      return new Promise((resolve) => resolve(makeFakeDeliverymanList()));
+      return await new Promise((resolve) => resolve(makeFakeDeliverymanList()));
     }
   }
   return new LoadDeliverymanStub();

@@ -20,6 +20,7 @@ jest.mock("socket.io", () => ({
 }));
 
 jest.mock("./realtime-state", () => ({
+  ...jest.requireActual("./realtime-state"),
   setRealtimeServer: jest.fn(),
 }));
 
@@ -40,19 +41,27 @@ jest.mock("../../infra/db/mysql/helpers", () => ({
   },
 }));
 
+const mockNotifyChatMessage = jest.fn().mockResolvedValue(undefined);
+
+jest.mock("../factories/notify-chat-message", () => ({
+  makeNotifyChatMessage: () => ({
+    notify: (...args: unknown[]) => mockNotifyChatMessage(...args),
+  }),
+}));
+
 jest.mock("../../infra/cryptography/jwt-adapter/jwt-adapter", () => ({
   JwtAdapter: jest.fn().mockImplementation(() => ({
-    decode: jest.fn(),
+    decrypt: jest.fn(),
   })),
 }));
 
 type Ack = (response: unknown) => void;
 
-const jwtDecodeMock = (
+const jwtDecryptMock = (
   (JwtAdapter as unknown as jest.Mock).mock.results[0].value as {
-    decode: jest.Mock;
+    decrypt: jest.Mock;
   }
-).decode;
+).decrypt;
 
 const getAccountScopeMock = getAccountScope as jest.Mock;
 const setRealtimeServerMock = setRealtimeServer as jest.Mock;
@@ -91,7 +100,7 @@ const makeSocket = (overrides: Record<string, unknown> = {}) => {
 };
 
 const setup = () => {
-  const httpServer = {} as HttpServer;
+  const httpServer = {} as unknown as HttpServer;
   setupRealtimeGateway(httpServer);
 
   const middleware = mockUse.mock.calls[0][0] as (
@@ -112,13 +121,13 @@ const defaultAccount: {
   id: number;
   name: string;
   email: string;
-  role: "principal" | "branch";
+  role: string;
   unitStoreId: number | null;
 } = {
   id: 1,
   name: "Any Name",
   email: "any@mail.com",
-  role: "branch",
+  role: "user",
   unitStoreId: 5,
 };
 
@@ -164,14 +173,14 @@ beforeEach(() => {
 describe("realtime-gateway", () => {
   describe("setupRealtimeGateway()", () => {
     test("Should register the realtime server via setRealtimeServer", () => {
-      const httpServer = {} as HttpServer;
+      const httpServer = {} as unknown as HttpServer;
       setupRealtimeGateway(httpServer);
 
       expect(setRealtimeServerMock).toHaveBeenCalledTimes(1);
     });
 
     test("Should create the socket.io Server with the expected path and cors options", () => {
-      const httpServer = {} as HttpServer;
+      const httpServer = {} as unknown as HttpServer;
       setupRealtimeGateway(httpServer);
 
       expect(Server).toHaveBeenCalledWith(
@@ -181,6 +190,17 @@ describe("realtime-gateway", () => {
           cors: expect.objectContaining({ origin: "*" }),
         }),
       );
+    });
+
+    test("Should raise maxHttpBufferSize so a 5MB base64 image fits", () => {
+      const httpServer = {} as unknown as HttpServer;
+      setupRealtimeGateway(httpServer);
+
+      const options = (Server as unknown as jest.Mock).mock.calls[0][1] as {
+        maxHttpBufferSize: number;
+      };
+      const base64ImageBytes = Math.ceil((5 * 1024 * 1024 * 4) / 3);
+      expect(options.maxHttpBufferSize).toBeGreaterThan(base64ImageBytes);
     });
   });
 
@@ -214,7 +234,7 @@ describe("realtime-gateway", () => {
 
     test("Should read the token from handshake.auth.token", async () => {
       const { middleware } = setup();
-      jwtDecodeMock.mockResolvedValue({ id: "1" });
+      jwtDecryptMock.mockResolvedValue("1");
       getAccountScopeMock.mockResolvedValue(defaultScope);
       prismaAccountFindUnique.mockResolvedValue(defaultAccount);
 
@@ -225,13 +245,13 @@ describe("realtime-gateway", () => {
 
       await middleware(socket, next);
 
-      expect(jwtDecodeMock).toHaveBeenCalledWith("auth_token");
+      expect(jwtDecryptMock).toHaveBeenCalledWith("auth_token");
       expect(next).toHaveBeenCalledWith();
     });
 
     test("Should fall back to the x-access-token header when auth.token is absent", async () => {
       const { middleware } = setup();
-      jwtDecodeMock.mockResolvedValue({ id: "1" });
+      jwtDecryptMock.mockResolvedValue("1");
       getAccountScopeMock.mockResolvedValue(defaultScope);
       prismaAccountFindUnique.mockResolvedValue(defaultAccount);
 
@@ -246,13 +266,13 @@ describe("realtime-gateway", () => {
 
       await middleware(socket, next);
 
-      expect(jwtDecodeMock).toHaveBeenCalledWith("header_token");
+      expect(jwtDecryptMock).toHaveBeenCalledWith("header_token");
       expect(next).toHaveBeenCalledWith();
     });
 
     test("Should fall back to handshake.query.token as a last resort", async () => {
       const { middleware } = setup();
-      jwtDecodeMock.mockResolvedValue({ id: "1" });
+      jwtDecryptMock.mockResolvedValue("1");
       getAccountScopeMock.mockResolvedValue(defaultScope);
       prismaAccountFindUnique.mockResolvedValue(defaultAccount);
 
@@ -263,13 +283,13 @@ describe("realtime-gateway", () => {
 
       await middleware(socket, next);
 
-      expect(jwtDecodeMock).toHaveBeenCalledWith("query_token");
+      expect(jwtDecryptMock).toHaveBeenCalledWith("query_token");
       expect(next).toHaveBeenCalledWith();
     });
 
-    test("Should call next with an error when the decoded payload has no id", async () => {
+    test("Should call next with an error when the token is not a valid access token", async () => {
       const { middleware } = setup();
-      jwtDecodeMock.mockResolvedValue({});
+      jwtDecryptMock.mockResolvedValue(null);
 
       const socket = makeSocket({
         handshake: { auth: { token: "any_token" }, headers: {}, query: {} },
@@ -284,7 +304,7 @@ describe("realtime-gateway", () => {
 
     test("Should call next with an error when getAccountScope returns null", async () => {
       const { middleware } = setup();
-      jwtDecodeMock.mockResolvedValue({ id: "1" });
+      jwtDecryptMock.mockResolvedValue("1");
       getAccountScopeMock.mockResolvedValue(null);
 
       const socket = makeSocket({
@@ -300,7 +320,7 @@ describe("realtime-gateway", () => {
 
     test("Should call next with an error when the account record cannot be found", async () => {
       const { middleware } = setup();
-      jwtDecodeMock.mockResolvedValue({ id: "1" });
+      jwtDecryptMock.mockResolvedValue("1");
       getAccountScopeMock.mockResolvedValue(defaultScope);
       prismaAccountFindUnique.mockResolvedValue(null);
 
@@ -314,9 +334,29 @@ describe("realtime-gateway", () => {
       expect(next).toHaveBeenCalledWith(expect.any(Error));
     });
 
-    test("Should call next with an error when decode throws", async () => {
+    test("Should call next with an error when the account is inactive", async () => {
       const { middleware } = setup();
-      jwtDecodeMock.mockRejectedValue(new Error("boom"));
+      jwtDecryptMock.mockResolvedValue("1");
+      getAccountScopeMock.mockResolvedValue(defaultScope);
+      prismaAccountFindUnique.mockResolvedValue({
+        ...defaultAccount,
+        active: false,
+      });
+
+      const socket = makeSocket({
+        handshake: { auth: { token: "any_token" }, headers: {}, query: {} },
+      });
+      const next = jest.fn();
+
+      await middleware(socket, next);
+
+      expect(next).toHaveBeenCalledWith(expect.any(Error));
+      expect(socket.data.session).toBeUndefined();
+    });
+
+    test("Should call next with an error when decrypt throws", async () => {
+      const { middleware } = setup();
+      jwtDecryptMock.mockRejectedValue(new Error("boom"));
 
       const socket = makeSocket({
         handshake: { auth: { token: "any_token" }, headers: {}, query: {} },
@@ -330,7 +370,7 @@ describe("realtime-gateway", () => {
 
     test("Should set socket.data.session with networkRoom based on scope.rootStoreId", async () => {
       const { middleware } = setup();
-      jwtDecodeMock.mockResolvedValue({ id: "1" });
+      jwtDecryptMock.mockResolvedValue("1");
       getAccountScopeMock.mockResolvedValue(defaultScope);
       prismaAccountFindUnique.mockResolvedValue(defaultAccount);
 
@@ -352,7 +392,7 @@ describe("realtime-gateway", () => {
     test("Should use the network:global room when scope.rootStoreId is null", async () => {
       const { middleware } = setup();
       const scopeWithoutRoot = { ...defaultScope, rootStoreId: null };
-      jwtDecodeMock.mockResolvedValue({ id: "1" });
+      jwtDecryptMock.mockResolvedValue("1");
       getAccountScopeMock.mockResolvedValue(scopeWithoutRoot);
       prismaAccountFindUnique.mockResolvedValue(defaultAccount);
 
@@ -379,6 +419,17 @@ describe("realtime-gateway", () => {
       expect(socket.join).toHaveBeenCalledWith("network:2");
       expect(socket.join).toHaveBeenCalledWith("unit:5");
       expect(socket.join).toHaveBeenCalledWith("unit:6");
+    });
+
+    test("Should join the account room for personal notifications", async () => {
+      const { connectionHandler } = setup();
+      const socket = makeSessionSocket();
+
+      await connectionHandler(socket);
+
+      expect(socket.join).toHaveBeenCalledWith(
+        `account:${socket.data.session.account.id}`,
+      );
     });
 
     test("Should not query units when visibleUnitIds is empty and emit an empty units list", async () => {
@@ -589,6 +640,35 @@ describe("realtime-gateway", () => {
       expect(ack).toHaveBeenCalledWith({ ok: true, messageId: 99 });
     });
 
+    test("Should notify the chat message recipients after sending", async () => {
+      const socket = makeSessionSocket({
+        account: { unitStoreId: 5 },
+        scope: { visibleUnitIds: [5] },
+      });
+      const handler = await getHandler(socket);
+      prismaChatMessageCreate.mockResolvedValue({
+        id: 99,
+        unitStoreId: 5,
+        senderId: 1,
+        text: "hello",
+        imageBase64: null,
+        sender: { name: "Any Name" },
+        unitStore: { name: "Loja 5" },
+      });
+
+      await handler({ text: "hello" }, jest.fn());
+
+      expect(mockNotifyChatMessage).toHaveBeenCalledWith({
+        messageId: 99,
+        unitStoreId: 5,
+        unitStoreName: "Loja 5",
+        senderId: 1,
+        senderName: "Any Name",
+        text: "hello",
+        hasImage: false,
+      });
+    });
+
     test("Should strip the data: prefix from a base64 image before persisting it", async () => {
       const socket = makeSessionSocket({
         account: { unitStoreId: 5 },
@@ -691,14 +771,15 @@ describe("realtime-gateway", () => {
       });
     });
 
-    test("Should ack an error when a non-owner, non-principal account tries to delete it", async () => {
+    test("Should ack an error when a non-owner, non-admin account tries to delete it", async () => {
       const socket = makeSessionSocket({
-        account: { id: 1, role: "branch" },
+        account: { id: 1, role: "user" },
       });
       const handler = await getHandler(socket);
       prismaChatMessageFindUnique.mockResolvedValue({
         id: 1,
         senderId: 999,
+        unitStoreId: 5,
       });
       const ack = jest.fn();
 
@@ -713,10 +794,10 @@ describe("realtime-gateway", () => {
 
     test("Should allow the sender to delete their own message", async () => {
       const socket = makeSessionSocket({
-        account: { id: 1, role: "branch" },
+        account: { id: 1, role: "user" },
       });
       const handler = await getHandler(socket);
-      prismaChatMessageFindUnique.mockResolvedValue({ id: 1, senderId: 1 });
+      prismaChatMessageFindUnique.mockResolvedValue({ id: 1, senderId: 1, unitStoreId: 5 });
       const ack = jest.fn();
 
       await handler({ messageId: 1 }, ack);
@@ -730,14 +811,15 @@ describe("realtime-gateway", () => {
       expect(ack).toHaveBeenCalledWith({ ok: true });
     });
 
-    test("Should allow a principal account to delete someone else's message", async () => {
+    test("Should allow an admin to delete someone else's message", async () => {
       const socket = makeSessionSocket({
-        account: { id: 1, role: "principal" },
+        account: { id: 1, role: "admin" },
       });
       const handler = await getHandler(socket);
       prismaChatMessageFindUnique.mockResolvedValue({
         id: 1,
         senderId: 999,
+        unitStoreId: 5,
       });
       const ack = jest.fn();
 
@@ -749,12 +831,34 @@ describe("realtime-gateway", () => {
       expect(ack).toHaveBeenCalledWith({ ok: true });
     });
 
-    test("Should ack ok:false when deleting the message fails", async () => {
+    test("Should not let an admin delete a message outside the visible units", async () => {
       const socket = makeSessionSocket({
-        account: { id: 1, role: "principal" },
+        account: { id: 1, role: "admin" },
+        scope: { visibleUnitIds: [5] },
       });
       const handler = await getHandler(socket);
-      prismaChatMessageFindUnique.mockResolvedValue({ id: 1, senderId: 1 });
+      prismaChatMessageFindUnique.mockResolvedValue({
+        id: 1,
+        senderId: 999,
+        unitStoreId: 77,
+      });
+      const ack = jest.fn();
+
+      await handler({ messageId: 1 }, ack);
+
+      expect(ack).toHaveBeenCalledWith({
+        ok: false,
+        error: "Sem permissão para deletar",
+      });
+      expect(prismaChatMessageDelete).not.toHaveBeenCalled();
+    });
+
+    test("Should ack ok:false when deleting the message fails", async () => {
+      const socket = makeSessionSocket({
+        account: { id: 1, role: "admin" },
+      });
+      const handler = await getHandler(socket);
+      prismaChatMessageFindUnique.mockResolvedValue({ id: 1, senderId: 1, unitStoreId: 5 });
       prismaChatMessageDelete.mockRejectedValue(new Error("db error"));
       const ack = jest.fn();
 
@@ -815,7 +919,7 @@ describe("realtime-gateway", () => {
       const { connectionHandler } = setup();
       await connectionHandler(socket);
 
-      const handler = socket.__handlers["disconnect"] as () => void;
+      const handler = socket.__handlers.disconnect as () => void;
 
       handler();
 

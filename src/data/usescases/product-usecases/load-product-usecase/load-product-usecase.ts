@@ -13,5 +13,3 @@ export class DbLoadAllProduct implements LoadAllProduct {
     return result;
   }
 }
-
-

@@ -21,8 +21,8 @@ export const adaptRoute = (controller: Controller) => {
       if (httpResponse.statusCode >= 200 && httpResponse.statusCode <= 299) {
         res.status(httpResponse.statusCode).json(httpResponse.body);
       } else {
-        const errorBody = httpResponse.body as any;
-        const errorMessage = errorBody?.message || 
+        const errorBody = httpResponse.body;
+        const errorMessage = errorBody?.message ||
                             (errorBody instanceof Error ? errorBody.message : null) ||
                             "Erro desconhecido";
         if (httpResponse.statusCode >= 500) {
@@ -45,4 +45,3 @@ export const adaptRoute = (controller: Controller) => {
     }
   };
 };
-

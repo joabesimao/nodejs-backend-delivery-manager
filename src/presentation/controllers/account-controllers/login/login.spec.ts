@@ -93,9 +93,7 @@ describe("Login Controller", () => {
     const { sut, authenticationStub } = makeSut();
     jest
       .spyOn(authenticationStub, "auth")
-      .mockReturnValueOnce(
-        new Promise((resolve, rejects) => rejects(new Error()))
-      );
+      .mockRejectedValueOnce(new Error());
     const httpRequest = {
       body: {
         email: "any_email@email.com",

@@ -1,5 +1,4 @@
 import { DbLoadClients } from "./db-load-client";
-import { LoadRegisterModel } from "../../../../domain/models/register/register-load-model";
 import { LoadClientRepository } from "../../../protocols/db/client/load-client";
 import { ClientModel } from "../../../../domain/models/client/client-model";
 
@@ -27,7 +26,7 @@ interface SutTypes {
 const makeLoadClientRepository = (): LoadClientRepository => {
   class LoadClientRepositoryStub implements LoadClientRepository {
     async loadAll(): Promise<ClientModel[]> {
-      return new Promise((resolve) => resolve(makeFakeClientList()));
+      return await new Promise((resolve) => resolve(makeFakeClientList()));
     }
   }
   return new LoadClientRepositoryStub();

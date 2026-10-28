@@ -8,6 +8,7 @@ export class DbLoadAccountByToken implements LoadAccountByToken {
     private readonly decrypter: Decrypter,
     private readonly loadAccountByTokenRepository: LoadAccountByTokenRepository
   ) {}
+
   async load(accessToken: string): Promise<AccountModel> {
     const token = await this.decrypter.decrypt(accessToken);
     if (token) {
@@ -17,6 +18,6 @@ export class DbLoadAccountByToken implements LoadAccountByToken {
         return account;
       }
     }
-    return new Promise((resolve) => resolve(null));
+    return await new Promise((resolve) => resolve(null));
   }
 }

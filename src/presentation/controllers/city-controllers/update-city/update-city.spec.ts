@@ -29,7 +29,7 @@ interface SutTypes {
 const makeUpdateCityStub = (): UpdateCity => {
   class UpdateCityStub implements UpdateCity {
     async update(id: number, data: UpdateCityModel): Promise<City> {
-      return new Promise((resolve) => resolve(makeFakeCity()));
+      return await new Promise((resolve) => resolve(makeFakeCity()));
     }
   }
   return new UpdateCityStub();

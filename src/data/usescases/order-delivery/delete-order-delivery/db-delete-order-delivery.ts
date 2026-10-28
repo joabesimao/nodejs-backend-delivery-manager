@@ -5,6 +5,7 @@ export class DbdeleteOrderDelivery implements DeleteOrderDelivery {
   constructor(
     private readonly deleteOrderDeliveryRepository: DeleteOrderDeliveryByIdRepository,
   ) {}
+
   async delete(id: number, accountId?: number): Promise<string> {
     const result = await this.deleteOrderDeliveryRepository.deleteById(
       id,

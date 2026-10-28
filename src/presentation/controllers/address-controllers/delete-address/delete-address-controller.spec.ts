@@ -21,7 +21,7 @@ interface SutTypes {
 const makeDeleteAddress = (): DeleteAddress => {
   class DeleteAddressStub implements DeleteAddress {
     async delete(id: number): Promise<string> {
-      return new Promise((resolve) => resolve("Endereço Apagado com Sucesso!"));
+      return await new Promise((resolve) => resolve("Endereço Apagado com Sucesso!"));
     }
   }
   return new DeleteAddressStub();

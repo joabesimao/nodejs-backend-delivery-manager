@@ -30,7 +30,7 @@ const makeFakeProduct = (): Product => ({
 const makeAddProductStub = (): AddProduct => {
   class AddProductStub implements AddProduct {
     async add(product: AddProductModel): Promise<Product> {
-      return new Promise((resolve) => resolve(makeFakeProduct()));
+      return await new Promise((resolve) => resolve(makeFakeProduct()));
     }
   }
   return new AddProductStub();

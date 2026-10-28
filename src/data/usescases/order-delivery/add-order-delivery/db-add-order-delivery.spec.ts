@@ -37,7 +37,7 @@ const makeOrderDeliveryRepository = (): AddOrderDeliveryRepository => {
     async addOrderOfDelivery(
       orderOfDelivery: AddOrderDeliveryModel
     ): Promise<OrderDeliveryModel> {
-      return new Promise((resolve) => resolve(makeOrder()));
+      return await new Promise((resolve) => resolve(makeOrder()));
     }
   }
   return new OrderDeliveryRepositoryStub();
@@ -55,7 +55,6 @@ const makeSut = (): SutTypes => {
 const makeAddOrderDelivery = (): AddOrderDeliveryModel => ({
   registerId: 1,
   amount: 10,
-  data: new Date("2022-10-10"),
   quantity: "6",
 });
 

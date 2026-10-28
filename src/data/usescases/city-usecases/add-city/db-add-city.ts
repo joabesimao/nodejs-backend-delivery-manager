@@ -5,6 +5,6 @@ import { AddCityRepository } from "../../../protocols/db/city/add-city";
 export class DbAddCity implements AddCity {
   constructor(private readonly addCityRepository: AddCityRepository) {}
   async add(city: AddCityModel): Promise<City> {
-    return this.addCityRepository.add(city);
+    return await this.addCityRepository.add(city);
   }
 }

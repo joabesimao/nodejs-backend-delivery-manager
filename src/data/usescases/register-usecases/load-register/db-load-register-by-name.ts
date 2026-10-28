@@ -6,6 +6,7 @@ export class DbLoadRegistersByName implements LoadOneRegistersByName {
   constructor(
     private readonly loadOneRegistersByNameRepository: LoadRegisterByNameRepository
   ) {}
+
   async loadByName(name: string): Promise<LoadRegisterModel> {
     const findRegisterByName =
       await this.loadOneRegistersByNameRepository.findByName(name);

@@ -19,7 +19,7 @@ interface SutTypes {
 const makeLoadProductByIdRepository = (): LoadProductByIdRepository => {
   class LoadProductByIdRepositoryStub implements LoadProductByIdRepository {
     async getOneProduct(id: number): Promise<Product> {
-      return new Promise((resolve) => resolve(makeFakeProduct()));
+      return await new Promise((resolve) => resolve(makeFakeProduct()));
     }
   }
   return new LoadProductByIdRepositoryStub();

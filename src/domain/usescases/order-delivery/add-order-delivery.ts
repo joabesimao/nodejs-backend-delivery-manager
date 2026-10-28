@@ -5,7 +5,6 @@ export interface AddOrderDeliveryModel {
   deliverymanId?: number;
   quantity: string;
   amount: number;
-  data: Date;
   accountId?: number;
 }
 

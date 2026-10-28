@@ -1,4 +1,4 @@
-import {env} from "../../../config/Env";
+import { env } from "../../../config/Env";
 import { DbAuthentication } from "../../data/usescases/authentication/db-authentication";
 import { Authentication } from "../../domain/usescases/authentication/authentication";
 import { BcryptAdapter } from "../../infra/cryptography/bcrypt-adapter/bcrypt-adapter";

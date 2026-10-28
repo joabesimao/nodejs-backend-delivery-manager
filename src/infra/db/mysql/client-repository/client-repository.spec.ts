@@ -9,7 +9,6 @@ const makeFakeClient = () => ({
 
 const makeFakePrisma = () => ({
   client: {
-    findFirst: jest.fn().mockResolvedValue(null),
     create: jest.fn().mockResolvedValue(makeFakeClient()),
     findMany: jest.fn().mockResolvedValue([makeFakeClient()]),
     findUnique: jest.fn().mockResolvedValue(makeFakeClient()),
@@ -34,22 +33,6 @@ describe("Client MySql Repository", () => {
       phone: "any_phone",
     };
 
-    test("Should call prisma.client.findFirst with cleaned cpf", async () => {
-      const { sut, prisma } = makeSut();
-      await sut.add(fakeAddClient);
-      expect(prisma.client.findFirst).toHaveBeenCalledWith({
-        where: { cpf: "12345678900" },
-      });
-    });
-
-    test("Should throw if cpf already exists", async () => {
-      const { sut, prisma } = makeSut();
-      prisma.client.findFirst.mockResolvedValueOnce(makeFakeClient());
-      await expect(sut.add(fakeAddClient)).rejects.toThrow(
-        `CPF ${fakeAddClient.cpf} já cadastrado no sistema.`,
-      );
-    });
-
     test("Should call prisma.client.create with correct values", async () => {
       const { sut, prisma } = makeSut();
       await sut.add(fakeAddClient);
@@ -66,12 +49,6 @@ describe("Client MySql Repository", () => {
       const { sut } = makeSut();
       const client = await sut.add(fakeAddClient);
       expect(client).toEqual(makeFakeClient());
-    });
-
-    test("Should throw if prisma.client.findFirst throws", async () => {
-      const { sut, prisma } = makeSut();
-      prisma.client.findFirst.mockRejectedValueOnce(new Error());
-      await expect(sut.add(fakeAddClient)).rejects.toThrow();
     });
 
     test("Should throw if prisma.client.create throws", async () => {
@@ -144,6 +121,20 @@ describe("Client MySql Repository", () => {
       expect(prisma.client.update).toHaveBeenCalledWith({
         where: { id: 1 },
         data: { ...fakeUpdateClient },
+      });
+    });
+
+    test("Should ignore fields outside the whitelist and clean cpf", async () => {
+      const { sut, prisma } = makeSut();
+      await sut.update(1, {
+        id: 999,
+        name: "new_name",
+        cpf: "123.456.789-00",
+        status: false,
+      } as any);
+      expect(prisma.client.update).toHaveBeenCalledWith({
+        where: { id: 1 },
+        data: { name: "new_name", status: false, cpf: "12345678900" },
       });
     });
 
