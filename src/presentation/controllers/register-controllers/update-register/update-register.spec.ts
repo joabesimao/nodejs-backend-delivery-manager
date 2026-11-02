@@ -2,7 +2,8 @@ import { UpdateRegisterController } from "./update-register";
 import { HttpRequest } from "../../../protocols/http";
 import { RegisterModel } from "../../../../domain/models/register/register-model";
 import { UpdateRegister } from "../../../../domain/usescases/register/update-register";
-import { ok, serverError } from "../../../helpers/http/http-helper";
+import { conflict, ok, serverError } from "../../../helpers/http/http-helper";
+import { CpfInUseError } from "../../../errors";
 
 interface SutTypes {
   sut: UpdateRegisterController;
@@ -50,7 +51,7 @@ const makeUpdateRegister = (): UpdateRegister => {
   class UpdateRegisterStub implements UpdateRegister {
     async update(
       id: number,
-      info: Partial<RegisterModel>
+      info: Partial<RegisterModel>,
     ): Promise<Promise<RegisterModel>> {
       return await new Promise((resolve) => resolve(makeFakeRegisters()));
     }
@@ -95,10 +96,37 @@ describe("Update one Register Controller", () => {
     jest
       .spyOn(updateRegisterStub, "update")
       .mockReturnValueOnce(
-        new Promise((resolve, reject) => reject(new Error()))
+        new Promise((resolve, reject) => reject(new Error())),
       );
 
     const httpResponse = await sut.handle(fakehttpRequest());
     expect(httpResponse).toEqual(serverError(new Error()));
+  });
+
+  test("Should return 409 if the cpf is already in use", async () => {
+    const { sut, updateRegisterStub } = makeSut();
+    jest
+      .spyOn(updateRegisterStub, "update")
+      .mockRejectedValueOnce(
+        Object.assign(new Error(), {
+          code: "P2002",
+          meta: { target: ["cpf"] },
+        }),
+      );
+
+    const httpResponse = await sut.handle(fakehttpRequest());
+    expect(httpResponse).toEqual(conflict(new CpfInUseError()));
+  });
+
+  test("Should return 500 on unique violation of another field", async () => {
+    const { sut, updateRegisterStub } = makeSut();
+    const error = Object.assign(new Error(), {
+      code: "P2002",
+      meta: { target: ["addressId"] },
+    });
+    jest.spyOn(updateRegisterStub, "update").mockRejectedValueOnce(error);
+
+    const httpResponse = await sut.handle(fakehttpRequest());
+    expect(httpResponse).toEqual(serverError(error));
   });
 });
