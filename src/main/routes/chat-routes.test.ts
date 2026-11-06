@@ -69,22 +69,16 @@ const messageInclude = {
 let token: string;
 
 /**
- * BUG conhecido (registrado aqui, não corrigido): os controllers do chat respondem
- * `{ error: "<mensagem>" }`, mas o `adaptRoute` só lê `body.message`. Por isso o
- * cliente recebe sempre "Erro desconhecido", com o status HTTP certo. Quando a
- * correção entrar, troque a flag para `false` e as mensagens reais passam a valer.
+ * Os controllers do chat respondem `{ error: "<mensagem>" }` e o `adaptRoute`
+ * repassa essa mensagem ao cliente (fix/chat-mensagem-de-erro).
  */
-const CHAT_ERROR_MESSAGE_IS_LOST = true;
-
 const expectChatError = (
   response: request.Response,
   status: number,
-  intendedMessage: string,
+  message: string,
 ): void => {
   expect(response.status).toBe(status);
-  expect(response.body).toEqual({
-    error: CHAT_ERROR_MESSAGE_IS_LOST ? "Erro desconhecido" : intendedMessage,
-  });
+  expect(response.body).toEqual({ error: message });
 };
 
 beforeAll(async () => {
