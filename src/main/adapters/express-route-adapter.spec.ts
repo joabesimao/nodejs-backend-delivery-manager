@@ -101,6 +101,64 @@ describe("Express Route Adapter", () => {
     expect(consoleErrorSpy).not.toHaveBeenCalled();
   });
 
+  test("Should respond with body.error when body has an error string (chat controllers)", async () => {
+    const consoleErrorSpy = jest.spyOn(console, "error").mockImplementation();
+    const controller = makeController({
+      statusCode: 403,
+      body: { error: "Sem permissão para enviar para essa loja" },
+    });
+    const req = makeRequest();
+    const res = makeResponse();
+    const sut = adaptRoute(controller);
+    await sut(req, res);
+    expect(res.status).toHaveBeenCalledWith(403);
+    expect(res.json).toHaveBeenCalledWith({
+      error: "Sem permissão para enviar para essa loja",
+    });
+    expect(consoleErrorSpy).not.toHaveBeenCalled();
+  });
+
+  test("Should prefer body.message over body.error", async () => {
+    const controller = makeController({
+      statusCode: 400,
+      body: { message: "from_message", error: "from_error" },
+    });
+    const req = makeRequest();
+    const res = makeResponse();
+    const sut = adaptRoute(controller);
+    await sut(req, res);
+    expect(res.json).toHaveBeenCalledWith({ error: "from_message" });
+  });
+
+  test("Should ignore a non-string body.error", async () => {
+    const controller = makeController({
+      statusCode: 400,
+      body: { error: { nested: true } },
+    });
+    const req = makeRequest();
+    const res = makeResponse();
+    const sut = adaptRoute(controller);
+    await sut(req, res);
+    expect(res.json).toHaveBeenCalledWith({ error: "Erro desconhecido" });
+  });
+
+  test("Should log body.error on 5xx when there is no body.message", async () => {
+    const consoleErrorSpy = jest.spyOn(console, "error").mockImplementation();
+    const controller = makeController({
+      statusCode: 500,
+      body: { error: "Falha ao carregar mensagens" },
+    });
+    const req = makeRequest();
+    const res = makeResponse();
+    const sut = adaptRoute(controller);
+    await sut(req, res);
+    expect(consoleErrorSpy).toHaveBeenCalledWith(
+      "[route] internal_error",
+      expect.objectContaining({ message: "Falha ao carregar mensagens" })
+    );
+    expect(res.json).toHaveBeenCalledWith({ error: "Falha ao carregar mensagens" });
+  });
+
   test("Should respond with fallback message when body has no message nor is an Error", async () => {
     jest.spyOn(console, "error").mockImplementation();
     const controller = makeController({ statusCode: 400, body: {} });
