@@ -19,7 +19,7 @@
     "lint:ci": "eslint 'src/**/*.ts' --max-warnings=166",
     "typecheck": "tsc --noEmit -p tsconfig.eslint.json",
     "test": "jest --passWithNoTests --watch --silent --noStackTrace --runInBand",
-    "test:unit": "npm test -- --watch -c jest-unit-config.js",
+    "test:unit": "jest --watch --silent --runInBand -c jest-unit-config.js",
     "test:integration": "jest --watch -c jest-integration-config.js",
     "test:unit:coverage": "jest --coverage",
     "test:verbose": "jest --passWithNoTests",

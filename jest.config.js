@@ -1,14 +1,11 @@
-import type { Config } from "jest";
-
-const config: Config = {
+/** @type {import("jest").Config} */
+module.exports = {
   roots: ["<rootDir>/src/"],
   collectCoverageFrom: ["<rootDir>/src/**/*.ts"],
   cacheDirectory: "coverage",
   testEnvironment: "node",
-  preset:"@shelf/jest-mongodb",
+  preset: "@shelf/jest-mongodb",
   transform: {
     ".+\\.ts$": "ts-jest",
   },
 };
-
-export default config;
