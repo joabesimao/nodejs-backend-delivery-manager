@@ -24,6 +24,7 @@ export const adaptRoute = (controller: Controller) => {
         const errorBody = httpResponse.body;
         const errorMessage = errorBody?.message ||
                             (errorBody instanceof Error ? errorBody.message : null) ||
+                            (typeof errorBody?.error === "string" ? errorBody.error : null) ||
                             "Erro desconhecido";
         if (httpResponse.statusCode >= 500) {
         console.error("[route] internal_error", {
@@ -31,7 +32,7 @@ export const adaptRoute = (controller: Controller) => {
           path: req.originalUrl,
           accountId: requestWithAccount.accountId ?? null,
           statusCode: httpResponse.statusCode,
-          message: httpResponse.body?.message ?? "Internal server error",
+          message: httpResponse.body?.message ?? httpResponse.body?.error ?? "Internal server error",
         });
       }
 
