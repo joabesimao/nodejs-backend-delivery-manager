@@ -1,3 +1,6 @@
+import { Prisma } from "@prisma/client";
+import { NotFoundError } from "../../../../domain/errors/not-found-error";
+import { AccountInUseError } from "../../../../domain/errors/account-in-use-error";
 import { AccountMySqlRepository } from "./account-repository";
 
 const makeFakePrisma = () => ({
@@ -205,6 +208,25 @@ describe("Account MySql Repository", () => {
       const { sut, prisma } = makeSut();
       prisma.account.delete.mockRejectedValueOnce(new Error());
       await expect(sut.deleteById(1)).rejects.toThrow();
+    });
+
+    test("Should throw NotFoundError if prisma.account.delete throws a known Prisma error", async () => {
+      const { sut, prisma } = makeSut();
+      prisma.account.delete.mockRejectedValueOnce(new Prisma.PrismaClientKnownRequestError("x", { code: "P2025", clientVersion: "6.7.0" }));
+      await expect(sut.deleteById(1)).rejects.toBeInstanceOf(NotFoundError);
+    });
+
+    test("Should rethrow unknown errors from prisma.account.delete as they are", async () => {
+      const { sut, prisma } = makeSut();
+      const error = new Error("db down");
+      prisma.account.delete.mockRejectedValueOnce(error);
+      await expect(sut.deleteById(1)).rejects.toBe(error);
+    });
+
+    test("Should throw AccountInUseError if prisma.account.delete fails on a foreign key", async () => {
+      const { sut, prisma } = makeSut();
+      prisma.account.delete.mockRejectedValueOnce(new Prisma.PrismaClientKnownRequestError("x", { code: "P2003", clientVersion: "6.7.0" }));
+      await expect(sut.deleteById(1)).rejects.toBeInstanceOf(AccountInUseError);
     });
   });
 });

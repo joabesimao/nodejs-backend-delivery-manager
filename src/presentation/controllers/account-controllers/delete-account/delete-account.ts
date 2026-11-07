@@ -8,9 +8,9 @@ import {
   ok,
   serverError,
 } from "../../../helpers/http/http-helper";
-import { Prisma } from "@prisma/client";
 import { AccountInUseError } from "../../../../domain/errors/account-in-use-error";
 import { LastAdminError } from "../../../../domain/errors/last-admin-error";
+import { NotFoundError } from "../../../../domain/errors/not-found-error";
 import { SelfActionError } from "../../../../domain/errors/self-action-error";
 
 export class DeleteAccountController implements Controller {
@@ -29,10 +29,10 @@ export class DeleteAccountController implements Controller {
       if (error instanceof SelfActionError || error instanceof LastAdminError) {
         return forbidden(error);
       }
-      if (error instanceof Prisma.PrismaClientKnownRequestError) {
-        if (error.code === "P2003") {
-          return conflict(new AccountInUseError());
-        }
+      if (error instanceof AccountInUseError) {
+        return conflict(error);
+      }
+      if (error instanceof NotFoundError) {
         return noExists();
       }
       return serverError(error);

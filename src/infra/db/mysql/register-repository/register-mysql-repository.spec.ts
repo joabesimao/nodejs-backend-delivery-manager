@@ -1,3 +1,5 @@
+import { Prisma } from "@prisma/client";
+import { NotFoundError } from "../../../../domain/errors/not-found-error";
 import { RegisterMySqlRepository } from "./register-mysql-repository";
 
 const makeFakeRegister = () => ({
@@ -248,6 +250,19 @@ describe("Register MySql Repository", () => {
       const { sut, prisma } = makeSut();
       prisma.register.delete.mockRejectedValueOnce(new Error());
       await expect(sut.deleteById(1)).rejects.toThrow();
+    });
+
+    test("Should throw NotFoundError if prisma.register.delete throws a known Prisma error", async () => {
+      const { sut, prisma } = makeSut();
+      prisma.register.delete.mockRejectedValueOnce(new Prisma.PrismaClientKnownRequestError("x", { code: "P2025", clientVersion: "6.7.0" }));
+      await expect(sut.deleteById(1)).rejects.toBeInstanceOf(NotFoundError);
+    });
+
+    test("Should rethrow unknown errors from prisma.register.delete as they are", async () => {
+      const { sut, prisma } = makeSut();
+      const error = new Error("db down");
+      prisma.register.delete.mockRejectedValueOnce(error);
+      await expect(sut.deleteById(1)).rejects.toBe(error);
     });
   });
 

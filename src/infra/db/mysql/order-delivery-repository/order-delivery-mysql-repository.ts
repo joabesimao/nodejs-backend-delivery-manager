@@ -20,6 +20,7 @@ import {
   getAccountScope,
   resolveRootStoreId,
 } from "../../../../main/realtime/store-scope";
+import { rethrowAsNotFound } from "../helpers/prisma-errors";
 
 export class OrderDeliveryMySqlRepository
   implements
@@ -366,9 +367,13 @@ export class OrderDeliveryMySqlRepository
       }
     }
 
-    await this.prisma.orderDelivery.delete({
-      where: { id: Number(id) },
-    });
+    try {
+      await this.prisma.orderDelivery.delete({
+        where: { id: Number(id) },
+      });
+    } catch (error) {
+      rethrowAsNotFound(error);
+    }
 
     const rootStoreId = existingOrder?.unitStoreId
       ? await resolveRootStoreId(this.prisma, existingOrder.unitStoreId)

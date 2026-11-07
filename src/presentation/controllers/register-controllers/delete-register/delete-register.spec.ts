@@ -1,7 +1,7 @@
 import { DeleteRegisterController } from "./delete-register";
 import { DeleteRegister } from "../../../../domain/usescases/register/delete-register";
 import { noExists, ok, serverError } from "../../../helpers/http/http-helper";
-import { Prisma } from "@prisma/client";
+import { NotFoundError } from "../../../../domain/errors/not-found-error";
 
 const makeDeleteRegisterStub = (): DeleteRegister => {
   class DeleteRegisterStub implements DeleteRegister {
@@ -55,16 +55,13 @@ describe("DeleteRegister Controller", () => {
     expect(deletedRegister).toEqual(serverError(new Error("")));
   });
 
-  test("Should return noExists if DeleteRegister throws a PrismaClientKnownRequestError", async () => {
+  test("Should return noExists if DeleteRegister throws NotFoundError", async () => {
     const { sut, deleteRegisterStub } = makeSut();
-    const prismaError = new Prisma.PrismaClientKnownRequestError(
-      "Record not found",
-      { code: "P2025", clientVersion: "6.7.0" }
-    );
+    const notFoundError = new NotFoundError();
     jest
       .spyOn(deleteRegisterStub, "delete")
       .mockReturnValueOnce(
-        new Promise((resolve, reject) => reject(prismaError))
+        new Promise((resolve, reject) => reject(notFoundError))
       );
 
     const deletedRegister = await sut.handle(id);

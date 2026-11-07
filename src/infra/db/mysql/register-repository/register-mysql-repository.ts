@@ -12,6 +12,7 @@ import { RegisterModel } from "../../../../domain/models/register/register-model
 import { AddRegisterModel } from "../../../../domain/usescases/register/add-register";
 import { onlyDigits } from "../helpers/only-digits";
 import { pickDefined } from "../helpers/pick-defined";
+import { rethrowAsNotFound } from "../helpers/prisma-errors";
 
 const REGISTER_INCLUDE = { client: true, address: true } as const;
 
@@ -105,13 +106,17 @@ export class RegisterMySqlRepository
   }
 
   async deleteById(id: number): Promise<string> {
-    await this.prisma.$transaction(async (tx) => {
-      const { clientId, addressId } = await tx.register.delete({
-        where: { id: Number(id) },
+    try {
+      await this.prisma.$transaction(async (tx) => {
+        const { clientId, addressId } = await tx.register.delete({
+          where: { id: Number(id) },
+        });
+        await tx.client.delete({ where: { id: clientId } });
+        await tx.address.delete({ where: { id: addressId } });
       });
-      await tx.client.delete({ where: { id: clientId } });
-      await tx.address.delete({ where: { id: addressId } });
-    });
+    } catch (error) {
+      rethrowAsNotFound(error);
+    }
     return "Deletado com sucesso!";
   }
 

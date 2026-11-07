@@ -8,9 +8,9 @@ import {
   ok,
   serverError,
 } from "../../../helpers/http/http-helper";
-import { Prisma } from "@prisma/client";
 import { AccountInUseError } from "../../../../domain/errors/account-in-use-error";
 import { LastAdminError } from "../../../../domain/errors/last-admin-error";
+import { NotFoundError } from "../../../../domain/errors/not-found-error";
 import { SelfActionError } from "../../../../domain/errors/self-action-error";
 
 const makeDeleteAccountStub = (): DeleteAccount => {
@@ -85,32 +85,26 @@ describe("DeleteAccount Controller", () => {
     expect(deletedRegister).toEqual(serverError(new Error("")));
   });
 
-  test("Should return noExists if DeleteAccount throws a PrismaClientKnownRequestError", async () => {
+  test("Should return noExists if DeleteAccount throws NotFoundError", async () => {
     const { sut, deleteAccountStub } = makeSut();
-    const prismaError = new Prisma.PrismaClientKnownRequestError(
-      "Record not found",
-      { code: "P2025", clientVersion: "6.7.0" }
-    );
+    const notFoundError = new NotFoundError();
     jest
       .spyOn(deleteAccountStub, "deleteAccountById")
       .mockReturnValueOnce(
-        new Promise((resolve, reject) => reject(prismaError))
+        new Promise((resolve, reject) => reject(notFoundError))
       );
 
     const deletedAccount = await sut.handle(fakehttpRequest());
     expect(deletedAccount).toEqual(noExists());
   });
 
-  test("Should return conflict if DeleteAccount throws a foreign key PrismaClientKnownRequestError", async () => {
+  test("Should return conflict if DeleteAccount throws AccountInUseError", async () => {
     const { sut, deleteAccountStub } = makeSut();
-    const prismaError = new Prisma.PrismaClientKnownRequestError(
-      "Foreign key constraint failed",
-      { code: "P2003", clientVersion: "6.7.0" }
-    );
+    const accountInUseError = new AccountInUseError();
     jest
       .spyOn(deleteAccountStub, "deleteAccountById")
       .mockReturnValueOnce(
-        new Promise((resolve, reject) => reject(prismaError))
+        new Promise((resolve, reject) => reject(accountInUseError))
       );
 
     const deletedAccount = await sut.handle(fakehttpRequest());

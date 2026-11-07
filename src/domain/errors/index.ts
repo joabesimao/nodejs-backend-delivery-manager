@@ -10,3 +10,4 @@ export * from "./plate-in-use-error";
 export * from "./qualification-in-use-error";
 export * from "./self-action-error";
 export * from "./vehicle-in-use-error";
+export * from "./not-found-error";
