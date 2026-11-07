@@ -2,7 +2,7 @@ import { Controller } from "../../../protocols/controller";
 import { HttpRequest, HttpResponse } from "../../../protocols/http";
 import { DeleteRegister } from "../../../../domain/usescases/register/delete-register";
 import { noExists, ok, serverError } from "../../../helpers/http/http-helper";
-import { Prisma } from "@prisma/client";
+import { NotFoundError } from "../../../../domain/errors/not-found-error";
 
 export class DeleteRegisterController implements Controller {
   constructor(private readonly deleteRegister: DeleteRegister) {}
@@ -13,7 +13,7 @@ export class DeleteRegisterController implements Controller {
       );
       return ok(deleteRegister);
     } catch (error) {
-      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      if (error instanceof NotFoundError) {
         return noExists();
       }
       return serverError(error);

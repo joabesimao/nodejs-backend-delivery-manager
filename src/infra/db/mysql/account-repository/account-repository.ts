@@ -13,6 +13,8 @@ import { AccountModel } from "../../../../domain/models/account/account-model";
 import { PublicAccountModel } from "../../../../domain/models/account/public-account-model";
 import { LoadAccountsFilter } from "../../../../domain/usescases/account/load-accounts";
 import { UpdateAccountModel } from "../../../../domain/usescases/account/update-account";
+import { AccountInUseError } from "../../../../domain/errors/account-in-use-error";
+import { isPrismaKnownError, rethrowAsNotFound } from "../helpers/prisma-errors";
 
 const PUBLIC_ACCOUNT_SELECT = {
   id: true,
@@ -96,9 +98,16 @@ export class AccountMySqlRepository
   }
 
   async deleteById(id: number): Promise<string> {
-    await this.prisma.account.delete({
-      where: { id },
-    });
+    try {
+      await this.prisma.account.delete({
+        where: { id },
+      });
+    } catch (error) {
+      if (isPrismaKnownError(error) && error.code === "P2003") {
+        throw new AccountInUseError();
+      }
+      rethrowAsNotFound(error);
+    }
     return "Conta deletada com sucesso!";
   }
 

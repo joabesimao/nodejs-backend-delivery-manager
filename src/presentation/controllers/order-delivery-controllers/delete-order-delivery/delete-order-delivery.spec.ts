@@ -1,7 +1,7 @@
 import { DeleteOrderDeliveryController } from "./delete-order-delivery";
 import { DeleteOrderDelivery } from "../../../../domain/usescases/order-delivery/delete-order-delivery";
 import { noExists, ok, serverError } from "../../../helpers/http/http-helper";
-import { Prisma } from "@prisma/client";
+import { NotFoundError } from "../../../../domain/errors/not-found-error";
 
 interface SutTypes {
   sut: DeleteOrderDeliveryController;
@@ -57,16 +57,13 @@ describe("DeleteOrderDelivery Controller", () => {
     expect(deletedRegister).toEqual(serverError(new Error("")));
   });
 
-  test("Should return noExists if DeleteOrderDelivery throws a PrismaClientKnownRequestError", async () => {
+  test("Should return noExists if DeleteOrderDelivery throws NotFoundError", async () => {
     const { sut, deleteOrderDeliveryStub } = makeSut();
-    const prismaError = new Prisma.PrismaClientKnownRequestError(
-      "Record not found",
-      { code: "P2025", clientVersion: "6.7.0" }
-    );
+    const notFoundError = new NotFoundError();
     jest
       .spyOn(deleteOrderDeliveryStub, "delete")
       .mockReturnValueOnce(
-        new Promise((resolve, reject) => reject(prismaError))
+        new Promise((resolve, reject) => reject(notFoundError))
       );
 
     const deletedRegister = await sut.handle(id);

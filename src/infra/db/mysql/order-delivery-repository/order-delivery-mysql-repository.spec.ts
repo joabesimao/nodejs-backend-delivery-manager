@@ -1,3 +1,5 @@
+import { Prisma } from "@prisma/client";
+import { NotFoundError } from "../../../../domain/errors/not-found-error";
 import { OrderDeliveryMySqlRepository } from "./order-delivery-mysql-repository";
 import { emitDeliveryRealtime } from "../../../../main/realtime/realtime-state";
 import {
@@ -640,6 +642,19 @@ describe("OrderDelivery MySql Repository", () => {
       const { sut, prisma } = makeSut();
       prisma.orderDelivery.delete.mockRejectedValueOnce(new Error());
       await expect(sut.deleteById(1)).rejects.toThrow();
+    });
+
+    test("Should throw NotFoundError if prisma.orderDelivery.delete throws a known Prisma error", async () => {
+      const { sut, prisma } = makeSut();
+      prisma.orderDelivery.delete.mockRejectedValueOnce(new Prisma.PrismaClientKnownRequestError("x", { code: "P2025", clientVersion: "6.7.0" }));
+      await expect(sut.deleteById(1)).rejects.toBeInstanceOf(NotFoundError);
+    });
+
+    test("Should rethrow unknown errors from prisma.orderDelivery.delete as they are", async () => {
+      const { sut, prisma } = makeSut();
+      const error = new Error("db down");
+      prisma.orderDelivery.delete.mockRejectedValueOnce(error);
+      await expect(sut.deleteById(1)).rejects.toBe(error);
     });
   });
 });

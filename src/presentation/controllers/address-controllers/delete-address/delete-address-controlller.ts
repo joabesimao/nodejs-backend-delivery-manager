@@ -1,4 +1,4 @@
-import { Prisma } from "@prisma/client";
+import { NotFoundError } from "../../../../domain/errors/not-found-error";
 import { DeleteAddress } from "../../../../domain/usescases/address/delete-address";
 import { noExists, ok, serverError } from "../../../helpers/http/http-helper";
 import { Controller } from "../../../protocols/controller";
@@ -13,7 +13,7 @@ export class DeleteAddressController implements Controller {
       );
       return ok(deleteAddress);
     } catch (error) {
-      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      if (error instanceof NotFoundError) {
         return noExists();
       }
       return serverError(error);

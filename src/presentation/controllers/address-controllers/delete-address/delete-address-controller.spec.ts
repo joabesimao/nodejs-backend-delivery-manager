@@ -2,7 +2,7 @@ import { DeleteAddressController } from "./delete-address-controlller";
 import { noExists, ok, serverError } from "../../../helpers/http/http-helper";
 import { DeleteAddress } from "../../../../domain/usescases/address/delete-address";
 import { HttpRequest } from "../../../protocols/http";
-import { Prisma } from "@prisma/client";
+import { NotFoundError } from "../../../../domain/errors/not-found-error";
 
 const makeFakeHttpRequest = (): HttpRequest => {
   return {
@@ -69,16 +69,13 @@ describe("Delete Address Controller", () => {
     expect(httpResponse).toEqual(serverError(new Error()));
   });
 
-  test("Should return noExists if DeleteAddress throws a PrismaClientKnownRequestError", async () => {
+  test("Should return noExists if DeleteAddress throws NotFoundError", async () => {
     const { sut, deleteAddressStub } = makeSut();
-    const prismaError = new Prisma.PrismaClientKnownRequestError(
-      "Record not found",
-      { code: "P2025", clientVersion: "6.7.0" }
-    );
+    const notFoundError = new NotFoundError();
     jest
       .spyOn(deleteAddressStub, "delete")
       .mockReturnValueOnce(
-        new Promise((resolve, reject) => reject(prismaError))
+        new Promise((resolve, reject) => reject(notFoundError))
       );
 
     const httpResponse = await sut.handle(makeFakeHttpRequest());
