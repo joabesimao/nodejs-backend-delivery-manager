@@ -5,10 +5,7 @@
     "project": "./tsconfig.eslint.json"
   },
   "rules": {
-    "@typescript-eslint/semi": [
-      "error",
-      "always"
-    ],
+    "@typescript-eslint/semi": ["error", "always"],
     "@typescript-eslint/quotes": [
       "error",
       "double",
@@ -16,10 +13,7 @@
         "avoidEscape": true
       }
     ],
-    "@typescript-eslint/comma-dangle": [
-      "error",
-      "only-multiline"
-    ],
+    "@typescript-eslint/comma-dangle": ["error", "only-multiline"],
     "@typescript-eslint/member-delimiter-style": [
       "error",
       {
@@ -61,17 +55,54 @@
         "checkArrowFunctions": false
       }
     ],
-    "@typescript-eslint/no-unnecessary-boolean-literal-compare": "off"
+    "@typescript-eslint/no-unnecessary-boolean-literal-compare": "off",
+    "import/no-restricted-paths": [
+      "warn",
+      {
+        "zones": [
+          {
+            "target": "./src/domain",
+            "from": [
+              "./src/data",
+              "./src/infra",
+              "./src/presentation",
+              "./src/main",
+              "./node_modules/@prisma"
+            ],
+            "message": "domain não pode depender de camadas externas nem do Prisma."
+          },
+          {
+            "target": "./src/data",
+            "from": [
+              "./src/presentation",
+              "./src/infra",
+              "./src/main",
+              "./node_modules/@prisma"
+            ],
+            "message": "data depende só de domain e dos próprios protocolos."
+          },
+          {
+            "target": "./src/presentation",
+            "from": ["./src/infra", "./src/main", "./node_modules/@prisma"],
+            "message": "presentation não pode depender de infra, main nem do Prisma."
+          }
+        ]
+      }
+    ]
   },
   "overrides": [
     {
-      "files": [
-        "*.spec.ts",
-        "*.test.ts"
-      ],
+      "files": ["*.spec.ts", "*.test.ts"],
       "rules": {
         "@typescript-eslint/unbound-method": "off"
       }
     }
-  ]
+  ],
+  "settings": {
+    "import/resolver": {
+      "node": {
+        "extensions": [".ts", ".js", ".json"]
+      }
+    }
+  }
 }
