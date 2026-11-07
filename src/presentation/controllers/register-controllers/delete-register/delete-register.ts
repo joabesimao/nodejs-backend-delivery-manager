@@ -1,8 +1,9 @@
 import { Controller } from "../../../protocols/controller";
 import { HttpRequest, HttpResponse } from "../../../protocols/http";
 import { DeleteRegister } from "../../../../domain/usescases/register/delete-register";
-import { noExists, ok, serverError } from "../../../helpers/http/http-helper";
+import { conflict, noExists, ok, serverError } from "../../../helpers/http/http-helper";
 import { NotFoundError } from "../../../../domain/errors/not-found-error";
+import { ResourceInUseError } from "../../../../domain/errors/resource-in-use-error";
 
 export class DeleteRegisterController implements Controller {
   constructor(private readonly deleteRegister: DeleteRegister) {}
@@ -13,6 +14,9 @@ export class DeleteRegisterController implements Controller {
       );
       return ok(deleteRegister);
     } catch (error) {
+      if (error instanceof ResourceInUseError) {
+        return conflict(error);
+      }
       if (error instanceof NotFoundError) {
         return noExists();
       }

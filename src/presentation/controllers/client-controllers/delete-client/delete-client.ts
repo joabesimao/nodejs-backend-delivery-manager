@@ -1,6 +1,7 @@
 import { NotFoundError } from "../../../../domain/errors/not-found-error";
+import { ResourceInUseError } from "../../../../domain/errors/resource-in-use-error";
 import { DeleteClient } from "../../../../domain/usescases/client/delete-client";
-import { noExists, ok, serverError } from "../../../helpers/http/http-helper";
+import { conflict, noExists, ok, serverError } from "../../../helpers/http/http-helper";
 import { Controller } from "../../../protocols/controller";
 import { HttpRequest, HttpResponse } from "../../../protocols/http";
 
@@ -13,6 +14,9 @@ export class DeleteClientController implements Controller {
       );
       return ok(deletedClient);
     } catch (error) {
+      if (error instanceof ResourceInUseError) {
+        return conflict(error);
+      }
       if (error instanceof NotFoundError) {
         return noExists();
       }

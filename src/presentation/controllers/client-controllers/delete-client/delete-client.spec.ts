@@ -1,8 +1,9 @@
 import { DeleteClientController } from "./delete-client";
-import { noExists, ok, serverError } from "../../../helpers/http/http-helper";
+import { conflict, noExists, ok, serverError } from "../../../helpers/http/http-helper";
 import { DeleteClient } from "../../../../domain/usescases/client/delete-client";
 import { HttpRequest } from "../../../protocols/http";
 import { NotFoundError } from "../../../../domain/errors/not-found-error";
+import { ResourceInUseError } from "../../../../domain/errors/resource-in-use-error";
 
 interface SutTypes {
   sut: DeleteClientController;
@@ -78,5 +79,18 @@ describe("Delete CLient Controller", () => {
 
     const httpResponse = await sut.handle(fakeHttpRequest);
     expect(httpResponse).toEqual(noExists());
+  });
+
+  test("Should return conflict if Delete throws ResourceInUseError", async () => {
+    const { sut, deleteClientStub } = makeSut();
+    const resourceInUseError = new ResourceInUseError();
+    jest
+      .spyOn(deleteClientStub, "delete")
+      .mockReturnValueOnce(
+        new Promise((resolve, reject) => reject(resourceInUseError))
+      );
+
+    const httpResponse = await sut.handle(fakeHttpRequest);
+    expect(httpResponse).toEqual(conflict(resourceInUseError));
   });
 });

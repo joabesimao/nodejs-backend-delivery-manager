@@ -34,7 +34,7 @@ export const forbidden = (error: Error): HttpResponse => ({
 });
 
 export const noExists = (): HttpResponse => ({
-  statusCode: 400,
+  statusCode: 404,
   body: new NoExistsError(),
 });
 

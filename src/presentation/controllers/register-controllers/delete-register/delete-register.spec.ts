@@ -1,7 +1,8 @@
 import { DeleteRegisterController } from "./delete-register";
 import { DeleteRegister } from "../../../../domain/usescases/register/delete-register";
-import { noExists, ok, serverError } from "../../../helpers/http/http-helper";
+import { conflict, noExists, ok, serverError } from "../../../helpers/http/http-helper";
 import { NotFoundError } from "../../../../domain/errors/not-found-error";
+import { ResourceInUseError } from "../../../../domain/errors/resource-in-use-error";
 
 const makeDeleteRegisterStub = (): DeleteRegister => {
   class DeleteRegisterStub implements DeleteRegister {
@@ -66,5 +67,18 @@ describe("DeleteRegister Controller", () => {
 
     const deletedRegister = await sut.handle(id);
     expect(deletedRegister).toEqual(noExists());
+  });
+
+  test("Should return conflict if DeleteRegister throws ResourceInUseError", async () => {
+    const { sut, deleteRegisterStub } = makeSut();
+    const resourceInUseError = new ResourceInUseError();
+    jest
+      .spyOn(deleteRegisterStub, "delete")
+      .mockReturnValueOnce(
+        new Promise((resolve, reject) => reject(resourceInUseError))
+      );
+
+    const deletedRegister = await sut.handle(id);
+    expect(deletedRegister).toEqual(conflict(resourceInUseError));
   });
 });
