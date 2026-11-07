@@ -14,7 +14,7 @@ import { PublicAccountModel } from "../../../../domain/models/account/public-acc
 import { LoadAccountsFilter } from "../../../../domain/usescases/account/load-accounts";
 import { UpdateAccountModel } from "../../../../domain/usescases/account/update-account";
 import { AccountInUseError } from "../../../../domain/errors/account-in-use-error";
-import { isPrismaKnownError, rethrowAsNotFound } from "../helpers/prisma-errors";
+import { isForeignKeyViolation, rethrowDeleteError } from "../helpers/prisma-errors";
 
 const PUBLIC_ACCOUNT_SELECT = {
   id: true,
@@ -103,10 +103,10 @@ export class AccountMySqlRepository
         where: { id },
       });
     } catch (error) {
-      if (isPrismaKnownError(error) && error.code === "P2003") {
+      if (isForeignKeyViolation(error)) {
         throw new AccountInUseError();
       }
-      rethrowAsNotFound(error);
+      rethrowDeleteError(error);
     }
     return "Conta deletada com sucesso!";
   }

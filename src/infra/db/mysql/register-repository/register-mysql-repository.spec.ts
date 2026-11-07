@@ -1,3 +1,4 @@
+import { ResourceInUseError } from "../../../../domain/errors/resource-in-use-error";
 import { Prisma } from "@prisma/client";
 import { NotFoundError } from "../../../../domain/errors/not-found-error";
 import { RegisterMySqlRepository } from "./register-mysql-repository";
@@ -263,6 +264,12 @@ describe("Register MySql Repository", () => {
       const error = new Error("db down");
       prisma.register.delete.mockRejectedValueOnce(error);
       await expect(sut.deleteById(1)).rejects.toBe(error);
+    });
+
+    test("Should throw ResourceInUseError if prisma.register.delete fails on a foreign key", async () => {
+      const { sut, prisma } = makeSut();
+      prisma.register.delete.mockRejectedValueOnce(new Prisma.PrismaClientKnownRequestError("x", { code: "P2003", clientVersion: "6.7.0" }));
+      await expect(sut.deleteById(1)).rejects.toBeInstanceOf(ResourceInUseError);
     });
   });
 

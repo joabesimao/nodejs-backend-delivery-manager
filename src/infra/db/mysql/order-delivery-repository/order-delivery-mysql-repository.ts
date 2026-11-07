@@ -20,7 +20,7 @@ import {
   getAccountScope,
   resolveRootStoreId,
 } from "../../../../main/realtime/store-scope";
-import { rethrowAsNotFound } from "../helpers/prisma-errors";
+import { rethrowDeleteError } from "../helpers/prisma-errors";
 
 export class OrderDeliveryMySqlRepository
   implements
@@ -372,7 +372,7 @@ export class OrderDeliveryMySqlRepository
         where: { id: Number(id) },
       });
     } catch (error) {
-      rethrowAsNotFound(error);
+      rethrowDeleteError(error);
     }
 
     const rootStoreId = existingOrder?.unitStoreId

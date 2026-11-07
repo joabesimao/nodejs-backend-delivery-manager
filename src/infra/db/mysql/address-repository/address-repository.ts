@@ -7,7 +7,7 @@ import { Address } from "../../../../domain/models/register/address-model";
 import { AddAddressModel } from "../../../../domain/usescases/address/add-address";
 import { UpdateAddressModel } from "../../../../domain/usescases/address/update-address";
 import { pickDefined } from "../helpers/pick-defined";
-import { rethrowAsNotFound } from "../helpers/prisma-errors";
+import { rethrowDeleteError } from "../helpers/prisma-errors";
 
 const ADDRESS_FIELDS = ["street", "neighborhood", "city", "numberHouse", "reference"] as const;
 
@@ -50,7 +50,7 @@ export class AddressMysqlRepository
         where: { id: Number(id) },
       });
     } catch (error) {
-      rethrowAsNotFound(error);
+      rethrowDeleteError(error);
     }
     return "Deletado com sucesso!";
   }

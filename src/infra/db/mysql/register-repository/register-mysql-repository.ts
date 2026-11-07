@@ -12,7 +12,7 @@ import { RegisterModel } from "../../../../domain/models/register/register-model
 import { AddRegisterModel } from "../../../../domain/usescases/register/add-register";
 import { onlyDigits } from "../helpers/only-digits";
 import { pickDefined } from "../helpers/pick-defined";
-import { rethrowAsNotFound } from "../helpers/prisma-errors";
+import { rethrowDeleteError } from "../helpers/prisma-errors";
 
 const REGISTER_INCLUDE = { client: true, address: true } as const;
 
@@ -115,7 +115,7 @@ export class RegisterMySqlRepository
         await tx.address.delete({ where: { id: addressId } });
       });
     } catch (error) {
-      rethrowAsNotFound(error);
+      rethrowDeleteError(error);
     }
     return "Deletado com sucesso!";
   }

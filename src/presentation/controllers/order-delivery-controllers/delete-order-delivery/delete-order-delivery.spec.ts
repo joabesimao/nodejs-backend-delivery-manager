@@ -1,7 +1,8 @@
 import { DeleteOrderDeliveryController } from "./delete-order-delivery";
 import { DeleteOrderDelivery } from "../../../../domain/usescases/order-delivery/delete-order-delivery";
-import { noExists, ok, serverError } from "../../../helpers/http/http-helper";
+import { conflict, noExists, ok, serverError } from "../../../helpers/http/http-helper";
 import { NotFoundError } from "../../../../domain/errors/not-found-error";
+import { ResourceInUseError } from "../../../../domain/errors/resource-in-use-error";
 
 interface SutTypes {
   sut: DeleteOrderDeliveryController;
@@ -68,5 +69,18 @@ describe("DeleteOrderDelivery Controller", () => {
 
     const deletedRegister = await sut.handle(id);
     expect(deletedRegister).toEqual(noExists());
+  });
+
+  test("Should return conflict if DeleteOrderDelivery throws ResourceInUseError", async () => {
+    const { sut, deleteOrderDeliveryStub } = makeSut();
+    const resourceInUseError = new ResourceInUseError();
+    jest
+      .spyOn(deleteOrderDeliveryStub, "delete")
+      .mockReturnValueOnce(
+        new Promise((resolve, reject) => reject(resourceInUseError))
+      );
+
+    const deletedRegister = await sut.handle(id);
+    expect(deletedRegister).toEqual(conflict(resourceInUseError));
   });
 });

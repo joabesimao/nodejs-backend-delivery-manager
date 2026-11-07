@@ -13,7 +13,7 @@ import {
 import { AddClientModel } from "../../../../domain/usescases/client/add-client";
 import { onlyDigits } from "../helpers/only-digits";
 import { pickDefined } from "../helpers/pick-defined";
-import { rethrowAsNotFound } from "../helpers/prisma-errors";
+import { rethrowDeleteError } from "../helpers/prisma-errors";
 
 export class ClientMysqlRepository
   implements
@@ -68,7 +68,7 @@ export class ClientMysqlRepository
         where: { id: Number(id) },
       });
     } catch (error) {
-      rethrowAsNotFound(error);
+      rethrowDeleteError(error);
     }
     return "Deletado com sucesso!";
   }
