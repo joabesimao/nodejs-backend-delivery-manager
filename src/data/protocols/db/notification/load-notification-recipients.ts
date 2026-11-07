@@ -1,4 +1,4 @@
-import { AccountRole } from "@prisma/client";
+import { AccountRole } from "../../../../domain/models/account/account-role";
 
 export interface NotificationRecipientsFilter {
   roles?: AccountRole[];

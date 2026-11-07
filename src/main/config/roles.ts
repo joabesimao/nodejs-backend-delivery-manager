@@ -1,4 +1,4 @@
-import { AccountRole } from "@prisma/client";
+import { AccountRole } from "../../domain/models/account/account-role";
 
 export const DASHBOARD_READ_ROLES: AccountRole[] = [
   "admin",

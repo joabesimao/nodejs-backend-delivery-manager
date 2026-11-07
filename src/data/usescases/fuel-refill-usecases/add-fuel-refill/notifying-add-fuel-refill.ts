@@ -1,7 +1,10 @@
-import { AccountRole } from "@prisma/client";
+import { AccountRole } from "../../../../domain/models/account/account-role";
 import { ActorContext } from "../../../../domain/models/actor-context";
 import { FuelRefill } from "../../../../domain/models/fuel-refill/fuel-refill-model";
-import { AddFuelRefill, AddFuelRefillModel } from "../../../../domain/usescases/fuel-refill/add-fuel-refill";
+import {
+  AddFuelRefill,
+  AddFuelRefillModel,
+} from "../../../../domain/usescases/fuel-refill/add-fuel-refill";
 import { NotifyAccounts } from "../../../../domain/usescases/notification/notify-accounts";
 import { LoadOilChangeLogRepository } from "../../../protocols/db/oil-change/load-oil-change-log";
 import { LoadNotificationRecipientsRepository } from "../../../protocols/db/notification/load-notification-recipients";
@@ -15,23 +18,33 @@ export class NotifyingAddFuelRefill implements AddFuelRefill {
     private readonly loadOilChangeLogRepository: LoadOilChangeLogRepository,
     private readonly loadNotificationRecipientsRepository: LoadNotificationRecipientsRepository,
     private readonly notifyAccounts: NotifyAccounts,
-    private readonly managerRoles: AccountRole[]
+    private readonly managerRoles: AccountRole[],
   ) {}
 
-  async add(refill: AddFuelRefillModel, context?: ActorContext): Promise<FuelRefill> {
+  async add(
+    refill: AddFuelRefillModel,
+    context?: ActorContext,
+  ): Promise<FuelRefill> {
     const created = await this.addFuelRefill.add(refill, context);
     try {
       await this.notifyManagers(created, context?.actorAccountId);
     } catch (error) {
-      console.error("[notification] falha ao notificar abastecimento", { fuelRefillId: created.id, error });
+      console.error("[notification] falha ao notificar abastecimento", {
+        fuelRefillId: created.id,
+        error,
+      });
     }
     return created;
   }
 
-  private async notifyManagers(refill: FuelRefill, actorAccountId?: number): Promise<void> {
-    const managerIds = await this.loadNotificationRecipientsRepository.loadRecipientIds({
-      roles: this.managerRoles,
-    });
+  private async notifyManagers(
+    refill: FuelRefill,
+    actorAccountId?: number,
+  ): Promise<void> {
+    const managerIds =
+      await this.loadNotificationRecipientsRepository.loadRecipientIds({
+        roles: this.managerRoles,
+      });
     if (managerIds.length === 0) {
       return;
     }
@@ -49,8 +62,14 @@ export class NotifyingAddFuelRefill implements AddFuelRefill {
     await this.notifyOilChangeDue(refill, vehicleLabel, managerIds);
   }
 
-  private async notifyOilChangeDue(refill: FuelRefill, vehicleLabel: string, managerIds: number[]): Promise<void> {
-    const [lastChange] = await this.loadOilChangeLogRepository.loadAll({ vehicleId: refill.vehicleId });
+  private async notifyOilChangeDue(
+    refill: FuelRefill,
+    vehicleLabel: string,
+    managerIds: number[],
+  ): Promise<void> {
+    const [lastChange] = await this.loadOilChangeLogRepository.loadAll({
+      vehicleId: refill.vehicleId,
+    });
     if (!lastChange || refill.km < lastChange.km) {
       return;
     }
@@ -69,7 +88,11 @@ export class NotifyingAddFuelRefill implements AddFuelRefill {
         ? `${vehicleLabel}: troca vencida há ${formatKm(-remainingKm)} (${expected}).`
         : `${vehicleLabel}: faltam ${formatKm(remainingKm)} para a troca (${expected}).`,
       link: "/cadastros/troca-oleo",
-      data: { vehicleId: refill.vehicleId, nextChangeKm: lastChange.nextChangeKm, currentKm: refill.km },
+      data: {
+        vehicleId: refill.vehicleId,
+        nextChangeKm: lastChange.nextChangeKm,
+        currentKm: refill.km,
+      },
       dedupeKey: `oil:vehicle:${refill.vehicleId}:${lastChange.nextChangeKm}:${overdue ? "overdue" : "soon"}`,
       dedupe: "skip",
     });
