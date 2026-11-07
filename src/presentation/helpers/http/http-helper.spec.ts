@@ -63,10 +63,10 @@ describe("Http Helper", () => {
     });
   });
 
-  test("Should return 400 with a NoExistsError on noExists", () => {
+  test("Should return 404 with a NoExistsError on noExists", () => {
     const httpResponse = noExists();
     expect(httpResponse).toEqual({
-      statusCode: 400,
+      statusCode: 404,
       body: new NoExistsError(),
     });
   });
