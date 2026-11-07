@@ -4,7 +4,7 @@ import {
   LoadAccountVisibleUnitIdsRepository,
   LoadNotificationRecipientsRepository,
 } from "../../../protocols/db/notification/load-notification-recipients";
-import { AccessDeniedError } from "../../../../presentation/errors/access-denied-error";
+import { AccessDeniedError } from "../../../../domain/errors/access-denied-error";
 
 export class DbBroadcastNotice implements BroadcastNotice {
   constructor(

@@ -4,7 +4,7 @@ import { FindOilChangeLogByIdRepository } from "../../../protocols/db/oil-change
 import { LoadOilChangeLogRepository } from "../../../protocols/db/oil-change/load-oil-change-log";
 import { UpdateOilChangeLogRepository } from "../../../protocols/db/oil-change/update-oil-change-log";
 import { isKmSequenceValid, KM_OUT_OF_ORDER_MESSAGE } from "../../../helpers/km-sequence";
-import { InvalidKmError } from "../../../../presentation/errors";
+import { InvalidKmError } from "../../../../domain/errors";
 
 export class DbUpdateOilChangeLog implements UpdateOilChangeLog {
   constructor(

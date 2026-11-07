@@ -1,5 +1,5 @@
 import { UpdateFuelRefill, UpdateFuelRefillModel } from "../../../../domain/usescases/fuel-refill/update-fuel-refill";
-import { InvalidKmError } from "../../../errors";
+import { InvalidKmError } from "../../../../domain/errors";
 import { badRequest, noExists, ok, serverError } from "../../../helpers/http/http-helper";
 import { Controller } from "../../../protocols/controller";
 import { HttpRequest, HttpResponse } from "../../../protocols/http";

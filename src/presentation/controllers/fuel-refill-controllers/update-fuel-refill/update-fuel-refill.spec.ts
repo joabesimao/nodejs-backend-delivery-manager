@@ -1,6 +1,7 @@
 import { UpdateFuelRefillController } from "./update-fuel-refill";
 import { badRequest, noExists, ok, serverError } from "../../../helpers/http/http-helper";
-import { InvalidKmError, InvalidParamError } from "../../../errors";
+import { InvalidParamError } from "../../../errors";
+import { InvalidKmError } from "../../../../domain/errors";
 
 const fakeRefill = { id: 1, vehicleId: 1, km: 1200 };
 

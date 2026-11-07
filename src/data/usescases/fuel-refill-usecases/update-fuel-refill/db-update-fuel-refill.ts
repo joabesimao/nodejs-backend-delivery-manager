@@ -5,7 +5,7 @@ import { LoadFuelRefillRepository } from "../../../protocols/db/fuel-refill/load
 import { UpdateFuelRefillRepository } from "../../../protocols/db/fuel-refill/update-fuel-refill";
 import { RecalculateFuelRefillKmRepository } from "../../../protocols/db/fuel-refill/recalculate-fuel-refill-km";
 import { isKmSequenceValid, KM_OUT_OF_ORDER_MESSAGE } from "../../../helpers/km-sequence";
-import { InvalidKmError } from "../../../../presentation/errors";
+import { InvalidKmError } from "../../../../domain/errors";
 
 export class DbUpdateFuelRefill implements UpdateFuelRefill {
   constructor(

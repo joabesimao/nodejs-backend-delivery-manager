@@ -5,7 +5,7 @@ import { RecalculateFuelRefillKmRepository } from "../../../protocols/db/fuel-re
 import { FuelRefill } from "../../../../domain/models/fuel-refill/fuel-refill-model";
 import { AddFuelRefillModel } from "../../../../domain/usescases/fuel-refill/add-fuel-refill";
 import { KM_OUT_OF_ORDER_MESSAGE } from "../../../helpers/km-sequence";
-import { InvalidKmError } from "../../../../presentation/errors";
+import { InvalidKmError } from "../../../../domain/errors";
 
 interface SutTypes {
   sut: DbAddFuelRefill;

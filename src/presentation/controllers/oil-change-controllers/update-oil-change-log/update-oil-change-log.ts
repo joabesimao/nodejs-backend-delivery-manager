@@ -1,5 +1,5 @@
 import { UpdateOilChangeLog, UpdateOilChangeLogModel } from "../../../../domain/usescases/oil-change/update-oil-change-log";
-import { InvalidKmError } from "../../../errors";
+import { InvalidKmError } from "../../../../domain/errors";
 import { badRequest, noExists, ok, serverError } from "../../../helpers/http/http-helper";
 import { Controller } from "../../../protocols/controller";
 import { HttpRequest, HttpResponse } from "../../../protocols/http";

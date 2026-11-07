@@ -7,8 +7,8 @@ import {
   serverError,
 } from "../../../helpers/http/http-helper";
 import { InvalidParamError } from "../../../errors/invalid-params-error";
-import { OrderFieldChangeDeniedError } from "../../../errors/order-field-change-denied-error";
-import { OrderStatusTransitionError } from "../../../errors/order-status-transition-error";
+import { OrderFieldChangeDeniedError } from "../../../../domain/errors/order-field-change-denied-error";
+import { OrderStatusTransitionError } from "../../../../domain/errors/order-status-transition-error";
 import { Controller } from "../../../protocols/controller";
 import { HttpRequest, HttpResponse } from "../../../protocols/http";
 

@@ -1,5 +1,5 @@
 import { AddAccount } from "../../../../domain/usescases/signup/add-account";
-import { EmailInUseError } from "../../../errors";
+import { EmailInUseError } from "../../../../domain/errors";
 import {
   badRequest,
   forbidden,

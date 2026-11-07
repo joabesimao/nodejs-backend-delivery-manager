@@ -1,7 +1,7 @@
 import { AddClientController } from "./add-client";
 import { HttpRequest } from "../../../protocols/http";
 import { conflict, ok, serverError } from "../../../helpers/http/http-helper";
-import { CpfInUseError } from "../../../errors";
+import { CpfInUseError } from "../../../../domain/errors";
 import {
   Client,
   ClientModel,

@@ -4,7 +4,8 @@ import {
   AddAccountModel,
 } from "../../../../domain/usescases/signup/add-account";
 import { HttpRequest } from "../../../protocols/http";
-import { EmailInUseError, MissingParamError } from "../../../errors";
+import { MissingParamError } from "../../../errors";
+import { EmailInUseError } from "../../../../domain/errors";
 import {
   badRequest,
   forbidden,

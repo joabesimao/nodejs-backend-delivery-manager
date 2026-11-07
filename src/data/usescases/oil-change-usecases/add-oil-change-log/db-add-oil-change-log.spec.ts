@@ -6,7 +6,7 @@ import { OilChangeLog } from "../../../../domain/models/oil-change/oil-change-lo
 import { OilChangeConfig } from "../../../../domain/models/oil-change/oil-change-config-model";
 import { AddOilChangeLogModel } from "../../../../domain/usescases/oil-change/add-oil-change-log";
 import { KM_OUT_OF_ORDER_MESSAGE } from "../../../helpers/km-sequence";
-import { InvalidKmError } from "../../../../presentation/errors";
+import { InvalidKmError } from "../../../../domain/errors";
 
 interface SutTypes {
   sut: DbAddOilChangeLog;

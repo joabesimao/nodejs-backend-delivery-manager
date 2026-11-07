@@ -3,10 +3,7 @@ import { OrderDeliveryModel } from "../../../../domain/models/order-delivery/ord
 import { UpdateOrderDeliveryModel } from "../../../../domain/models/order-delivery/update-order-delivery";
 import { UpdateOrderDeliveryRepository } from "../../../protocols/db/order-delivery/update-order-delivery";
 import { LoadOrderDeliveryByIdRepository } from "../../../protocols/db/order-delivery/load-order-delivery";
-import {
-  OrderFieldChangeDeniedError,
-  OrderStatusTransitionError,
-} from "../../../../presentation/errors";
+import { OrderFieldChangeDeniedError, OrderStatusTransitionError } from "../../../../domain/errors";
 
 const makeFakeUpdateOrderDelivery = (): UpdateOrderDeliveryModel => ({
   amount: 1,

@@ -1,5 +1,5 @@
 import { UpdateRegister } from "../../../../domain/usescases/register/update-register";
-import { CpfInUseError } from "../../../errors";
+import { CpfInUseError } from "../../../../domain/errors";
 import { conflict, ok, serverError } from "../../../helpers/http/http-helper";
 import { Controller } from "../../../protocols/controller";
 import { HttpRequest, HttpResponse } from "../../../protocols/http";

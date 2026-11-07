@@ -1,5 +1,5 @@
 import { UpdateVehicle } from "../../../../domain/usescases/vehicle/update-vehicle";
-import { PlateInUseError } from "../../../errors";
+import { PlateInUseError } from "../../../../domain/errors";
 import { badRequest, conflict, ok, serverError } from "../../../helpers/http/http-helper";
 import { Controller } from "../../../protocols/controller";
 import { HttpRequest, HttpResponse } from "../../../protocols/http";

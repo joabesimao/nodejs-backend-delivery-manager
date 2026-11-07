@@ -1,4 +1,4 @@
-import { CpfInUseError } from "../../errors";
+import { CpfInUseError } from "../../../domain/errors";
 import { Validation } from "../../protocols/validation";
 
 export interface CpfDuplicateValidator {

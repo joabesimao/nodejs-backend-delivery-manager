@@ -1,6 +1,6 @@
 import { UpdateOilChangeLogController } from "./update-oil-change-log";
 import { badRequest, noExists, ok, serverError } from "../../../helpers/http/http-helper";
-import { InvalidKmError } from "../../../errors";
+import { InvalidKmError } from "../../../../domain/errors";
 
 const fakeLog = { id: 1, vehicleId: 1, km: 2100, nextChangeKm: 3100 };
 

@@ -1,4 +1,4 @@
-import { PlateInUseError } from "../../errors";
+import { PlateInUseError } from "../../../domain/errors";
 import { Validation } from "../../protocols/validation";
 
 export interface PlateDuplicateValidator {

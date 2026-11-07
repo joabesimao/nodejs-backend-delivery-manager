@@ -4,7 +4,8 @@ import { badRequest, ok, serverError } from "../../../helpers/http/http-helper";
 import { FuelRefill } from "../../../../domain/models/fuel-refill/fuel-refill-model";
 import { AddFuelRefill, AddFuelRefillModel } from "../../../../domain/usescases/fuel-refill/add-fuel-refill";
 import { Validation } from "../../../protocols/validation";
-import { MissingParamError, InvalidKmError } from "../../../errors";
+import { MissingParamError } from "../../../errors";
+import { InvalidKmError } from "../../../../domain/errors";
 
 const makeFakeRequest = (): HttpRequest => ({
   body: {
