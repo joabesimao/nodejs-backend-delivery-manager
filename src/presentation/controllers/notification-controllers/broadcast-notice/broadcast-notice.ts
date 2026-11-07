@@ -1,20 +1,25 @@
-import { AccountRole } from "@prisma/client";
+import { isAccountRole } from "../../../../domain/models/account/account-role";
 import { BroadcastNotice } from "../../../../domain/usescases/notification/broadcast-notice";
 import { InvalidParamError } from "../../../errors";
 import { AccessDeniedError } from "../../../errors/access-denied-error";
-import { badRequest, forbidden, ok, serverError, unauthorized } from "../../../helpers/http/http-helper";
+import {
+  badRequest,
+  forbidden,
+  ok,
+  serverError,
+  unauthorized,
+} from "../../../helpers/http/http-helper";
 import { Controller } from "../../../protocols/controller";
 import { HttpRequest, HttpResponse } from "../../../protocols/http";
 import { Validation } from "../../../protocols/validation";
 
-const ACCOUNT_ROLES: AccountRole[] = ["admin", "gerente_estoque", "entregador", "user"];
 const TITLE_MAX_LENGTH = 191;
 const BODY_MAX_LENGTH = 2000;
 
 export class BroadcastNoticeController implements Controller {
   constructor(
     private readonly broadcastNotice: BroadcastNotice,
-    private readonly validation: Validation
+    private readonly validation: Validation,
   ) {}
 
   async handle(httpRequest: HttpRequest): Promise<HttpResponse> {
@@ -37,11 +42,20 @@ export class BroadcastNoticeController implements Controller {
         return badRequest(new InvalidParamError("body"));
       }
       const roles = body.roles ?? [];
-      if (!Array.isArray(roles) || roles.some((role: unknown) => !ACCOUNT_ROLES.includes(role as AccountRole))) {
+      if (
+        !Array.isArray(roles) ||
+        roles.some((role: unknown) => !isAccountRole(role))
+      ) {
         return badRequest(new InvalidParamError("roles"));
       }
-      const unitStoreId = body.unitStoreId == null || body.unitStoreId === "" ? undefined : Number(body.unitStoreId);
-      if (unitStoreId !== undefined && (!Number.isInteger(unitStoreId) || unitStoreId <= 0)) {
+      const unitStoreId =
+        body.unitStoreId == null || body.unitStoreId === ""
+          ? undefined
+          : Number(body.unitStoreId);
+      if (
+        unitStoreId !== undefined &&
+        (!Number.isInteger(unitStoreId) || unitStoreId <= 0)
+      ) {
         return badRequest(new InvalidParamError("unitStoreId"));
       }
 

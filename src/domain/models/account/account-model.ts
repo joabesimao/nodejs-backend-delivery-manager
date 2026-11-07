@@ -1,4 +1,4 @@
-import { AccountRole } from "@prisma/client";
+import { AccountRole } from "./account-role";
 
 export interface AccountModel {
   id: number;
