@@ -1,4 +1,4 @@
-import { AccessDeniedError } from "../errors/access-denied-error";
+import { AccessDeniedError } from "../../domain/errors/access-denied-error";
 import { forbidden, ok, unauthorized } from "../helpers/http/http-helper";
 import { HttpRequest, HttpResponse } from "../protocols/http";
 import { Middleware } from "../protocols/middleware";

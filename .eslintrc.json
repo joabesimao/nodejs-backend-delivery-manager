@@ -61,16 +61,6 @@
       {
         "zones": [
           {
-            "target": "./src/data",
-            "from": [
-              "./src/presentation",
-              "./src/infra",
-              "./src/main",
-              "./node_modules/@prisma"
-            ],
-            "message": "data depende só de domain e dos próprios protocolos."
-          },
-          {
             "target": "./src/presentation",
             "from": ["./src/infra", "./src/main", "./node_modules/@prisma"],
             "message": "presentation não pode depender de infra, main nem do Prisma."
@@ -103,6 +93,28 @@
                   "./node_modules/@prisma"
                 ],
                 "message": "domain não pode depender de camadas externas nem do Prisma."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "files": ["src/data/**/*.ts"],
+      "rules": {
+        "import/no-restricted-paths": [
+          "error",
+          {
+            "zones": [
+              {
+                "target": "./src/data",
+                "from": [
+                  "./src/presentation",
+                  "./src/infra",
+                  "./src/main",
+                  "./node_modules/@prisma"
+                ],
+                "message": "data depende só de domain e dos próprios protocolos."
               }
             ]
           }

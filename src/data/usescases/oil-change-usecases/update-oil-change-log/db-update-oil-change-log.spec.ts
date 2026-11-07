@@ -1,6 +1,6 @@
 import { DbUpdateOilChangeLog } from "./db-update-oil-change-log";
 import { OilChangeLog } from "../../../../domain/models/oil-change/oil-change-log-model";
-import { InvalidKmError } from "../../../../presentation/errors";
+import { InvalidKmError } from "../../../../domain/errors";
 
 const makeLog = (override: Partial<OilChangeLog> = {}): OilChangeLog => ({
   id: 2,

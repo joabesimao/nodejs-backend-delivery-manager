@@ -4,7 +4,8 @@ import { badRequest, conflict, ok, serverError } from "../../../helpers/http/htt
 import { Vehicle } from "../../../../domain/models/vehicle/vehicle-model";
 import { UpdateVehicle, UpdateVehicleModel } from "../../../../domain/usescases/vehicle/update-vehicle";
 import { Validation } from "../../../protocols/validation";
-import { MissingParamError, PlateInUseError } from "../../../errors";
+import { MissingParamError } from "../../../errors";
+import { PlateInUseError } from "../../../../domain/errors";
 
 const makeFakeRequest = (): HttpRequest => ({
   params: { id: "1" },

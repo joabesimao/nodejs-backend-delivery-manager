@@ -1,6 +1,6 @@
 import { DbUpdateFuelRefill } from "./db-update-fuel-refill";
 import { FuelRefill } from "../../../../domain/models/fuel-refill/fuel-refill-model";
-import { InvalidKmError } from "../../../../presentation/errors";
+import { InvalidKmError } from "../../../../domain/errors";
 
 const makeRefill = (override: Partial<FuelRefill> = {}): FuelRefill => ({
   id: 2,

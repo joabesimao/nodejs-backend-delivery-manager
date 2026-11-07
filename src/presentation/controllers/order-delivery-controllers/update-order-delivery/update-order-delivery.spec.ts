@@ -2,11 +2,8 @@ import { UpdateOrderDeliveryController } from "./update-order-delivery";
 import { UpdateOrderDelivery } from "../../../../domain/usescases/order-delivery/update-order-delivery";
 import { OrderDeliveryModel } from "../../../../domain/models/order-delivery/order-delivery";
 import { UpdateOrderDeliveryModel } from "../../../../domain/models/order-delivery/update-order-delivery";
-import {
-  InvalidParamError,
-  OrderFieldChangeDeniedError,
-  OrderStatusTransitionError,
-} from "../../../errors";
+import { InvalidParamError } from "../../../errors";
+import { OrderFieldChangeDeniedError, OrderStatusTransitionError } from "../../../../domain/errors";
 import {
   badRequest,
   conflict,

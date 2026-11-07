@@ -1,5 +1,5 @@
 import { UpdateClient } from "../../../../domain/usescases/client/update-client";
-import { CpfInUseError } from "../../../errors";
+import { CpfInUseError } from "../../../../domain/errors";
 import { conflict, ok, serverError } from "../../../helpers/http/http-helper";
 import { Controller } from "../../../protocols/controller";
 import { HttpRequest, HttpResponse } from "../../../protocols/http";

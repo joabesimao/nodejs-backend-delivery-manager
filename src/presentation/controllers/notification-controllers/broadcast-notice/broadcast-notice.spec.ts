@@ -1,6 +1,6 @@
 import { BroadcastNoticeController } from "./broadcast-notice";
 import { InvalidParamError, MissingParamError } from "../../../errors";
-import { AccessDeniedError } from "../../../errors/access-denied-error";
+import { AccessDeniedError } from "../../../../domain/errors/access-denied-error";
 import { badRequest, forbidden, ok, serverError, unauthorized } from "../../../helpers/http/http-helper";
 import { HttpRequest } from "../../../protocols/http";
 

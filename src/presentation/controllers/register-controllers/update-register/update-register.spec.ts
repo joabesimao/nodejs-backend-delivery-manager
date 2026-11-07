@@ -3,7 +3,7 @@ import { HttpRequest } from "../../../protocols/http";
 import { RegisterModel } from "../../../../domain/models/register/register-model";
 import { UpdateRegister } from "../../../../domain/usescases/register/update-register";
 import { conflict, ok, serverError } from "../../../helpers/http/http-helper";
-import { CpfInUseError } from "../../../errors";
+import { CpfInUseError } from "../../../../domain/errors";
 
 interface SutTypes {
   sut: UpdateRegisterController;

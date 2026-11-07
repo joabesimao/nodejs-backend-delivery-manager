@@ -1,6 +1,6 @@
-import { EmailInUseError } from "../../../../presentation/errors";
-import { LastAdminError } from "../../../../presentation/errors/last-admin-error";
-import { SelfActionError } from "../../../../presentation/errors/self-action-error";
+import { EmailInUseError } from "../../../../domain/errors";
+import { LastAdminError } from "../../../../domain/errors/last-admin-error";
+import { SelfActionError } from "../../../../domain/errors/self-action-error";
 import { PublicAccountModel } from "../../../../domain/models/account/public-account-model";
 import {
   UpdateAccount,

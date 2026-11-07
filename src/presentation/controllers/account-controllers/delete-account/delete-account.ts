@@ -9,9 +9,9 @@ import {
   serverError,
 } from "../../../helpers/http/http-helper";
 import { Prisma } from "@prisma/client";
-import { AccountInUseError } from "../../../errors/account-in-use-error";
-import { LastAdminError } from "../../../errors/last-admin-error";
-import { SelfActionError } from "../../../errors/self-action-error";
+import { AccountInUseError } from "../../../../domain/errors/account-in-use-error";
+import { LastAdminError } from "../../../../domain/errors/last-admin-error";
+import { SelfActionError } from "../../../../domain/errors/self-action-error";
 
 export class DeleteAccountController implements Controller {
   constructor(private readonly deleteAccount: DeleteAccount) {}

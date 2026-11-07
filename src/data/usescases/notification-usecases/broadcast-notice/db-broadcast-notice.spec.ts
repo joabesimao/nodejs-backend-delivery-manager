@@ -1,5 +1,5 @@
 import { DbBroadcastNotice } from "./db-broadcast-notice";
-import { AccessDeniedError } from "../../../../presentation/errors/access-denied-error";
+import { AccessDeniedError } from "../../../../domain/errors/access-denied-error";
 
 const makeSut = () => {
   const repository = {

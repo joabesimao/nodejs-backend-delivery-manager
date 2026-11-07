@@ -1,7 +1,7 @@
 import { isAccountRole } from "../../../../domain/models/account/account-role";
 import { BroadcastNotice } from "../../../../domain/usescases/notification/broadcast-notice";
 import { InvalidParamError } from "../../../errors";
-import { AccessDeniedError } from "../../../errors/access-denied-error";
+import { AccessDeniedError } from "../../../../domain/errors/access-denied-error";
 import {
   badRequest,
   forbidden,

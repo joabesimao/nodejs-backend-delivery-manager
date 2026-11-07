@@ -3,8 +3,8 @@ import { DeleteAccountRepository } from "../../../protocols/db/account/delete-ac
 import { LoadAccountByIdRepository } from "../../../protocols/db/account/load-account-by-id-repository";
 import { CountActiveAdminsRepository } from "../../../protocols/db/account/count-active-admins-repository";
 import { PublicAccountModel } from "../../../../domain/models/account/public-account-model";
-import { SelfActionError } from "../../../../presentation/errors/self-action-error";
-import { LastAdminError } from "../../../../presentation/errors/last-admin-error";
+import { SelfActionError } from "../../../../domain/errors/self-action-error";
+import { LastAdminError } from "../../../../domain/errors/last-admin-error";
 
 interface SutTypes {
   sut: DbDeleteAccountById;

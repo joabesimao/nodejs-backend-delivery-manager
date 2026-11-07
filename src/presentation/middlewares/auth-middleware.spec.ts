@@ -1,7 +1,7 @@
 import { AuthMiddleware } from "./auth-middleware";
 import { HttpRequest } from "../protocols/http";
 import { forbidden, ok, unauthorized } from "../helpers/http/http-helper";
-import { AccessDeniedError } from "../errors/access-denied-error";
+import { AccessDeniedError } from "../../domain/errors/access-denied-error";
 import { LoadAccountByToken } from "../../domain/usescases/auth-middleware/load-account-by-token";
 import { AccountModel } from "../../domain/models/account/account-model";
 

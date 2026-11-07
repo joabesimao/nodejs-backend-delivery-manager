@@ -1,4 +1,4 @@
-import { QualificationInUseError } from "../../errors";
+import { QualificationInUseError } from "../../../domain/errors";
 import { Validation } from "../../protocols/validation";
 
 export interface QualificationDuplicateValidator {

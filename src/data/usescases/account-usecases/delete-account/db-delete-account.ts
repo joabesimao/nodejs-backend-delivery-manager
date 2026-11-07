@@ -1,6 +1,6 @@
 import { DeleteAccount } from "../../../../domain/usescases/signup/delete-account";
-import { LastAdminError } from "../../../../presentation/errors/last-admin-error";
-import { SelfActionError } from "../../../../presentation/errors/self-action-error";
+import { LastAdminError } from "../../../../domain/errors/last-admin-error";
+import { SelfActionError } from "../../../../domain/errors/self-action-error";
 import { CountActiveAdminsRepository } from "../../../protocols/db/account/count-active-admins-repository";
 import { DeleteAccountRepository } from "../../../protocols/db/account/delete-account-repository";
 import { LoadAccountByIdRepository } from "../../../protocols/db/account/load-account-by-id-repository";

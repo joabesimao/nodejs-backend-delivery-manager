@@ -4,7 +4,8 @@ import { badRequest, ok, serverError } from "../../../helpers/http/http-helper";
 import { OilChangeLog } from "../../../../domain/models/oil-change/oil-change-log-model";
 import { AddOilChangeLog, AddOilChangeLogModel } from "../../../../domain/usescases/oil-change/add-oil-change-log";
 import { Validation } from "../../../protocols/validation";
-import { MissingParamError, InvalidKmError } from "../../../errors";
+import { MissingParamError } from "../../../errors";
+import { InvalidKmError } from "../../../../domain/errors";
 
 const makeFakeRequest = (): HttpRequest => ({
   body: {

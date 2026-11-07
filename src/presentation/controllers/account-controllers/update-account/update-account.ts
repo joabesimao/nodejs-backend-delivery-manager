@@ -9,9 +9,9 @@ import {
   ok,
   serverError,
 } from "../../../helpers/http/http-helper";
-import { LastAdminError } from "../../../errors/last-admin-error";
-import { SelfActionError } from "../../../errors/self-action-error";
-import { EmailInUseError } from "../../../errors";
+import { LastAdminError } from "../../../../domain/errors/last-admin-error";
+import { SelfActionError } from "../../../../domain/errors/self-action-error";
+import { EmailInUseError } from "../../../../domain/errors";
 
 export class UpdateAccountController implements Controller {
   constructor(
