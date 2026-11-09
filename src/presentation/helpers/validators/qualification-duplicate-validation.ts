@@ -2,7 +2,7 @@ import { QualificationInUseError } from "../../../domain/errors";
 import { Validation } from "../../protocols/validation";
 
 export interface QualificationDuplicateValidator {
-  validate(numberQualification: string): Promise<boolean>;
+  existsByNumberQualification(numberQualification: string): Promise<boolean>;
 }
 
 export class QualificationDuplicateValidation implements Validation {
@@ -15,7 +15,7 @@ export class QualificationDuplicateValidation implements Validation {
       return null;
     }
 
-    const isQualificationDuplicate = await this.qualificationValidator.validate(numberQualification);
+    const isQualificationDuplicate = await this.qualificationValidator.existsByNumberQualification(numberQualification);
 
     if (isQualificationDuplicate) {
       return new QualificationInUseError();

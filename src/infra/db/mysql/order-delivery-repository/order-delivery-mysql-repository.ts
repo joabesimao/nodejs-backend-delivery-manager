@@ -19,7 +19,7 @@ import { emitDeliveryRealtime } from "../../../../main/realtime/realtime-state";
 import {
   getAccountScope,
   resolveRootStoreId,
-} from "../../../../main/realtime/store-scope";
+} from "../helpers/store-scope";
 import { rethrowDeleteError } from "../helpers/prisma-errors";
 
 export class OrderDeliveryMySqlRepository

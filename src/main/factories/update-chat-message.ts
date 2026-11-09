@@ -1,5 +1,13 @@
+import { makeAccountScopeRepository, makeChatMessageRepository } from "./chat-repositories";
+import { DbUpdateChatMessage } from "../../data/usescases/chat-usecases";
 import { UpdateChatMessageController } from "../../presentation/controllers/chat-controllers";
 
 export const makeUpdateChatMessageController = (): UpdateChatMessageController => {
-  return new UpdateChatMessageController();
+  const chatMessageRepository = makeChatMessageRepository();
+  const updateChatMessage = new DbUpdateChatMessage(
+    chatMessageRepository,
+    makeAccountScopeRepository(),
+    chatMessageRepository,
+  );
+  return new UpdateChatMessageController(updateChatMessage);
 };

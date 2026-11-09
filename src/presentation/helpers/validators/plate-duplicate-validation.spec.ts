@@ -6,7 +6,7 @@ import {
 
 const makePlateValidatorStub = (): PlateDuplicateValidator => {
   class PlateDuplicateValidatorStub implements PlateDuplicateValidator {
-    async validate(plate: string): Promise<boolean> {
+    async existsByPlate(plate: string): Promise<boolean> {
       return false;
     }
   }
@@ -27,14 +27,14 @@ const makeSut = (): SutTypes => {
 describe("PlateDuplicateValidation", () => {
   test("Should not call PlateDuplicateValidator if plate is absent", async () => {
     const { sut, plateValidatorStub } = makeSut();
-    const validateSpy = jest.spyOn(plateValidatorStub, "validate");
+    const validateSpy = jest.spyOn(plateValidatorStub, "existsByPlate");
     await sut.validate({});
     expect(validateSpy).not.toHaveBeenCalled();
   });
 
   test("Should call PlateDuplicateValidator with the provided plate", async () => {
     const { sut, plateValidatorStub } = makeSut();
-    const validateSpy = jest.spyOn(plateValidatorStub, "validate");
+    const validateSpy = jest.spyOn(plateValidatorStub, "existsByPlate");
     await sut.validate({ plate: "ABC1D23" });
     expect(validateSpy).toHaveBeenCalledWith("ABC1D23");
   });
@@ -42,7 +42,7 @@ describe("PlateDuplicateValidation", () => {
   test("Should return PlateInUseError if plate is duplicate", async () => {
     const { sut, plateValidatorStub } = makeSut();
     jest
-      .spyOn(plateValidatorStub, "validate")
+      .spyOn(plateValidatorStub, "existsByPlate")
       .mockReturnValueOnce(Promise.resolve(true));
     const error = await sut.validate({ plate: "ABC1D23" });
     expect(error).toEqual(new PlateInUseError());

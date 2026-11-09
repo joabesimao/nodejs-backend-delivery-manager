@@ -2,7 +2,7 @@ import type { Server as HttpServer } from "http";
 import { Server } from "socket.io";
 import { setupRealtimeGateway } from "./realtime-gateway";
 import { setRealtimeServer } from "./realtime-state";
-import { getAccountScope } from "./store-scope";
+import { getAccountScope } from "../../infra/db/mysql/helpers/store-scope";
 import { prisma } from "../../infra/db/mysql/helpers";
 import { JwtAdapter } from "../../infra/cryptography/jwt-adapter/jwt-adapter";
 
@@ -24,7 +24,7 @@ jest.mock("./realtime-state", () => ({
   setRealtimeServer: jest.fn(),
 }));
 
-jest.mock("./store-scope", () => ({
+jest.mock("../../infra/db/mysql/helpers/store-scope", () => ({
   getAccountScope: jest.fn(),
 }));
 

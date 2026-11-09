@@ -12,6 +12,7 @@ const makeFakeDeliveryman = () => ({
 
 const makeFakePrisma = () => ({
   deliveryman: {
+    findFirst: jest.fn().mockResolvedValue(null),
     findMany: jest.fn().mockResolvedValue([makeFakeDeliveryman()]),
     findUnique: jest.fn().mockResolvedValue(makeFakeDeliveryman()),
     create: jest.fn().mockResolvedValue(makeFakeDeliveryman()),
@@ -228,6 +229,56 @@ describe("Deliveryman MySql Repository", () => {
       const { sut, prisma } = makeSut();
       prisma.deliveryman.create.mockRejectedValueOnce(makeUniqueError(["other_field"]));
       await expect(sut.add(makeFakeAddDeliveryman())).rejects.toBeInstanceOf(Prisma.PrismaClientKnownRequestError);
+    });
+  });
+
+  describe("existsByCpf()", () => {
+    test("Should call prisma.deliveryman.findFirst with the cleaned cpf", async () => {
+      const { sut, prisma } = makeSut();
+      await sut.existsByCpf("123.456.789-00");
+      expect(prisma.deliveryman.findFirst).toHaveBeenCalledWith({ where: { cpf: "12345678900" } });
+    });
+
+    test("Should return false if no record is found", async () => {
+      const { sut } = makeSut();
+      expect(await sut.existsByCpf("123.456.789-00")).toBe(false);
+    });
+
+    test("Should return true if a record is found", async () => {
+      const { sut, prisma } = makeSut();
+      prisma.deliveryman.findFirst.mockResolvedValueOnce({ id: 1 });
+      expect(await sut.existsByCpf("123.456.789-00")).toBe(true);
+    });
+
+    test("Should throw if prisma.deliveryman.findFirst throws", async () => {
+      const { sut, prisma } = makeSut();
+      prisma.deliveryman.findFirst.mockRejectedValueOnce(new Error());
+      await expect(sut.existsByCpf("123.456.789-00")).rejects.toThrow();
+    });
+  });
+
+  describe("existsByNumberQualification()", () => {
+    test("Should call prisma.deliveryman.findFirst with the number qualification", async () => {
+      const { sut, prisma } = makeSut();
+      await sut.existsByNumberQualification("any_qualification");
+      expect(prisma.deliveryman.findFirst).toHaveBeenCalledWith({ where: { numberQualification: "any_qualification" } });
+    });
+
+    test("Should return false if no record is found", async () => {
+      const { sut } = makeSut();
+      expect(await sut.existsByNumberQualification("any_qualification")).toBe(false);
+    });
+
+    test("Should return true if a record is found", async () => {
+      const { sut, prisma } = makeSut();
+      prisma.deliveryman.findFirst.mockResolvedValueOnce({ id: 1 });
+      expect(await sut.existsByNumberQualification("any_qualification")).toBe(true);
+    });
+
+    test("Should throw if prisma.deliveryman.findFirst throws", async () => {
+      const { sut, prisma } = makeSut();
+      prisma.deliveryman.findFirst.mockRejectedValueOnce(new Error());
+      await expect(sut.existsByNumberQualification("any_qualification")).rejects.toThrow();
     });
   });
 });

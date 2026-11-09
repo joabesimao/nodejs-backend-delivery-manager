@@ -23,7 +23,7 @@ import {
   LoadNotificationRecipientsRepository,
   NotificationRecipientsFilter,
 } from "../../../../data/protocols/db/notification/load-notification-recipients";
-import { getAccountScope, listDescendantUnitIds, resolveRootStoreId } from "../../../../main/realtime/store-scope";
+import { getAccountScope, listDescendantUnitIds, resolveRootStoreId } from "../helpers/store-scope";
 
 const toNotification = ({ deletedAt, ...row }: PrismaNotification): Notification => ({
   ...row,

@@ -22,6 +22,7 @@ const makeFakeProductRow = () => ({
 
 const makeFakePrisma = () => ({
   product: {
+    findFirst: jest.fn().mockResolvedValue(null),
     create: jest.fn().mockResolvedValue(makeFakeProductRow()),
     findMany: jest.fn().mockResolvedValue([makeFakeProductRow()]),
     count: jest.fn().mockResolvedValue(1),
@@ -351,6 +352,31 @@ describe("Product MySql Repository", () => {
       const { sut, prisma } = makeSut();
       prisma.product.create.mockRejectedValueOnce(makeUniqueError(["other_field"]));
       await expect(sut.add(makeFakeAddProduct())).rejects.toBeInstanceOf(Prisma.PrismaClientKnownRequestError);
+    });
+  });
+
+  describe("existsByBarcode()", () => {
+    test("Should call prisma.product.findFirst with the barcode", async () => {
+      const { sut, prisma } = makeSut();
+      await sut.existsByBarcode("789123");
+      expect(prisma.product.findFirst).toHaveBeenCalledWith({ where: { barcode: "789123" } });
+    });
+
+    test("Should return false if no record is found", async () => {
+      const { sut } = makeSut();
+      expect(await sut.existsByBarcode("789123")).toBe(false);
+    });
+
+    test("Should return true if a record is found", async () => {
+      const { sut, prisma } = makeSut();
+      prisma.product.findFirst.mockResolvedValueOnce({ id: 1 });
+      expect(await sut.existsByBarcode("789123")).toBe(true);
+    });
+
+    test("Should throw if prisma.product.findFirst throws", async () => {
+      const { sut, prisma } = makeSut();
+      prisma.product.findFirst.mockRejectedValueOnce(new Error());
+      await expect(sut.existsByBarcode("789123")).rejects.toThrow();
     });
   });
 });

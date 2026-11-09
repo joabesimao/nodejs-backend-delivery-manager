@@ -1,88 +1,36 @@
+import { LoadChatMessages } from "../../../domain/usescases/chat/load-chat-messages";
+import { mapDomainError } from "../../helpers/http/map-domain-error";
+import { ok } from "../../helpers/http/http-helper";
 import { Controller } from "../../protocols/controller";
 import { HttpRequest, HttpResponse } from "../../protocols/http";
-import { prisma } from "../../../infra/db/mysql/helpers";
-import { getAccountScope } from "../../../main/realtime/store-scope";
+import { chatError, readAccountId, unauthenticated } from "./chat-http";
 
 export class LoadChatMessagesController implements Controller {
+  constructor(private readonly loadChatMessages: LoadChatMessages) {}
+
   async handle(httpRequest: HttpRequest): Promise<HttpResponse> {
     try {
-      const accountId = Number(httpRequest.headers?.accountId || 0);
+      const accountId = readAccountId(httpRequest);
 
       if (!accountId) {
-        return {
-          statusCode: 401,
-          body: { error: "Não autenticado" },
-        };
+        return unauthenticated();
       }
 
-      const scope = await getAccountScope(prisma, accountId);
+      const page = await this.loadChatMessages.load({
+        accountId,
+        limit: Number(httpRequest.query?.limit) || 100,
+        offset: Number(httpRequest.query?.offset) || 0,
+        unitStoreId: Number(httpRequest.query?.unitStoreId) || undefined,
+      });
 
-      if (!scope) {
-        return {
-          statusCode: 404,
-          body: { error: "Conta não encontrada" },
-        };
-      }
-
-      const limit = Number(httpRequest.query?.limit) || 100;
-      const offset = Number(httpRequest.query?.offset) || 0;
-      const unitStoreId = Number(httpRequest.query?.unitStoreId);
-
-      const whereClause: any = {};
-
-      if (scope.visibleUnitIds.length) {
-        whereClause.unitStoreId = { in: scope.visibleUnitIds };
-      }
-
-      if (unitStoreId && scope.visibleUnitIds.includes(unitStoreId)) {
-        whereClause.unitStoreId = unitStoreId;
-      }
-
-      const [messages, total] = await Promise.all([
-        prisma.chatMessage.findMany({
-          where: whereClause,
-          include: {
-            sender: {
-              select: {
-                id: true,
-                name: true,
-                email: true,
-                role: true,
-                unitStoreId: true,
-              },
-            },
-            unitStore: {
-              select: {
-                id: true,
-                name: true,
-              },
-            },
-          },
-          orderBy: { createdAt: "desc" },
-          take: limit,
-          skip: offset,
-        }),
-        prisma.chatMessage.count({ where: whereClause }),
-      ]);
-
-      return {
-        statusCode: 200,
-        body: {
-          messages: messages.reverse(),
-          pagination: {
-            total,
-            limit,
-            offset,
-            hasMore: offset + limit < total,
-          },
-        },
-      };
+      return ok(page);
     } catch (error) {
+      const domainResponse = mapDomainError(error);
+      if (domainResponse) {
+        return domainResponse;
+      }
       console.error("LoadChatMessagesController error:", error);
-      return {
-        statusCode: 500,
-        body: { error: "Falha ao carregar mensagens" },
-      };
+      return chatError(500, "Falha ao carregar mensagens");
     }
   }
 }

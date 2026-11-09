@@ -1,135 +1,35 @@
+import { AddChatMessage } from "../../../domain/usescases/chat/add-chat-message";
+import { mapDomainError } from "../../helpers/http/map-domain-error";
 import { Controller } from "../../protocols/controller";
 import { HttpRequest, HttpResponse } from "../../protocols/http";
-import { prisma } from "../../../infra/db/mysql/helpers";
-import { getAccountScope } from "../../../main/realtime/store-scope";
-import { emitChatRealtime } from "../../../main/realtime/realtime-state";
-import { NotifyChatMessage } from "../../../domain/usescases/notification/notify-chat-message";
-
-const MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024;
-
-const estimateBase64Bytes = (base64Value: string): number => {
-  const padding = base64Value.match(/=+$/)?.[0].length ?? 0;
-  return Math.floor((base64Value.length * 3) / 4) - padding;
-};
-
-const normalizeBase64 = (imageBase64: string): string => {
-  if (!imageBase64) {
-    return "";
-  }
-
-  const marker = ",";
-  const markerIndex = imageBase64.indexOf(marker);
-
-  if (markerIndex >= 0 && imageBase64.startsWith("data:")) {
-    return imageBase64.slice(markerIndex + 1);
-  }
-
-  return imageBase64;
-};
+import { chatError, readAccountId, unauthenticated } from "./chat-http";
 
 export class AddChatMessageController implements Controller {
-  constructor(private readonly notifyChatMessage?: NotifyChatMessage) {}
+  constructor(private readonly addChatMessage: AddChatMessage) {}
 
   async handle(httpRequest: HttpRequest): Promise<HttpResponse> {
     try {
-      const accountId = Number(httpRequest.headers?.accountId || 0);
+      const accountId = readAccountId(httpRequest);
       const body = httpRequest.body || {};
 
       if (!accountId) {
-        return {
-          statusCode: 401,
-          body: { error: "Não autenticado" },
-        };
+        return unauthenticated();
       }
 
       const text = String(body.text || "").trim();
       const imageBase64 = body.imageBase64 ? String(body.imageBase64) : null;
       const imageMimeType = body.imageMimeType ? String(body.imageMimeType) : null;
-      let unitStoreId = Number(body.unitStoreId || 0);
 
       if (!text && !imageBase64) {
-        return {
-          statusCode: 400,
-          body: { error: "Mensagem não pode estar vazia" },
-        };
+        return chatError(400, "Mensagem não pode estar vazia");
       }
 
-      const scope = await getAccountScope(prisma, accountId);
-
-      if (!scope) {
-        return {
-          statusCode: 404,
-          body: { error: "Conta não encontrada" },
-        };
-      }
-
-      if (!unitStoreId) {
-        if (scope.visibleUnitIds.length === 0) {
-          return {
-            statusCode: 403,
-            body: { error: "Sem permissão para enviar para nenhuma loja" },
-          };
-        }
-        unitStoreId = scope.visibleUnitIds[0];
-      }
-
-      if (!scope.visibleUnitIds.includes(unitStoreId)) {
-        return {
-          statusCode: 403,
-          body: { error: "Sem permissão para enviar para essa loja" },
-        };
-      }
-
-      if (imageBase64) {
-        const normalizedBase64 = normalizeBase64(imageBase64);
-        const sizeInBytes = estimateBase64Bytes(normalizedBase64);
-
-        if (sizeInBytes > MAX_IMAGE_SIZE_BYTES) {
-          return {
-            statusCode: 400,
-            body: {
-              error: "Imagem excede o tamanho máximo de 5MB",
-            },
-          };
-        }
-      }
-
-      const message = await prisma.chatMessage.create({
-        data: {
-          unitStoreId,
-          senderId: accountId,
-          text: text || null,
-          imageBase64: imageBase64 ? normalizeBase64(imageBase64) : null,
-          imageMimeType: imageMimeType || null,
-        },
-        include: {
-          sender: {
-            select: {
-              id: true,
-              name: true,
-              email: true,
-              role: true,
-              unitStoreId: true,
-            },
-          },
-          unitStore: {
-            select: {
-              id: true,
-              name: true,
-            },
-          },
-        },
-      });
-
-      emitChatRealtime("chat:message", scope.rootStoreId, message);
-      void this.notifyChatMessage?.notify({
-        messageId: message.id,
-        unitStoreId: message.unitStoreId,
-        unitStoreName: message.unitStore?.name,
-        senderId: message.senderId,
-        senderName: message.sender?.name,
-        text: message.text,
-        hasImage: Boolean(message.imageBase64),
+      const message = await this.addChatMessage.add({
+        accountId,
+        unitStoreId: Number(body.unitStoreId || 0),
+        text: text || null,
+        imageBase64,
+        imageMimeType,
       });
 
       return {
@@ -137,11 +37,12 @@ export class AddChatMessageController implements Controller {
         body: message,
       };
     } catch (error) {
+      const domainResponse = mapDomainError(error);
+      if (domainResponse) {
+        return domainResponse;
+      }
       console.error("[chat:add] error", error);
-      return {
-        statusCode: 500,
-        body: { error: "Falha ao enviar mensagem" },
-      };
+      return chatError(500, "Falha ao enviar mensagem");
     }
   }
 }

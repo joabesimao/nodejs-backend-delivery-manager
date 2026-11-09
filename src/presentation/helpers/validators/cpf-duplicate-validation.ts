@@ -2,7 +2,7 @@ import { CpfInUseError } from "../../../domain/errors";
 import { Validation } from "../../protocols/validation";
 
 export interface CpfDuplicateValidator {
-  validate(cpf: string): Promise<boolean>;
+  existsByCpf(cpf: string): Promise<boolean>;
 }
 
 export class CpfDuplicateValidation implements Validation {
@@ -16,7 +16,7 @@ export class CpfDuplicateValidation implements Validation {
     }
 
     const cpfClean = cpf.replace(/\D/g, "");
-    const isCpfDuplicate = await this.cpfValidator.validate(cpfClean);
+    const isCpfDuplicate = await this.cpfValidator.existsByCpf(cpfClean);
 
     if (isCpfDuplicate) {
       return new CpfInUseError();
