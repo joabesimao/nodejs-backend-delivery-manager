@@ -6,6 +6,8 @@ import { UpdateDeliverymanRepository } from "../../../../data/protocols/db/deliv
 import { Deliveryman } from "../../../../domain/models/deliveryman/deliveryman-model";
 import { AddDeliverymanModel } from "../../../../domain/usescases/deliveryman/add-deliveryman";
 import { onlyDigits } from "../helpers/only-digits";
+import { CpfInUseError, QualificationInUseError } from "../../../../domain/errors";
+import { rethrowUniqueError } from "../helpers/prisma-errors";
 
 const normalizeCpf = (cpf?: string | null): string | null =>
   (cpf && onlyDigits(cpf)) || null;
@@ -27,28 +29,42 @@ export class DeliverymanMysqlRepository
   }
 
   async add(deliveryman: AddDeliverymanModel): Promise<Deliveryman> {
-    return await this.prisma.deliveryman.create({
-      data: {
-        name: deliveryman.name,
-        lastName: deliveryman.lastName,
-        numberQualification: deliveryman.numberQualification,
-        phone: deliveryman.phone,
-        cpf: normalizeCpf(deliveryman.cpf),
-      },
-    });
+    try {
+      return await this.prisma.deliveryman.create({
+        data: {
+          name: deliveryman.name,
+          lastName: deliveryman.lastName,
+          numberQualification: deliveryman.numberQualification,
+          phone: deliveryman.phone,
+          cpf: normalizeCpf(deliveryman.cpf),
+        },
+      });
+    } catch (error) {
+      rethrowUniqueError(error, {
+        cpf: () => new CpfInUseError(),
+        numberQualification: () => new QualificationInUseError(),
+      });
+    }
   }
 
   async update(id: number, data: Partial<Deliveryman>): Promise<Deliveryman> {
-    return await this.prisma.deliveryman.update({
-      where: { id: Number(id) },
-      data: {
-        ...(data.name && { name: data.name }),
-        ...(data.lastName && { lastName: data.lastName }),
-        ...(data.phone && { phone: data.phone }),
-        ...(data.numberQualification && { numberQualification: data.numberQualification }),
-        ...(data.cpf !== undefined && { cpf: normalizeCpf(data.cpf) }),
-      },
-    });
+    try {
+      return await this.prisma.deliveryman.update({
+        where: { id: Number(id) },
+        data: {
+          ...(data.name && { name: data.name }),
+          ...(data.lastName && { lastName: data.lastName }),
+          ...(data.phone && { phone: data.phone }),
+          ...(data.numberQualification && { numberQualification: data.numberQualification }),
+          ...(data.cpf !== undefined && { cpf: normalizeCpf(data.cpf) }),
+        },
+      });
+    } catch (error) {
+      rethrowUniqueError(error, {
+        cpf: () => new CpfInUseError(),
+        numberQualification: () => new QualificationInUseError(),
+      });
+    }
   }
 
   async deleteOne(id: number): Promise<string> {

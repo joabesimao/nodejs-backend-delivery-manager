@@ -1,6 +1,7 @@
 import {
   AccessDeniedError,
   AccountInUseError,
+  BarcodeInUseError,
   CpfInUseError,
   EmailInUseError,
   InvalidKmError,
@@ -12,6 +13,7 @@ import {
   QualificationInUseError,
   ResourceInUseError,
   SelfActionError,
+  VehicleInUseError,
 } from "../../../domain/errors";
 import { HttpResponse } from "../../protocols/http";
 import { badRequest, conflict, forbidden, noExists } from "./http-helper";
@@ -37,10 +39,11 @@ const domainErrorMappings: Array<[ErrorClass[], (error: Error) => HttpResponse]>
       QualificationInUseError,
       OrderStatusTransitionError,
       ResourceInUseError,
+      VehicleInUseError,
     ],
     conflict,
   ],
-  [[InvalidKmError], badRequest],
+  [[InvalidKmError, BarcodeInUseError], badRequest],
   [[NotFoundError], () => noExists()],
 ];
 

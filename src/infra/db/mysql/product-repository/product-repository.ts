@@ -13,6 +13,8 @@ import {
   LoadProductResult,
 } from "../../../../domain/models/product/product";
 import { AddProductModel } from "../../../../domain/usescases/product/add-product/add-product";
+import { BarcodeInUseError } from "../../../../domain/errors";
+import { rethrowUniqueError } from "../helpers/prisma-errors";
 
 const normalizeBase64 = (imageBase64: string): string => {
   if (!imageBase64) {
@@ -40,30 +42,34 @@ export class ProductMysqlRepository
 
   async add(product: AddProductModel): Promise<Product> {
     const { variations, imageBase64, ...rest } = product;
-    const result = await this.prisma.product.create({
-      data: {
-        name: rest.name,
-        price: rest.price,
-        description: rest.description,
-        category: rest.category,
-        subcategory: rest.subcategory,
-        brand: rest.brand,
-        model: rest.model,
-        unit: rest.unit,
-        barcode: rest.barcode || null,
-        status: rest.status,
-        notes: rest.notes,
-        imageBase64: imageBase64 ? normalizeBase64(imageBase64) : imageBase64,
-        imageMimeType: rest.imageMimeType,
-        ...(variations && {
-          variations: {
-            create: variations.map((v) => ({ attribute: v.attribute, value: v.value })),
-          },
-        }),
-      },
-      include: { variations: true },
-    });
-    return { ...result, price: Number(result.price) };
+    try {
+      const result = await this.prisma.product.create({
+        data: {
+          name: rest.name,
+          price: rest.price,
+          description: rest.description,
+          category: rest.category,
+          subcategory: rest.subcategory,
+          brand: rest.brand,
+          model: rest.model,
+          unit: rest.unit,
+          barcode: rest.barcode || null,
+          status: rest.status,
+          notes: rest.notes,
+          imageBase64: imageBase64 ? normalizeBase64(imageBase64) : imageBase64,
+          imageMimeType: rest.imageMimeType,
+          ...(variations && {
+            variations: {
+              create: variations.map((v) => ({ attribute: v.attribute, value: v.value })),
+            },
+          }),
+        },
+        include: { variations: true },
+      });
+      return { ...result, price: Number(result.price) };
+    } catch (error) {
+      rethrowUniqueError(error, { barcode: () => new BarcodeInUseError() });
+    }
   }
 
   async getAllProducts(filter: LoadProductFilter = {}): Promise<LoadProductResult> {
@@ -105,34 +111,38 @@ export class ProductMysqlRepository
 
   async updateProduct(id: number, info: Partial<ProductModel>): Promise<Product> {
     const { variations, imageBase64, ...rest } = info;
-    const result = await this.prisma.product.update({
-      where: { id: Number(id) },
-      data: {
-        ...(rest.name && { name: rest.name }),
-        ...(rest.price !== undefined && { price: rest.price }),
-        ...(rest.description && { description: rest.description }),
-        ...(rest.category && { category: rest.category }),
-        ...(rest.subcategory !== undefined && { subcategory: rest.subcategory }),
-        ...(rest.brand !== undefined && { brand: rest.brand }),
-        ...(rest.model !== undefined && { model: rest.model }),
-        ...(rest.unit !== undefined && { unit: rest.unit }),
-        ...(rest.barcode !== undefined && { barcode: rest.barcode || null }),
-        ...(rest.status !== undefined && { status: rest.status }),
-        ...(rest.notes !== undefined && { notes: rest.notes }),
-        ...(imageBase64 !== undefined && {
-          imageBase64: imageBase64 ? normalizeBase64(imageBase64) : imageBase64,
-        }),
-        ...(rest.imageMimeType !== undefined && { imageMimeType: rest.imageMimeType }),
-        ...(variations !== undefined && {
-          variations: {
-            deleteMany: {},
-            create: variations.map((v) => ({ attribute: v.attribute, value: v.value })),
-          },
-        }),
-      },
-      include: { variations: true },
-    });
-    return { ...result, price: Number(result.price) };
+    try {
+      const result = await this.prisma.product.update({
+        where: { id: Number(id) },
+        data: {
+          ...(rest.name && { name: rest.name }),
+          ...(rest.price !== undefined && { price: rest.price }),
+          ...(rest.description && { description: rest.description }),
+          ...(rest.category && { category: rest.category }),
+          ...(rest.subcategory !== undefined && { subcategory: rest.subcategory }),
+          ...(rest.brand !== undefined && { brand: rest.brand }),
+          ...(rest.model !== undefined && { model: rest.model }),
+          ...(rest.unit !== undefined && { unit: rest.unit }),
+          ...(rest.barcode !== undefined && { barcode: rest.barcode || null }),
+          ...(rest.status !== undefined && { status: rest.status }),
+          ...(rest.notes !== undefined && { notes: rest.notes }),
+          ...(imageBase64 !== undefined && {
+            imageBase64: imageBase64 ? normalizeBase64(imageBase64) : imageBase64,
+          }),
+          ...(rest.imageMimeType !== undefined && { imageMimeType: rest.imageMimeType }),
+          ...(variations !== undefined && {
+            variations: {
+              deleteMany: {},
+              create: variations.map((v) => ({ attribute: v.attribute, value: v.value })),
+            },
+          }),
+        },
+        include: { variations: true },
+      });
+      return { ...result, price: Number(result.price) };
+    } catch (error) {
+      rethrowUniqueError(error, { barcode: () => new BarcodeInUseError() });
+    }
   }
 
   async deleteById(id: number): Promise<string> {

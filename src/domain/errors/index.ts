@@ -12,3 +12,4 @@ export * from "./self-action-error";
 export * from "./vehicle-in-use-error";
 export * from "./not-found-error";
 export * from "./resource-in-use-error";
+export * from "./barcode-in-use-error";

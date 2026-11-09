@@ -8,6 +8,7 @@ import { HttpRequest } from "../../../protocols/http";
 import { badRequest, ok, serverError } from "../../../helpers/http/http-helper";
 import { Validation } from "../../../protocols/validation";
 import { MissingParamError, InvalidParamError } from "../../../errors";
+import { BarcodeInUseError } from "../../../../domain/errors";
 
 const makeFakeRequest = (): HttpRequest => ({
   body: {
@@ -102,9 +103,7 @@ describe("AddProduct Controller", () => {
 
   test("Should return 400 if AddProduct throws a duplicate barcode error", async () => {
     const { sut, addProductStub } = makeSut();
-    const barcodeError: any = new Error("Unique constraint failed");
-    barcodeError.code = "P2002";
-    barcodeError.meta = { target: ["barcode"] };
+    const barcodeError = new BarcodeInUseError();
     jest.spyOn(addProductStub, "add").mockReturnValueOnce(Promise.reject(barcodeError));
     const httpResponse = await sut.handle(makeFakeRequest());
     expect(httpResponse).toEqual(badRequest(new InvalidParamError("barcode")));

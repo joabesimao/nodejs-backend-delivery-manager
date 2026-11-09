@@ -1,6 +1,6 @@
 import { DeleteVehicle } from "../../../../domain/usescases/vehicle/delete-vehicle";
-import { VehicleInUseError } from "../../../../domain/errors";
-import { conflict, ok, serverError } from "../../../helpers/http/http-helper";
+import { ok, serverError } from "../../../helpers/http/http-helper";
+import { mapDomainError } from "../../../helpers/http/map-domain-error";
 import { Controller } from "../../../protocols/controller";
 import { HttpRequest, HttpResponse } from "../../../protocols/http";
 
@@ -13,10 +13,7 @@ export class DeleteVehicleController implements Controller {
       const result = await this.deleteVehicle.delete(Number(id));
       return ok(result);
     } catch (error) {
-      if (error.code === "P2003") {
-        return conflict(new VehicleInUseError());
-      }
-      return serverError(error);
+      return mapDomainError(error) ?? serverError(error);
     }
   }
 }

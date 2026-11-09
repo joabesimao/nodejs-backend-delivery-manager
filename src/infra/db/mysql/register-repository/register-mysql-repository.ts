@@ -12,7 +12,8 @@ import { RegisterModel } from "../../../../domain/models/register/register-model
 import { AddRegisterModel } from "../../../../domain/usescases/register/add-register";
 import { onlyDigits } from "../helpers/only-digits";
 import { pickDefined } from "../helpers/pick-defined";
-import { rethrowDeleteError } from "../helpers/prisma-errors";
+import { rethrowDeleteError, rethrowUniqueError } from "../helpers/prisma-errors";
+import { CpfInUseError } from "../../../../domain/errors";
 
 const REGISTER_INCLUDE = { client: true, address: true } as const;
 
@@ -27,28 +28,31 @@ export class RegisterMySqlRepository
   constructor(private readonly prisma: PrismaClient) {}
 
   async add(dataInfo: AddRegisterModel): Promise<RegisterModel> {
-    const register = await this.prisma.register.create({
-      data: {
-        client: {
-          create: {
-            name: dataInfo.client.name,
-            cpf: onlyDigits(dataInfo.client.cpf),
-            phone: dataInfo.client.phone,
+    try {
+      const register = await this.prisma.register.create({
+        data: {
+          client: {
+            create: {
+              name: dataInfo.client.name,
+              cpf: onlyDigits(dataInfo.client.cpf),
+              phone: dataInfo.client.phone,
+            },
+          },
+          address: {
+            create: {
+              street: dataInfo.address.street,
+              city: dataInfo.address.city,
+              neighborhood: dataInfo.address.neighborhood,
+              numberHouse: Number(dataInfo.address.numberHouse),
+              reference: dataInfo.address.reference,
+            },
           },
         },
-        address: {
-          create: {
-            street: dataInfo.address.street,
-            city: dataInfo.address.city,
-            neighborhood: dataInfo.address.neighborhood,
-            numberHouse: Number(dataInfo.address.numberHouse),
-            reference: dataInfo.address.reference,
-          },
-        },
-      },
-    });
-
-    return register as any;
+      });
+      return register as any;
+    } catch (error) {
+      rethrowUniqueError(error, { cpf: () => new CpfInUseError() });
+    }
   }
 
   async loadById(id: number): Promise<LoadRegisterModel> {
@@ -81,28 +85,32 @@ export class RegisterMySqlRepository
       "reference",
     ]);
 
-    const updateRegister = await this.prisma.register.update({
-      where: { id: Number(id) },
-      data: {
-        client: {
-          update: {
-            data: {
-              ...clientData,
-              ...(cpf !== undefined && { cpf: onlyDigits(cpf) }),
+    try {
+      const updateRegister = await this.prisma.register.update({
+        where: { id: Number(id) },
+        data: {
+          client: {
+            update: {
+              data: {
+                ...clientData,
+                ...(cpf !== undefined && { cpf: onlyDigits(cpf) }),
+              },
+            },
+          },
+          address: {
+            update: {
+              data: {
+                ...addressData,
+                ...(numberHouse !== undefined && { numberHouse: Number(numberHouse) }),
+              },
             },
           },
         },
-        address: {
-          update: {
-            data: {
-              ...addressData,
-              ...(numberHouse !== undefined && { numberHouse: Number(numberHouse) }),
-            },
-          },
-        },
-      },
-    });
-    return updateRegister as unknown as LoadRegisterModel;
+      });
+      return updateRegister as unknown as LoadRegisterModel;
+    } catch (error) {
+      rethrowUniqueError(error, { cpf: () => new CpfInUseError() });
+    }
   }
 
   async deleteById(id: number): Promise<string> {

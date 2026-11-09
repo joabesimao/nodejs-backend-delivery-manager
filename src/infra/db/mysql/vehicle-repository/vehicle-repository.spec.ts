@@ -1,3 +1,5 @@
+import { Prisma } from "@prisma/client";
+import { PlateInUseError, VehicleInUseError } from "../../../../domain/errors";
 import { VehicleMysqlRepository } from "./vehicle-repository";
 
 const makeFakeVehicle = () => ({
@@ -18,6 +20,13 @@ const makeFakePrisma = () => ({
 });
 
 type FakePrisma = ReturnType<typeof makeFakePrisma>;
+
+const makeUniqueError = (target: string[]) =>
+  new Prisma.PrismaClientKnownRequestError("x", {
+    code: "P2002",
+    clientVersion: "6.7.0",
+    meta: { target },
+  });
 
 const makeSut = (): { sut: VehicleMysqlRepository; prisma: FakePrisma } => {
   const prisma = makeFakePrisma();
@@ -129,6 +138,38 @@ describe("Vehicle MySql Repository", () => {
       const { sut, prisma } = makeSut();
       prisma.vehicle.delete.mockRejectedValueOnce(new Error());
       await expect(sut.deleteOne(1)).rejects.toThrow();
+    });
+  });
+
+  describe("Prisma errors", () => {
+    test("Should throw PlateInUseError if create fails on the plate unique constraint", async () => {
+      const { sut, prisma } = makeSut();
+      prisma.vehicle.create.mockRejectedValueOnce(makeUniqueError(["plate"]));
+      await expect(sut.add({ plate: "ABC1234", model: "any_model" })).rejects.toBeInstanceOf(PlateInUseError);
+    });
+
+    test("Should throw PlateInUseError if update fails on the plate unique constraint", async () => {
+      const { sut, prisma } = makeSut();
+      prisma.vehicle.update.mockRejectedValueOnce(makeUniqueError(["plate"]));
+      await expect(sut.update(1, { plate: "ABC1234" })).rejects.toBeInstanceOf(PlateInUseError);
+    });
+
+    test("Should rethrow unique errors on other fields as they are", async () => {
+      const { sut, prisma } = makeSut();
+      prisma.vehicle.create.mockRejectedValueOnce(makeUniqueError(["other_field"]));
+      await expect(sut.add({ plate: "ABC1234", model: "any_model" })).rejects.toBeInstanceOf(Prisma.PrismaClientKnownRequestError);
+    });
+
+    test("Should throw VehicleInUseError if delete fails on a foreign key", async () => {
+      const { sut, prisma } = makeSut();
+      prisma.vehicle.delete.mockRejectedValueOnce(new Prisma.PrismaClientKnownRequestError("x", { code: "P2003", clientVersion: "6.7.0" }));
+      await expect(sut.deleteOne(1)).rejects.toBeInstanceOf(VehicleInUseError);
+    });
+
+    test("Should rethrow other known errors from delete as they are", async () => {
+      const { sut, prisma } = makeSut();
+      prisma.vehicle.delete.mockRejectedValueOnce(new Prisma.PrismaClientKnownRequestError("x", { code: "P2025", clientVersion: "6.7.0" }));
+      await expect(sut.deleteOne(1)).rejects.toBeInstanceOf(Prisma.PrismaClientKnownRequestError);
     });
   });
 });

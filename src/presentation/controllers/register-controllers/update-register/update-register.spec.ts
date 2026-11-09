@@ -107,12 +107,7 @@ describe("Update one Register Controller", () => {
     const { sut, updateRegisterStub } = makeSut();
     jest
       .spyOn(updateRegisterStub, "update")
-      .mockRejectedValueOnce(
-        Object.assign(new Error(), {
-          code: "P2002",
-          meta: { target: ["cpf"] },
-        }),
-      );
+      .mockRejectedValueOnce(new CpfInUseError());
 
     const httpResponse = await sut.handle(fakehttpRequest());
     expect(httpResponse).toEqual(conflict(new CpfInUseError()));

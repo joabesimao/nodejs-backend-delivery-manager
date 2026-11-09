@@ -5,6 +5,8 @@ import { LoadVehicleRepository } from "../../../../data/protocols/db/vehicle/loa
 import { UpdateVehicleRepository } from "../../../../data/protocols/db/vehicle/update-vehicle";
 import { Vehicle } from "../../../../domain/models/vehicle/vehicle-model";
 import { AddVehicleModel } from "../../../../domain/usescases/vehicle/add-vehicle";
+import { PlateInUseError, VehicleInUseError } from "../../../../domain/errors";
+import { isForeignKeyViolation, rethrowUniqueError } from "../helpers/prisma-errors";
 
 export class VehicleMysqlRepository
   implements LoadVehicleRepository, AddVehicleRepository, UpdateVehicleRepository, DeleteVehicleRepository {
@@ -17,32 +19,47 @@ export class VehicleMysqlRepository
   }
 
   async add(vehicle: AddVehicleModel): Promise<Vehicle> {
-    return await this.prisma.vehicle.create({
-      data: {
-        plate: vehicle.plate,
-        model: vehicle.model,
-        brand: vehicle.brand,
-        deliverymanId: vehicle.deliverymanId,
-      },
-    });
+    try {
+      return await this.prisma.vehicle.create({
+        data: {
+          plate: vehicle.plate,
+          model: vehicle.model,
+          brand: vehicle.brand,
+          deliverymanId: vehicle.deliverymanId,
+        },
+      });
+    } catch (error) {
+      rethrowUniqueError(error, { plate: () => new PlateInUseError() });
+    }
   }
 
   async update(id: number, data: Partial<Vehicle>): Promise<Vehicle> {
-    return await this.prisma.vehicle.update({
-      where: { id: Number(id) },
-      data: {
-        ...(data.plate && { plate: data.plate }),
-        ...(data.model && { model: data.model }),
-        ...(data.brand !== undefined && { brand: data.brand }),
-        ...(data.deliverymanId !== undefined && { deliverymanId: data.deliverymanId }),
-      },
-    });
+    try {
+      return await this.prisma.vehicle.update({
+        where: { id: Number(id) },
+        data: {
+          ...(data.plate && { plate: data.plate }),
+          ...(data.model && { model: data.model }),
+          ...(data.brand !== undefined && { brand: data.brand }),
+          ...(data.deliverymanId !== undefined && { deliverymanId: data.deliverymanId }),
+        },
+      });
+    } catch (error) {
+      rethrowUniqueError(error, { plate: () => new PlateInUseError() });
+    }
   }
 
   async deleteOne(id: number): Promise<string> {
-    await this.prisma.vehicle.delete({
-      where: { id: Number(id) },
-    });
+    try {
+      await this.prisma.vehicle.delete({
+        where: { id: Number(id) },
+      });
+    } catch (error) {
+      if (isForeignKeyViolation(error)) {
+        throw new VehicleInUseError();
+      }
+      throw error;
+    }
     return "Deletado com sucesso!";
   }
 }

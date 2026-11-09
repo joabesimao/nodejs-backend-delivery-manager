@@ -55,7 +55,7 @@ describe("DeleteVehicle Controller", () => {
     jest
       .spyOn(deleteVehicleStub, "delete")
       .mockReturnValueOnce(
-        new Promise((resolve, reject) => reject(Object.assign(new Error(), { code: "P2003" })))
+        new Promise((resolve, reject) => reject(new VehicleInUseError()))
       );
     const httpResponse = await sut.handle(makeFakeRequest());
     expect(httpResponse).toEqual(conflict(new VehicleInUseError()));

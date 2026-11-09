@@ -1,3 +1,4 @@
+import { CpfInUseError } from "../../../../domain/errors";
 import { ResourceInUseError } from "../../../../domain/errors/resource-in-use-error";
 import { Prisma } from "@prisma/client";
 import { NotFoundError } from "../../../../domain/errors/not-found-error";
@@ -21,6 +22,13 @@ const makeFakePrisma = () => ({
 });
 
 type FakePrisma = ReturnType<typeof makeFakePrisma>;
+
+const makeUniqueError = (target: string[]) =>
+  new Prisma.PrismaClientKnownRequestError("x", {
+    code: "P2002",
+    clientVersion: "6.7.0",
+    meta: { target },
+  });
 
 const makeSut = (): { sut: ClientMysqlRepository; prisma: FakePrisma } => {
   const prisma = makeFakePrisma();
@@ -192,6 +200,26 @@ describe("Client MySql Repository", () => {
       const { sut, prisma } = makeSut();
       prisma.client.delete.mockRejectedValueOnce(new Prisma.PrismaClientKnownRequestError("x", { code: "P2003", clientVersion: "6.7.0" }));
       await expect(sut.deleteOne(1)).rejects.toBeInstanceOf(ResourceInUseError);
+    });
+  });
+
+  describe("unique constraint errors", () => {
+    test("Should throw CpfInUseError if create fails on the cpf unique constraint", async () => {
+      const { sut, prisma } = makeSut();
+      prisma.client.create.mockRejectedValueOnce(makeUniqueError(["cpf"]));
+      await expect(sut.add({ name: "any_name", cpf: "123", phone: "any_phone" })).rejects.toBeInstanceOf(CpfInUseError);
+    });
+
+    test("Should throw CpfInUseError if update fails on the cpf unique constraint", async () => {
+      const { sut, prisma } = makeSut();
+      prisma.client.update.mockRejectedValueOnce(makeUniqueError(["cpf"]));
+      await expect(sut.update(1, makeFakeClient())).rejects.toBeInstanceOf(CpfInUseError);
+    });
+
+    test("Should rethrow unique errors on other fields as they are", async () => {
+      const { sut, prisma } = makeSut();
+      prisma.client.create.mockRejectedValueOnce(makeUniqueError(["other_field"]));
+      await expect(sut.add({ name: "any_name", cpf: "123", phone: "any_phone" })).rejects.toBeInstanceOf(Prisma.PrismaClientKnownRequestError);
     });
   });
 });
