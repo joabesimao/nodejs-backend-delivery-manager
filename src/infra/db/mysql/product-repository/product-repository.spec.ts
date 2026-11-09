@@ -1,3 +1,5 @@
+import { Prisma } from "@prisma/client";
+import { BarcodeInUseError } from "../../../../domain/errors";
 import { ProductMysqlRepository } from "./product-repository";
 
 const makeFakeProductRow = () => ({
@@ -30,6 +32,13 @@ const makeFakePrisma = () => ({
 });
 
 type FakePrisma = ReturnType<typeof makeFakePrisma>;
+
+const makeUniqueError = (target: string[]) =>
+  new Prisma.PrismaClientKnownRequestError("x", {
+    code: "P2002",
+    clientVersion: "6.7.0",
+    meta: { target },
+  });
 
 const makeSut = (): { sut: ProductMysqlRepository; prisma: FakePrisma } => {
   const prisma = makeFakePrisma();
@@ -322,6 +331,26 @@ describe("Product MySql Repository", () => {
       const { sut, prisma } = makeSut();
       prisma.product.delete.mockRejectedValueOnce(new Error());
       await expect(sut.deleteById(1)).rejects.toThrow();
+    });
+  });
+
+  describe("unique constraint errors", () => {
+    test("Should throw BarcodeInUseError if create fails on the barcode unique constraint", async () => {
+      const { sut, prisma } = makeSut();
+      prisma.product.create.mockRejectedValueOnce(makeUniqueError(["barcode"]));
+      await expect(sut.add(makeFakeAddProduct())).rejects.toBeInstanceOf(BarcodeInUseError);
+    });
+
+    test("Should throw BarcodeInUseError if update fails on the barcode unique constraint", async () => {
+      const { sut, prisma } = makeSut();
+      prisma.product.update.mockRejectedValueOnce(makeUniqueError(["barcode"]));
+      await expect(sut.updateProduct(1, { barcode: "789" })).rejects.toBeInstanceOf(BarcodeInUseError);
+    });
+
+    test("Should rethrow unique errors on other fields as they are", async () => {
+      const { sut, prisma } = makeSut();
+      prisma.product.create.mockRejectedValueOnce(makeUniqueError(["other_field"]));
+      await expect(sut.add(makeFakeAddProduct())).rejects.toBeInstanceOf(Prisma.PrismaClientKnownRequestError);
     });
   });
 });

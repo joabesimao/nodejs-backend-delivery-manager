@@ -1,6 +1,7 @@
 import {
   AccessDeniedError,
   AccountInUseError,
+  BarcodeInUseError,
   CpfInUseError,
   EmailInUseError,
   InvalidKmError,
@@ -35,12 +36,15 @@ describe("mapDomainError", () => {
     ["QualificationInUseError", new QualificationInUseError()],
     ["OrderStatusTransitionError", new OrderStatusTransitionError("delivered")],
     ["ResourceInUseError", new ResourceInUseError()],
+    ["VehicleInUseError", new VehicleInUseError()],
   ])("should map %s to 409 with the same error as body", (_, error) => {
     expect(mapDomainError(error)).toEqual({ statusCode: 409, body: error });
   });
 
-  test("should map InvalidKmError to 400 with the same error as body", () => {
-    const error = new InvalidKmError();
+  test.each([
+    ["InvalidKmError", new InvalidKmError()],
+    ["BarcodeInUseError", new BarcodeInUseError()],
+  ])("should map %s to 400 with the same error as body", (_, error) => {
     expect(mapDomainError(error)).toEqual({ statusCode: 400, body: error });
   });
 
@@ -52,7 +56,6 @@ describe("mapDomainError", () => {
 
   test.each([
     ["a generic Error", new Error("boom")],
-    ["an unmapped domain error", new VehicleInUseError()],
     ["a non-Error value", "boom"],
     ["undefined", undefined],
   ])("should return null for %s", (_, error) => {

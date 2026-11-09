@@ -13,7 +13,8 @@ import {
 import { AddClientModel } from "../../../../domain/usescases/client/add-client";
 import { onlyDigits } from "../helpers/only-digits";
 import { pickDefined } from "../helpers/pick-defined";
-import { rethrowDeleteError } from "../helpers/prisma-errors";
+import { rethrowDeleteError, rethrowUniqueError } from "../helpers/prisma-errors";
+import { CpfInUseError } from "../../../../domain/errors";
 
 export class ClientMysqlRepository
   implements
@@ -26,9 +27,13 @@ export class ClientMysqlRepository
 
   async add(client: AddClientModel): Promise<ClientModel> {
     const { name, cpf, phone } = client;
-    return await this.prisma.client.create({
-      data: { name, phone, cpf: onlyDigits(cpf) },
-    });
+    try {
+      return await this.prisma.client.create({
+        data: { name, phone, cpf: onlyDigits(cpf) },
+      });
+    } catch (error) {
+      rethrowUniqueError(error, { cpf: () => new CpfInUseError() });
+    }
   }
 
   async loadAll(): Promise<ClientModel[]> {
@@ -53,13 +58,17 @@ export class ClientMysqlRepository
 
   async update(id: number, infoToUpdate: Client): Promise<Client> {
     const { cpf, ...rest } = pickDefined(infoToUpdate, ["name", "cpf", "phone", "status"]);
-    return await this.prisma.client.update({
-      where: { id: Number(id) },
-      data: {
-        ...rest,
-        ...(cpf !== undefined && { cpf: onlyDigits(cpf) }),
-      },
-    });
+    try {
+      return await this.prisma.client.update({
+        where: { id: Number(id) },
+        data: {
+          ...rest,
+          ...(cpf !== undefined && { cpf: onlyDigits(cpf) }),
+        },
+      });
+    } catch (error) {
+      rethrowUniqueError(error, { cpf: () => new CpfInUseError() });
+    }
   }
 
   async deleteOne(id: number): Promise<string> {

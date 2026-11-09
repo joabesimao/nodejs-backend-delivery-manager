@@ -1,3 +1,4 @@
+import { CpfInUseError } from "../../../../domain/errors";
 import { ResourceInUseError } from "../../../../domain/errors/resource-in-use-error";
 import { Prisma } from "@prisma/client";
 import { NotFoundError } from "../../../../domain/errors/not-found-error";
@@ -35,6 +36,13 @@ const makeFakePrisma = () => ({
 });
 
 type FakePrisma = ReturnType<typeof makeFakePrisma>;
+
+const makeUniqueError = (target: string[]) =>
+  new Prisma.PrismaClientKnownRequestError("x", {
+    code: "P2002",
+    clientVersion: "6.7.0",
+    meta: { target },
+  });
 
 const makeSut = (): { sut: RegisterMySqlRepository; prisma: FakePrisma } => {
   const prisma = makeFakePrisma();
@@ -292,6 +300,26 @@ describe("Register MySql Repository", () => {
       const { sut, prisma } = makeSut();
       prisma.register.findMany.mockRejectedValueOnce(new Error());
       await expect(sut.loadAll()).rejects.toThrow();
+    });
+  });
+
+  describe("unique constraint errors", () => {
+    test("Should throw CpfInUseError if create fails on the cpf unique constraint", async () => {
+      const { sut, prisma } = makeSut();
+      prisma.register.create.mockRejectedValueOnce(makeUniqueError(["cpf"]));
+      await expect(sut.add(makeFakeAddRegister())).rejects.toBeInstanceOf(CpfInUseError);
+    });
+
+    test("Should throw CpfInUseError if update fails on the cpf unique constraint", async () => {
+      const { sut, prisma } = makeSut();
+      prisma.register.update.mockRejectedValueOnce(makeUniqueError(["cpf"]));
+      await expect(sut.updateOneRegisterById(1, { client: makeFakeAddRegister().client })).rejects.toBeInstanceOf(CpfInUseError);
+    });
+
+    test("Should rethrow unique errors on other fields as they are", async () => {
+      const { sut, prisma } = makeSut();
+      prisma.register.create.mockRejectedValueOnce(makeUniqueError(["other_field"]));
+      await expect(sut.add(makeFakeAddRegister())).rejects.toBeInstanceOf(Prisma.PrismaClientKnownRequestError);
     });
   });
 });

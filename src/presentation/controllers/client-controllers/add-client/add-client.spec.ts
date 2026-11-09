@@ -76,7 +76,7 @@ describe("addClient Controller", () => {
     const { sut, addClientStub } = makeSut();
     jest
       .spyOn(addClientStub, "add")
-      .mockRejectedValueOnce({ code: "P2002", meta: { target: ["cpf"] } });
+      .mockRejectedValueOnce(new CpfInUseError());
     const httpResponse = await sut.handle(makeFakeRequest());
     expect(httpResponse).toEqual(conflict(new CpfInUseError()));
   });

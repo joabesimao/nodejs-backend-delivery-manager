@@ -1,3 +1,5 @@
+import { Prisma } from "@prisma/client";
+import { CpfInUseError, QualificationInUseError } from "../../../../domain/errors";
 import { DeliverymanMysqlRepository } from "./deliveryman-repository";
 
 const makeFakeDeliveryman = () => ({
@@ -19,6 +21,21 @@ const makeFakePrisma = () => ({
 });
 
 type FakePrisma = ReturnType<typeof makeFakePrisma>;
+
+const makeUniqueError = (target: string[]) =>
+  new Prisma.PrismaClientKnownRequestError("x", {
+    code: "P2002",
+    clientVersion: "6.7.0",
+    meta: { target },
+  });
+
+const makeFakeAddDeliveryman = () => ({
+  name: "any_name",
+  lastName: "any_last_name",
+  numberQualification: "any_qualification",
+  phone: "any_phone",
+  cpf: "12345678900",
+});
 
 const makeSut = (): { sut: DeliverymanMysqlRepository; prisma: FakePrisma } => {
   const prisma = makeFakePrisma();
@@ -179,6 +196,38 @@ describe("Deliveryman MySql Repository", () => {
       const { sut, prisma } = makeSut();
       prisma.deliveryman.delete.mockRejectedValueOnce(new Error());
       await expect(sut.deleteOne(1)).rejects.toThrow();
+    });
+  });
+
+  describe("unique constraint errors", () => {
+    test("Should throw CpfInUseError if create fails on the cpf unique constraint", async () => {
+      const { sut, prisma } = makeSut();
+      prisma.deliveryman.create.mockRejectedValueOnce(makeUniqueError(["cpf"]));
+      await expect(sut.add(makeFakeAddDeliveryman())).rejects.toBeInstanceOf(CpfInUseError);
+    });
+
+    test("Should throw CpfInUseError if update fails on the cpf unique constraint", async () => {
+      const { sut, prisma } = makeSut();
+      prisma.deliveryman.update.mockRejectedValueOnce(makeUniqueError(["cpf"]));
+      await expect(sut.update(1, { cpf: "123" })).rejects.toBeInstanceOf(CpfInUseError);
+    });
+
+    test("Should throw QualificationInUseError if create fails on the numberQualification unique constraint", async () => {
+      const { sut, prisma } = makeSut();
+      prisma.deliveryman.create.mockRejectedValueOnce(makeUniqueError(["numberQualification"]));
+      await expect(sut.add(makeFakeAddDeliveryman())).rejects.toBeInstanceOf(QualificationInUseError);
+    });
+
+    test("Should throw QualificationInUseError if update fails on the numberQualification unique constraint", async () => {
+      const { sut, prisma } = makeSut();
+      prisma.deliveryman.update.mockRejectedValueOnce(makeUniqueError(["numberQualification"]));
+      await expect(sut.update(1, { numberQualification: "1" })).rejects.toBeInstanceOf(QualificationInUseError);
+    });
+
+    test("Should rethrow unique errors on other fields as they are", async () => {
+      const { sut, prisma } = makeSut();
+      prisma.deliveryman.create.mockRejectedValueOnce(makeUniqueError(["other_field"]));
+      await expect(sut.add(makeFakeAddDeliveryman())).rejects.toBeInstanceOf(Prisma.PrismaClientKnownRequestError);
     });
   });
 });

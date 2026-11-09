@@ -1,6 +1,5 @@
 import { UpdateVehicle } from "../../../../domain/usescases/vehicle/update-vehicle";
-import { PlateInUseError } from "../../../../domain/errors";
-import { badRequest, conflict, ok, serverError } from "../../../helpers/http/http-helper";
+import { badRequest, ok, serverError } from "../../../helpers/http/http-helper";
 import { mapDomainError } from "../../../helpers/http/map-domain-error";
 import { Controller } from "../../../protocols/controller";
 import { HttpRequest, HttpResponse } from "../../../protocols/http";
@@ -22,10 +21,7 @@ export class UpdateVehicleController implements Controller {
       const result = await this.updateVehicle.update(Number(id), httpRequest.body);
       return ok(result);
     } catch (error) {
-      if (error.code === "P2002" && error.meta?.target?.includes("plate")) {
-        return conflict(new PlateInUseError());
-      }
-      return serverError(error);
+      return mapDomainError(error) ?? serverError(error);
     }
   }
 }

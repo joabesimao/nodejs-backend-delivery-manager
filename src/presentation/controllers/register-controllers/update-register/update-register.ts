@@ -1,6 +1,6 @@
 import { UpdateRegister } from "../../../../domain/usescases/register/update-register";
-import { CpfInUseError } from "../../../../domain/errors";
-import { conflict, ok, serverError } from "../../../helpers/http/http-helper";
+import { ok, serverError } from "../../../helpers/http/http-helper";
+import { mapDomainError } from "../../../helpers/http/map-domain-error";
 import { Controller } from "../../../protocols/controller";
 import { HttpRequest, HttpResponse } from "../../../protocols/http";
 
@@ -15,10 +15,7 @@ export class UpdateRegisterController implements Controller {
 
       return ok(updateData);
     } catch (error) {
-      if (error.code === "P2002" && error.meta?.target?.includes("cpf")) {
-        return conflict(new CpfInUseError());
-      }
-      return serverError(error);
+      return mapDomainError(error) ?? serverError(error);
     }
   }
 }
