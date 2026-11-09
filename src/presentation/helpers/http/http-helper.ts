@@ -38,6 +38,11 @@ export const noExists = (): HttpResponse => ({
   body: new NoExistsError(),
 });
 
+export const notFound = (error: Error): HttpResponse => ({
+  statusCode: 404,
+  body: error,
+});
+
 export const conflict = (error: Error): HttpResponse => ({
   statusCode: 409,
   body: error,

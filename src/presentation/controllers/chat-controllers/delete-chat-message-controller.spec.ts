@@ -1,175 +1,49 @@
+import { ChatPermissionDeniedError } from "../../../domain/errors";
+import { DeleteChatMessage } from "../../../domain/usescases/chat/delete-chat-message";
 import { DeleteChatMessageController } from "./delete-chat-message-controller";
-import { HttpRequest } from "../../protocols/http";
-import { prisma } from "../../../infra/db/mysql/helpers";
-import { getAccountScope } from "../../../main/realtime/store-scope";
-import { emitChatRealtime } from "../../../main/realtime/realtime-state";
 
-jest.mock("../../../infra/db/mysql/helpers", () => ({
-  prisma: {
-    chatMessage: {
-      findUnique: jest.fn(),
-      delete: jest.fn(),
-    },
-    account: {
-      findUnique: jest.fn(),
-    },
-  },
-}));
-
-jest.mock("../../../main/realtime/store-scope", () => ({
-  getAccountScope: jest.fn(),
-}));
-
-jest.mock("../../../main/realtime/realtime-state", () => ({
-  emitChatRealtime: jest.fn(),
-}));
-
-const makeFakeRequest = (): HttpRequest => ({
-  headers: { accountId: 1 },
-  params: { id: 5 },
-});
-
-const makeFakeMessage = () => ({
-  id: 5,
-  senderId: 1,
-  unitStoreId: 10,
-  sender: { id: 1, role: "user" },
-});
-
-const makeSut = (): DeleteChatMessageController => new DeleteChatMessageController();
+const makeSut = () => {
+  const deleteChatMessageStub: DeleteChatMessage = {
+    delete: jest.fn().mockResolvedValue(undefined),
+  };
+  return { sut: new DeleteChatMessageController(deleteChatMessageStub), deleteChatMessageStub };
+};
 
 describe("DeleteChatMessage Controller", () => {
-  beforeEach(() => {
-    (prisma.chatMessage.findUnique as jest.Mock).mockResolvedValue(makeFakeMessage());
-    (prisma.account.findUnique as jest.Mock).mockResolvedValue({ role: "user" });
-    (prisma.chatMessage.delete as jest.Mock).mockResolvedValue({});
-    (getAccountScope as jest.Mock).mockResolvedValue({ rootStoreId: 3, visibleUnitIds: [10] });
+  test("Should return 401 without accountId", async () => {
+    const { sut } = makeSut();
+    const response = await sut.handle({ headers: {}, params: { id: "5" } });
+    expect(response).toEqual({ statusCode: 401, body: { error: "Não autenticado" } });
   });
 
-  afterEach(() => {
-    jest.clearAllMocks();
+  test("Should return 400 for an invalid id", async () => {
+    const { sut } = makeSut();
+    const response = await sut.handle({ headers: { accountId: 1 }, params: {} });
+    expect(response).toEqual({ statusCode: 400, body: { error: "ID de mensagem inválido" } });
   });
 
-  test("Should return 401 if accountId is not provided", async () => {
-    const sut = makeSut();
-    const httpResponse = await sut.handle({ headers: {}, params: { id: 5 } });
-    expect(httpResponse).toEqual({
-      statusCode: 401,
-      body: { error: "Não autenticado" },
-    });
-  });
-
-  test("Should return 400 if messageId is invalid", async () => {
-    const sut = makeSut();
-    const httpResponse = await sut.handle({ headers: { accountId: 1 }, params: {} });
-    expect(httpResponse).toEqual({
-      statusCode: 400,
-      body: { error: "ID de mensagem inválido" },
-    });
-  });
-
-  test("Should call prisma.chatMessage.findUnique with correct id", async () => {
-    const sut = makeSut();
-    await sut.handle(makeFakeRequest());
-    expect(prisma.chatMessage.findUnique).toHaveBeenCalledWith({
-      where: { id: 5 },
-      include: { sender: { select: { id: true, role: true } } },
-    });
-  });
-
-  test("Should return 404 if message is not found", async () => {
-    (prisma.chatMessage.findUnique as jest.Mock).mockResolvedValueOnce(null);
-    const sut = makeSut();
-    const httpResponse = await sut.handle(makeFakeRequest());
-    expect(httpResponse).toEqual({
-      statusCode: 404,
-      body: { error: "Mensagem não encontrada" },
-    });
-  });
-
-  test("Should return 403 if account is neither owner nor admin", async () => {
-    (prisma.chatMessage.findUnique as jest.Mock).mockResolvedValueOnce({
-      id: 5,
-      senderId: 2,
-      sender: { id: 2, role: "user" },
-    });
-    (prisma.account.findUnique as jest.Mock).mockResolvedValueOnce({ role: "user" });
-    const sut = makeSut();
-    const httpResponse = await sut.handle(makeFakeRequest());
-    expect(httpResponse).toEqual({
-      statusCode: 403,
-      body: { error: "Sem permissão para deletar esta mensagem" },
-    });
-  });
-
-  test("Should delete message and return 200 if account is the owner", async () => {
-    const sut = makeSut();
-    const httpResponse = await sut.handle(makeFakeRequest());
-    expect(prisma.chatMessage.delete).toHaveBeenCalledWith({ where: { id: 5 } });
-    expect(emitChatRealtime).toHaveBeenCalledWith("chat:message-deleted", 3, { messageId: 5 });
-    expect(httpResponse).toEqual({
+  test("Should return 200 after deleting", async () => {
+    const { sut, deleteChatMessageStub } = makeSut();
+    const response = await sut.handle({ headers: { accountId: 1 }, params: { id: "5" } });
+    expect(deleteChatMessageStub.delete).toHaveBeenCalledWith(5, 1);
+    expect(response).toEqual({
       statusCode: 200,
       body: { success: true, message: "Mensagem deletada com sucesso" },
     });
   });
 
-  test("Should delete message and return 200 if account is admin but not owner", async () => {
-    (prisma.chatMessage.findUnique as jest.Mock).mockResolvedValueOnce({
-      id: 5,
-      senderId: 2,
-      unitStoreId: 10,
-      sender: { id: 2, role: "user" },
-    });
-    (prisma.account.findUnique as jest.Mock).mockResolvedValueOnce({ role: "admin" });
-    const sut = makeSut();
-    const httpResponse = await sut.handle(makeFakeRequest());
-    expect(httpResponse).toEqual({
-      statusCode: 200,
-      body: { success: true, message: "Mensagem deletada com sucesso" },
-    });
+  test("Should map domain errors", async () => {
+    const { sut, deleteChatMessageStub } = makeSut();
+    const error = new ChatPermissionDeniedError("Sem permissão para deletar esta mensagem");
+    (deleteChatMessageStub.delete as jest.Mock).mockRejectedValueOnce(error);
+    const response = await sut.handle({ headers: { accountId: 1 }, params: { id: "5" } });
+    expect(response).toEqual({ statusCode: 403, body: error });
   });
 
-  test("Should return 403 if the message is outside the visible units, even for admin", async () => {
-    (prisma.chatMessage.findUnique as jest.Mock).mockResolvedValueOnce({ ...makeFakeMessage(), senderId: 2, unitStoreId: 77 });
-    (prisma.account.findUnique as jest.Mock).mockResolvedValueOnce({ role: "admin" });
-    const sut = makeSut();
-    const httpResponse = await sut.handle(makeFakeRequest());
-    expect(httpResponse.statusCode).toBe(403);
-    expect(prisma.chatMessage.delete).not.toHaveBeenCalled();
-    expect(emitChatRealtime).not.toHaveBeenCalled();
-  });
-
-  test("Should return 401 when request has no headers or params at all", async () => {
-    const sut = makeSut();
-    const httpResponse = await sut.handle({});
-    expect(httpResponse).toEqual({
-      statusCode: 401,
-      body: { error: "Não autenticado" },
-    });
-  });
-
-  test("Should return 403 if account lookup returns null and account is not the sender", async () => {
-    (prisma.chatMessage.findUnique as jest.Mock).mockResolvedValueOnce({
-      id: 5,
-      senderId: 2,
-      sender: { id: 2, role: "user" },
-    });
-    (prisma.account.findUnique as jest.Mock).mockResolvedValueOnce(null);
-    const sut = makeSut();
-    const httpResponse = await sut.handle(makeFakeRequest());
-    expect(httpResponse).toEqual({
-      statusCode: 403,
-      body: { error: "Sem permissão para deletar esta mensagem" },
-    });
-  });
-
-  test("Should return 500 if prisma throws", async () => {
-    (prisma.chatMessage.findUnique as jest.Mock).mockRejectedValueOnce(new Error());
-    const sut = makeSut();
-    const httpResponse = await sut.handle(makeFakeRequest());
-    expect(httpResponse).toEqual({
-      statusCode: 500,
-      body: { error: "Falha ao deletar mensagem" },
-    });
+  test("Should return 500 on unexpected errors", async () => {
+    const { sut, deleteChatMessageStub } = makeSut();
+    (deleteChatMessageStub.delete as jest.Mock).mockRejectedValueOnce(new Error());
+    const response = await sut.handle({ headers: { accountId: 1 }, params: { id: "5" } });
+    expect(response).toEqual({ statusCode: 500, body: { error: "Falha ao deletar mensagem" } });
   });
 });
