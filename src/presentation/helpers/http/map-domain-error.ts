@@ -2,8 +2,12 @@ import {
   AccessDeniedError,
   AccountInUseError,
   BarcodeInUseError,
+  ChatAccountNotFoundError,
+  ChatMessageNotFoundError,
+  ChatPermissionDeniedError,
   CpfInUseError,
   EmailInUseError,
+  InvalidChatMessageError,
   InvalidKmError,
   LastAdminError,
   NotFoundError,
@@ -16,7 +20,7 @@ import {
   VehicleInUseError,
 } from "../../../domain/errors";
 import { HttpResponse } from "../../protocols/http";
-import { badRequest, conflict, forbidden, noExists } from "./http-helper";
+import { badRequest, conflict, forbidden, noExists, notFound } from "./http-helper";
 
 type ErrorClass = new (...args: any[]) => Error;
 
@@ -28,6 +32,7 @@ const domainErrorMappings: Array<[ErrorClass[], (error: Error) => HttpResponse]>
       LastAdminError,
       SelfActionError,
       OrderFieldChangeDeniedError,
+      ChatPermissionDeniedError,
     ],
     forbidden,
   ],
@@ -43,7 +48,8 @@ const domainErrorMappings: Array<[ErrorClass[], (error: Error) => HttpResponse]>
     ],
     conflict,
   ],
-  [[InvalidKmError, BarcodeInUseError], badRequest],
+  [[InvalidKmError, BarcodeInUseError, InvalidChatMessageError], badRequest],
+  [[ChatAccountNotFoundError, ChatMessageNotFoundError], notFound],
   [[NotFoundError], () => noExists()],
 ];
 

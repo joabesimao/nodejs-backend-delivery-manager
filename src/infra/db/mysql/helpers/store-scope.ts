@@ -1,12 +1,6 @@
 import { PrismaClient } from "@prisma/client";
+import { AccountScope } from "../../../../domain/models/store/account-scope";
 
-interface AccountScope {
-  accountId: number;
-  role: "principal" | "branch";
-  unitStoreId: number | null;
-  rootStoreId: number | null;
-  visibleUnitIds: number[];
-}
 
 const uniqueNumbers = (values: number[]): number[] =>
   Array.from(

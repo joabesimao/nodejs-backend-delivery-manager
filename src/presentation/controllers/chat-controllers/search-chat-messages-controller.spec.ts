@@ -1,217 +1,86 @@
+import { ChatAccountNotFoundError } from "../../../domain/errors";
+import { SearchChatMessages } from "../../../domain/usescases/chat/search-chat-messages";
 import { SearchChatMessagesController } from "./search-chat-messages-controller";
-import { HttpRequest } from "../../protocols/http";
-import { prisma } from "../../../infra/db/mysql/helpers";
-import { getAccountScope } from "../../../infra/db/mysql/helpers/store-scope";
 
-jest.mock("../../../infra/db/mysql/helpers", () => ({
-  prisma: {
-    chatMessage: {
-      findMany: jest.fn(),
-      count: jest.fn(),
-    },
-  },
-}));
-
-jest.mock("../../../infra/db/mysql/helpers/store-scope", () => ({
-  getAccountScope: jest.fn(),
-}));
-
-const makeFakeScope = () => ({
-  accountId: 1,
-  role: "principal" as const,
-  unitStoreId: 10,
-  rootStoreId: 10,
-  visibleUnitIds: [10, 11],
+const makePage = () => ({
+  messages: [],
+  pagination: { total: 0, limit: 50, offset: 0, hasMore: false },
 });
 
-const makeFakeMessages = () => [
-  { id: 1, unitStoreId: 10, text: "a" },
-  { id: 2, unitStoreId: 10, text: "b" },
-];
-
-const makeSut = (): SearchChatMessagesController => new SearchChatMessagesController();
+const makeSut = () => {
+  const searchChatMessagesStub: SearchChatMessages = {
+    search: jest.fn().mockResolvedValue(makePage()),
+  };
+  return { sut: new SearchChatMessagesController(searchChatMessagesStub), searchChatMessagesStub };
+};
 
 describe("SearchChatMessages Controller", () => {
-  beforeEach(() => {
-    (getAccountScope as jest.Mock).mockResolvedValue(makeFakeScope());
-    (prisma.chatMessage.findMany as jest.Mock).mockResolvedValue(makeFakeMessages());
-    (prisma.chatMessage.count as jest.Mock).mockResolvedValue(2);
-  });
-
-  afterEach(() => {
-    jest.clearAllMocks();
-  });
-
-  test("Should return 404 if accountId is provided but scope is not found", async () => {
-    (getAccountScope as jest.Mock).mockResolvedValueOnce(null);
-    const sut = makeSut();
-    const httpResponse = await sut.handle({ headers: { accountId: 1 }, query: {} });
-    expect(httpResponse).toEqual({
-      statusCode: 404,
-      body: { error: "Conta não encontrada" },
+  test("Should use default values when the query is empty", async () => {
+    const { sut, searchChatMessagesStub } = makeSut();
+    await sut.handle({ headers: { accountId: 1 } });
+    expect(searchChatMessagesStub.search).toHaveBeenCalledWith({
+      accountId: 1,
+      searchText: "",
+      unitStoreId: 0,
+      senderId: 0,
+      limit: 50,
+      offset: 0,
+      dateFrom: undefined,
+      dateTo: undefined,
+      hasImage: false,
+      hasText: false,
     });
   });
 
-  test("Should succeed without accountId and without calling getAccountScope", async () => {
-    const sut = makeSut();
-    const httpResponse = await sut.handle({ headers: {}, query: {} });
-    expect(getAccountScope).not.toHaveBeenCalled();
-    expect(httpResponse.statusCode).toBe(200);
-  });
-
-  test("Should filter by visible units from scope", async () => {
-    const sut = makeSut();
-    await sut.handle({ headers: { accountId: 1 }, query: {} });
-    expect(prisma.chatMessage.findMany).toHaveBeenCalledWith(
-      expect.objectContaining({
-        where: expect.objectContaining({ unitStoreId: { in: [10, 11] } }),
-      })
-    );
-  });
-
-  test("Should filter by specific unitStoreId when visible", async () => {
-    const sut = makeSut();
-    await sut.handle({ headers: { accountId: 1 }, query: { unitStoreId: "11" } });
-    expect(prisma.chatMessage.findMany).toHaveBeenCalledWith(
-      expect.objectContaining({
-        where: expect.objectContaining({ unitStoreId: 11 }),
-      })
-    );
-  });
-
-  test("Should ignore unitStoreId filter when not visible to the account", async () => {
-    const sut = makeSut();
-    await sut.handle({ headers: { accountId: 1 }, query: { unitStoreId: "999" } });
-    expect(prisma.chatMessage.findMany).toHaveBeenCalledWith(
-      expect.objectContaining({
-        where: { unitStoreId: { in: [10, 11] } },
-      })
-    );
-  });
-
-  test("Should allow unitStoreId filter when there is no scope", async () => {
-    const sut = makeSut();
-    await sut.handle({ headers: {}, query: { unitStoreId: "77" } });
-    expect(prisma.chatMessage.findMany).toHaveBeenCalledWith(
-      expect.objectContaining({
-        where: { unitStoreId: 77 },
-      })
-    );
-  });
-
-  test("Should filter by senderId when provided", async () => {
-    const sut = makeSut();
-    await sut.handle({ headers: { accountId: 1 }, query: { senderId: "3" } });
-    expect(prisma.chatMessage.findMany).toHaveBeenCalledWith(
-      expect.objectContaining({
-        where: expect.objectContaining({ senderId: 3 }),
-      })
-    );
-  });
-
-  test("Should filter by dateFrom and dateTo range", async () => {
-    const sut = makeSut();
+  test("Should parse the query and cap the limit at 100", async () => {
+    const { sut, searchChatMessagesStub } = makeSut();
     await sut.handle({
-      headers: { accountId: 1 },
-      query: { dateFrom: "2026-01-01", dateTo: "2026-01-31" },
-    });
-    const callArgs = (prisma.chatMessage.findMany as jest.Mock).mock.calls[0][0];
-    expect(callArgs.where.createdAt.gte).toEqual(new Date("2026-01-01"));
-    expect(callArgs.where.createdAt.lte.getHours()).toBe(23);
-    expect(callArgs.where.createdAt.lte.getMinutes()).toBe(59);
-  });
-
-  test("Should filter only by dateFrom when dateTo is not provided", async () => {
-    const sut = makeSut();
-    await sut.handle({
-      headers: { accountId: 1 },
-      query: { dateFrom: "2026-01-01" },
-    });
-    const callArgs = (prisma.chatMessage.findMany as jest.Mock).mock.calls[0][0];
-    expect(callArgs.where.createdAt.gte).toEqual(new Date("2026-01-01"));
-    expect(callArgs.where.createdAt.lte).toBeUndefined();
-  });
-
-  test("Should filter by hasImage and hasText flags", async () => {
-    const sut = makeSut();
-    await sut.handle({
-      headers: { accountId: 1 },
-      query: { hasImage: "true", hasText: "true" },
-    });
-    expect(prisma.chatMessage.findMany).toHaveBeenCalledWith(
-      expect.objectContaining({
-        where: expect.objectContaining({
-          imageBase64: { not: null },
-          text: { not: null },
-        }),
-      })
-    );
-  });
-
-  test("Should build OR clause when searchText (q) is provided", async () => {
-    const sut = makeSut();
-    await sut.handle({ headers: { accountId: 1 }, query: { q: "hello" } });
-    expect(prisma.chatMessage.findMany).toHaveBeenCalledWith(
-      expect.objectContaining({
-        where: expect.objectContaining({
-          OR: [
-            { text: { contains: "hello", mode: "insensitive" } },
-            { sender: { name: { contains: "hello", mode: "insensitive" } } },
-            { unitStore: { name: { contains: "hello", mode: "insensitive" } } },
-          ],
-        }),
-      })
-    );
-  });
-
-  test("Should clamp limit to a maximum of 100", async () => {
-    const sut = makeSut();
-    await sut.handle({ headers: { accountId: 1 }, query: { limit: "500" } });
-    expect(prisma.chatMessage.findMany).toHaveBeenCalledWith(
-      expect.objectContaining({ take: 100 })
-    );
-  });
-
-  test("Should use default limit of 50 when not provided", async () => {
-    const sut = makeSut();
-    await sut.handle({ headers: { accountId: 1 }, query: {} });
-    expect(prisma.chatMessage.findMany).toHaveBeenCalledWith(
-      expect.objectContaining({ take: 50 })
-    );
-  });
-
-  test("Should return 200 with reversed messages and pagination on success", async () => {
-    const sut = makeSut();
-    const httpRequest: HttpRequest = { headers: { accountId: 1 }, query: {} };
-    const httpResponse = await sut.handle(httpRequest);
-    expect(httpResponse).toEqual({
-      statusCode: 200,
-      body: {
-        messages: [...makeFakeMessages()].reverse(),
-        pagination: {
-          total: 2,
-          limit: 50,
-          offset: 0,
-          hasMore: false,
-        },
+      headers: {},
+      query: {
+        accountId: "2",
+        q: " pedido ",
+        unitStoreId: "11",
+        senderId: "3",
+        limit: "500",
+        offset: "10",
+        dateFrom: "2026-11-01T00:00:00.000Z",
+        dateTo: "2026-11-06T00:00:00.000Z",
+        hasImage: "true",
+        hasText: "true",
       },
     });
-  });
-
-  test("Should return 200 when request has no headers or query at all", async () => {
-    const sut = makeSut();
-    const httpResponse = await sut.handle({});
-    expect(httpResponse.statusCode).toBe(200);
-    expect(getAccountScope).not.toHaveBeenCalled();
-  });
-
-  test("Should return 500 if prisma throws", async () => {
-    (prisma.chatMessage.findMany as jest.Mock).mockRejectedValueOnce(new Error());
-    const sut = makeSut();
-    const httpResponse = await sut.handle({ headers: { accountId: 1 }, query: {} });
-    expect(httpResponse).toEqual({
-      statusCode: 500,
-      body: { error: "Falha ao buscar mensagens" },
+    expect(searchChatMessagesStub.search).toHaveBeenCalledWith({
+      accountId: 2,
+      searchText: "pedido",
+      unitStoreId: 11,
+      senderId: 3,
+      limit: 100,
+      offset: 10,
+      dateFrom: new Date("2026-11-01T00:00:00.000Z"),
+      dateTo: new Date("2026-11-06T00:00:00.000Z"),
+      hasImage: true,
+      hasText: true,
     });
+  });
+
+  test("Should return 200 with the page", async () => {
+    const { sut } = makeSut();
+    const response = await sut.handle({ headers: { accountId: 1 } });
+    expect(response).toEqual({ statusCode: 200, body: makePage() });
+  });
+
+  test("Should return 404 when the account does not exist", async () => {
+    const { sut, searchChatMessagesStub } = makeSut();
+    const error = new ChatAccountNotFoundError();
+    (searchChatMessagesStub.search as jest.Mock).mockRejectedValueOnce(error);
+    const response = await sut.handle({ headers: { accountId: 1 } });
+    expect(response).toEqual({ statusCode: 404, body: error });
+  });
+
+  test("Should return 500 on unexpected errors", async () => {
+    const { sut, searchChatMessagesStub } = makeSut();
+    (searchChatMessagesStub.search as jest.Mock).mockRejectedValueOnce(new Error("db down"));
+    const response = await sut.handle({ headers: { accountId: 1 } });
+    expect(response).toEqual({ statusCode: 500, body: { error: "Falha ao buscar mensagens" } });
   });
 });

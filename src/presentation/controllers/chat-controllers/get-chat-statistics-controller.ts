@@ -1,135 +1,19 @@
+import { LoadChatStatistics } from "../../../domain/usescases/chat/load-chat-statistics";
+import { mapDomainError } from "../../helpers/http/map-domain-error";
+import { ok } from "../../helpers/http/http-helper";
 import { Controller } from "../../protocols/controller";
 import { HttpRequest, HttpResponse } from "../../protocols/http";
-import { prisma } from "../../../infra/db/mysql/helpers";
-import { getAccountScope } from "../../../infra/db/mysql/helpers/store-scope";
+import { chatError, readOptionalAccountId } from "./chat-http";
 
 export class GetChatStatisticsController implements Controller {
+  constructor(private readonly loadChatStatistics: LoadChatStatistics) {}
+
   async handle(httpRequest: HttpRequest): Promise<HttpResponse> {
     try {
-      const query = httpRequest.query || {};
-      const accountId =
-        Number(httpRequest.headers?.accountId || 0) ||
-        Number(query.accountId || 0) ||
-        undefined;
-
-      const scope = accountId ? await getAccountScope(prisma, accountId) : null;
-
-      if (accountId && !scope) {
-        return {
-          statusCode: 404,
-          body: { error: "Conta não encontrada" },
-        };
-      }
-
-      const whereClause = scope?.visibleUnitIds.length
-        ? { unitStoreId: { in: scope.visibleUnitIds } }
-        : undefined;
-
-      const totalMessages = await prisma.chatMessage.count({
-        where: whereClause,
-      });
-
-      const messagesWithImages = await prisma.chatMessage.count({
-        where: {
-          ...whereClause,
-          imageBase64: { not: null },
-        },
-      });
-
-      const messagesWithText = await prisma.chatMessage.count({
-        where: {
-          ...whereClause,
-          text: { not: null },
-        },
-      });
-
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      const tomorrow = new Date(today);
-      tomorrow.setDate(tomorrow.getDate() + 1);
-
-      const messagesToday = await prisma.chatMessage.count({
-        where: {
-          ...whereClause,
-          createdAt: {
-            gte: today,
-            lt: tomorrow,
-          },
-        },
-      });
-
-      const uniqueSenders = await prisma.chatMessage.findMany({
-        where: whereClause,
-        select: { senderId: true },
-        distinct: ["senderId"],
-      });
-
-      const activeUnits = await prisma.chatMessage.findMany({
-        where: whereClause,
-        select: { unitStoreId: true },
-        distinct: ["unitStoreId"],
-      });
-
-      const lastMessage = await prisma.chatMessage.findFirst({
-        where: whereClause,
-        orderBy: { createdAt: "desc" },
-        include: {
-          sender: { select: { name: true } },
-          unitStore: { select: { name: true } },
-        },
-      });
-
-      const messagesByHour = [];
-      for (let i = 23; i >= 0; i--) {
-        const hourStart = new Date();
-        hourStart.setHours(i, 0, 0, 0);
-        const hourEnd = new Date();
-        hourEnd.setHours(i + 1, 0, 0, 0);
-
-        const count = await prisma.chatMessage.count({
-          where: {
-            ...whereClause,
-            createdAt: {
-              gte: hourStart,
-              lt: hourEnd,
-            },
-          },
-        });
-
-        messagesByHour.push({
-          hour: i,
-          count,
-        });
-      }
-
-      return {
-        statusCode: 200,
-        body: {
-          statistics: {
-            totalMessages,
-            messagesWithImages,
-            messagesWithText,
-            messagesToday,
-            uniqueSenders: uniqueSenders.length,
-            activeUnits: activeUnits.length,
-            lastMessage: lastMessage
-              ? {
-                  id: lastMessage.id,
-                  text: lastMessage.text,
-                  sender: lastMessage.sender.name,
-                  unit: lastMessage.unitStore.name,
-                  createdAt: lastMessage.createdAt,
-                }
-              : null,
-            messagesByHour,
-          },
-        },
-      };
+      const statistics = await this.loadChatStatistics.load(readOptionalAccountId(httpRequest));
+      return ok({ statistics });
     } catch (error) {
-      return {
-        statusCode: 500,
-        body: { error: "Falha ao carregar estatísticas" },
-      };
+      return mapDomainError(error) ?? chatError(500, "Falha ao carregar estatísticas");
     }
   }
 }
