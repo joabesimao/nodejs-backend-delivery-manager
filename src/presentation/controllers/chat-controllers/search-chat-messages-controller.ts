@@ -1,7 +1,7 @@
 import { Controller } from "../../protocols/controller";
 import { HttpRequest, HttpResponse } from "../../protocols/http";
 import { prisma } from "../../../infra/db/mysql/helpers";
-import { getAccountScope } from "../../../main/realtime/store-scope";
+import { getAccountScope } from "../../../infra/db/mysql/helpers/store-scope";
 
 export class SearchChatMessagesController implements Controller {
   async handle(httpRequest: HttpRequest): Promise<HttpResponse> {
