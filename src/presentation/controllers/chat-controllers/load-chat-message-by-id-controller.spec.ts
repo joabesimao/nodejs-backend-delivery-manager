@@ -1,7 +1,7 @@
 import { LoadChatMessageByIdController } from "./load-chat-message-by-id-controller";
 import { HttpRequest } from "../../protocols/http";
 import { prisma } from "../../../infra/db/mysql/helpers";
-import { getAccountScope } from "../../../main/realtime/store-scope";
+import { getAccountScope } from "../../../infra/db/mysql/helpers/store-scope";
 
 jest.mock("../../../infra/db/mysql/helpers", () => ({
   prisma: {
@@ -11,7 +11,7 @@ jest.mock("../../../infra/db/mysql/helpers", () => ({
   },
 }));
 
-jest.mock("../../../main/realtime/store-scope", () => ({
+jest.mock("../../../infra/db/mysql/helpers/store-scope", () => ({
   getAccountScope: jest.fn(),
 }));
 

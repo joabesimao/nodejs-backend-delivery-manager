@@ -5,7 +5,7 @@ import { prisma } from "../../infra/db/mysql/helpers";
 import { JwtAdapter } from "../../infra/cryptography/jwt-adapter/jwt-adapter";
 import { accountRoomFor, networkRoomFor, setRealtimeServer } from "./realtime-state";
 import { makeNotifyChatMessage } from "../factories/notify-chat-message";
-import { getAccountScope } from "./store-scope";
+import { getAccountScope } from "../../infra/db/mysql/helpers/store-scope";
 
 const jwtAdapter = new JwtAdapter(env.JWT_SECRET);
 const notifyChatMessage = makeNotifyChatMessage();

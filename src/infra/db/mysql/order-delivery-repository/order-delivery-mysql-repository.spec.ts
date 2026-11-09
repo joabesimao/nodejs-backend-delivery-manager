@@ -6,13 +6,13 @@ import { emitDeliveryRealtime } from "../../../../main/realtime/realtime-state";
 import {
   getAccountScope,
   resolveRootStoreId,
-} from "../../../../main/realtime/store-scope";
+} from "../helpers/store-scope";
 
 jest.mock("../../../../main/realtime/realtime-state", () => ({
   emitDeliveryRealtime: jest.fn(),
 }));
 
-jest.mock("../../../../main/realtime/store-scope", () => ({
+jest.mock("../helpers/store-scope", () => ({
   getAccountScope: jest.fn(),
   resolveRootStoreId: jest.fn(),
 }));

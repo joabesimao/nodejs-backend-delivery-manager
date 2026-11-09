@@ -1,7 +1,7 @@
 import { NotificationMysqlRepository } from "./notification-repository";
-import { getAccountScope, listDescendantUnitIds, resolveRootStoreId } from "../../../../main/realtime/store-scope";
+import { getAccountScope, listDescendantUnitIds, resolveRootStoreId } from "../helpers/store-scope";
 
-jest.mock("../../../../main/realtime/store-scope", () => ({
+jest.mock("../helpers/store-scope", () => ({
   getAccountScope: jest.fn(),
   listDescendantUnitIds: jest.fn(),
   resolveRootStoreId: jest.fn(),
