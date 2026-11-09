@@ -13,6 +13,7 @@ const makeFakeClient = () => ({
 
 const makeFakePrisma = () => ({
   client: {
+    findFirst: jest.fn().mockResolvedValue(null),
     create: jest.fn().mockResolvedValue(makeFakeClient()),
     findMany: jest.fn().mockResolvedValue([makeFakeClient()]),
     findUnique: jest.fn().mockResolvedValue(makeFakeClient()),
@@ -220,6 +221,31 @@ describe("Client MySql Repository", () => {
       const { sut, prisma } = makeSut();
       prisma.client.create.mockRejectedValueOnce(makeUniqueError(["other_field"]));
       await expect(sut.add({ name: "any_name", cpf: "123", phone: "any_phone" })).rejects.toBeInstanceOf(Prisma.PrismaClientKnownRequestError);
+    });
+  });
+
+  describe("existsByCpf()", () => {
+    test("Should call prisma.client.findFirst with the cleaned cpf", async () => {
+      const { sut, prisma } = makeSut();
+      await sut.existsByCpf("123.456.789-00");
+      expect(prisma.client.findFirst).toHaveBeenCalledWith({ where: { cpf: "12345678900" } });
+    });
+
+    test("Should return false if no record is found", async () => {
+      const { sut } = makeSut();
+      expect(await sut.existsByCpf("123.456.789-00")).toBe(false);
+    });
+
+    test("Should return true if a record is found", async () => {
+      const { sut, prisma } = makeSut();
+      prisma.client.findFirst.mockResolvedValueOnce({ id: 1 });
+      expect(await sut.existsByCpf("123.456.789-00")).toBe(true);
+    });
+
+    test("Should throw if prisma.client.findFirst throws", async () => {
+      const { sut, prisma } = makeSut();
+      prisma.client.findFirst.mockRejectedValueOnce(new Error());
+      await expect(sut.existsByCpf("123.456.789-00")).rejects.toThrow();
     });
   });
 });

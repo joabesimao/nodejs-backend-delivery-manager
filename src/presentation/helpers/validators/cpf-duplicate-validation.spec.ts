@@ -6,7 +6,7 @@ import {
 
 const makeCpfValidatorStub = (): CpfDuplicateValidator => {
   class CpfDuplicateValidatorStub implements CpfDuplicateValidator {
-    async validate(cpf: string): Promise<boolean> {
+    async existsByCpf(cpf: string): Promise<boolean> {
       return false;
     }
   }
@@ -27,21 +27,21 @@ const makeSut = (): SutTypes => {
 describe("CpfDuplicateValidation", () => {
   test("Should not call CpfDuplicateValidator if cpf is absent", async () => {
     const { sut, cpfValidatorStub } = makeSut();
-    const validateSpy = jest.spyOn(cpfValidatorStub, "validate");
+    const validateSpy = jest.spyOn(cpfValidatorStub, "existsByCpf");
     await sut.validate({});
     expect(validateSpy).not.toHaveBeenCalled();
   });
 
   test("Should call CpfDuplicateValidator with the cleaned cpf from input.cpf", async () => {
     const { sut, cpfValidatorStub } = makeSut();
-    const validateSpy = jest.spyOn(cpfValidatorStub, "validate");
+    const validateSpy = jest.spyOn(cpfValidatorStub, "existsByCpf");
     await sut.validate({ cpf: "123.456.789-00" });
     expect(validateSpy).toHaveBeenCalledWith("12345678900");
   });
 
   test("Should call CpfDuplicateValidator with the cleaned cpf from input.client.cpf", async () => {
     const { sut, cpfValidatorStub } = makeSut();
-    const validateSpy = jest.spyOn(cpfValidatorStub, "validate");
+    const validateSpy = jest.spyOn(cpfValidatorStub, "existsByCpf");
     await sut.validate({ client: { cpf: "123.456.789-00" } });
     expect(validateSpy).toHaveBeenCalledWith("12345678900");
   });
@@ -49,7 +49,7 @@ describe("CpfDuplicateValidation", () => {
   test("Should return CpfInUseError if cpf is duplicate", async () => {
     const { sut, cpfValidatorStub } = makeSut();
     jest
-      .spyOn(cpfValidatorStub, "validate")
+      .spyOn(cpfValidatorStub, "existsByCpf")
       .mockReturnValueOnce(Promise.resolve(true));
     const error = await sut.validate({ cpf: "12345678900" });
     expect(error).toEqual(new CpfInUseError());

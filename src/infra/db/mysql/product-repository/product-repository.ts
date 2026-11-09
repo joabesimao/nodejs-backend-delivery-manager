@@ -15,6 +15,7 @@ import {
 import { AddProductModel } from "../../../../domain/usescases/product/add-product/add-product";
 import { BarcodeInUseError } from "../../../../domain/errors";
 import { rethrowUniqueError } from "../helpers/prisma-errors";
+import { ExistsProductByBarcodeRepository } from "../../../../data/protocols/db/product/exists-product-by-barcode-repository";
 
 const normalizeBase64 = (imageBase64: string): string => {
   if (!imageBase64) {
@@ -37,8 +38,16 @@ export class ProductMysqlRepository
     LoadProductRepository,
     LoadProductByIdRepository,
     UpdateProductRepository,
-    DeleteProductByIdRepository {
+    DeleteProductByIdRepository,
+    ExistsProductByBarcodeRepository {
   constructor(private readonly prisma: PrismaClient) {}
+
+  async existsByBarcode(barcode: string): Promise<boolean> {
+    const product = await this.prisma.product.findFirst({
+      where: { barcode },
+    });
+    return !!product;
+  }
 
   async add(product: AddProductModel): Promise<Product> {
     const { variations, imageBase64, ...rest } = product;
