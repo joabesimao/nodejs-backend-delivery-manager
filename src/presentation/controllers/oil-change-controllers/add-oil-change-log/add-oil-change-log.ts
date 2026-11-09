@@ -1,6 +1,6 @@
 import { AddOilChangeLog } from "../../../../domain/usescases/oil-change/add-oil-change-log";
-import { InvalidKmError } from "../../../../domain/errors";
 import { badRequest, ok, serverError } from "../../../helpers/http/http-helper";
+import { mapDomainError } from "../../../helpers/http/map-domain-error";
 import { Controller } from "../../../protocols/controller";
 import { HttpRequest, HttpResponse } from "../../../protocols/http";
 import { Validation } from "../../../protocols/validation";
@@ -29,10 +29,7 @@ export class AddOilChangeLogController implements Controller {
       );
       return ok(result);
     } catch (error) {
-      if (error instanceof InvalidKmError) {
-        return badRequest(error);
-      }
-      return serverError(error);
+      return mapDomainError(error) ?? serverError(error);
     }
   }
 }

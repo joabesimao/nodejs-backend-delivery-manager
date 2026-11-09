@@ -1,6 +1,6 @@
 import { UpdateFuelRefill, UpdateFuelRefillModel } from "../../../../domain/usescases/fuel-refill/update-fuel-refill";
-import { InvalidKmError } from "../../../../domain/errors";
 import { badRequest, noExists, ok, serverError } from "../../../helpers/http/http-helper";
+import { mapDomainError } from "../../../helpers/http/map-domain-error";
 import { Controller } from "../../../protocols/controller";
 import { HttpRequest, HttpResponse } from "../../../protocols/http";
 import { Validation } from "../../../protocols/validation";
@@ -34,10 +34,7 @@ export class UpdateFuelRefillController implements Controller {
       }
       return ok(result);
     } catch (error) {
-      if (error instanceof InvalidKmError) {
-        return badRequest(error);
-      }
-      return serverError(error);
+      return mapDomainError(error) ?? serverError(error);
     }
   }
 }

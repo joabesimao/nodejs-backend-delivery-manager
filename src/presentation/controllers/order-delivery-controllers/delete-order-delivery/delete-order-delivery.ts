@@ -1,7 +1,6 @@
-import { NotFoundError } from "../../../../domain/errors/not-found-error";
-import { ResourceInUseError } from "../../../../domain/errors/resource-in-use-error";
 import { DeleteOrderDelivery } from "../../../../domain/usescases/order-delivery/delete-order-delivery";
-import { conflict, noExists, ok, serverError } from "../../../helpers/http/http-helper";
+import { ok, serverError } from "../../../helpers/http/http-helper";
+import { mapDomainError } from "../../../helpers/http/map-domain-error";
 import { Controller } from "../../../protocols/controller";
 import { HttpRequest, HttpResponse } from "../../../protocols/http";
 
@@ -17,13 +16,7 @@ export class DeleteOrderDeliveryController implements Controller {
       );
       return ok(result);
     } catch (error) {
-      if (error instanceof ResourceInUseError) {
-        return conflict(error);
-      }
-      if (error instanceof NotFoundError) {
-        return noExists();
-      }
-      return serverError(error);
+      return mapDomainError(error) ?? serverError(error);
     }
   }
 }

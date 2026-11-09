@@ -1,6 +1,7 @@
 import { UpdateVehicle } from "../../../../domain/usescases/vehicle/update-vehicle";
 import { PlateInUseError } from "../../../../domain/errors";
 import { badRequest, conflict, ok, serverError } from "../../../helpers/http/http-helper";
+import { mapDomainError } from "../../../helpers/http/map-domain-error";
 import { Controller } from "../../../protocols/controller";
 import { HttpRequest, HttpResponse } from "../../../protocols/http";
 import { Validation } from "../../../protocols/validation";
@@ -15,10 +16,7 @@ export class UpdateVehicleController implements Controller {
     try {
       const error = await this.validation.validate(httpRequest.body);
       if (error) {
-        if (error instanceof PlateInUseError) {
-          return conflict(error);
-        }
-        return badRequest(error);
+        return mapDomainError(error) ?? badRequest(error);
       }
       const { id } = httpRequest.params;
       const result = await this.updateVehicle.update(Number(id), httpRequest.body);
