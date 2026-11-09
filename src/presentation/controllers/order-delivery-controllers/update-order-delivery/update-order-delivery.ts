@@ -1,14 +1,11 @@
 import { UpdateOrderDelivery } from "../../../../domain/usescases/order-delivery/update-order-delivery";
 import {
   badRequest,
-  conflict,
-  forbidden,
   ok,
   serverError,
 } from "../../../helpers/http/http-helper";
+import { mapDomainError } from "../../../helpers/http/map-domain-error";
 import { InvalidParamError } from "../../../errors/invalid-params-error";
-import { OrderFieldChangeDeniedError } from "../../../../domain/errors/order-field-change-denied-error";
-import { OrderStatusTransitionError } from "../../../../domain/errors/order-status-transition-error";
 import { Controller } from "../../../protocols/controller";
 import { HttpRequest, HttpResponse } from "../../../protocols/http";
 
@@ -108,13 +105,7 @@ export class UpdateOrderDeliveryController implements Controller {
       );
       return ok(updateOrderDelivery);
     } catch (error) {
-      if (error instanceof OrderFieldChangeDeniedError) {
-        return forbidden(error);
-      }
-      if (error instanceof OrderStatusTransitionError) {
-        return conflict(error);
-      }
-      return serverError(error);
+      return mapDomainError(error) ?? serverError(error);
     }
   }
 }

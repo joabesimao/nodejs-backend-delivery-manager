@@ -1,6 +1,7 @@
 import { AddRegister } from "../../../../domain/usescases/register/add-register";
 import { CpfInUseError } from "../../../../domain/errors";
 import { badRequest, conflict, ok, serverError } from "../../../helpers/http/http-helper";
+import { mapDomainError } from "../../../helpers/http/map-domain-error";
 import { Controller } from "../../../protocols/controller";
 import { HttpRequest, HttpResponse } from "../../../protocols/http";
 import { Validation } from "../../../protocols/validation";
@@ -26,10 +27,7 @@ export class AddRegisterController implements Controller {
         httpRequest.body.client
       );
       if (errorBodyClient) {
-        if (errorBodyClient instanceof CpfInUseError) {
-          return conflict(errorBodyClient);
-        }
-        return badRequest(errorBodyClient);
+        return mapDomainError(errorBodyClient) ?? badRequest(errorBodyClient);
       }
 
       const errorBodyAddress = await this.validationAddress.validate(

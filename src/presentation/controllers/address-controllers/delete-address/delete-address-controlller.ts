@@ -1,7 +1,6 @@
-import { NotFoundError } from "../../../../domain/errors/not-found-error";
-import { ResourceInUseError } from "../../../../domain/errors/resource-in-use-error";
 import { DeleteAddress } from "../../../../domain/usescases/address/delete-address";
-import { conflict, noExists, ok, serverError } from "../../../helpers/http/http-helper";
+import { ok, serverError } from "../../../helpers/http/http-helper";
+import { mapDomainError } from "../../../helpers/http/map-domain-error";
 import { Controller } from "../../../protocols/controller";
 import { HttpRequest, HttpResponse } from "../../../protocols/http";
 
@@ -14,13 +13,7 @@ export class DeleteAddressController implements Controller {
       );
       return ok(deleteAddress);
     } catch (error) {
-      if (error instanceof ResourceInUseError) {
-        return conflict(error);
-      }
-      if (error instanceof NotFoundError) {
-        return noExists();
-      }
-      return serverError(error);
+      return mapDomainError(error) ?? serverError(error);
     }
   }
 }

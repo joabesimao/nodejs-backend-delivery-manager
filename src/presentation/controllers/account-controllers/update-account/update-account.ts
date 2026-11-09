@@ -4,14 +4,11 @@ import { HttpRequest, HttpResponse } from "../../../protocols/http";
 import { Validation } from "../../../protocols/validation";
 import {
   badRequest,
-  forbidden,
   noExists,
   ok,
   serverError,
 } from "../../../helpers/http/http-helper";
-import { LastAdminError } from "../../../../domain/errors/last-admin-error";
-import { SelfActionError } from "../../../../domain/errors/self-action-error";
-import { EmailInUseError } from "../../../../domain/errors";
+import { mapDomainError } from "../../../helpers/http/map-domain-error";
 
 export class UpdateAccountController implements Controller {
   constructor(
@@ -42,13 +39,7 @@ export class UpdateAccountController implements Controller {
 
       return ok(account);
     } catch (error) {
-      if (error instanceof SelfActionError || error instanceof LastAdminError) {
-        return forbidden(error);
-      }
-      if (error instanceof EmailInUseError) {
-        return forbidden(error);
-      }
-      return serverError(error);
+      return mapDomainError(error) ?? serverError(error);
     }
   }
 }

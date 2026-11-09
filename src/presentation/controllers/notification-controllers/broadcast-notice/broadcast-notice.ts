@@ -1,14 +1,13 @@
 import { isAccountRole } from "../../../../domain/models/account/account-role";
 import { BroadcastNotice } from "../../../../domain/usescases/notification/broadcast-notice";
 import { InvalidParamError } from "../../../errors";
-import { AccessDeniedError } from "../../../../domain/errors/access-denied-error";
 import {
   badRequest,
-  forbidden,
   ok,
   serverError,
   unauthorized,
 } from "../../../helpers/http/http-helper";
+import { mapDomainError } from "../../../helpers/http/map-domain-error";
 import { Controller } from "../../../protocols/controller";
 import { HttpRequest, HttpResponse } from "../../../protocols/http";
 import { Validation } from "../../../protocols/validation";
@@ -68,10 +67,7 @@ export class BroadcastNoticeController implements Controller {
       });
       return ok({ recipients });
     } catch (error) {
-      if (error instanceof AccessDeniedError) {
-        return forbidden(error);
-      }
-      return serverError(error as Error);
+      return mapDomainError(error) ?? serverError(error as Error);
     }
   }
 }
