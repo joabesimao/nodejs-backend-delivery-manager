@@ -13,3 +13,7 @@ export * from "./vehicle-in-use-error";
 export * from "./not-found-error";
 export * from "./resource-in-use-error";
 export * from "./barcode-in-use-error";
+export * from "./chat-account-not-found-error";
+export * from "./chat-message-not-found-error";
+export * from "./chat-permission-denied-error";
+export * from "./invalid-chat-message-error";

@@ -1,108 +1,37 @@
+import { UpdateChatMessage } from "../../../domain/usescases/chat/update-chat-message";
+import { mapDomainError } from "../../helpers/http/map-domain-error";
+import { ok } from "../../helpers/http/http-helper";
 import { Controller } from "../../protocols/controller";
 import { HttpRequest, HttpResponse } from "../../protocols/http";
-import { prisma } from "../../../infra/db/mysql/helpers";
+import { chatError, invalidMessageId, readAccountId, unauthenticated } from "./chat-http";
 
 export class UpdateChatMessageController implements Controller {
+  constructor(private readonly updateChatMessage: UpdateChatMessage) {}
+
   async handle(httpRequest: HttpRequest): Promise<HttpResponse> {
     try {
-      const accountId = Number(httpRequest.headers?.accountId || 0);
+      const accountId = readAccountId(httpRequest);
       const messageId = Number(httpRequest.params?.id || 0);
       const body = httpRequest.body || {};
 
       if (!accountId) {
-        return {
-          statusCode: 401,
-          body: { error: "Não autenticado" },
-        };
+        return unauthenticated();
       }
 
       if (!messageId) {
-        return {
-          statusCode: 400,
-          body: { error: "ID de mensagem inválido" },
-        };
+        return invalidMessageId();
       }
 
       const text = body.text ? String(body.text).trim() : null;
 
       if (text === "") {
-        return {
-          statusCode: 400,
-          body: { error: "Texto da mensagem não pode estar vazio" },
-        };
+        return chatError(400, "Texto da mensagem não pode estar vazio");
       }
 
-      const message = await prisma.chatMessage.findUnique({
-        where: { id: messageId },
-        include: {
-          sender: {
-            select: { id: true, role: true },
-          },
-        },
-      });
-
-      if (!message) {
-        return {
-          statusCode: 404,
-          body: { error: "Mensagem não encontrada" },
-        };
-      }
-
-      const account = await prisma.account.findUnique({
-        where: { id: accountId },
-        select: { role: true },
-      });
-
-      const isOwner = message.senderId === accountId;
-      const isAdmin = account?.role === "admin";
-
-      if (!isOwner && !isAdmin) {
-        return {
-          statusCode: 403,
-          body: { error: "Sem permissão para editar esta mensagem" },
-        };
-      }
-
-      if (!text && !message.imageBase64) {
-        return {
-          statusCode: 400,
-          body: { error: "Mensagem não pode ficar vazia" },
-        };
-      }
-
-      const updatedMessage = await prisma.chatMessage.update({
-        where: { id: messageId },
-        data: {
-          text,
-        },
-        include: {
-          sender: {
-            select: {
-              id: true,
-              name: true,
-              email: true,
-              role: true,
-              unitStoreId: true,
-            },
-          },
-          unitStore: {
-            select: {
-              id: true,
-              name: true,
-            },
-          },
-        },
-      });
-
-      return {
-        statusCode: 200,
-        body: updatedMessage,
-      };
+      const message = await this.updateChatMessage.update({ messageId, accountId, text });
+      return ok(message);
     } catch (error) {
-      return {
-        statusCode: 500,
-        body: { error: "Falha ao atualizar mensagem" },
-      };
+      return mapDomainError(error) ?? chatError(500, "Falha ao atualizar mensagem");
     }
   }
 }

@@ -1,121 +1,33 @@
+import { SearchChatMessages } from "../../../domain/usescases/chat/search-chat-messages";
+import { mapDomainError } from "../../helpers/http/map-domain-error";
+import { ok } from "../../helpers/http/http-helper";
 import { Controller } from "../../protocols/controller";
 import { HttpRequest, HttpResponse } from "../../protocols/http";
-import { prisma } from "../../../infra/db/mysql/helpers";
-import { getAccountScope } from "../../../infra/db/mysql/helpers/store-scope";
+import { chatError, readOptionalAccountId } from "./chat-http";
 
 export class SearchChatMessagesController implements Controller {
+  constructor(private readonly searchChatMessages: SearchChatMessages) {}
+
   async handle(httpRequest: HttpRequest): Promise<HttpResponse> {
     try {
       const query = httpRequest.query || {};
-      const accountId =
-        Number(httpRequest.headers?.accountId || 0) ||
-        Number(query.accountId || 0) ||
-        undefined;
 
-      const scope = accountId ? await getAccountScope(prisma, accountId) : null;
+      const page = await this.searchChatMessages.search({
+        accountId: readOptionalAccountId(httpRequest),
+        searchText: String(query.q || "").trim(),
+        unitStoreId: Number(query.unitStoreId || 0),
+        senderId: Number(query.senderId || 0),
+        limit: Math.min(Number(query.limit) || 50, 100),
+        offset: Number(query.offset) || 0,
+        dateFrom: query.dateFrom ? new Date(String(query.dateFrom)) : undefined,
+        dateTo: query.dateTo ? new Date(String(query.dateTo)) : undefined,
+        hasImage: query.hasImage === "true",
+        hasText: query.hasText === "true",
+      });
 
-      if (accountId && !scope) {
-        return {
-          statusCode: 404,
-          body: { error: "Conta não encontrada" },
-        };
-      }
-
-      const searchText = String(query.q || "").trim();
-      const unitStoreId = Number(query.unitStoreId || 0);
-      const senderId = Number(query.senderId || 0);
-      const limit = Math.min(Number(query.limit) || 50, 100);
-      const offset = Number(query.offset) || 0;
-      const dateFrom = query.dateFrom ? new Date(String(query.dateFrom)) : null;
-      const dateTo = query.dateTo ? new Date(String(query.dateTo)) : null;
-      const hasImage = query.hasImage === "true";
-      const hasText = query.hasText === "true";
-
-      const whereClause: any = {};
-
-      if (scope?.visibleUnitIds.length) {
-        whereClause.unitStoreId = { in: scope.visibleUnitIds };
-      }
-
-      if (unitStoreId && (!scope || scope.visibleUnitIds.includes(unitStoreId))) {
-        whereClause.unitStoreId = unitStoreId;
-      }
-
-      if (senderId) {
-        whereClause.senderId = senderId;
-      }
-
-      if (dateFrom || dateTo) {
-        whereClause.createdAt = {};
-        if (dateFrom) {
-          whereClause.createdAt.gte = dateFrom;
-        }
-        if (dateTo) {
-          const endOfDay = new Date(dateTo);
-          endOfDay.setHours(23, 59, 59, 999);
-          whereClause.createdAt.lte = endOfDay;
-        }
-      }
-
-      if (hasImage) {
-        whereClause.imageBase64 = { not: null };
-      }
-      if (hasText) {
-        whereClause.text = { not: null };
-      }
-
-      if (searchText) {
-        whereClause.OR = [
-          { text: { contains: searchText, mode: "insensitive" } },
-          { sender: { name: { contains: searchText, mode: "insensitive" } } },
-          { unitStore: { name: { contains: searchText, mode: "insensitive" } } },
-        ];
-      }
-
-      const [messages, total] = await Promise.all([
-        prisma.chatMessage.findMany({
-          where: whereClause,
-          include: {
-            sender: {
-              select: {
-                id: true,
-                name: true,
-                email: true,
-                role: true,
-                unitStoreId: true,
-              },
-            },
-            unitStore: {
-              select: {
-                id: true,
-                name: true,
-              },
-            },
-          },
-          orderBy: { createdAt: "desc" },
-          take: limit,
-          skip: offset,
-        }),
-        prisma.chatMessage.count({ where: whereClause }),
-      ]);
-
-      return {
-        statusCode: 200,
-        body: {
-          messages: messages.reverse(),
-          pagination: {
-            total,
-            limit,
-            offset,
-            hasMore: offset + limit < total,
-          },
-        },
-      };
+      return ok(page);
     } catch (error) {
-      return {
-        statusCode: 500,
-        body: { error: "Falha ao buscar mensagens" },
-      };
+      return mapDomainError(error) ?? chatError(500, "Falha ao buscar mensagens");
     }
   }
 }

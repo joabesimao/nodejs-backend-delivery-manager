@@ -1,74 +1,30 @@
+import { LoadChatMessageById } from "../../../domain/usescases/chat/load-chat-message-by-id";
+import { mapDomainError } from "../../helpers/http/map-domain-error";
+import { ok } from "../../helpers/http/http-helper";
 import { Controller } from "../../protocols/controller";
 import { HttpRequest, HttpResponse } from "../../protocols/http";
-import { prisma } from "../../../infra/db/mysql/helpers";
-import { getAccountScope } from "../../../infra/db/mysql/helpers/store-scope";
+import { chatError, invalidMessageId, readAccountId, unauthenticated } from "./chat-http";
 
 export class LoadChatMessageByIdController implements Controller {
+  constructor(private readonly loadChatMessageById: LoadChatMessageById) {}
+
   async handle(httpRequest: HttpRequest): Promise<HttpResponse> {
     try {
-      const accountId = Number(httpRequest.headers?.accountId || 0);
+      const accountId = readAccountId(httpRequest);
       const messageId = Number(httpRequest.params?.id || 0);
 
       if (!accountId) {
-        return {
-          statusCode: 401,
-          body: { error: "Não autenticado" },
-        };
+        return unauthenticated();
       }
 
       if (!messageId) {
-        return {
-          statusCode: 400,
-          body: { error: "ID de mensagem inválido" },
-        };
+        return invalidMessageId();
       }
 
-      const message = await prisma.chatMessage.findUnique({
-        where: { id: messageId },
-        include: {
-          sender: {
-            select: {
-              id: true,
-              name: true,
-              email: true,
-              role: true,
-              unitStoreId: true,
-            },
-          },
-          unitStore: {
-            select: {
-              id: true,
-              name: true,
-            },
-          },
-        },
-      });
-
-      if (!message) {
-        return {
-          statusCode: 404,
-          body: { error: "Mensagem não encontrada" },
-        };
-      }
-
-      const scope = await getAccountScope(prisma, accountId);
-
-      if (!scope || !scope.visibleUnitIds.includes(message.unitStoreId)) {
-        return {
-          statusCode: 403,
-          body: { error: "Sem permissão para acessar essa mensagem" },
-        };
-      }
-
-      return {
-        statusCode: 200,
-        body: message,
-      };
+      const message = await this.loadChatMessageById.loadById(messageId, accountId);
+      return ok(message);
     } catch (error) {
-      return {
-        statusCode: 500,
-        body: { error: "Falha ao carregar mensagem" },
-      };
+      return mapDomainError(error) ?? chatError(500, "Falha ao carregar mensagem");
     }
   }
 }
