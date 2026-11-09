@@ -16,7 +16,7 @@
     "generate": "npx prisma generate",
     "lint": "eslint 'src/**/*.ts' --cache --cache-location node_modules/.cache/eslint/",
     "lint:fix": "npm run lint -- --fix",
-    "lint:ci": "eslint 'src/**/*.ts' --max-warnings=201",
+    "lint:ci": "eslint 'src/**/*.ts' --max-warnings=199",
     "typecheck": "tsc --noEmit -p tsconfig.eslint.json",
     "test": "jest --passWithNoTests --watch --silent --noStackTrace --runInBand",
     "test:unit": "jest --watch --silent --runInBand -c jest-unit-config.js",

@@ -8,13 +8,29 @@ import { AddDeliverymanModel } from "../../../../domain/usescases/deliveryman/ad
 import { onlyDigits } from "../helpers/only-digits";
 import { CpfInUseError, QualificationInUseError } from "../../../../domain/errors";
 import { rethrowUniqueError } from "../helpers/prisma-errors";
+import { ExistsDeliverymanByCpfRepository } from "../../../../data/protocols/db/deliveryman/exists-deliveryman-by-cpf";
+import { ExistsDeliverymanByQualificationRepository } from "../../../../data/protocols/db/deliveryman/exists-deliveryman-by-qualification";
 
 const normalizeCpf = (cpf?: string | null): string | null =>
   (cpf && onlyDigits(cpf)) || null;
 
 export class DeliverymanMysqlRepository
-  implements LoadDeliverymanRepository, AddDeliverymanRepository, UpdateDeliverymanRepository, DeleteDeliverymanRepository {
+  implements LoadDeliverymanRepository, AddDeliverymanRepository, UpdateDeliverymanRepository, DeleteDeliverymanRepository, ExistsDeliverymanByCpfRepository, ExistsDeliverymanByQualificationRepository {
   constructor(private readonly prisma: PrismaClient) {}
+
+  async existsByCpf(cpf: string): Promise<boolean> {
+    const deliveryman = await this.prisma.deliveryman.findFirst({
+      where: { cpf: onlyDigits(cpf) },
+    });
+    return !!deliveryman;
+  }
+
+  async existsByNumberQualification(numberQualification: string): Promise<boolean> {
+    const deliveryman = await this.prisma.deliveryman.findFirst({
+      where: { numberQualification },
+    });
+    return !!deliveryman;
+  }
 
   async loadAll(): Promise<Deliveryman[]> {
     return await this.prisma.deliveryman.findMany({

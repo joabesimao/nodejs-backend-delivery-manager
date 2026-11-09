@@ -2,7 +2,7 @@ import { PlateInUseError } from "../../../domain/errors";
 import { Validation } from "../../protocols/validation";
 
 export interface PlateDuplicateValidator {
-  validate(plate: string): Promise<boolean>;
+  existsByPlate(plate: string): Promise<boolean>;
 }
 
 export class PlateDuplicateValidation implements Validation {
@@ -15,7 +15,7 @@ export class PlateDuplicateValidation implements Validation {
       return null;
     }
 
-    const isPlateDuplicate = await this.plateValidator.validate(plate);
+    const isPlateDuplicate = await this.plateValidator.existsByPlate(plate);
 
     if (isPlateDuplicate) {
       return new PlateInUseError();
