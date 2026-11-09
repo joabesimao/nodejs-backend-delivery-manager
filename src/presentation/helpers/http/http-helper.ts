@@ -47,3 +47,8 @@ export const conflict = (error: Error): HttpResponse => ({
   statusCode: 409,
   body: error,
 });
+
+export const serverErrorMessage = (error: string): HttpResponse => ({
+  statusCode: 500,
+  body: { error },
+});
