@@ -15,6 +15,7 @@ import { onlyDigits } from "../helpers/only-digits";
 import { pickDefined } from "../helpers/pick-defined";
 import { rethrowDeleteError, rethrowUniqueError } from "../helpers/prisma-errors";
 import { CpfInUseError } from "../../../../domain/errors";
+import { ExistsClientByCpfRepository } from "../../../../data/protocols/db/client/exists-client-by-cpf";
 
 export class ClientMysqlRepository
   implements
@@ -22,8 +23,16 @@ export class ClientMysqlRepository
     LoadClientRepository,
     LoadOneClientRepository,
     UpdateClientRepository,
-    DeleteClientRepository {
+    DeleteClientRepository,
+    ExistsClientByCpfRepository {
   constructor(private readonly prisma: PrismaClient) {}
+
+  async existsByCpf(cpf: string): Promise<boolean> {
+    const client = await this.prisma.client.findFirst({
+      where: { cpf: onlyDigits(cpf) },
+    });
+    return !!client;
+  }
 
   async add(client: AddClientModel): Promise<ClientModel> {
     const { name, cpf, phone } = client;

@@ -2,7 +2,7 @@ import { InvalidParamError } from "../../errors";
 import { Validation } from "../../protocols/validation";
 
 export interface BarcodeDuplicateValidator {
-  validate(barcode: string): Promise<boolean>;
+  existsByBarcode(barcode: string): Promise<boolean>;
 }
 
 export class BarcodeDuplicateValidation implements Validation {
@@ -15,7 +15,7 @@ export class BarcodeDuplicateValidation implements Validation {
       return null;
     }
 
-    const isDuplicate = await this.barcodeValidator.validate(barcode);
+    const isDuplicate = await this.barcodeValidator.existsByBarcode(barcode);
 
     if (isDuplicate) {
       return new InvalidParamError("barcode");

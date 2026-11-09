@@ -7,10 +7,18 @@ import { Vehicle } from "../../../../domain/models/vehicle/vehicle-model";
 import { AddVehicleModel } from "../../../../domain/usescases/vehicle/add-vehicle";
 import { PlateInUseError, VehicleInUseError } from "../../../../domain/errors";
 import { isForeignKeyViolation, rethrowUniqueError } from "../helpers/prisma-errors";
+import { ExistsVehicleByPlateRepository } from "../../../../data/protocols/db/vehicle/exists-vehicle-by-plate";
 
 export class VehicleMysqlRepository
-  implements LoadVehicleRepository, AddVehicleRepository, UpdateVehicleRepository, DeleteVehicleRepository {
+  implements LoadVehicleRepository, AddVehicleRepository, UpdateVehicleRepository, DeleteVehicleRepository, ExistsVehicleByPlateRepository {
   constructor(private readonly prisma: PrismaClient) {}
+
+  async existsByPlate(plate: string): Promise<boolean> {
+    const vehicle = await this.prisma.vehicle.findFirst({
+      where: { plate },
+    });
+    return !!vehicle;
+  }
 
   async loadAll(): Promise<Vehicle[]> {
     return await this.prisma.vehicle.findMany({

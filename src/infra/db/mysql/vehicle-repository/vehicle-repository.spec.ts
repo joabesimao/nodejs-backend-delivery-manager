@@ -12,6 +12,7 @@ const makeFakeVehicle = () => ({
 
 const makeFakePrisma = () => ({
   vehicle: {
+    findFirst: jest.fn().mockResolvedValue(null),
     findMany: jest.fn().mockResolvedValue([makeFakeVehicle()]),
     create: jest.fn().mockResolvedValue(makeFakeVehicle()),
     update: jest.fn().mockResolvedValue(makeFakeVehicle()),
@@ -170,6 +171,31 @@ describe("Vehicle MySql Repository", () => {
       const { sut, prisma } = makeSut();
       prisma.vehicle.delete.mockRejectedValueOnce(new Prisma.PrismaClientKnownRequestError("x", { code: "P2025", clientVersion: "6.7.0" }));
       await expect(sut.deleteOne(1)).rejects.toBeInstanceOf(Prisma.PrismaClientKnownRequestError);
+    });
+  });
+
+  describe("existsByPlate()", () => {
+    test("Should call prisma.vehicle.findFirst with the plate", async () => {
+      const { sut, prisma } = makeSut();
+      await sut.existsByPlate("ABC1D23");
+      expect(prisma.vehicle.findFirst).toHaveBeenCalledWith({ where: { plate: "ABC1D23" } });
+    });
+
+    test("Should return false if no record is found", async () => {
+      const { sut } = makeSut();
+      expect(await sut.existsByPlate("ABC1D23")).toBe(false);
+    });
+
+    test("Should return true if a record is found", async () => {
+      const { sut, prisma } = makeSut();
+      prisma.vehicle.findFirst.mockResolvedValueOnce({ id: 1 });
+      expect(await sut.existsByPlate("ABC1D23")).toBe(true);
+    });
+
+    test("Should throw if prisma.vehicle.findFirst throws", async () => {
+      const { sut, prisma } = makeSut();
+      prisma.vehicle.findFirst.mockRejectedValueOnce(new Error());
+      await expect(sut.existsByPlate("ABC1D23")).rejects.toThrow();
     });
   });
 });

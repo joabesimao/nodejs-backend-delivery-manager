@@ -9,7 +9,7 @@ import {
 } from "../../presentation/helpers/validators";
 import { Validation } from "../../presentation/protocols/validation";
 import { prisma } from "../../infra/db/mysql/helpers";
-import { BarcodeDuplicateValidatorAdapter } from "../../utils/barcode-duplicate-validator-adapter";
+import { ProductMysqlRepository } from "../../infra/db/mysql/product-repository/product-repository";
 
 export const makeAddProductValidation = (): ValidationComposite => {
   const validations: Validation[] = [];
@@ -27,7 +27,7 @@ export const makeAddProductValidation = (): ValidationComposite => {
     new OptionalFieldTypeValidation("notes", "string"),
     new ProductVariationsValidation(),
     new ProductImageValidation(),
-    new BarcodeDuplicateValidation(new BarcodeDuplicateValidatorAdapter(prisma))
+    new BarcodeDuplicateValidation(new ProductMysqlRepository(prisma))
   );
   return new ValidationComposite(validations);
 };

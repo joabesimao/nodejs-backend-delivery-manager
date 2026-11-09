@@ -4,7 +4,7 @@ import {
   CpfDuplicateValidation,
 } from "../../presentation/helpers/validators";
 import { Validation } from "../../presentation/protocols/validation";
-import { CpfDuplicateValidatorAdapter } from "../../utils/cpf-duplicate-validator-adapter";
+import { ClientMysqlRepository } from "../../infra/db/mysql/client-repository/client-repository";
 import { prisma } from "../../infra/db/mysql/helpers/index";
 
 export const makeAddClientValidation = (): ValidationComposite => {
@@ -13,7 +13,7 @@ export const makeAddClientValidation = (): ValidationComposite => {
     validations.push(new RequireFieldsValidation(field));
   }
   validations.push(
-    new CpfDuplicateValidation(new CpfDuplicateValidatorAdapter(prisma))
+    new CpfDuplicateValidation(new ClientMysqlRepository(prisma))
   );
   return new ValidationComposite(validations);
 };
