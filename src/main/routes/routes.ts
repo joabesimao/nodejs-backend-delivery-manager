@@ -1,4 +1,3 @@
-import { OrderStatus } from "@prisma/client";
 import { Router } from "express";
 import { makeAddRegisterController } from "../factories/add-register";
 import { adaptRoute } from "../adapters/express-route-adapter";
@@ -34,7 +33,12 @@ import { makeUpdateCityController } from "../factories/update-city";
 import { makeDeleteCityController } from "../factories/delete-city";
 import { makeUpdateNeighborhoodController } from "../factories/update-neighborhood";
 import { makeDeleteNeighborhoodController } from "../factories/delete-neighborhood";
-import { prisma } from "../../infra/db/mysql/helpers";
+import {
+  makeGlobalSearchController,
+  makeLoadDashboardOverviewController,
+  makeLoadDashboardPerformanceController,
+  makeLoadDashboardReportsController,
+} from "../factories/dashboard";
 import { makeRefreshTokenController } from "../factories/refresh-token-factory";
 import { makeLoadOrderDeliveryRankingController } from "../factories/load-order-delivery-ranking";
 import { makeAddDeliverymanController } from "../factories/add-deliveryman";
@@ -79,365 +83,25 @@ export default (router: Router): void => {
     auth(),
     adaptRoute(makeLoadOrderDeliveryRankingController()),
   );
-  router.get("/dashboard/overview", auth(DASHBOARD_READ_ROLES), async (req, res) => {
-    try {
-      const startDateParam =
-        typeof req.query.startDate === "string" ? req.query.startDate : undefined;
-      const endDateParam =
-        typeof req.query.endDate === "string" ? req.query.endDate : undefined;
-      const parsedStart = startDateParam ? new Date(startDateParam) : undefined;
-      const parsedEnd = endDateParam ? new Date(endDateParam) : undefined;
-      const hasValidRange =
-        parsedStart &&
-        parsedEnd &&
-        !Number.isNaN(parsedStart.getTime()) &&
-        !Number.isNaN(parsedEnd.getTime());
+  router.get(
+    "/dashboard/overview",
+    auth(DASHBOARD_READ_ROLES),
+    adaptRoute(makeLoadDashboardOverviewController()),
+  );
 
-      const ordersWhere = hasValidRange
-        ? { data: { gte: parsedStart, lte: parsedEnd } }
-        : undefined;
+  router.get(
+    "/dashboard/performance",
+    auth(DASHBOARD_READ_ROLES),
+    adaptRoute(makeLoadDashboardPerformanceController()),
+  );
 
-      const [
-        clientsCount,
-        deliverymenCount,
-        citiesCount,
-        neighborhoodsCount,
-        activeDeliveriesCount,
-        deliveredRevenue,
-        latestOrders,
-      ] = await Promise.all([
-        prisma.client.count(),
-        prisma.deliveryman.count(),
-        prisma.city.count(),
-        prisma.neighborhood.count(),
-        prisma.orderDelivery.count({
-          where: {
-            ...ordersWhere,
-            status: {
-              in: [OrderStatus.actived, OrderStatus.delivered],
-            },
-          },
-        }),
-        prisma.orderDelivery.aggregate({
-          where: {
-            ...ordersWhere,
-            status: OrderStatus.finished,
-          },
-          _sum: {
-            amount: true,
-          },
-        }),
-        prisma.orderDelivery.findMany({
-          where: ordersWhere,
-          include: {
-            Register: {
-              include: {
-                client: true,
-              },
-            },
-            deliveryman: true,
-          },
-          orderBy: {
-            data: "desc",
-          },
-          take: 5,
-        }),
-      ]);
+  router.get(
+    "/dashboard/reports",
+    auth(DASHBOARD_READ_ROLES),
+    adaptRoute(makeLoadDashboardReportsController()),
+  );
 
-      let previousDeliveredRevenue: number | null = null;
-      if (hasValidRange) {
-        const rangeMs = (parsedEnd).getTime() - (parsedStart).getTime();
-        const previousEnd = new Date((parsedStart).getTime() - 1);
-        const previousStart = new Date(previousEnd.getTime() - rangeMs);
-
-        const previousRevenueAgg = await prisma.orderDelivery.aggregate({
-          where: {
-            data: { gte: previousStart, lte: previousEnd },
-            status: OrderStatus.finished,
-          },
-          _sum: { amount: true },
-        });
-
-        previousDeliveredRevenue = previousRevenueAgg._sum.amount ?? 0;
-      }
-
-      res.status(200).json({
-        period: hasValidRange
-          ? { startDate: parsedStart, endDate: parsedEnd }
-          : null,
-        metrics: {
-          clients: clientsCount,
-          deliverymen: deliverymenCount,
-          activeDeliveries: activeDeliveriesCount,
-          deliveredRevenue: deliveredRevenue._sum.amount ?? 0,
-          deliveredRevenuePreviousPeriod: previousDeliveredRevenue,
-          cities: citiesCount,
-          neighborhoods: neighborhoodsCount,
-        },
-        latestDeliveries: latestOrders.map((order) => ({
-          id: order.id,
-          status: order.status,
-          amount: order.amount,
-          clientName: order.Register.client.name,
-          deliverymanName: order.deliveryman
-            ? `${order.deliveryman.name} ${order.deliveryman.lastName}`.trim()
-            : "Sem entregador",
-        })),
-      });
-    } catch (error) {
-      console.error("[dashboard/overview] Erro ao carregar dados:", error);
-      res.status(500).json({ error: "Falha ao carregar dados do dashboard" });
-    }
-  });
-
-  router.get("/dashboard/performance", auth(DASHBOARD_READ_ROLES), async (req, res) => {
-    try {
-      const now = new Date();
-      const defaultEnd = new Date(now);
-      defaultEnd.setHours(23, 59, 59, 999);
-      const defaultStart = new Date(now);
-      defaultStart.setDate(defaultStart.getDate() - 6);
-      defaultStart.setHours(0, 0, 0, 0);
-
-      const startDateParam =
-        typeof req.query.startDate === "string" ? req.query.startDate : undefined;
-      const endDateParam =
-        typeof req.query.endDate === "string" ? req.query.endDate : undefined;
-      const parsedStart = startDateParam ? new Date(startDateParam) : undefined;
-      const parsedEnd = endDateParam ? new Date(endDateParam) : undefined;
-
-      const startDate =
-        parsedStart && !Number.isNaN(parsedStart.getTime()) ? parsedStart : defaultStart;
-      const endDate = parsedEnd && !Number.isNaN(parsedEnd.getTime()) ? parsedEnd : defaultEnd;
-
-      const orders = await prisma.orderDelivery.findMany({
-        where: { data: { gte: startDate, lte: endDate } },
-        select: { data: true, finishedAt: true, status: true },
-      });
-
-      const dayFormatter = new Intl.DateTimeFormat("pt-BR", { weekday: "short" });
-      const totalsByDay = new Map<
-        string,
-        { date: string; label: string; total: number }
-      >();
-
-      orders.forEach((order) => {
-        const dateKey = order.data.toISOString().slice(0, 10);
-
-        if (!totalsByDay.has(dateKey)) {
-          totalsByDay.set(dateKey, {
-            date: dateKey,
-            label: dayFormatter.format(order.data).replace(".", ""),
-            total: 0,
-          });
-        }
-
-        totalsByDay.get(dateKey).total += 1;
-      });
-
-      const days = Array.from(totalsByDay.values()).sort((a, b) =>
-        a.date.localeCompare(b.date),
-      );
-
-      const finishedWithDuration = orders.filter(
-        (order) => order.status === OrderStatus.finished && order.finishedAt,
-      );
-
-      const avgDeliveryMinutes = finishedWithDuration.length
-        ? Math.round(
-            finishedWithDuration.reduce(
-              (sum, order) =>
-                sum +
-                ((order.finishedAt).getTime() - order.data.getTime()) / 60000,
-              0,
-            ) / finishedWithDuration.length,
-          )
-        : null;
-
-      const peakDay = days.reduce<(typeof days)[number] | null>(
-        (peak, day) => (!peak || day.total > peak.total ? day : peak),
-        null,
-      );
-
-      res.status(200).json({
-        period: { startDate, endDate },
-        days,
-        totalOrders: orders.length,
-        avgDeliveryMinutes,
-        peakDay,
-      });
-    } catch (error) {
-      console.error("[dashboard/performance] Erro ao carregar dados:", error);
-      res
-        .status(500)
-        .json({ error: "Falha ao carregar desempenho do dashboard" });
-    }
-  });
-
-  router.get("/dashboard/reports", auth(DASHBOARD_READ_ROLES), async (req, res) => {
-    try {
-      const startDateParam =
-        typeof req.query.startDate === "string" ? req.query.startDate : undefined;
-      const endDateParam =
-        typeof req.query.endDate === "string" ? req.query.endDate : undefined;
-      const parsedStart = startDateParam ? new Date(startDateParam) : undefined;
-      const parsedEnd = endDateParam ? new Date(endDateParam) : undefined;
-      const hasValidRange =
-        parsedStart &&
-        parsedEnd &&
-        !Number.isNaN(parsedStart.getTime()) &&
-        !Number.isNaN(parsedEnd.getTime());
-
-      const ordersWhere = hasValidRange
-        ? { data: { gte: parsedStart, lte: parsedEnd } }
-        : undefined;
-
-      const orders = await prisma.orderDelivery.findMany({
-        where: ordersWhere,
-        include: {
-          Register: {
-            include: {
-              address: true,
-            },
-          },
-        },
-      });
-
-      const byNeighborhood = Array.from(
-        orders.reduce((totals, order) => {
-          const neighborhood = order.Register?.address?.neighborhood?.trim();
-
-          if (!neighborhood) {
-            return totals;
-          }
-
-          totals.set(neighborhood, (totals.get(neighborhood) ?? 0) + 1);
-          return totals;
-        }, new Map<string, number>()),
-      )
-        .map(([name, value]) => ({ name, value }))
-        .sort((a, b) => b.value - a.value || a.name.localeCompare(b.name));
-
-      const byCity = Array.from(
-        orders.reduce((totals, order) => {
-          const city = order.Register?.address?.city?.trim();
-
-          if (!city) {
-            return totals;
-          }
-
-          totals.set(city, (totals.get(city) ?? 0) + 1);
-          return totals;
-        }, new Map<string, number>()),
-      )
-        .map(([name, value]) => ({ name, value }))
-        .sort((a, b) => b.value - a.value || a.name.localeCompare(b.name));
-
-      const completedOrders = orders.filter(
-        (order) => order.status === OrderStatus.finished,
-      ).length;
-      const pendingOrders = orders.length - completedOrders;
-
-      res.status(200).json({
-        summary: {
-          totalOrders: orders.length,
-          completedOrders,
-          pendingOrders,
-          totalRevenue: orders
-            .filter((order) => order.status === OrderStatus.finished)
-            .reduce((sum, order) => sum + Number(order.amount ?? 0), 0),
-        },
-        byNeighborhood,
-        byCity,
-        byStatus: [
-          { name: "Finalizadas", value: completedOrders },
-          { name: "Pendentes", value: pendingOrders },
-        ],
-      });
-    } catch {
-      res.status(500).json({ error: "Falha ao carregar dados de relatórios do dashboard" });
-    }
-  });
-  router.get("/search", auth(), async (req, res) => {
-    try {
-      const term = typeof req.query.q === "string" ? req.query.q.trim() : "";
-
-      if (term.length < 2) {
-        res.status(200).json({ query: term, orders: [], clients: [], deliverymen: [] });
-        return;
-      }
-
-      const RESULT_LIMIT = 5;
-      const numericId = /^\d+$/.test(term) ? Number(term) : undefined;
-
-      const [orders, clients, deliverymen] = await Promise.all([
-        prisma.orderDelivery.findMany({
-          where: {
-            OR: [
-              ...(numericId !== undefined ? [{ id: numericId }] : []),
-              { Register: { client: { name: { contains: term, mode: "insensitive" } } } },
-              { deliveryman: { name: { contains: term, mode: "insensitive" } } },
-              { deliveryman: { lastName: { contains: term, mode: "insensitive" } } },
-            ],
-          },
-          include: {
-            deliveryman: true,
-            Register: { include: { client: true, address: true } },
-          },
-          orderBy: { data: "desc" },
-          take: RESULT_LIMIT,
-        }),
-        prisma.client.findMany({
-          where: {
-            OR: [
-              { name: { contains: term, mode: "insensitive" } },
-              { cpf: { contains: term, mode: "insensitive" } },
-              { phone: { contains: term, mode: "insensitive" } },
-            ],
-          },
-          take: RESULT_LIMIT,
-        }),
-        prisma.deliveryman.findMany({
-          where: {
-            OR: [
-              { name: { contains: term, mode: "insensitive" } },
-              { lastName: { contains: term, mode: "insensitive" } },
-              { phone: { contains: term, mode: "insensitive" } },
-            ],
-          },
-          take: RESULT_LIMIT,
-        }),
-      ]);
-
-      res.status(200).json({
-        query: term,
-        orders: orders.map((order) => ({
-          id: order.id,
-          status: order.status,
-          amount: order.amount,
-          clientName: order.Register?.client?.name ?? "",
-          deliverymanName: order.deliveryman
-            ? `${order.deliveryman.name} ${order.deliveryman.lastName}`.trim()
-            : null,
-        })),
-        clients: clients.map((client) => ({
-          id: client.id,
-          name: client.name,
-          cpf: client.cpf,
-          phone: client.phone,
-        })),
-        deliverymen: deliverymen.map((deliveryman) => ({
-          id: deliveryman.id,
-          name: deliveryman.name,
-          lastName: deliveryman.lastName,
-          phone: deliveryman.phone,
-        })),
-      });
-    } catch (error) {
-      console.error("[search] Erro ao buscar:", error);
-      res.status(500).json({ error: "Falha ao realizar a busca" });
-    }
-  });
+  router.get("/search", auth(), adaptRoute(makeGlobalSearchController()));
   router.get("/address", auth(), adaptRoute(makeLoadAddressController()));
   router.get(
     "/register/:id",
