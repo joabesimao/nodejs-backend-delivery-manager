@@ -49,12 +49,7 @@ describe("Express Route Adapter", () => {
       body: req.body,
       params: req.params,
       query: req.query,
-      headers: {
-        ...req.headers,
-        accountId: 1,
-        accountRole: "admin",
-        accountUnitStoreId: 2,
-      },
+      headers: req.headers,
       actor: { id: 1, role: "admin", unitStoreId: 2 },
     });
   });
