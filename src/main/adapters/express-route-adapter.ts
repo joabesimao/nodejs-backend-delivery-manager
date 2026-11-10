@@ -25,12 +25,7 @@ export const adaptRoute = (controller: Controller) => {
         body: req.body,
         params: req.params,
         query: req.query,
-        headers: {
-          ...req.headers,
-          accountId: requestWithAccount.accountId,
-          accountRole: requestWithAccount.accountRole,
-          accountUnitStoreId: requestWithAccount.accountUnitStoreId,
-        },
+        headers: req.headers,
       };
       const actor = readActor(requestWithAccount);
       if (actor) httpRequest.actor = actor;
