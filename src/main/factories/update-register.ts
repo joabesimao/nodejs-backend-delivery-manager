@@ -1,11 +1,10 @@
 import { DbUpdateRegister } from "../../data/usescases/register-usecases/update-register/db-update-register";
-import { RegisterMySqlRepository } from "../../infra/db/mysql/register-repository/register-mysql-repository";
 import { UpdateRegisterController } from "../../presentation/controllers/register-controllers/update-register/update-register";
 import { Controller } from "../../presentation/protocols/controller";
-import { prisma } from "../../infra/db/prisma/client";
+import { makeRegisterRepository } from "./repositories";
 
 export const makeUpdateRegisterController = (): Controller => {
-  const updateRepository = new RegisterMySqlRepository(prisma);
+  const updateRepository = makeRegisterRepository();
   const updateRegister = new DbUpdateRegister(updateRepository);
   const registerController = new UpdateRegisterController(updateRegister);
   return registerController;

@@ -1,15 +1,14 @@
 import { env } from "../../../config/Env";
 import { JwtAdapter } from "../../infra/cryptography/jwt-adapter/jwt-adapter";
-import { AccountMySqlRepository } from "../../infra/db/mysql/account-repository/account-repository";
-import { prisma } from "../../infra/db/prisma/client";
 import { RefreshTokenController } from "../../presentation/controllers/account-controllers/refresh-token/refresh-token";
 import { Controller } from "../../presentation/protocols/controller";
 import { makeRefreshTokenValidation } from "./refresh-token-validation";
+import { makeAccountRepository } from "./repositories";
 
 export const makeRefreshTokenController = (): Controller => {
   const validation = makeRefreshTokenValidation();
   const jwtAdapter = new JwtAdapter(env.JWT_SECRET);
-  const accountRepository = new AccountMySqlRepository(prisma);
+  const accountRepository = makeAccountRepository();
 
   return new RefreshTokenController(
     validation,

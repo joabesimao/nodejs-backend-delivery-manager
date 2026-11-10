@@ -1,20 +1,18 @@
 import { Controller } from "../../presentation/protocols/controller";
-import { FuelRefillMysqlRepository } from "../../infra/db/mysql/fuel-refill-repository/fuel-refill-repository";
 import { DbAddFuelRefill } from "../../data/usescases/fuel-refill-usecases/add-fuel-refill/db-add-fuel-refill";
 import { AddFuelRefillController } from "../../presentation/controllers/fuel-refill-controllers/add-fuel-refill/add-fuel-refill";
-import { prisma } from "../../infra/db/prisma/client";
 import { makeAddFuelRefillValidation } from "./add-fuel-refill-validation";
 import { NotifyingAddFuelRefill } from "../../data/usescases/fuel-refill-usecases/add-fuel-refill/notifying-add-fuel-refill";
-import { OilChangeMysqlRepository } from "../../infra/db/mysql/oil-change-repository/oil-change-repository";
 import { MANAGER_ROLES } from "../config/roles";
-import { makeNotificationRepository, makeNotifyAccounts } from "./notify-accounts";
+import { makeNotifyAccounts } from "./notify-accounts";
+import { makeFuelRefillRepository, makeNotificationRepository, makeOilChangeRepository } from "./repositories";
 
 export const makeAddFuelRefillController = (): Controller => {
-  const fuelRefillRepository = new FuelRefillMysqlRepository(prisma);
+  const fuelRefillRepository = makeFuelRefillRepository();
   const dbAddFuelRefill = new DbAddFuelRefill(fuelRefillRepository, fuelRefillRepository, fuelRefillRepository);
   const addFuelRefill = new NotifyingAddFuelRefill(
     dbAddFuelRefill,
-    new OilChangeMysqlRepository(prisma),
+    makeOilChangeRepository(),
     makeNotificationRepository(),
     makeNotifyAccounts(),
     MANAGER_ROLES

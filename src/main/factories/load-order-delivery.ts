@@ -1,11 +1,10 @@
 import { DbLoadOrderDelivery } from "../../data/usescases/order-delivery/load-order-delivery/db-load-order-delivery";
 import { LoadOrderDeliveryController } from "../../presentation/controllers/order-delivery-controllers/load-order-delivery/load-order-delivery";
-import { OrderDeliveryMySqlRepository } from "../../infra/db/mysql/order-delivery-repository/order-delivery-mysql-repository";
-import { prisma } from "../../infra/db/prisma/client";
 import { Controller } from "../../presentation/protocols/controller";
+import { makeOrderDeliveryRepository } from "./repositories";
 
 export const makeLoadOrdersDeliveryController = (): Controller => {
-  const loadOrderDeliveryRepository = new OrderDeliveryMySqlRepository(prisma);
+  const loadOrderDeliveryRepository = makeOrderDeliveryRepository();
   const listOrdersOfDelivery = new DbLoadOrderDelivery(
     loadOrderDeliveryRepository
   );

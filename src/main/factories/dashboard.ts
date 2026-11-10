@@ -1,6 +1,3 @@
-import { prisma } from "../../infra/db/prisma/client";
-import { DashboardMysqlRepository } from "../../infra/db/mysql/dashboard-repository/dashboard-repository";
-import { GlobalSearchMysqlRepository } from "../../infra/db/mysql/global-search-repository/global-search-repository";
 import { DbLoadDashboardOverview } from "../../data/usescases/dashboard-usecases/db-load-dashboard-overview";
 import { DbLoadDashboardPerformance } from "../../data/usescases/dashboard-usecases/db-load-dashboard-performance";
 import { DbLoadDashboardReports } from "../../data/usescases/dashboard-usecases/db-load-dashboard-reports";
@@ -11,8 +8,7 @@ import {
   LoadDashboardReportsController,
 } from "../../presentation/controllers/dashboard-controllers";
 import { GlobalSearchController } from "../../presentation/controllers/search-controllers/global-search-controller";
-
-const makeDashboardRepository = (): DashboardMysqlRepository => new DashboardMysqlRepository(prisma);
+import { makeDashboardRepository, makeGlobalSearchRepository } from "./repositories";
 
 export const makeLoadDashboardOverviewController = (): LoadDashboardOverviewController =>
   new LoadDashboardOverviewController(new DbLoadDashboardOverview(makeDashboardRepository()));
@@ -24,4 +20,4 @@ export const makeLoadDashboardReportsController = (): LoadDashboardReportsContro
   new LoadDashboardReportsController(new DbLoadDashboardReports(makeDashboardRepository()));
 
 export const makeGlobalSearchController = (): GlobalSearchController =>
-  new GlobalSearchController(new DbGlobalSearch(new GlobalSearchMysqlRepository(prisma)));
+  new GlobalSearchController(new DbGlobalSearch(makeGlobalSearchRepository()));

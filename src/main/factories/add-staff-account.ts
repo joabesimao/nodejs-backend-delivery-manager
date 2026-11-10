@@ -1,17 +1,15 @@
 import { DbAddAccount } from "../../data/usescases/account-usecases/add-account/db-add-account";
 import { BcryptAdapter } from "../../infra/cryptography/bcrypt-adapter/bcrypt-adapter";
-import { AccountMySqlRepository } from "../../infra/db/mysql/account-repository/account-repository";
-import { AddAccountMySqlRepository } from "../../infra/db/mysql/signup-repository/signup-repository";
-import { prisma } from "../../infra/db/prisma/client";
 import { AddStaffAccountController } from "../../presentation/controllers/account-controllers/add-staff-account/add-staff-account";
 import { Controller } from "../../presentation/protocols/controller";
 import { makeAddStaffAccountValidation } from "./add-staff-account-validation";
+import { makeAccountRepository, makeAddAccountRepository } from "./repositories";
 
 export const makeAddStaffAccountController = (): Controller => {
   const salt = 12;
   const encrypt = new BcryptAdapter(salt);
-  const accountRepository = new AddAccountMySqlRepository(prisma);
-  const findAccountByEmailRepository = new AccountMySqlRepository(prisma);
+  const accountRepository = makeAddAccountRepository();
+  const findAccountByEmailRepository = makeAccountRepository();
   const addAccount = new DbAddAccount(
     encrypt,
     accountRepository,
