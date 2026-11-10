@@ -1,7 +1,6 @@
 import { Router } from "express";
 import { adaptRoute } from "../adapters/express-route-adapter";
-import { adaptMiddleware } from "../adapters/express-middleware-adapter";
-import { makeAuthMiddleware } from "../factories/auth-middleware-factory";
+import { auth } from "../middlewares/auth";
 import { makeLoadNotificationsController } from "../factories/load-notifications";
 import { makeCountUnreadNotificationsController } from "../factories/count-unread-notifications";
 import { makeMarkNotificationReadController } from "../factories/mark-notification-read";
@@ -9,8 +8,6 @@ import { makeMarkAllNotificationsReadController } from "../factories/mark-all-no
 import { makeDeleteNotificationController } from "../factories/delete-notification";
 import { makeBroadcastNoticeController } from "../factories/broadcast-notice";
 import { ADMIN_ROLES } from "../config/roles";
-
-const auth = (roles?: string[]) => adaptMiddleware(makeAuthMiddleware(roles));
 
 export default (router: Router): void => {
   router.get(

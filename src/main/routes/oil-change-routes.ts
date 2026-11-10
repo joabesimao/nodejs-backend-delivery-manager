@@ -1,7 +1,6 @@
 import { Router } from "express";
 import { adaptRoute } from "../adapters/express-route-adapter";
-import { adaptMiddleware } from "../adapters/express-middleware-adapter";
-import { makeAuthMiddleware } from "../factories/auth-middleware-factory";
+import { auth } from "../middlewares/auth";
 import { makeAddOilChangeLogController } from "../factories/add-oil-change-log";
 import { makeLoadOilChangeLogController } from "../factories/load-oil-change-log";
 import { makeUpdateOilChangeLogController } from "../factories/update-oil-change-log";
@@ -9,8 +8,6 @@ import { makeDeleteOilChangeLogController } from "../factories/delete-oil-change
 import { makeLoadOilChangeConfigController } from "../factories/load-oil-change-config";
 import { makeUpdateOilChangeConfigController } from "../factories/update-oil-change-config";
 import { FIELD_WRITE_ROLES, FLEET_READ_ROLES } from "../config/roles";
-
-const auth = (roles?: string[]) => adaptMiddleware(makeAuthMiddleware(roles));
 
 export default (router: Router): void => {
   router.get(
