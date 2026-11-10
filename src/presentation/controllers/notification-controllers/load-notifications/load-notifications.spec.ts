@@ -1,5 +1,6 @@
 import { LoadNotificationsController } from "./load-notifications";
 import { ok, serverError, unauthorized } from "../../../helpers/http/http-helper";
+import { makeFakeActor } from "../../../../test/actor-fixtures";
 
 const makeSut = () => {
   const loadNotifications = { load: jest.fn().mockResolvedValue({ items: [], nextCursor: null }) };
@@ -15,7 +16,7 @@ describe("LoadNotifications Controller", () => {
   test("Should parse the query and return 200", async () => {
     const { sut, loadNotifications } = makeSut();
     const response = await sut.handle({
-      headers: { accountId: 1 },
+      actor: makeFakeActor(),
       query: { cursor: "8", limit: "5", unreadOnly: "true" },
     });
     expect(loadNotifications.load).toHaveBeenCalledWith({ recipientId: 1, cursor: 8, limit: 5, unreadOnly: true });
@@ -24,7 +25,7 @@ describe("LoadNotifications Controller", () => {
 
   test("Should use defaults when the query is empty", async () => {
     const { sut, loadNotifications } = makeSut();
-    await sut.handle({ headers: { accountId: 1 }, query: {} });
+    await sut.handle({ actor: makeFakeActor(), query: {} });
     expect(loadNotifications.load).toHaveBeenCalledWith({
       recipientId: 1,
       cursor: undefined,
@@ -36,6 +37,6 @@ describe("LoadNotifications Controller", () => {
   test("Should return 500 if LoadNotifications throws", async () => {
     const { sut, loadNotifications } = makeSut();
     loadNotifications.load.mockRejectedValueOnce(new Error());
-    expect(await sut.handle({ headers: { accountId: 1 } })).toEqual(serverError(new Error()));
+    expect(await sut.handle({ actor: makeFakeActor() })).toEqual(serverError(new Error()));
   });
 });

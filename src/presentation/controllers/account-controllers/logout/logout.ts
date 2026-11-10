@@ -14,7 +14,7 @@ export class LogoutController implements Controller {
 
   async handle(httpRequest: HttpRequest): Promise<HttpResponse> {
     try {
-      const accountId = httpRequest.headers?.accountId;
+      const accountId = httpRequest.actor?.id;
       if (!accountId) {
         return unauthorized();
       }

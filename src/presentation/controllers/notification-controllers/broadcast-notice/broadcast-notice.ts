@@ -23,7 +23,7 @@ export class BroadcastNoticeController implements Controller {
 
   async handle(httpRequest: HttpRequest): Promise<HttpResponse> {
     try {
-      const senderId = Number(httpRequest.headers?.accountId);
+      const senderId = Number(httpRequest.actor?.id);
       if (!senderId) {
         return unauthorized();
       }

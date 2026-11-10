@@ -3,9 +3,10 @@ import { InvalidParamError, MissingParamError } from "../../../errors";
 import { AccessDeniedError } from "../../../../domain/errors/access-denied-error";
 import { badRequest, forbidden, ok, serverError, unauthorized } from "../../../helpers/http/http-helper";
 import { HttpRequest } from "../../../protocols/http";
+import { makeFakeActor } from "../../../../test/actor-fixtures";
 
 const makeRequest = (body: Record<string, unknown> = {}): HttpRequest => ({
-  headers: { accountId: 1 },
+  actor: makeFakeActor(),
   body: { title: " Aviso ", body: " Reunião às 18h ", ...body },
 });
 

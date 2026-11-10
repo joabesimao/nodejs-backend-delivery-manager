@@ -10,7 +10,7 @@ export class LoadNotificationsController implements Controller {
 
   async handle(httpRequest: HttpRequest): Promise<HttpResponse> {
     try {
-      const recipientId = Number(httpRequest.headers?.accountId);
+      const recipientId = Number(httpRequest.actor?.id);
       if (!recipientId) {
         return unauthorized();
       }

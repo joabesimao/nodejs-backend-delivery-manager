@@ -16,7 +16,7 @@ export class LoadOrderDeliveryRankingController implements Controller {
       const status = String(filters?.status ?? "all");
       const page = Number(filters?.page ?? 1);
       const pageSize = Number(filters?.pageSize ?? 10);
-      const accountId = Number(httpRequest.headers?.accountId || 0) || undefined;
+      const accountId = Number(httpRequest.actor?.id || 0) || undefined;
 
       if (
         !filters?.startDate ||

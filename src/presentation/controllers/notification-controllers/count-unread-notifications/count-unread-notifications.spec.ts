@@ -1,5 +1,6 @@
 import { CountUnreadNotificationsController } from "./count-unread-notifications";
 import { ok, serverError, unauthorized } from "../../../helpers/http/http-helper";
+import { makeFakeActor } from "../../../../test/actor-fixtures";
 
 const makeSut = () => {
   const countUnread = { countUnread: jest.fn().mockResolvedValue(4) };
@@ -14,13 +15,13 @@ describe("CountUnreadNotifications Controller", () => {
 
   test("Should return 200 with the unread count", async () => {
     const { sut, countUnread } = makeSut();
-    expect(await sut.handle({ headers: { accountId: 1 } })).toEqual(ok({ unreadCount: 4 }));
+    expect(await sut.handle({ actor: makeFakeActor() })).toEqual(ok({ unreadCount: 4 }));
     expect(countUnread.countUnread).toHaveBeenCalledWith(1);
   });
 
   test("Should return 500 if CountUnreadNotifications throws", async () => {
     const { sut, countUnread } = makeSut();
     countUnread.countUnread.mockRejectedValueOnce(new Error());
-    expect(await sut.handle({ headers: { accountId: 1 } })).toEqual(serverError(new Error()));
+    expect(await sut.handle({ actor: makeFakeActor() })).toEqual(serverError(new Error()));
   });
 });

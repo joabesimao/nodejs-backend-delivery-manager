@@ -10,9 +10,9 @@ export const unauthenticated = (): HttpResponse => chatError(401, "Não autentic
 export const invalidMessageId = (): HttpResponse => chatError(400, "ID de mensagem inválido");
 
 export const readAccountId = (httpRequest: HttpRequest): number =>
-  Number(httpRequest.headers?.accountId || 0);
+  Number(httpRequest.actor?.id || 0);
 
 export const readOptionalAccountId = (httpRequest: HttpRequest): number | undefined =>
-  Number(httpRequest.headers?.accountId || 0) ||
+  Number(httpRequest.actor?.id || 0) ||
   Number(httpRequest.query?.accountId || 0) ||
   undefined;

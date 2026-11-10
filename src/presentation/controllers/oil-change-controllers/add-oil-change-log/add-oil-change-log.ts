@@ -25,7 +25,7 @@ export class AddOilChangeLogController implements Controller {
           km: Number(km),
           changeDate: new Date(changeDate),
         },
-        { actorAccountId: Number(httpRequest.headers?.accountId) || undefined }
+        { actorAccountId: Number(httpRequest.actor?.id) || undefined }
       );
       return ok(result);
     } catch (error) {

@@ -8,7 +8,7 @@ export class LoadOrderDeliveryController implements Controller {
   async handle(httpRequest: HttpRequest): Promise<HttpResponse> {
     try {
       const accountId =
-        Number(httpRequest.headers?.accountId || 0) || undefined;
+        Number(httpRequest.actor?.id || 0) || undefined;
       const allOrders = await this.loadOrderDelivery.loadAll(accountId);
       return ok(allOrders);
     } catch (error) {

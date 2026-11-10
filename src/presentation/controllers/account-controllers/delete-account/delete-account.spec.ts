@@ -12,6 +12,7 @@ import { AccountInUseError } from "../../../../domain/errors/account-in-use-erro
 import { LastAdminError } from "../../../../domain/errors/last-admin-error";
 import { NotFoundError } from "../../../../domain/errors/not-found-error";
 import { SelfActionError } from "../../../../domain/errors/self-action-error";
+import { makeFakeActor } from "../../../../test/actor-fixtures";
 
 const makeDeleteAccountStub = (): DeleteAccount => {
   class DeleteAccountStub implements DeleteAccount {
@@ -53,9 +54,7 @@ const fakehttpRequest = (): HttpRequest => ({
   params: {
     id: 1,
   },
-  headers: {
-    accountId: 999,
-  },
+  actor: makeFakeActor({ id: 999 }),
 });
 
 describe("DeleteAccount Controller", () => {

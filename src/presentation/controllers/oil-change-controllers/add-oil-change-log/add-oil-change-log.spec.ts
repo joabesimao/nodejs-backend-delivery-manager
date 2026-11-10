@@ -6,6 +6,7 @@ import { AddOilChangeLog, AddOilChangeLogModel } from "../../../../domain/usesca
 import { Validation } from "../../../protocols/validation";
 import { MissingParamError } from "../../../errors";
 import { InvalidKmError } from "../../../../domain/errors";
+import { makeFakeActor } from "../../../../test/actor-fixtures";
 
 const makeFakeRequest = (): HttpRequest => ({
   body: {
@@ -80,7 +81,7 @@ describe("AddOilChangeLog Controller", () => {
   test("Should pass the authenticated account as the actor", async () => {
     const { sut, addOilChangeLogStub } = makeSut();
     const addSpy = jest.spyOn(addOilChangeLogStub, "add");
-    await sut.handle({ ...makeFakeRequest(), headers: { accountId: 7 } });
+    await sut.handle({ ...makeFakeRequest(), actor: makeFakeActor({ id: 7 }) });
     expect(addSpy).toHaveBeenCalledWith(expect.any(Object), { actorAccountId: 7 });
   });
 
