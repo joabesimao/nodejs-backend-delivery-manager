@@ -3,9 +3,10 @@ import { AddChatMessage } from "../../../domain/usescases/chat/add-chat-message"
 import { makeFakeChatMessage } from "../../../test/chat-fixtures";
 import { HttpRequest } from "../../protocols/http";
 import { AddChatMessageController } from "./add-chat-message-controller";
+import { makeFakeActor } from "../../../test/actor-fixtures";
 
 const makeRequest = (body: Record<string, unknown> = { text: " olá ", unitStoreId: 11 }): HttpRequest => ({
-  headers: { accountId: 1 },
+  actor: makeFakeActor(),
   body,
 });
 

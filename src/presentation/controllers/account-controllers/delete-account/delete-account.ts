@@ -12,7 +12,7 @@ export class DeleteAccountController implements Controller {
   async handle(httpRequest: HttpRequest): Promise<HttpResponse> {
     try {
       const id = Number(httpRequest.params.id);
-      const requesterId = Number(httpRequest.headers?.accountId);
+      const requesterId = Number(httpRequest.actor?.id);
 
       const account = await this.deleteAccount.deleteAccountById(
         id,

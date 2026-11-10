@@ -12,6 +12,7 @@ import {
   serverError,
 } from "../../../helpers/http/http-helper";
 import { HttpRequest } from "../../../protocols/http";
+import { makeFakeActor } from "../../../../test/actor-fixtures";
 
 const makeFakeOrder = (): OrderDeliveryModel =>
   ({ id: 1, amount: 50, quantity: "2", status: "finished" } as unknown as OrderDeliveryModel);
@@ -27,7 +28,7 @@ const makeUpdateOrderDelivery = (): UpdateOrderDelivery => {
 
 const makeRequest = (body: Record<string, unknown> = {}): HttpRequest => ({
   params: { id: "1" },
-  headers: { accountId: 3, accountRole: "entregador" },
+  actor: makeFakeActor({ id: 3, role: "entregador" }),
   body: { status: "finished", ...body },
 });
 

@@ -55,7 +55,29 @@ describe("Express Route Adapter", () => {
         accountRole: "admin",
         accountUnitStoreId: 2,
       },
+      actor: { id: 1, role: "admin", unitStoreId: 2 },
     });
+  });
+
+  test("Should not set actor when the request is not authenticated", async () => {
+    const controller = makeController({ statusCode: 200, body: {} });
+    const handleSpy = jest.spyOn(controller, "handle");
+    const req = {
+      ...makeRequest(),
+      accountId: undefined,
+      accountRole: undefined,
+      accountUnitStoreId: undefined,
+    } as unknown as Request;
+    await adaptRoute(controller)(req, makeResponse());
+    expect(handleSpy.mock.calls[0][0]).not.toHaveProperty("actor");
+  });
+
+  test("Should default actor unitStoreId to null", async () => {
+    const controller = makeController({ statusCode: 200, body: {} });
+    const handleSpy = jest.spyOn(controller, "handle");
+    const req = { ...makeRequest(), accountUnitStoreId: undefined } as unknown as Request;
+    await adaptRoute(controller)(req, makeResponse());
+    expect(handleSpy.mock.calls[0][0].actor).toEqual({ id: 1, role: "admin", unitStoreId: null });
   });
 
   test("Should respond with 200 and body on success", async () => {

@@ -2,6 +2,7 @@ import { LogoutController } from "./logout";
 import { UpdateRefreshTokenRepository } from "../../../../data/protocols/db/access-token-repository/update-refresh-token-repository";
 import { HttpRequest } from "../../../protocols/http";
 import { noContent, serverError, unauthorized } from "../../../helpers/http/http-helper";
+import { makeFakeActor } from "../../../../test/actor-fixtures";
 
 const makeUpdateRefreshTokenRepository =
   (): UpdateRefreshTokenRepository => {
@@ -30,11 +31,11 @@ const makeSut = (): SutTypes => {
 };
 
 const makeFakeRequest = (): HttpRequest => ({
-  headers: { accountId: 1 },
+  actor: makeFakeActor(),
 });
 
 describe("Logout Controller", () => {
-  test("Should return 401 if accountId is missing from headers", async () => {
+  test("Should return 401 if the actor is missing", async () => {
     const { sut } = makeSut();
     const httpResponse = await sut.handle({ headers: {} });
     expect(httpResponse).toEqual(unauthorized());

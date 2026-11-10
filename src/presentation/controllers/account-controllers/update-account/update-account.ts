@@ -24,7 +24,7 @@ export class UpdateAccountController implements Controller {
       }
 
       const id = Number(httpRequest.params.id);
-      const requesterId = Number(httpRequest.headers?.accountId);
+      const requesterId = Number(httpRequest.actor?.id);
       const { name, email, role, active, password } = httpRequest.body;
 
       const account = await this.updateAccount.update(

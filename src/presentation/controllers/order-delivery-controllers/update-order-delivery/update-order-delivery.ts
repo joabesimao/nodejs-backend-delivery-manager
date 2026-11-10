@@ -47,7 +47,7 @@ export class UpdateOrderDeliveryController implements Controller {
   async handle(httpRequest: HttpRequest): Promise<HttpResponse> {
     try {
       const accountId =
-        Number(httpRequest.headers?.accountId || 0) || undefined;
+        Number(httpRequest.actor?.id || 0) || undefined;
       const parsedId = Number(httpRequest.params.id);
 
       if (Number.isNaN(parsedId) || parsedId <= 0) {
@@ -57,7 +57,7 @@ export class UpdateOrderDeliveryController implements Controller {
       const requestBody: Record<string, unknown> = {
         ...httpRequest.body,
         accountId,
-        accountRole: httpRequest.headers?.accountRole,
+        accountRole: httpRequest.actor?.role,
       };
 
       if (requestBody.amount !== undefined) {

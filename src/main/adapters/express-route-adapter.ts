@@ -1,11 +1,26 @@
 import { Controller } from "../../presentation/protocols/controller";
-import { HttpRequest } from "../../presentation/protocols/http";
+import { Actor, HttpRequest } from "../../presentation/protocols/http";
 import { Request, Response } from "express";
+
+type AuthenticatedRequest = Request & {
+  accountId?: number;
+  accountRole?: Actor["role"];
+  accountUnitStoreId?: number | null;
+};
+
+const readActor = (req: AuthenticatedRequest): Actor | undefined => {
+  if (typeof req.accountId !== "number" || !req.accountRole) return undefined;
+  return {
+    id: req.accountId,
+    role: req.accountRole,
+    unitStoreId: req.accountUnitStoreId ?? null,
+  };
+};
 
 export const adaptRoute = (controller: Controller) => {
   return async (req: Request, res: Response) => {
     try {
-      const requestWithAccount = req as Request & { accountId?: number };
+      const requestWithAccount = req as AuthenticatedRequest;
       const httpRequest: HttpRequest = {
         body: req.body,
         params: req.params,
@@ -13,10 +28,12 @@ export const adaptRoute = (controller: Controller) => {
         headers: {
           ...req.headers,
           accountId: requestWithAccount.accountId,
-          accountRole: (req as any).accountRole,
-          accountUnitStoreId: (req as any).accountUnitStoreId,
+          accountRole: requestWithAccount.accountRole,
+          accountUnitStoreId: requestWithAccount.accountUnitStoreId,
         },
       };
+      const actor = readActor(requestWithAccount);
+      if (actor) httpRequest.actor = actor;
       const httpResponse = await controller.handle(httpRequest);
       if (httpResponse.statusCode >= 200 && httpResponse.statusCode <= 299) {
         res.status(httpResponse.statusCode).json(httpResponse.body);

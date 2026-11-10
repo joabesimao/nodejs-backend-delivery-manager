@@ -1,6 +1,7 @@
 import { ChatAccountNotFoundError } from "../../../domain/errors";
 import { SearchChatMessages } from "../../../domain/usescases/chat/search-chat-messages";
 import { SearchChatMessagesController } from "./search-chat-messages-controller";
+import { makeFakeActor } from "../../../test/actor-fixtures";
 
 const makePage = () => ({
   messages: [],
@@ -17,7 +18,7 @@ const makeSut = () => {
 describe("SearchChatMessages Controller", () => {
   test("Should use default values when the query is empty", async () => {
     const { sut, searchChatMessagesStub } = makeSut();
-    await sut.handle({ headers: { accountId: 1 } });
+    await sut.handle({ actor: makeFakeActor() });
     expect(searchChatMessagesStub.search).toHaveBeenCalledWith({
       accountId: 1,
       searchText: "",
@@ -65,7 +66,7 @@ describe("SearchChatMessages Controller", () => {
 
   test("Should return 200 with the page", async () => {
     const { sut } = makeSut();
-    const response = await sut.handle({ headers: { accountId: 1 } });
+    const response = await sut.handle({ actor: makeFakeActor() });
     expect(response).toEqual({ statusCode: 200, body: makePage() });
   });
 
@@ -73,14 +74,14 @@ describe("SearchChatMessages Controller", () => {
     const { sut, searchChatMessagesStub } = makeSut();
     const error = new ChatAccountNotFoundError();
     (searchChatMessagesStub.search as jest.Mock).mockRejectedValueOnce(error);
-    const response = await sut.handle({ headers: { accountId: 1 } });
+    const response = await sut.handle({ actor: makeFakeActor() });
     expect(response).toEqual({ statusCode: 404, body: error });
   });
 
   test("Should return 500 on unexpected errors", async () => {
     const { sut, searchChatMessagesStub } = makeSut();
     (searchChatMessagesStub.search as jest.Mock).mockRejectedValueOnce(new Error("db down"));
-    const response = await sut.handle({ headers: { accountId: 1 } });
+    const response = await sut.handle({ actor: makeFakeActor() });
     expect(response).toEqual({ statusCode: 500, body: { error: "Falha ao buscar mensagens" } });
   });
 });

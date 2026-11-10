@@ -46,7 +46,7 @@ export class AddOrderDeliveryController implements Controller {
     const requestTrace = {
       at: new Date().toISOString(),
       route: "POST /orderDelivery",
-      accountId: Number(httpRequest.headers?.accountId || 0) || null,
+      accountId: Number(httpRequest.actor?.id || 0) || null,
       registerId: httpRequest.body?.registerId ?? null,
       deliverymanId: httpRequest.body?.deliverymanId ?? null,
       quantity: httpRequest.body?.quantity ?? null,
@@ -67,7 +67,7 @@ export class AddOrderDeliveryController implements Controller {
 
       const { amount, quantity, registerId, deliverymanId } = httpRequest.body;
       const accountId =
-        Number(httpRequest.headers?.accountId || 0) || undefined;
+        Number(httpRequest.actor?.id || 0) || undefined;
 
       const parsedRegisterId = Number(registerId);
       if (Number.isNaN(parsedRegisterId) || parsedRegisterId <= 0) {

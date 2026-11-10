@@ -28,7 +28,7 @@ export class AddFuelRefillController implements Controller {
           totalValue: Number(totalValue),
           refillDate: new Date(refillDate),
         },
-        { actorAccountId: Number(httpRequest.headers?.accountId) || undefined }
+        { actorAccountId: Number(httpRequest.actor?.id) || undefined }
       );
       return ok(result);
     } catch (error) {
