@@ -2,7 +2,7 @@ import { DbDeleteDeliveryman } from "../../data/usescases/deliveryman-usecases/d
 import { DeliverymanMysqlRepository } from "../../infra/db/mysql/deliveryman-repository/deliveryman-repository";
 import { DeleteDeliverymanController } from "../../presentation/controllers/deliveryman-controllers/delete-deliveryman/delete-deliveryman";
 import { Controller } from "../../presentation/protocols/controller";
-import { prisma } from "../../infra/db/mysql/helpers/index";
+import { prisma } from "../../infra/db/prisma/client";
 
 export const makeDeleteDeliverymanController = (): Controller => {
   const deliverymanRepository = new DeliverymanMysqlRepository(prisma);

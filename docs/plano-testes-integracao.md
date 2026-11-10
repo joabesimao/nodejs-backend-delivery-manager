@@ -21,7 +21,7 @@ Projeto: `nodejs-backend-delivery-manager`.
 
 ## Estrutura de testes
 - Convenção atual: `*.spec.ts` para unitários e `*.test.ts` para integração.
-- **Nível 1, repositórios:** `src/infra/db/mysql/<x>-repository/<x>-repository.test.ts`, usando o `prisma` real de [helpers/index.ts](src/infra/db/mysql/helpers/index.ts). Cada teste semeia os dados, chama o repositório e confere o resultado no banco. Ordem de prioridade: vehicle, fuel-refill, oil-change (módulo novo), account, order-delivery, client, product; depois os demais.
+- **Nível 1, repositórios:** `src/infra/db/mysql/<x>-repository/<x>-repository.test.ts`, usando o `prisma` real de [prisma/client.ts](src/infra/db/prisma/client.ts). Cada teste semeia os dados, chama o repositório e confere o resultado no banco. Ordem de prioridade: vehicle, fuel-refill, oil-change (módulo novo), account, order-delivery, client, product; depois os demais.
 - **Nível 2, rotas:** `src/main/routes/<recurso>-routes.test.ts`, com supertest sobre `await setupApp()`. Para cada recurso, testar:
   - o caminho feliz de CRUD;
   - 401 sem token;

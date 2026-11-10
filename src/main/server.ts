@@ -1,6 +1,6 @@
 import { createServer } from "http";
 import { env } from "../../config/Env";
-import { prisma } from "../infra/db/mysql/helpers/";
+import { prisma } from "../infra/db/prisma/client";
 import { setupRealtimeGateway } from "./realtime/realtime-gateway";
 
 prisma

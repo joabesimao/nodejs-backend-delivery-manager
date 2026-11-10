@@ -2,7 +2,7 @@ import { DbLoadClients } from "../../data/usescases/client-usecases/load-client/
 import { ClientMysqlRepository } from "../../infra/db/mysql/client-repository/client-repository";
 import { LoadClientController } from "../../presentation/controllers/client-controllers/load-client/load-client";
 import { Controller } from "../../presentation/protocols/controller";
-import { prisma } from "../../infra/db/mysql/helpers/index";
+import { prisma } from "../../infra/db/prisma/client";
 
 export const makeLoadClientController = (): Controller => {
   const loadClientRepository = new ClientMysqlRepository(prisma);

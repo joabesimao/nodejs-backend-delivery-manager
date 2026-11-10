@@ -2,7 +2,7 @@ import { DbUpdateAddress } from "../../data/usescases/address-usecases/update-ad
 import { AddressMysqlRepository } from "../../infra/db/mysql/address-repository/address-repository";
 import { UpdateAddressController } from "../../presentation/controllers/address-controllers/update-address/update-address";
 import { Controller } from "../../presentation/protocols/controller";
-import { prisma } from "../../infra/db/mysql/helpers/index";
+import { prisma } from "../../infra/db/prisma/client";
 
 export const makeUpdateAddressController = (): Controller => {
   const updateAddressRepository = new AddressMysqlRepository(prisma);

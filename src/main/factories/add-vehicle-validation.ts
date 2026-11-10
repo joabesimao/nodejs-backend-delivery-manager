@@ -1,7 +1,7 @@
 import { ValidationComposite, RequireFieldsValidation, PlateDuplicateValidation } from "../../presentation/helpers/validators";
 import { Validation } from "../../presentation/protocols/validation";
 import { VehicleMysqlRepository } from "../../infra/db/mysql/vehicle-repository/vehicle-repository";
-import { prisma } from "../../infra/db/mysql/helpers/index";
+import { prisma } from "../../infra/db/prisma/client";
 
 export const makeAddVehicleValidation = (): ValidationComposite => {
   const validations: Validation[] = [];

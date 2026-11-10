@@ -1,7 +1,7 @@
 import { NotifyAccounts } from "../../domain/usescases/notification/notify-accounts";
 import { DbNotifyAccounts } from "../../data/usescases/notification-usecases/notify-accounts/db-notify-accounts";
 import { NotificationMysqlRepository } from "../../infra/db/mysql/notification-repository/notification-repository";
-import { prisma } from "../../infra/db/mysql/helpers/index";
+import { prisma } from "../../infra/db/prisma/client";
 import { SocketNotificationPublisher } from "../realtime/socket-notification-publisher";
 import { KeyedLock } from "../../data/helpers/keyed-lock";
 

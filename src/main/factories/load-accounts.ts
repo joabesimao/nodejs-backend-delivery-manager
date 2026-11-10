@@ -1,6 +1,6 @@
 import { DbLoadAccounts } from "../../data/usescases/account-usecases/load-accounts/db-load-accounts";
 import { AccountMySqlRepository } from "../../infra/db/mysql/account-repository/account-repository";
-import { prisma } from "../../infra/db/mysql/helpers/index";
+import { prisma } from "../../infra/db/prisma/client";
 import { LoadAccountsController } from "../../presentation/controllers/account-controllers/load-accounts/load-accounts";
 import { Controller } from "../../presentation/protocols/controller";
 

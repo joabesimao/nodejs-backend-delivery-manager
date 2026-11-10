@@ -8,7 +8,7 @@ import {
   BarcodeDuplicateValidation,
 } from "../../presentation/helpers/validators";
 import { Validation } from "../../presentation/protocols/validation";
-import { prisma } from "../../infra/db/mysql/helpers";
+import { prisma } from "../../infra/db/prisma/client";
 import { ProductMysqlRepository } from "../../infra/db/mysql/product-repository/product-repository";
 
 export const makeAddProductValidation = (): ValidationComposite => {

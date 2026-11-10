@@ -1,4 +1,4 @@
-import { prisma } from "../../infra/db/mysql/helpers/index";
+import { prisma } from "../../infra/db/prisma/client";
 import { DashboardMysqlRepository } from "../../infra/db/mysql/dashboard-repository/dashboard-repository";
 import { GlobalSearchMysqlRepository } from "../../infra/db/mysql/global-search-repository/global-search-repository";
 import { DbLoadDashboardOverview } from "../../data/usescases/dashboard-usecases/db-load-dashboard-overview";

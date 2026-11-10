@@ -1,7 +1,7 @@
 import { env } from "../../../config/Env";
 import { JwtAdapter } from "../../infra/cryptography/jwt-adapter/jwt-adapter";
 import { AccountMySqlRepository } from "../../infra/db/mysql/account-repository/account-repository";
-import { prisma } from "../../infra/db/mysql/helpers";
+import { prisma } from "../../infra/db/prisma/client";
 import { RefreshTokenController } from "../../presentation/controllers/account-controllers/refresh-token/refresh-token";
 import { Controller } from "../../presentation/protocols/controller";
 import { makeRefreshTokenValidation } from "./refresh-token-validation";

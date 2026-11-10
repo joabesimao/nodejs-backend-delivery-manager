@@ -2,7 +2,7 @@ import { DeleteClientController } from "../../presentation/controllers/client-co
 import { DbDeleteClient } from "../../data/usescases/client-usecases/delete-client/db-delete-client";
 import { Controller } from "../../presentation/protocols/controller";
 import { ClientMysqlRepository } from "../../infra/db/mysql/client-repository/client-repository";
-import { prisma } from "../../infra/db/mysql/helpers/index";
+import { prisma } from "../../infra/db/prisma/client";
 
 export const makeDeleteClientController = (): Controller => {
   const deleteClientRepository = new ClientMysqlRepository(prisma);
