@@ -1,11 +1,10 @@
 import { Controller } from "../../presentation/protocols/controller";
-import { NeighborhoodMysqlRepository } from "../../infra/db/mysql/neighborhood-repository/neighborhood-repository";
 import { DbAddNeighborhood } from "../../data/usescases/neighborhood-usecases/add-neighborhood/db-add-neighborhood";
 import { AddNeighborhoodController } from "../../presentation/controllers/neighborhood-controllers/add-neighborhood/add-neighborhood";
-import { prisma } from "../../infra/db/prisma/client";
+import { makeNeighborhoodRepository } from "./repositories";
 
 export const makeAddNeighborhoodController = (): Controller => {
-  const neighborhoodRepository = new NeighborhoodMysqlRepository(prisma);
+  const neighborhoodRepository = makeNeighborhoodRepository();
   const addNeighborhood = new DbAddNeighborhood(neighborhoodRepository);
   return new AddNeighborhoodController(addNeighborhood);
 };

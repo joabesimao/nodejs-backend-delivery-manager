@@ -1,11 +1,10 @@
 import { AddAddressController } from "../../presentation/controllers/address-controllers/add-address/add-address";
 import { DbAddAddress } from "../../data/usescases/address-usecases/add-address/db-add-address";
 import { Controller } from "../../presentation/protocols/controller";
-import { AddressMysqlRepository } from "../../infra/db/mysql/address-repository/address-repository";
-import { prisma } from "../../infra/db/prisma/client";
+import { makeAddressRepository } from "./repositories";
 
 export const makeAddAddressController = (): Controller => {
-  const addressRepository = new AddressMysqlRepository(prisma);
+  const addressRepository = makeAddressRepository();
   const address = new DbAddAddress(addressRepository);
   const addressController = new AddAddressController(address);
   return addressController;

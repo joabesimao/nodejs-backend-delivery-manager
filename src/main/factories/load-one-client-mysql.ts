@@ -1,11 +1,10 @@
 import { DbLoadOneClient } from "../../data/usescases/client-usecases/load-client/db-load-one-client";
-import { ClientMysqlRepository } from "../../infra/db/mysql/client-repository/client-repository";
 import { LoadOneClientController } from "../../presentation/controllers/client-controllers/load-one-client/load-one-client";
 import { Controller } from "../../presentation/protocols/controller";
-import { prisma } from "../../infra/db/prisma/client";
+import { makeClientRepository } from "./repositories";
 
 export const makeLoadOneClientController = (): Controller => {
-  const loadClientRepository = new ClientMysqlRepository(prisma);
+  const loadClientRepository = makeClientRepository();
   const listClient = new DbLoadOneClient(loadClientRepository);
   const controller = new LoadOneClientController(listClient);
   return controller;

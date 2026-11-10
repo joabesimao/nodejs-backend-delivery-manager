@@ -1,11 +1,10 @@
 import { Controller } from "../../presentation/protocols/controller";
-import { OilChangeMysqlRepository } from "../../infra/db/mysql/oil-change-repository/oil-change-repository";
 import { DbLoadOilChangeConfig } from "../../data/usescases/oil-change-usecases/load-oil-change-config/db-load-oil-change-config";
 import { LoadOilChangeConfigController } from "../../presentation/controllers/oil-change-controllers/load-oil-change-config/load-oil-change-config";
-import { prisma } from "../../infra/db/prisma/client";
+import { makeOilChangeRepository } from "./repositories";
 
 export const makeLoadOilChangeConfigController = (): Controller => {
-  const oilChangeRepository = new OilChangeMysqlRepository(prisma);
+  const oilChangeRepository = makeOilChangeRepository();
   const loadOilChangeConfig = new DbLoadOilChangeConfig(oilChangeRepository);
   return new LoadOilChangeConfigController(loadOilChangeConfig);
 };
