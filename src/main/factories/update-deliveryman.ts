@@ -2,7 +2,7 @@ import { DbUpdateDeliveryman } from "../../data/usescases/deliveryman-usecases/u
 import { DeliverymanMysqlRepository } from "../../infra/db/mysql/deliveryman-repository/deliveryman-repository";
 import { UpdateDeliverymanController } from "../../presentation/controllers/deliveryman-controllers/update-deliveryman/update-deliveryman";
 import { Controller } from "../../presentation/protocols/controller";
-import { prisma } from "../../infra/db/mysql/helpers/index";
+import { prisma } from "../../infra/db/prisma/client";
 import { makeUpdateDeliverymanValidation } from "./update-deliveryman-validation";
 
 export const makeUpdateDeliverymanController = (): Controller => {

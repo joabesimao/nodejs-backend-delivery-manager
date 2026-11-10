@@ -2,7 +2,7 @@ import { DbUpdateClient } from "../../data/usescases/client-usecases/update-clie
 import { ClientMysqlRepository } from "../../infra/db/mysql/client-repository/client-repository";
 import { UpdateClientController } from "../../presentation/controllers/client-controllers/update-client/update-client-controller";
 import { Controller } from "../../presentation/protocols/controller";
-import { prisma } from "../../infra/db/mysql/helpers/index";
+import { prisma } from "../../infra/db/prisma/client";
 
 export const makeUpdateClientController = (): Controller => {
   const updateClientRepository = new ClientMysqlRepository(prisma);

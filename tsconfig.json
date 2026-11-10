@@ -7,6 +7,6 @@
     "target": "es2019",
     "esModuleInterop": true
   },
-  "include": ["src", "src/infra/db/mysql/helpers/index.ts", "src/presentation/errors/no-exists-error.ts"],
+  "include": ["src", "src/presentation/errors/no-exists-error.ts"],
   "exclude": ["**/*.spec.ts", "**/*.test.ts", "src/test/**"]
 }

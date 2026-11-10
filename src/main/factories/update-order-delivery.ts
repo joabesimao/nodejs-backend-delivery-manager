@@ -2,7 +2,7 @@ import { DbUpdateOrderDelivery } from "../../data/usescases/order-delivery/updat
 import { OrderDeliveryMySqlRepository } from "../../infra/db/mysql/order-delivery-repository/order-delivery-mysql-repository";
 import { UpdateOrderDeliveryController } from "../../presentation/controllers/order-delivery-controllers/update-order-delivery/update-order-delivery";
 import { Controller } from "../../presentation/protocols/controller";
-import { prisma } from "../../infra/db/mysql/helpers/index";
+import { prisma } from "../../infra/db/prisma/client";
 
 export const makeUpdateOrderDeliveryController = (): Controller => {
   const updateRepository = new OrderDeliveryMySqlRepository(prisma);

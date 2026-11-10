@@ -3,7 +3,7 @@ import { Server } from "socket.io";
 import { setupRealtimeGateway } from "./realtime-gateway";
 import { setRealtimeServer } from "./realtime-state";
 import { getAccountScope } from "../../infra/db/mysql/helpers/store-scope";
-import { prisma } from "../../infra/db/mysql/helpers";
+import { prisma } from "../../infra/db/prisma/client";
 import { JwtAdapter } from "../../infra/cryptography/jwt-adapter/jwt-adapter";
 
 const mockUse = jest.fn();
@@ -28,7 +28,7 @@ jest.mock("../../infra/db/mysql/helpers/store-scope", () => ({
   getAccountScope: jest.fn(),
 }));
 
-jest.mock("../../infra/db/mysql/helpers", () => ({
+jest.mock("../../infra/db/prisma/client", () => ({
   prisma: {
     account: { findUnique: jest.fn() },
     unitStore: { findMany: jest.fn() },

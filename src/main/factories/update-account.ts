@@ -1,7 +1,7 @@
 import { DbUpdateAccount } from "../../data/usescases/account-usecases/update-account/db-update-account";
 import { BcryptAdapter } from "../../infra/cryptography/bcrypt-adapter/bcrypt-adapter";
 import { AccountMySqlRepository } from "../../infra/db/mysql/account-repository/account-repository";
-import { prisma } from "../../infra/db/mysql/helpers/index";
+import { prisma } from "../../infra/db/prisma/client";
 import { UpdateAccountController } from "../../presentation/controllers/account-controllers/update-account/update-account";
 import { Controller } from "../../presentation/protocols/controller";
 import { makeUpdateAccountValidation } from "./update-account-validation";

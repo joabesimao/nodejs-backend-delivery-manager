@@ -9,10 +9,10 @@ import {
   makeFakeAccount,
   mockAuthenticatedAccount,
 } from "../../test/route-harness";
-import { prisma as prismaClient } from "../../infra/db/mysql/helpers";
+import { prisma as prismaClient } from "../../infra/db/prisma/client";
 import app from "../config/app";
 
-jest.mock("../../infra/db/mysql/helpers", () => ({
+jest.mock("../../infra/db/prisma/client", () => ({
   prisma: jest.requireActual("../../test/route-harness").createPrismaMock(),
 }));
 

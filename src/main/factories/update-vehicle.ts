@@ -2,7 +2,7 @@ import { Controller } from "../../presentation/protocols/controller";
 import { VehicleMysqlRepository } from "../../infra/db/mysql/vehicle-repository/vehicle-repository";
 import { DbUpdateVehicle } from "../../data/usescases/vehicle-usecases/update-vehicle/db-update-vehicle";
 import { UpdateVehicleController } from "../../presentation/controllers/vehicle-controllers/update-vehicle/update-vehicle";
-import { prisma } from "../../infra/db/mysql/helpers/index";
+import { prisma } from "../../infra/db/prisma/client";
 import { makeUpdateVehicleValidation } from "./update-vehicle-validation";
 
 export const makeUpdateVehicleController = (): Controller => {

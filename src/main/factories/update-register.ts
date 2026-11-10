@@ -2,7 +2,7 @@ import { DbUpdateRegister } from "../../data/usescases/register-usecases/update-
 import { RegisterMySqlRepository } from "../../infra/db/mysql/register-repository/register-mysql-repository";
 import { UpdateRegisterController } from "../../presentation/controllers/register-controllers/update-register/update-register";
 import { Controller } from "../../presentation/protocols/controller";
-import { prisma } from "../../infra/db/mysql/helpers/index";
+import { prisma } from "../../infra/db/prisma/client";
 
 export const makeUpdateRegisterController = (): Controller => {
   const updateRepository = new RegisterMySqlRepository(prisma);

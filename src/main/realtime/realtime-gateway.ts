@@ -1,7 +1,7 @@
 import type { Server as HttpServer } from "http";
 import { Server } from "socket.io";
 import { env } from "../../../config/Env";
-import { prisma } from "../../infra/db/mysql/helpers";
+import { prisma } from "../../infra/db/prisma/client";
 import { JwtAdapter } from "../../infra/cryptography/jwt-adapter/jwt-adapter";
 import { accountRoomFor, networkRoomFor, setRealtimeServer } from "./realtime-state";
 import { makeNotifyChatMessage } from "../factories/notify-chat-message";

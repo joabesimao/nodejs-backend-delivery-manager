@@ -2,7 +2,7 @@ import { AddClientController } from "../../presentation/controllers/client-contr
 import { DbAddClient } from "../../data/usescases/client-usecases/add-client/db-add-client";
 import { Controller } from "../../presentation/protocols/controller";
 import { ClientMysqlRepository } from "../../infra/db/mysql/client-repository/client-repository";
-import { prisma } from "../../infra/db/mysql/helpers/index";
+import { prisma } from "../../infra/db/prisma/client";
 
 export const makeAddClientController = (): Controller => {
   const clientRepository = new ClientMysqlRepository(prisma);

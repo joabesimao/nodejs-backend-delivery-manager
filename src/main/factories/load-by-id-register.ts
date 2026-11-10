@@ -2,7 +2,7 @@ import { DbLoadRegistersById } from "../../data/usescases/register-usecases/load
 import { RegisterMySqlRepository } from "../../infra/db/mysql/register-repository/register-mysql-repository";
 import { LoadOneRegistersController } from "../../presentation/controllers/register-controllers/load-register/load-one-register";
 import { Controller } from "../../presentation/protocols/controller";
-import { prisma } from "../../infra/db/mysql/helpers/index";
+import { prisma } from "../../infra/db/prisma/client";
 
 export const makeLoadRegisterByIdController = (): Controller => {
   const loadRegisterByIdRepository = new RegisterMySqlRepository(prisma);

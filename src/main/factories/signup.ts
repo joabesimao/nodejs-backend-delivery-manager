@@ -6,7 +6,7 @@ import { Controller } from "../../presentation/protocols/controller";
 import { makeDbAuthentication } from "./db-authentication-factory";
 import { makeSignupValidation } from "./signup-validation";
 import { AddAccountMySqlRepository } from "../../infra/db/mysql/signup-repository/signup-repository";
-import { prisma } from "../../infra/db/mysql/helpers/index";
+import { prisma } from "../../infra/db/prisma/client";
 
 export const makeSignupController = (): Controller => {
   const salt = 12;

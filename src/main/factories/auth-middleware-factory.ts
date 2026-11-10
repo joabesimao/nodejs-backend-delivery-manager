@@ -4,7 +4,7 @@ import { AccountMySqlRepository } from "../../infra/db/mysql/account-repository/
 import { AuthMiddleware } from "../../presentation/middlewares/auth-middleware";
 import { Middleware } from "../../presentation/protocols/middleware";
 import { env } from "../../../config/Env";
-import { prisma } from "../../infra/db/mysql/helpers";
+import { prisma } from "../../infra/db/prisma/client";
 
 export const makeAuthMiddleware = (roles?: string[]): Middleware => {
   const jwtAdapter = new JwtAdapter(env.JWT_SECRET);
