@@ -12,6 +12,7 @@ import {
   LoadChatMessageByIdRepository,
   LoadChatMessageOwnershipRepository,
   LoadChatMessagesRepository,
+  LoadLatestChatMessagesRepository,
 } from "../../../../data/protocols/db/chat/load-chat-messages-repository";
 import { UpdateChatMessageTextRepository } from "../../../../data/protocols/db/chat/update-chat-message-repository";
 import { ChatMessage, ChatStatistics } from "../../../../domain/models/chat/chat-message";
@@ -74,6 +75,7 @@ export class ChatMessageMysqlRepository
   implements
     AddChatMessageRepository,
     LoadChatMessagesRepository,
+    LoadLatestChatMessagesRepository,
     LoadChatMessageByIdRepository,
     LoadChatMessageOwnershipRepository,
     UpdateChatMessageTextRepository,
@@ -104,6 +106,15 @@ export class ChatMessageMysqlRepository
       this.prisma.chatMessage.count({ where }),
     ]);
     return { messages, total };
+  }
+
+  async loadLatest(unitStoreIds: number[], limit: number): Promise<ChatMessage[]> {
+    return await this.prisma.chatMessage.findMany({
+      where: unitStoreIds.length ? { unitStoreId: { in: unitStoreIds } } : undefined,
+      include: CHAT_MESSAGE_INCLUDE,
+      orderBy: { createdAt: "desc" },
+      take: limit,
+    });
   }
 
   async loadById(id: number): Promise<ChatMessage | null> {

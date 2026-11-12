@@ -30,6 +30,26 @@ describe("ChatMessage MySql Repository", () => {
     MockDate.reset();
   });
 
+  test("loadLatest() returns the newest messages of the visible units", async () => {
+    const { sut, prisma } = makeSut();
+    const messages = await sut.loadLatest([5, 6], 100);
+    expect(prisma.chatMessage.findMany).toHaveBeenCalledWith({
+      where: { unitStoreId: { in: [5, 6] } },
+      include,
+      orderBy: { createdAt: "desc" },
+      take: 100,
+    });
+    expect(messages).toEqual([makeFakeChatMessage()]);
+  });
+
+  test("loadLatest() does not filter by unit when no unit is visible", async () => {
+    const { sut, prisma } = makeSut();
+    await sut.loadLatest([], 100);
+    expect(prisma.chatMessage.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: undefined }),
+    );
+  });
+
   test("add() creates the message with the full include", async () => {
     const { sut, prisma } = makeSut();
     const data = { unitStoreId: 10, senderId: 1, text: "olá", imageBase64: null, imageMimeType: null };

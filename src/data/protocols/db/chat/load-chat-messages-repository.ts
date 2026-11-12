@@ -37,3 +37,7 @@ export interface ChatMessageOwnership {
 export interface LoadChatMessageOwnershipRepository {
   loadOwnership(id: number): Promise<ChatMessageOwnership | null>;
 }
+
+export interface LoadLatestChatMessagesRepository {
+  loadLatest(unitStoreIds: number[], limit: number): Promise<ChatMessage[]>;
+}

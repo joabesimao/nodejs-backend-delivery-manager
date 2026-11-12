@@ -1,14 +1,22 @@
 import type { Server as HttpServer } from "http";
 import { Server } from "socket.io";
 import { env } from "../../../config/Env";
-import { prisma } from "../../infra/db/prisma/client";
-import { JwtAdapter } from "../../infra/cryptography/jwt-adapter/jwt-adapter";
 import { accountRoomFor, networkRoomFor, setRealtimeServer } from "./realtime-state";
 import { makeNotifyChatMessage } from "../factories/notify-chat-message";
-import { getAccountScope } from "../../infra/db/mysql/helpers/store-scope";
+import { makeDbLoadAccountByToken } from "../factories/auth-middleware-factory";
+import {
+  makeAccountScopeRepository,
+  makeChatMessageRepository,
+  makeUnitStoreRepository,
+} from "../factories/repositories";
 
-const jwtAdapter = new JwtAdapter(env.JWT_SECRET);
+const loadAccountByToken = makeDbLoadAccountByToken();
+const accountScopeRepository = makeAccountScopeRepository();
+const unitStoreRepository = makeUnitStoreRepository();
+const chatMessageRepository = makeChatMessageRepository();
 const notifyChatMessage = makeNotifyChatMessage();
+
+const CHAT_HISTORY_LIMIT = 100;
 
 interface ChatSendPayload {
   text?: string;
@@ -66,43 +74,27 @@ export const setupRealtimeGateway = (httpServer: HttpServer): void => {
         return;
       }
 
-      const accountId = Number((await jwtAdapter.decrypt(authToken)) || 0);
+      const account = await loadAccountByToken.load(authToken);
 
-      if (!accountId) {
+      if (!account) {
         next(new Error("Token invalido"));
         return;
       }
 
-      const scope = await getAccountScope(prisma, accountId);
+      const scope = await accountScopeRepository.loadScope(account.id);
 
       if (!scope) {
         next(new Error("Conta nao encontrada"));
         return;
       }
 
-      const account = await prisma.account.findUnique({
-        where: { id: accountId },
-        select: {
-          id: true,
-          name: true,
-          email: true,
-          role: true,
-          unitStoreId: true,
-          active: true,
-        },
-      });
-
-      if (!account) {
-        next(new Error("Conta nao encontrada"));
-        return;
-      }
-
-      const { active, ...sessionAccount } = account;
-
-      if (active === false) {
-        next(new Error("Conta inativa"));
-        return;
-      }
+      const sessionAccount = {
+        id: account.id,
+        name: account.name,
+        email: account.email,
+        role: account.role,
+        unitStoreId: account.unitStoreId ?? null,
+      };
 
       const networkRoom = networkRoomFor(scope.rootStoreId);
 
@@ -146,37 +138,13 @@ export const setupRealtimeGateway = (httpServer: HttpServer): void => {
 
     try {
       const units = session.scope.visibleUnitIds.length
-        ? await prisma.unitStore.findMany({
-            where: { id: { in: session.scope.visibleUnitIds } },
-            select: { id: true, name: true, parentStoreId: true, isMain: true },
-            orderBy: { id: "asc" },
-          })
+        ? await unitStoreRepository.loadByIds(session.scope.visibleUnitIds)
         : [];
 
-      const messages = await prisma.chatMessage.findMany({
-        where: session.scope.visibleUnitIds.length
-          ? { unitStoreId: { in: session.scope.visibleUnitIds } }
-          : undefined,
-        include: {
-          sender: {
-            select: {
-              id: true,
-              name: true,
-              email: true,
-              role: true,
-              unitStoreId: true,
-            },
-          },
-          unitStore: {
-            select: {
-              id: true,
-              name: true,
-            },
-          },
-        },
-        orderBy: { createdAt: "desc" },
-        take: 100,
-      });
+      const messages = await chatMessageRepository.loadLatest(
+        session.scope.visibleUnitIds,
+        CHAT_HISTORY_LIMIT,
+      );
 
       socket.emit("session:ready", {
         account: session.account,
@@ -193,30 +161,10 @@ export const setupRealtimeGateway = (httpServer: HttpServer): void => {
 
     socket.on("chat:fetch-history", async (ack?: (response: unknown) => void) => {
       try {
-        const messages = await prisma.chatMessage.findMany({
-          where: session.scope.visibleUnitIds.length
-            ? { unitStoreId: { in: session.scope.visibleUnitIds } }
-            : undefined,
-          include: {
-            sender: {
-              select: {
-                id: true,
-                name: true,
-                email: true,
-                role: true,
-                unitStoreId: true,
-              },
-            },
-            unitStore: {
-              select: {
-                id: true,
-                name: true,
-              },
-            },
-          },
-          orderBy: { createdAt: "desc" },
-          take: 100,
-        });
+        const messages = await chatMessageRepository.loadLatest(
+          session.scope.visibleUnitIds,
+          CHAT_HISTORY_LIMIT,
+        );
 
         socket.emit("chat:history", messages.reverse());
         ack?.({ ok: true });
@@ -272,31 +220,12 @@ export const setupRealtimeGateway = (httpServer: HttpServer): void => {
             return;
           }
 
-          const message = await prisma.chatMessage.create({
-            data: {
-              unitStoreId: chosenUnitId,
-              senderId: session.account.id,
-              text: text || null,
-              imageBase64: normalizedImage || null,
-              imageMimeType: imageMimeType || null,
-            },
-            include: {
-              sender: {
-                select: {
-                  id: true,
-                  name: true,
-                  email: true,
-                  role: true,
-                  unitStoreId: true,
-                },
-              },
-              unitStore: {
-                select: {
-                  id: true,
-                  name: true,
-                },
-              },
-            },
+          const message = await chatMessageRepository.add({
+            unitStoreId: chosenUnitId,
+            senderId: session.account.id,
+            text: text || null,
+            imageBase64: normalizedImage || null,
+            imageMimeType: imageMimeType || null,
           });
 
           io.to(session.networkRoom).emit("chat:message", message);
@@ -327,9 +256,7 @@ export const setupRealtimeGateway = (httpServer: HttpServer): void => {
             return;
           }
 
-          const message = await prisma.chatMessage.findUnique({
-            where: { id: messageId },
-          });
+          const message = await chatMessageRepository.loadOwnership(messageId);
 
           if (!message) {
             ack?.({ ok: false, error: "Mensagem não encontrada" });
@@ -347,9 +274,7 @@ export const setupRealtimeGateway = (httpServer: HttpServer): void => {
             return;
           }
 
-          await prisma.chatMessage.delete({
-            where: { id: messageId },
-          });
+          await chatMessageRepository.deleteById(messageId);
 
           io.to(session.networkRoom).emit("chat:message-deleted", { messageId });
           ack?.({ ok: true });
