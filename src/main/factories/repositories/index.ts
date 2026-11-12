@@ -16,3 +16,4 @@ export * from "./order-delivery-repository-factory";
 export * from "./product-repository-factory";
 export * from "./register-repository-factory";
 export * from "./vehicle-repository-factory";
+export * from "./unit-store-repository-factory";

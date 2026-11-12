@@ -305,6 +305,7 @@ describe("realtime-gateway", () => {
     test("Should call next with an error when getAccountScope returns null", async () => {
       const { middleware } = setup();
       jwtDecryptMock.mockResolvedValue("1");
+      prismaAccountFindUnique.mockResolvedValue(defaultAccount);
       getAccountScopeMock.mockResolvedValue(null);
 
       const socket = makeSocket({
@@ -315,7 +316,45 @@ describe("realtime-gateway", () => {
       await middleware(socket, next);
 
       expect(next).toHaveBeenCalledWith(expect.any(Error));
-      expect(prismaAccountFindUnique).not.toHaveBeenCalled();
+      expect(socket.data.session).toBeUndefined();
+    });
+
+    test("Should not load the scope when the account cannot be found", async () => {
+      const { middleware } = setup();
+      jwtDecryptMock.mockResolvedValue("1");
+      prismaAccountFindUnique.mockResolvedValue(null);
+
+      const socket = makeSocket({
+        handshake: { auth: { token: "any_token" }, headers: {}, query: {} },
+      });
+      const next = jest.fn();
+
+      await middleware(socket, next);
+
+      expect(next).toHaveBeenCalledWith(expect.any(Error));
+      expect(getAccountScopeMock).not.toHaveBeenCalled();
+    });
+
+    test("Should keep only public account fields in the session", async () => {
+      const { middleware } = setup();
+      jwtDecryptMock.mockResolvedValue("1");
+      getAccountScopeMock.mockResolvedValue(defaultScope);
+      prismaAccountFindUnique.mockResolvedValue({
+        ...defaultAccount,
+        password: "hashed_password",
+        refreshTokenHash: "hashed_refresh",
+        active: true,
+      });
+
+      const socket = makeSocket({
+        handshake: { auth: { token: "any_token" }, headers: {}, query: {} },
+      });
+      const next = jest.fn();
+
+      await middleware(socket, next);
+
+      expect(next).toHaveBeenCalledWith();
+      expect(socket.data.session.account).toEqual(defaultAccount);
     });
 
     test("Should call next with an error when the account record cannot be found", async () => {
