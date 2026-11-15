@@ -6,26 +6,30 @@ import {
   serverError,
   unauthorized,
 } from "../../../helpers/http/http-helper";
+import {
+  InvalidCredentialsError,
+  InvalidLoginInputError,
+} from "../../../errors";
 import { Authentication } from "../../../../domain/usescases/authentication/authentication";
 import { Validation } from "../../../protocols/validation";
 
 export class LoginController implements Controller {
   constructor(
     private readonly authentication: Authentication,
-    private readonly validation: Validation
+    private readonly validation: Validation,
   ) {}
 
   async handle(httpRequest: HttpRequest): Promise<HttpResponse> {
     try {
       const error = await this.validation.validate(httpRequest.body);
       if (error) {
-        return badRequest(error);
+        return badRequest(new InvalidLoginInputError());
       }
       const { email, password } = httpRequest.body;
 
       const authResult = await this.authentication.auth({ email, password });
       if (!authResult) {
-        return unauthorized();
+        return unauthorized(new InvalidCredentialsError());
       }
 
       return ok(authResult);
