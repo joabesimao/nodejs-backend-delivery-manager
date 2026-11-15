@@ -5,7 +5,11 @@ import {
   serverError,
   unauthorized,
 } from "../../../helpers/http/http-helper";
-import { MissingParamError } from "../../../errors";
+import {
+  InvalidCredentialsError,
+  InvalidLoginInputError,
+  MissingParamError,
+} from "../../../errors";
 import {
   Authentication,
   AuthenticationModel,
@@ -86,7 +90,7 @@ describe("Login Controller", () => {
       },
     };
     const httpResponse = await sut.handle(httpRequest);
-    expect(httpResponse).toEqual(unauthorized());
+    expect(httpResponse).toEqual(unauthorized(new InvalidCredentialsError()));
   });
 
   test("Should return 500 if Authentication throws", async () => {
@@ -129,7 +133,7 @@ describe("Login Controller", () => {
     expect(validationSpy).toHaveBeenCalledWith(httpRequest.body);
   });
 
-  test("Should return 500 if Validation return an Error", async () => {
+  test("Should return 400 with a friendly message if Validation returns an Error", async () => {
     const { sut, validationStub } = makeSut();
     jest
       .spyOn(validationStub, "validate")
@@ -141,8 +145,6 @@ describe("Login Controller", () => {
       },
     };
     const httpResponse = await sut.handle(httpRequest);
-    expect(httpResponse).toEqual(
-      badRequest(new MissingParamError("any_field"))
-    );
+    expect(httpResponse).toEqual(badRequest(new InvalidLoginInputError()));
   });
 });
