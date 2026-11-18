@@ -1,3 +1,4 @@
+import { parseCivilDate } from "../../../../data/helpers/date-time";
 import { AddFuelRefill } from "../../../../domain/usescases/fuel-refill/add-fuel-refill";
 import { badRequest, ok, serverError } from "../../../helpers/http/http-helper";
 import { mapDomainError } from "../../../helpers/http/map-domain-error";
@@ -26,7 +27,7 @@ export class AddFuelRefillController implements Controller {
           liters: Number(liters),
           pricePerLiter: Number(pricePerLiter),
           totalValue: Number(totalValue),
-          refillDate: new Date(refillDate),
+          refillDate: parseCivilDate(refillDate),
         },
         { actorAccountId: Number(httpRequest.actor?.id) || undefined }
       );

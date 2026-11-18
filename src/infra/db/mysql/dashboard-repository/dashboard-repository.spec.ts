@@ -55,7 +55,7 @@ describe("Dashboard MySql Repository", () => {
     prisma.orderDelivery.aggregate.mockResolvedValueOnce({ _sum: { amount: null } });
     const overview = await sut.loadOverview(range);
     expect(prisma.orderDelivery.count).toHaveBeenCalledWith({
-      where: { data: { gte: range.startDate, lte: range.endDate }, status: { in: ["actived", "delivered"] } },
+      where: { data: { gte: range.startDate, lt: range.endDate }, status: { in: ["actived", "delivered"] } },
     });
     expect(overview.finishedRevenue).toBe(0);
   });
@@ -64,7 +64,7 @@ describe("Dashboard MySql Repository", () => {
     const { sut, prisma } = makeSut();
     expect(await sut.loadFinishedRevenue(range)).toBe(150);
     expect(prisma.orderDelivery.aggregate).toHaveBeenCalledWith({
-      where: { data: { gte: range.startDate, lte: range.endDate }, status: "finished" },
+      where: { data: { gte: range.startDate, lt: range.endDate }, status: "finished" },
       _sum: { amount: true },
     });
   });
@@ -73,7 +73,7 @@ describe("Dashboard MySql Repository", () => {
     const { sut, prisma } = makeSut();
     await sut.loadOrderTimeline(range);
     expect(prisma.orderDelivery.findMany).toHaveBeenCalledWith({
-      where: { data: { gte: range.startDate, lte: range.endDate } },
+      where: { data: { gte: range.startDate, lt: range.endDate } },
       select: { data: true, finishedAt: true, status: true },
     });
   });
@@ -86,7 +86,7 @@ describe("Dashboard MySql Repository", () => {
     ]);
     const locations = await sut.loadOrderLocations(range);
     expect(prisma.orderDelivery.findMany).toHaveBeenCalledWith({
-      where: { data: { gte: range.startDate, lte: range.endDate } },
+      where: { data: { gte: range.startDate, lt: range.endDate } },
       include: { Register: { include: { address: true } } },
     });
     expect(locations).toEqual([

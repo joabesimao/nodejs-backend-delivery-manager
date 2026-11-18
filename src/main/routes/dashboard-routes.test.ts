@@ -159,18 +159,17 @@ describe("GET /api/dashboard/overview", () => {
     expect(response.body.metrics.deliveredRevenue).toBe(250);
     expect(response.body.metrics.deliveredRevenuePreviousPeriod).toBe(0);
 
-    const range = { gte: new Date(startDate), lte: new Date(endDate) };
+    const range = { gte: new Date(startDate), lt: new Date(endDate) };
     expect(prisma.orderDelivery.count).toHaveBeenCalledWith({
       where: { data: range, status: { in: ["actived", "delivered"] } },
     });
 
-    const previousEnd = new Date(new Date(startDate).getTime() - 1);
     const rangeMs = new Date(endDate).getTime() - new Date(startDate).getTime();
     expect(prisma.orderDelivery.aggregate).toHaveBeenLastCalledWith({
       where: {
         data: {
-          gte: new Date(previousEnd.getTime() - rangeMs),
-          lte: previousEnd,
+          gte: new Date(new Date(startDate).getTime() - rangeMs),
+          lt: new Date(startDate),
         },
         status: "finished",
       },
@@ -244,7 +243,40 @@ describe("GET /api/dashboard/performance", () => {
       peakDay: { date: "2026-11-03", label: "ter", total: 2 },
     });
     expect(prisma.orderDelivery.findMany).toHaveBeenCalledWith({
-      where: { data: { gte: new Date(startDate), lte: new Date(endDate) } },
+      where: { data: { gte: new Date(startDate), lt: new Date(endDate) } },
+      select: { data: true, finishedAt: true, status: true },
+    });
+  });
+
+  test("período em datas civis agrupa pelo dia de São Paulo", async () => {
+    prisma.orderDelivery.findMany.mockResolvedValue([
+      {
+        data: new Date("2026-11-04T00:30:00.000Z"),
+        finishedAt: null,
+        status: "actived",
+      },
+    ]);
+
+    const response = await request(app)
+      .get("/api/dashboard/performance")
+      .query({ startDate: "2026-11-01", endDate: "2026-11-07" })
+      .set("x-access-token", token);
+
+    expect(response.status).toBe(200);
+    expect(response.body.period).toEqual({
+      startDate: "2026-11-01T03:00:00.000Z",
+      endDate: "2026-11-08T03:00:00.000Z",
+    });
+    expect(response.body.days).toEqual([
+      { date: "2026-11-03", label: "ter", total: 1 },
+    ]);
+    expect(prisma.orderDelivery.findMany).toHaveBeenCalledWith({
+      where: {
+        data: {
+          gte: new Date("2026-11-01T03:00:00.000Z"),
+          lt: new Date("2026-11-08T03:00:00.000Z"),
+        },
+      },
       select: { data: true, finishedAt: true, status: true },
     });
   });
@@ -257,17 +289,11 @@ describe("GET /api/dashboard/performance", () => {
       .get("/api/dashboard/performance")
       .set("x-access-token", token);
 
-    const expectedEnd = new Date();
-    expectedEnd.setHours(23, 59, 59, 999);
-    const expectedStart = new Date();
-    expectedStart.setDate(expectedStart.getDate() - 6);
-    expectedStart.setHours(0, 0, 0, 0);
-
     expect(response.status).toBe(200);
     expect(response.body).toEqual({
       period: {
-        startDate: expectedStart.toISOString(),
-        endDate: expectedEnd.toISOString(),
+        startDate: "2026-10-31T03:00:00.000Z",
+        endDate: "2026-11-07T03:00:00.000Z",
       },
       days: [],
       totalOrders: 0,
@@ -361,7 +387,7 @@ describe("GET /api/dashboard/reports", () => {
     });
     expect(prisma.orderDelivery.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
-        where: { data: { gte: new Date(startDate), lte: new Date(endDate) } },
+        where: { data: { gte: new Date(startDate), lt: new Date(endDate) } },
       }),
     );
   });

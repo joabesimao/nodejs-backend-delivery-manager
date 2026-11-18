@@ -2,5 +2,5 @@
   "watch": ["src", "config", ".env"],
   "ext": "ts,json,env",
   "ignore": ["dist", "coverage"],
-  "exec": "sucrase-node src/main/server.ts"
+  "exec": "TZ=UTC sucrase-node src/main/server.ts"
 }

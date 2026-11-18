@@ -1,3 +1,4 @@
+import { parseCivilDate } from "../../../../data/helpers/date-time";
 import { UpdateOilChangeLog, UpdateOilChangeLogModel } from "../../../../domain/usescases/oil-change/update-oil-change-log";
 import { badRequest, noExists, ok, serverError } from "../../../helpers/http/http-helper";
 import { mapDomainError } from "../../../helpers/http/map-domain-error";
@@ -23,7 +24,7 @@ export class UpdateOilChangeLogController implements Controller {
         ...(vehicleId !== undefined && { vehicleId: Number(vehicleId) }),
         ...(deliverymanId !== undefined && { deliverymanId: Number(deliverymanId) }),
         ...(km !== undefined && { km: Number(km) }),
-        ...(changeDate !== undefined && { changeDate: new Date(changeDate) }),
+        ...(changeDate !== undefined && { changeDate: parseCivilDate(changeDate) }),
       };
       const result = await this.updateOilChangeLog.update(Number(id), data);
       if (!result) {

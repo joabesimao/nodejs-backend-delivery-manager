@@ -4,10 +4,15 @@ import {
   DashboardPeriodFilter,
 } from "../../../domain/models/dashboard/dashboard";
 import { LoadDashboardPerformance } from "../../../domain/usescases/dashboard/load-dashboard-performance";
+import {
+  businessDayKey,
+  businessWeekdayLabel,
+  defaultBusinessRange,
+} from "../../helpers/date-time";
 import { LoadDashboardOrderTimelineRepository } from "../../protocols/db/dashboard/dashboard-repository";
-import { isValidDate } from "./dashboard-helpers";
+import { toValidRange } from "./dashboard-helpers";
 
-const dayFormatter = new Intl.DateTimeFormat("pt-BR", { weekday: "short" });
+const DEFAULT_PERIOD_DAYS = 7;
 
 export class DbLoadDashboardPerformance implements LoadDashboardPerformance {
   constructor(
@@ -15,15 +20,8 @@ export class DbLoadDashboardPerformance implements LoadDashboardPerformance {
   ) {}
 
   async load(filter: DashboardPeriodFilter): Promise<DashboardPerformance> {
-    const now = new Date();
-    const defaultEnd = new Date(now);
-    defaultEnd.setHours(23, 59, 59, 999);
-    const defaultStart = new Date(now);
-    defaultStart.setDate(defaultStart.getDate() - 6);
-    defaultStart.setHours(0, 0, 0, 0);
-
-    const startDate = isValidDate(filter.startDate) ? filter.startDate : defaultStart;
-    const endDate = isValidDate(filter.endDate) ? filter.endDate : defaultEnd;
+    const { startDate, endDate } =
+      toValidRange(filter) ?? defaultBusinessRange(DEFAULT_PERIOD_DAYS);
 
     const orders = await this.loadDashboardOrderTimelineRepository.loadOrderTimeline({
       startDate,
@@ -32,11 +30,11 @@ export class DbLoadDashboardPerformance implements LoadDashboardPerformance {
 
     const totalsByDay = new Map<string, DashboardDayTotal>();
     orders.forEach((order) => {
-      const dateKey = order.data.toISOString().slice(0, 10);
+      const dateKey = businessDayKey(order.data);
       if (!totalsByDay.has(dateKey)) {
         totalsByDay.set(dateKey, {
           date: dateKey,
-          label: dayFormatter.format(order.data).replace(".", ""),
+          label: businessWeekdayLabel(order.data),
           total: 0,
         });
       }

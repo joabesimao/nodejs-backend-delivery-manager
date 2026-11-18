@@ -12,11 +12,11 @@ describe("DbLoadDashboardPerformance", () => {
   });
 
   test("Should default to the last 7 days and return nulls without orders", async () => {
-    MockDate.set(new Date(2026, 10, 9, 15, 0, 0));
+    MockDate.set(new Date("2026-11-09T18:00:00.000Z"));
     const { sut, repository } = makeSut();
     const performance = await sut.load({});
-    const startDate = new Date(2026, 10, 3, 0, 0, 0, 0);
-    const endDate = new Date(2026, 10, 9, 23, 59, 59, 999);
+    const startDate = new Date("2026-11-03T03:00:00.000Z");
+    const endDate = new Date("2026-11-10T03:00:00.000Z");
     expect(repository.loadOrderTimeline).toHaveBeenCalledWith({ startDate, endDate });
     expect(performance).toEqual({
       period: { startDate, endDate },
@@ -46,5 +46,21 @@ describe("DbLoadDashboardPerformance", () => {
     expect(performance.totalOrders).toBe(3);
     expect(performance.avgDeliveryMinutes).toBe(45);
     expect(performance.peakDay).toEqual(performance.days[1]);
+  });
+
+  test("Should group late-night orders in the Sao Paulo business day", async () => {
+    const { sut, repository } = makeSut();
+    repository.loadOrderTimeline.mockResolvedValueOnce([
+      { data: new Date("2026-11-04T00:30:00.000Z"), finishedAt: null, status: "actived" },
+      { data: new Date("2026-11-04T03:00:00.000Z"), finishedAt: null, status: "actived" },
+    ]);
+    const performance = await sut.load({
+      startDate: new Date("2026-11-01T03:00:00.000Z"),
+      endDate: new Date("2026-11-08T03:00:00.000Z"),
+    });
+    expect(performance.days).toEqual([
+      { date: "2026-11-03", label: "ter", total: 1 },
+      { date: "2026-11-04", label: "qua", total: 1 },
+    ]);
   });
 });

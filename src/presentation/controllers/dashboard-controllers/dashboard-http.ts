@@ -1,11 +1,8 @@
 import { DashboardPeriodFilter } from "../../../domain/models/dashboard/dashboard";
+import { parseBusinessPeriodEnd, parseBusinessPeriodStart } from "../../../data/helpers/date-time";
 import { HttpRequest } from "../../protocols/http";
 
-const readDate = (value: unknown): Date | undefined =>
-  typeof value === "string" && value ? new Date(value) : undefined;
-
 export const readPeriodFilter = (httpRequest: HttpRequest): DashboardPeriodFilter => ({
-  startDate: readDate(httpRequest.query?.startDate),
-  endDate: readDate(httpRequest.query?.endDate),
+  startDate: parseBusinessPeriodStart(httpRequest.query?.startDate),
+  endDate: parseBusinessPeriodEnd(httpRequest.query?.endDate),
 });
-

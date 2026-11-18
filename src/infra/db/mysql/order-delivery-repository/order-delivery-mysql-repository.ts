@@ -200,7 +200,7 @@ export class OrderDeliveryMySqlRepository
       where: {
         data: {
           gte: filter.startDate,
-          lte: filter.endDate,
+          lt: filter.endDate,
         },
         status: {
           in: statusFilter,

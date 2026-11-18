@@ -1,3 +1,4 @@
+import { parseCivilDate } from "../../../../data/helpers/date-time";
 import { UpdateFuelRefill, UpdateFuelRefillModel } from "../../../../domain/usescases/fuel-refill/update-fuel-refill";
 import { badRequest, noExists, ok, serverError } from "../../../helpers/http/http-helper";
 import { mapDomainError } from "../../../helpers/http/map-domain-error";
@@ -26,7 +27,7 @@ export class UpdateFuelRefillController implements Controller {
         ...(liters !== undefined && { liters: Number(liters) }),
         ...(pricePerLiter !== undefined && { pricePerLiter: Number(pricePerLiter) }),
         ...(totalValue !== undefined && { totalValue: Number(totalValue) }),
-        ...(refillDate !== undefined && { refillDate: new Date(refillDate) }),
+        ...(refillDate !== undefined && { refillDate: parseCivilDate(refillDate) }),
       };
       const result = await this.updateFuelRefill.update(Number(id), data);
       if (!result) {

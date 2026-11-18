@@ -50,7 +50,7 @@ const buildWhere = (filter: ChatMessageFilter): Prisma.ChatMessageWhereInput => 
   if (filter.createdFrom || filter.createdTo) {
     where.createdAt = {
       ...(filter.createdFrom && { gte: filter.createdFrom }),
-      ...(filter.createdTo && { lte: filter.createdTo }),
+      ...(filter.createdTo && { lt: filter.createdTo }),
     };
   }
   if (filter.withImage) {

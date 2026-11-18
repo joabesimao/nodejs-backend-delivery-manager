@@ -10,20 +10,20 @@ datasource db {
 }
 
 model Account {
-  id                       Int           @id @default(autoincrement())
+  id                       Int            @id @default(autoincrement())
   name                     String
-  email                    String        @unique
+  email                    String         @unique
   password                 String
-  role                     AccountRole   @default(user)
-  active                   Boolean       @default(true)
+  role                     AccountRole    @default(user)
+  active                   Boolean        @default(true)
   unitStoreId              Int?
-  unitStore                UnitStore?    @relation(fields: [unitStoreId], references: [id])
+  unitStore                UnitStore?     @relation(fields: [unitStoreId], references: [id])
   messages                 ChatMessage[]
   notifications            Notification[]
-  refreshTokenHash         String?       @db.VarChar(64)
-  refreshTokenExpiresAt    DateTime?
-  previousRefreshTokenHash String?       @db.VarChar(64)
-  refreshTokenRotatedAt    DateTime?
+  refreshTokenHash         String?        @db.VarChar(64)
+  refreshTokenExpiresAt    DateTime?      @db.Timestamptz(3)
+  previousRefreshTokenHash String?        @db.VarChar(64)
+  refreshTokenRotatedAt    DateTime?      @db.Timestamptz(3)
 }
 
 enum AccountRole {
@@ -52,9 +52,9 @@ model OrderDelivery {
   id            Int          @id @default(autoincrement())
   quantity      String
   amount        Float
-  data          DateTime
-  receivedAt    DateTime?    @default(now())
-  finishedAt    DateTime?
+  data          DateTime     @db.Timestamptz(3)
+  receivedAt    DateTime?    @default(now()) @db.Timestamptz(3)
+  finishedAt    DateTime?    @db.Timestamptz(3)
   status        OrderStatus  @default(actived)
   Register      Register     @relation(fields: [registerId], references: [id])
   registerId    Int
@@ -103,16 +103,16 @@ model UnitStore {
 }
 
 model Deliveryman {
-  id                   Int             @id @default(autoincrement())
-  name                 String
-  lastName             String
-  numberQualification  String          @unique
-  phone                String          @unique
-  cpf                  String?         @unique
-  deliveries           OrderDelivery[]
-  vehicles             Vehicle[]
-  oilChangeLogs        OilChangeLog[]
-  fuelRefills          FuelRefill[]
+  id                  Int             @id @default(autoincrement())
+  name                String
+  lastName            String
+  numberQualification String          @unique
+  phone               String          @unique
+  cpf                 String?         @unique
+  deliveries          OrderDelivery[]
+  vehicles            Vehicle[]
+  oilChangeLogs       OilChangeLog[]
+  fuelRefills         FuelRefill[]
 }
 
 model Vehicle {
@@ -129,7 +129,7 @@ model Vehicle {
 model OilChangeConfig {
   id         Int      @id @default(autoincrement())
   intervalKm Int
-  updatedAt  DateTime @updatedAt
+  updatedAt  DateTime @updatedAt @db.Timestamptz(3)
 }
 
 model OilChangeLog {
@@ -140,8 +140,8 @@ model OilChangeLog {
   deliveryman   Deliveryman @relation(fields: [deliverymanId], references: [id])
   km            Int
   nextChangeKm  Int
-  changeDate    DateTime
-  createdAt     DateTime    @default(now())
+  changeDate    DateTime    @db.Timestamptz(3)
+  createdAt     DateTime    @default(now()) @db.Timestamptz(3)
 
   @@index([vehicleId, changeDate])
 }
@@ -158,8 +158,8 @@ model FuelRefill {
   liters        Decimal     @db.Decimal(10, 2)
   pricePerLiter Decimal?    @db.Decimal(10, 3)
   totalValue    Decimal     @db.Decimal(10, 2)
-  refillDate    DateTime
-  createdAt     DateTime    @default(now())
+  refillDate    DateTime    @db.Timestamptz(3)
+  createdAt     DateTime    @default(now()) @db.Timestamptz(3)
 
   @@index([vehicleId, refillDate])
 }
@@ -178,7 +178,7 @@ model ChatMessage {
   text          String?
   imageBase64   String?   @db.Text
   imageMimeType String?
-  createdAt     DateTime  @default(now())
+  createdAt     DateTime  @default(now()) @db.Timestamptz(3)
   unitStore     UnitStore @relation(fields: [unitStoreId], references: [id])
   sender        Account   @relation(fields: [senderId], references: [id])
 
@@ -231,10 +231,10 @@ model Notification {
   link        String?
   data        Json?
   dedupeKey   String?
-  readAt      DateTime?
-  deletedAt   DateTime?
-  createdAt   DateTime         @default(now())
-  updatedAt   DateTime         @updatedAt
+  readAt      DateTime?        @db.Timestamptz(3)
+  deletedAt   DateTime?        @db.Timestamptz(3)
+  createdAt   DateTime         @default(now()) @db.Timestamptz(3)
+  updatedAt   DateTime         @updatedAt @db.Timestamptz(3)
 
   @@index([recipientId, readAt, updatedAt])
   @@index([recipientId, dedupeKey])

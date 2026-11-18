@@ -1,4 +1,4 @@
-import { ValidationComposite, RequireFieldsValidation, PositiveNumberValidation } from "../../presentation/helpers/validators";
+import { ValidationComposite, CivilDateValidation, RequireFieldsValidation, PositiveNumberValidation } from "../../presentation/helpers/validators";
 import { Validation } from "../../presentation/protocols/validation";
 
 export const makeAddFuelRefillValidation = (): ValidationComposite => {
@@ -10,5 +10,6 @@ export const makeAddFuelRefillValidation = (): ValidationComposite => {
   validations.push(new PositiveNumberValidation("liters"));
   validations.push(new PositiveNumberValidation("pricePerLiter"));
   validations.push(new PositiveNumberValidation("totalValue"));
+  validations.push(new CivilDateValidation("refillDate"));
   return new ValidationComposite(validations);
 };

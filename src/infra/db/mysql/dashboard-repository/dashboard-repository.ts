@@ -10,7 +10,7 @@ import {
 import { DateRange } from "../../../../domain/models/dashboard/dashboard";
 
 const toDateWhere = (range?: DateRange) =>
-  range ? { data: { gte: range.startDate, lte: range.endDate } } : undefined;
+  range ? { data: { gte: range.startDate, lt: range.endDate } } : undefined;
 
 export class DashboardMysqlRepository
   implements
@@ -80,10 +80,7 @@ export class DashboardMysqlRepository
 
   async loadFinishedRevenue(range: DateRange): Promise<number> {
     const revenue = await this.prisma.orderDelivery.aggregate({
-      where: {
-        data: { gte: range.startDate, lte: range.endDate },
-        status: OrderStatus.finished,
-      },
+      where: { ...toDateWhere(range), status: OrderStatus.finished },
       _sum: { amount: true },
     });
     return revenue._sum.amount ?? 0;
@@ -91,7 +88,7 @@ export class DashboardMysqlRepository
 
   async loadOrderTimeline(range: DateRange): Promise<DashboardOrderTimeline[]> {
     return await this.prisma.orderDelivery.findMany({
-      where: { data: { gte: range.startDate, lte: range.endDate } },
+      where: toDateWhere(range),
       select: { data: true, finishedAt: true, status: true },
     });
   }
