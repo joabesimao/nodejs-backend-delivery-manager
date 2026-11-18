@@ -99,7 +99,7 @@ describe("ChatMessage MySql Repository", () => {
     expect(prisma.chatMessage.count).toHaveBeenCalledWith({
       where: {
         senderId: 3,
-        createdAt: { gte: createdFrom, lte: createdTo },
+        createdAt: { gte: createdFrom, lt: createdTo },
         imageBase64: { not: null },
         text: { not: null },
         OR: [{ text: contains }, { sender: { name: contains } }, { unitStore: { name: contains } }],
@@ -111,7 +111,7 @@ describe("ChatMessage MySql Repository", () => {
     const { sut, prisma } = makeSut();
     const createdTo = new Date("2026-11-06T23:59:59.999Z");
     await sut.loadPage({ createdTo }, { limit: 50, offset: 0 });
-    expect(prisma.chatMessage.count).toHaveBeenCalledWith({ where: { createdAt: { lte: createdTo } } });
+    expect(prisma.chatMessage.count).toHaveBeenCalledWith({ where: { createdAt: { lt: createdTo } } });
   });
 
   test("loadById() uses the full include", async () => {

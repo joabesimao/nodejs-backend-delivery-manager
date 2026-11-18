@@ -1,3 +1,4 @@
+import { parseBusinessPeriodEnd, parseBusinessPeriodStart } from "../../../data/helpers/date-time";
 import { SearchChatMessages } from "../../../domain/usescases/chat/search-chat-messages";
 import { mapDomainError } from "../../helpers/http/map-domain-error";
 import { ok } from "../../helpers/http/http-helper";
@@ -19,8 +20,8 @@ export class SearchChatMessagesController implements Controller {
         senderId: Number(query.senderId || 0),
         limit: Math.min(Number(query.limit) || 50, 100),
         offset: Number(query.offset) || 0,
-        dateFrom: query.dateFrom ? new Date(String(query.dateFrom)) : undefined,
-        dateTo: query.dateTo ? new Date(String(query.dateTo)) : undefined,
+        dateFrom: parseBusinessPeriodStart(query.dateFrom),
+        dateTo: parseBusinessPeriodEnd(query.dateTo),
         hasImage: query.hasImage === "true",
         hasText: query.hasText === "true",
       });

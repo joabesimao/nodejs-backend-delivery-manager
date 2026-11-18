@@ -243,19 +243,20 @@ describe("GET /api/chat/search", () => {
     });
   });
 
-  test("dateTo vai até o fim do dia (horário local)", async () => {
+  test("dateTo em data civil vai até o fim do dia em São Paulo", async () => {
     prisma.chatMessage.findMany.mockResolvedValue([]);
     prisma.chatMessage.count.mockResolvedValue(0);
 
     await request(app)
       .get("/api/chat/search")
-      .query({ dateTo: "2026-11-06T12:00:00.000Z" })
+      .query({ dateTo: "2026-11-06" })
       .set("x-access-token", token);
 
-    const endOfDay = new Date("2026-11-06T12:00:00.000Z");
-    endOfDay.setHours(23, 59, 59, 999);
     expect(prisma.chatMessage.count).toHaveBeenCalledWith({
-      where: { unitStoreId: { in: [10, 11] }, createdAt: { lte: endOfDay } },
+      where: {
+        unitStoreId: { in: [10, 11] },
+        createdAt: { lt: new Date("2026-11-07T03:00:00.000Z") },
+      },
     });
   });
 

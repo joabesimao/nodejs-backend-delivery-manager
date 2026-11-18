@@ -26,9 +26,7 @@ describe("DbSearchChatMessages", () => {
 
   test("Should build the filter from every criterion", async () => {
     const { sut, chatRepository } = makeSut();
-    const dateTo = new Date("2026-11-06T12:00:00.000Z");
-    const endOfDay = new Date(dateTo);
-    endOfDay.setHours(23, 59, 59, 999);
+    const dateTo = new Date("2026-11-07T03:00:00.000Z");
     await sut.search({
       accountId: 1,
       searchText: "pedido",
@@ -47,7 +45,7 @@ describe("DbSearchChatMessages", () => {
         unitStoreId: 11,
         senderId: 3,
         createdFrom: new Date("2026-11-01T00:00:00.000Z"),
-        createdTo: endOfDay,
+        createdTo: dateTo,
         withImage: true,
         withText: true,
         searchText: "pedido",

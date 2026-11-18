@@ -63,8 +63,8 @@ describe("LoadOrderDeliveryRanking Controller", () => {
     const loadSpy = jest.spyOn(loadOrderDeliveryRankingStub, "loadByPeriod");
     await sut.handle(makeFakeRequest());
     expect(loadSpy).toHaveBeenCalledWith({
-      startDate: new Date("2022-10-10"),
-      endDate: new Date("2022-10-20"),
+      startDate: new Date("2022-10-10T03:00:00.000Z"),
+      endDate: new Date("2022-10-21T03:00:00.000Z"),
       status: "all",
       page: 1,
       pageSize: 10,
@@ -114,6 +114,29 @@ describe("LoadOrderDeliveryRanking Controller", () => {
     const { sut } = makeSut();
     const httpResponse = await sut.handle(
       makeFakeRequest({ startDate: "2022-10-30", endDate: "2022-10-20" })
+    );
+    expect(httpResponse.statusCode).toBe(400);
+  });
+
+  test("Should accept a single Sao Paulo day", async () => {
+    const { sut, loadOrderDeliveryRankingStub } = makeSut();
+    const loadSpy = jest.spyOn(loadOrderDeliveryRankingStub, "loadByPeriod");
+    const httpResponse = await sut.handle(
+      makeFakeRequest({ startDate: "2026-11-18", endDate: "2026-11-18" })
+    );
+    expect(httpResponse.statusCode).toBe(200);
+    expect(loadSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        startDate: new Date("2026-11-18T03:00:00.000Z"),
+        endDate: new Date("2026-11-19T03:00:00.000Z"),
+      })
+    );
+  });
+
+  test("Should return 400 if a date has no offset", async () => {
+    const { sut } = makeSut();
+    const httpResponse = await sut.handle(
+      makeFakeRequest({ startDate: "2026-11-18T00:00:00", endDate: "2026-11-18" })
     );
     expect(httpResponse.statusCode).toBe(400);
   });

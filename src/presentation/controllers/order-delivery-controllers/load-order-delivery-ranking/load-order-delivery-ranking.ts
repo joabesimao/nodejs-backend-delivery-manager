@@ -1,3 +1,4 @@
+import { parseBusinessPeriodEnd, parseBusinessPeriodStart } from "../../../../data/helpers/date-time";
 import { LoadOrderDeliveryRanking } from "../../../../domain/usescases/order-delivery/load-order-delivery";
 import { badRequest, ok, serverError } from "../../../helpers/http/http-helper";
 import { Controller } from "../../../protocols/controller";
@@ -11,23 +12,18 @@ export class LoadOrderDeliveryRankingController implements Controller {
   async handle(httpRequest: HttpRequest): Promise<HttpResponse> {
     try {
       const filters = { ...httpRequest.query, ...httpRequest.headers };
-      const startDate = new Date(filters?.startDate);
-      const endDate = new Date(filters?.endDate);
+      const startDate = parseBusinessPeriodStart(filters?.startDate);
+      const endDate = parseBusinessPeriodEnd(filters?.endDate);
       const status = String(filters?.status ?? "all");
       const page = Number(filters?.page ?? 1);
       const pageSize = Number(filters?.pageSize ?? 10);
       const accountId = Number(httpRequest.actor?.id || 0) || undefined;
 
-      if (
-        !filters?.startDate ||
-        !filters?.endDate ||
-        Number.isNaN(startDate.getTime()) ||
-        Number.isNaN(endDate.getTime())
-      ) {
+      if (!startDate || !endDate) {
         return badRequest(new Error("Parâmetros startDate e endDate são obrigatórios."));
       }
 
-      if (startDate > endDate) {
+      if (startDate >= endDate) {
         return badRequest(new Error("startDate deve ser menor ou igual a endDate."));
       }
 

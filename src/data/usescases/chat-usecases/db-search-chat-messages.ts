@@ -11,12 +11,6 @@ import {
 } from "../../protocols/db/chat/load-chat-messages-repository";
 import { toChatMessagePage } from "./chat-page";
 
-const endOfDay = (date: Date): Date => {
-  const end = new Date(date);
-  end.setHours(23, 59, 59, 999);
-  return end;
-};
-
 export class DbSearchChatMessages implements SearchChatMessages {
   constructor(
     private readonly loadAccountScopeRepository: LoadAccountScopeRepository,
@@ -45,7 +39,7 @@ export class DbSearchChatMessages implements SearchChatMessages {
       filter.createdFrom = data.dateFrom;
     }
     if (data.dateTo) {
-      filter.createdTo = endOfDay(data.dateTo);
+      filter.createdTo = data.dateTo;
     }
     if (data.hasImage) {
       filter.withImage = true;
