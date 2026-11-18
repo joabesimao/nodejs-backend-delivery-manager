@@ -31,6 +31,21 @@ describe.each(cases)("%s", (_, Controller, errorMessage) => {
     });
   });
 
+  test("Should map civil dates to the Sao Paulo business range", async () => {
+    const { sut, useCase } = makeSut();
+    await sut.handle({ query: { startDate: "2026-11-01", endDate: "2026-11-07" } });
+    expect(useCase.load).toHaveBeenCalledWith({
+      startDate: new Date("2026-11-01T03:00:00.000Z"),
+      endDate: new Date("2026-11-08T03:00:00.000Z"),
+    });
+  });
+
+  test("Should ignore instants without offset", async () => {
+    const { sut, useCase } = makeSut();
+    await sut.handle({ query: { startDate: "2026-11-01T00:00:00", endDate: "2026-11-07T23:59:59" } });
+    expect(useCase.load).toHaveBeenCalledWith({ startDate: undefined, endDate: undefined });
+  });
+
   test("Should ignore empty or non-string dates", async () => {
     const { sut, useCase } = makeSut();
     await sut.handle({ query: { startDate: "", endDate: ["2026-11-07"] } });

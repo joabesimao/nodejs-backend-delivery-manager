@@ -16,11 +16,9 @@ export class DbLoadDashboardOverview implements LoadDashboardOverview {
     let previousRevenue: number | null = null;
     if (range) {
       const rangeMs = range.endDate.getTime() - range.startDate.getTime();
-      const previousEnd = new Date(range.startDate.getTime() - 1);
-      const previousStart = new Date(previousEnd.getTime() - rangeMs);
       previousRevenue = await this.loadDashboardOverviewRepository.loadFinishedRevenue({
-        startDate: previousStart,
-        endDate: previousEnd,
+        startDate: new Date(range.startDate.getTime() - rangeMs),
+        endDate: range.startDate,
       });
     }
 

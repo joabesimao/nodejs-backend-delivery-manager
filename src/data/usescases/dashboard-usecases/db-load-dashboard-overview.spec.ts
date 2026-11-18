@@ -33,13 +33,13 @@ describe("DbLoadDashboardOverview", () => {
 
   test("Should compare with the previous period of the same length", async () => {
     const { sut, repository } = makeSut();
-    const startDate = new Date("2026-11-08T00:00:00.000Z");
-    const endDate = new Date("2026-11-14T23:59:59.999Z");
+    const startDate = new Date("2026-11-08T03:00:00.000Z");
+    const endDate = new Date("2026-11-15T03:00:00.000Z");
     const overview = await sut.load({ startDate, endDate });
     expect(repository.loadOverview).toHaveBeenCalledWith({ startDate, endDate });
     expect(repository.loadFinishedRevenue).toHaveBeenCalledWith({
-      startDate: new Date("2026-11-01T00:00:00.000Z"),
-      endDate: new Date("2026-11-07T23:59:59.999Z"),
+      startDate: new Date("2026-11-01T03:00:00.000Z"),
+      endDate: new Date("2026-11-08T03:00:00.000Z"),
     });
     expect(overview.period).toEqual({ startDate, endDate });
     expect(overview.metrics.deliveredRevenuePreviousPeriod).toBe(80);
