@@ -1,4 +1,4 @@
-import { ValidationComposite, RequireFieldsValidation, PositiveNumberValidation } from "../../presentation/helpers/validators";
+import { ValidationComposite, CivilDateValidation, RequireFieldsValidation, PositiveNumberValidation } from "../../presentation/helpers/validators";
 import { Validation } from "../../presentation/protocols/validation";
 
 export const makeAddOilChangeLogValidation = (): ValidationComposite => {
@@ -7,5 +7,6 @@ export const makeAddOilChangeLogValidation = (): ValidationComposite => {
     validations.push(new RequireFieldsValidation(field));
   }
   validations.push(new PositiveNumberValidation("km"));
+  validations.push(new CivilDateValidation("changeDate"));
   return new ValidationComposite(validations);
 };

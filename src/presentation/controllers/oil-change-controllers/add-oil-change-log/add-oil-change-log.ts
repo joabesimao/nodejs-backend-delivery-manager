@@ -1,3 +1,4 @@
+import { parseCivilDate } from "../../../../data/helpers/date-time";
 import { AddOilChangeLog } from "../../../../domain/usescases/oil-change/add-oil-change-log";
 import { badRequest, ok, serverError } from "../../../helpers/http/http-helper";
 import { mapDomainError } from "../../../helpers/http/map-domain-error";
@@ -23,7 +24,7 @@ export class AddOilChangeLogController implements Controller {
           vehicleId: Number(vehicleId),
           deliverymanId: Number(deliverymanId),
           km: Number(km),
-          changeDate: new Date(changeDate),
+          changeDate: parseCivilDate(changeDate),
         },
         { actorAccountId: Number(httpRequest.actor?.id) || undefined }
       );

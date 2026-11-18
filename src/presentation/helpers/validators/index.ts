@@ -1,5 +1,6 @@
 export * from "./allowed-values-validation";
 export * from "./barcode-duplicate-validation";
+export * from "./civil-date-validation";
 export * from "./compare-fields-validation";
 export * from "./cpf-duplicate-validation";
 export * from "./email-validation";
