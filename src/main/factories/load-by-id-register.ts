@@ -1,4 +1,4 @@
-import { DbLoadRegistersById } from "../../data/usescases/register-usecases/load-register/db-load-register-by-id";
+import { DbLoadRegistersById } from "../../data/usecases/register-usecases/load-register/db-load-register-by-id";
 import { LoadOneRegistersController } from "../../presentation/controllers/register-controllers/load-register/load-one-register";
 import { Controller } from "../../presentation/protocols/controller";
 import { makeRegisterRepository } from "./repositories";

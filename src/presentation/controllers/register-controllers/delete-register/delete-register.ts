@@ -1,6 +1,6 @@
 import { Controller } from "../../../protocols/controller";
 import { HttpRequest, HttpResponse } from "../../../protocols/http";
-import { DeleteRegister } from "../../../../domain/usescases/register/delete-register";
+import { DeleteRegister } from "../../../../domain/usecases/register/delete-register";
 import { ok, serverError } from "../../../helpers/http/http-helper";
 import { mapDomainError } from "../../../helpers/http/map-domain-error";
 

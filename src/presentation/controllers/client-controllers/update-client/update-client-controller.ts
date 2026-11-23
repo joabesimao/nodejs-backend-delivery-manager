@@ -1,4 +1,4 @@
-import { UpdateClient } from "../../../../domain/usescases/client/update-client";
+import { UpdateClient } from "../../../../domain/usecases/client/update-client";
 import { ok, serverError } from "../../../helpers/http/http-helper";
 import { mapDomainError } from "../../../helpers/http/map-domain-error";
 import { Controller } from "../../../protocols/controller";

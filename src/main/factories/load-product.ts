@@ -1,4 +1,4 @@
-import { DbLoadAllProduct } from "../../data/usescases/product-usecases/load-product-usecase/load-product-usecase";
+import { DbLoadAllProduct } from "../../data/usecases/product-usecases/load-product-usecase/load-product-usecase";
 import { LoadProductController } from "../../presentation/controllers/product-controllers/load-product/load-product";
 import { Controller } from "../../presentation/protocols/controller";
 import { makeProductRepository } from "./repositories";

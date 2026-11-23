@@ -2,7 +2,7 @@ import { AddFuelRefillController } from "./add-fuel-refill";
 import { HttpRequest } from "../../../protocols/http";
 import { badRequest, ok, serverError } from "../../../helpers/http/http-helper";
 import { FuelRefill } from "../../../../domain/models/fuel-refill/fuel-refill-model";
-import { AddFuelRefill, AddFuelRefillModel } from "../../../../domain/usescases/fuel-refill/add-fuel-refill";
+import { AddFuelRefill, AddFuelRefillModel } from "../../../../domain/usecases/fuel-refill/add-fuel-refill";
 import { Validation } from "../../../protocols/validation";
 import { MissingParamError } from "../../../errors";
 import { InvalidKmError } from "../../../../domain/errors";

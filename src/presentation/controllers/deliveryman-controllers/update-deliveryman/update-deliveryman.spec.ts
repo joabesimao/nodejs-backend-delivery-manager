@@ -7,7 +7,7 @@ import { Deliveryman } from "../../../../domain/models/deliveryman/deliveryman-m
 import {
   UpdateDeliveryman,
   UpdateDeliverymanModel,
-} from "../../../../domain/usescases/deliveryman/update-deliveryman";
+} from "../../../../domain/usecases/deliveryman/update-deliveryman";
 
 const makeFakeRequest = (): HttpRequest => ({
   params: {

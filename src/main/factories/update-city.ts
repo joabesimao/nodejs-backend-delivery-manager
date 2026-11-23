@@ -1,5 +1,5 @@
 import { Controller } from "../../presentation/protocols/controller";
-import { DbUpdateCity } from "../../data/usescases/city-usecases/update-city/db-update-city";
+import { DbUpdateCity } from "../../data/usecases/city-usecases/update-city/db-update-city";
 import { UpdateCityController } from "../../presentation/controllers/city-controllers/update-city/update-city";
 import { makeCityRepository } from "./repositories";
 

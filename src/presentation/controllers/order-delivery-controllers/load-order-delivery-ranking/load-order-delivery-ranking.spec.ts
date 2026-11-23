@@ -1,5 +1,5 @@
 import { LoadOrderDeliveryRankingController } from "./load-order-delivery-ranking";
-import { LoadOrderDeliveryRanking } from "../../../../domain/usescases/order-delivery/load-order-delivery";
+import { LoadOrderDeliveryRanking } from "../../../../domain/usecases/order-delivery/load-order-delivery";
 import {
   DeliveryRankingFilter,
   DeliveryRankingPaginatedModel,

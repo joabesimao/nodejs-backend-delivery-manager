@@ -1,4 +1,4 @@
-import { LoadProductById } from "../../../../domain/usescases/product/load-product/load-product";
+import { LoadProductById } from "../../../../domain/usecases/product/load-product/load-product";
 import { ok, serverError } from "../../../helpers/http/http-helper";
 import { Controller } from "../../../protocols/controller";
 import { HttpRequest, HttpResponse } from "../../../protocols/http";

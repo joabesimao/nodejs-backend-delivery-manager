@@ -1,4 +1,4 @@
-import { DbUpdateAddress } from "../../data/usescases/address-usecases/update-address/db-update-address";
+import { DbUpdateAddress } from "../../data/usecases/address-usecases/update-address/db-update-address";
 import { UpdateAddressController } from "../../presentation/controllers/address-controllers/update-address/update-address";
 import { Controller } from "../../presentation/protocols/controller";
 import { makeAddressRepository } from "./repositories";

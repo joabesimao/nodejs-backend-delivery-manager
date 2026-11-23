@@ -1,4 +1,4 @@
-import { DeleteDeliveryman } from "../../../../domain/usescases/deliveryman/delete-deliveryman";
+import { DeleteDeliveryman } from "../../../../domain/usecases/deliveryman/delete-deliveryman";
 import { ok, serverError } from "../../../helpers/http/http-helper";
 import { Controller } from "../../../protocols/controller";
 import { HttpRequest, HttpResponse } from "../../../protocols/http";

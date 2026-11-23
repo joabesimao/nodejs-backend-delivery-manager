@@ -2,7 +2,7 @@ import { AddOilChangeLogController } from "./add-oil-change-log";
 import { HttpRequest } from "../../../protocols/http";
 import { badRequest, ok, serverError } from "../../../helpers/http/http-helper";
 import { OilChangeLog } from "../../../../domain/models/oil-change/oil-change-log-model";
-import { AddOilChangeLog, AddOilChangeLogModel } from "../../../../domain/usescases/oil-change/add-oil-change-log";
+import { AddOilChangeLog, AddOilChangeLogModel } from "../../../../domain/usecases/oil-change/add-oil-change-log";
 import { Validation } from "../../../protocols/validation";
 import { MissingParamError } from "../../../errors";
 import { InvalidKmError } from "../../../../domain/errors";

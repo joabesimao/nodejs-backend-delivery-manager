@@ -1,5 +1,5 @@
 import { AddAddressController } from "../../presentation/controllers/address-controllers/add-address/add-address";
-import { DbAddAddress } from "../../data/usescases/address-usecases/add-address/db-add-address";
+import { DbAddAddress } from "../../data/usecases/address-usecases/add-address/db-add-address";
 import { Controller } from "../../presentation/protocols/controller";
 import { makeAddressRepository } from "./repositories";
 

@@ -1,7 +1,7 @@
 import { ConsoleLogErrorRepository } from "../../infra/log/console-log-error-repository";
 import { LogControllerDecorator } from "../decorators/log";
 import { Controller } from "../../presentation/protocols/controller";
-import { DbDeleteAccountById } from "../../data/usescases/account-usecases/delete-account/db-delete-account";
+import { DbDeleteAccountById } from "../../data/usecases/account-usecases/delete-account/db-delete-account";
 import { DeleteAccountController } from "../../presentation/controllers/account-controllers/delete-account/delete-account";
 import { makeAccountRepository } from "./repositories";
 

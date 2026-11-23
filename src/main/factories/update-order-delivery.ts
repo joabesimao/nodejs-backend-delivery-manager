@@ -1,4 +1,4 @@
-import { DbUpdateOrderDelivery } from "../../data/usescases/order-delivery/update-order-delivery/db--update-order-delivery";
+import { DbUpdateOrderDelivery } from "../../data/usecases/order-delivery/update-order-delivery/db-update-order-delivery";
 import { UpdateOrderDeliveryController } from "../../presentation/controllers/order-delivery-controllers/update-order-delivery/update-order-delivery";
 import { Controller } from "../../presentation/protocols/controller";
 import { makeOrderDeliveryRepository } from "./repositories";

@@ -1,5 +1,5 @@
 import { parseBusinessPeriodEnd, parseBusinessPeriodStart } from "../../../../data/helpers/date-time";
-import { LoadOrderDeliveryRanking } from "../../../../domain/usescases/order-delivery/load-order-delivery";
+import { LoadOrderDeliveryRanking } from "../../../../domain/usecases/order-delivery/load-order-delivery";
 import { badRequest, ok, serverError } from "../../../helpers/http/http-helper";
 import { Controller } from "../../../protocols/controller";
 import { HttpRequest, HttpResponse } from "../../../protocols/http";

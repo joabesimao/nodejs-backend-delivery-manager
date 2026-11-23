@@ -1,5 +1,5 @@
 import { Controller } from "../../presentation/protocols/controller";
-import { DbAddNeighborhood } from "../../data/usescases/neighborhood-usecases/add-neighborhood/db-add-neighborhood";
+import { DbAddNeighborhood } from "../../data/usecases/neighborhood-usecases/add-neighborhood/db-add-neighborhood";
 import { AddNeighborhoodController } from "../../presentation/controllers/neighborhood-controllers/add-neighborhood/add-neighborhood";
 import { makeNeighborhoodRepository } from "./repositories";
 

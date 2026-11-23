@@ -2,7 +2,7 @@ import { UpdateVehicleController } from "./update-vehicle";
 import { HttpRequest } from "../../../protocols/http";
 import { badRequest, conflict, ok, serverError } from "../../../helpers/http/http-helper";
 import { Vehicle } from "../../../../domain/models/vehicle/vehicle-model";
-import { UpdateVehicle, UpdateVehicleModel } from "../../../../domain/usescases/vehicle/update-vehicle";
+import { UpdateVehicle, UpdateVehicleModel } from "../../../../domain/usecases/vehicle/update-vehicle";
 import { Validation } from "../../../protocols/validation";
 import { MissingParamError } from "../../../errors";
 import { PlateInUseError } from "../../../../domain/errors";

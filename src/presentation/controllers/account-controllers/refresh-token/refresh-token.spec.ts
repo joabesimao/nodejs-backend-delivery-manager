@@ -3,7 +3,7 @@ import {
   RefreshTokenController,
 } from "./refresh-token";
 import { JwtAdapter } from "../../../../infra/cryptography/jwt-adapter/jwt-adapter";
-import { AccountMySqlRepository } from "../../../../infra/db/mysql/account-repository/account-repository";
+import { AccountMySqlRepository } from "../../../../infra/db/prisma/account-repository/account-repository";
 import { Validation } from "../../../protocols/validation";
 import { HttpRequest } from "../../../protocols/http";
 import {

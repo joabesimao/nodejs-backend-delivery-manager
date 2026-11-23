@@ -1,4 +1,4 @@
-import { Product, ProductModel } from "../../../usescases/product-usecases/add-product-usecase/db-add-product-protocols";
+import { Product, ProductModel } from "../../../usecases/product-usecases/add-product-usecase/db-add-product-protocols";
 
 export interface UpdateProductRepository {
   updateProduct(

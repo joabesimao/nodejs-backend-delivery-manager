@@ -1,5 +1,5 @@
 import { Controller } from "../../presentation/protocols/controller";
-import { DbLoadFuelRefill } from "../../data/usescases/fuel-refill-usecases/load-fuel-refill/db-load-fuel-refill";
+import { DbLoadFuelRefill } from "../../data/usecases/fuel-refill-usecases/load-fuel-refill/db-load-fuel-refill";
 import { LoadFuelRefillController } from "../../presentation/controllers/fuel-refill-controllers/load-fuel-refill/load-fuel-refill";
 import { makeFuelRefillRepository } from "./repositories";
 

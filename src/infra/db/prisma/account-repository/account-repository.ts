@@ -1,0 +1,165 @@
+import { Prisma, PrismaClient } from "@prisma/client";
+import { UpdateAccessTokenRepository } from "../../../../data/protocols/db/access-token-repository/update-access-token-repository";
+import { UpdateRefreshTokenRepository } from "../../../../data/protocols/db/access-token-repository/update-refresh-token-repository";
+import { RotateRefreshTokenRepository } from "../../../../data/protocols/db/access-token-repository/rotate-refresh-token-repository";
+import { DeleteAccountRepository } from "../../../../data/protocols/db/account/delete-account-repository";
+import { FindAccountByEmailRepository } from "../../../../data/protocols/db/account/find-account-by-email-repository";
+import { LoadAccountByTokenRepository } from "../../../../data/protocols/db/account/load-account-by-token-repository";
+import { LoadAccountsRepository } from "../../../../data/protocols/db/account/load-accounts-repository";
+import { LoadAccountByIdRepository } from "../../../../data/protocols/db/account/load-account-by-id-repository";
+import { CountActiveAdminsRepository } from "../../../../data/protocols/db/account/count-active-admins-repository";
+import { UpdateAccountRepository } from "../../../../data/protocols/db/account/update-account-repository";
+import { AccountModel } from "../../../../domain/models/account/account-model";
+import { PublicAccountModel } from "../../../../domain/models/account/public-account-model";
+import { LoadAccountsFilter } from "../../../../domain/usecases/account/load-accounts";
+import { UpdateAccountModel } from "../../../../domain/usecases/account/update-account";
+import { AccountInUseError } from "../../../../domain/errors/account-in-use-error";
+import { isForeignKeyViolation, rethrowDeleteError } from "../helpers/prisma-errors";
+
+const PUBLIC_ACCOUNT_SELECT = {
+  id: true,
+  name: true,
+  email: true,
+  role: true,
+  active: true,
+  unitStoreId: true,
+} satisfies Prisma.AccountSelect;
+
+export class AccountMySqlRepository
+  implements
+    FindAccountByEmailRepository,
+    UpdateAccessTokenRepository,
+    UpdateRefreshTokenRepository,
+    RotateRefreshTokenRepository,
+    LoadAccountByTokenRepository,
+    DeleteAccountRepository,
+    LoadAccountsRepository,
+    LoadAccountByIdRepository,
+    CountActiveAdminsRepository,
+    UpdateAccountRepository {
+  constructor(private readonly prisma: PrismaClient) {}
+
+  async loadByToken(token: string): Promise<AccountModel> {
+    const account = await this.prisma.account.findUnique({
+      where: { id: Number(token) },
+    });
+
+    if (!account) {
+      return null;
+    }
+
+    return account;
+  }
+
+  async updateAccessToken(id: number, token: string): Promise<void> {
+    void id;
+    void token;
+  }
+
+  async updateRefreshToken(
+    id: number,
+    refreshTokenHash: string | null,
+    expiresAt: Date | null
+  ): Promise<void> {
+    await this.prisma.account.update({
+      where: { id },
+      data: {
+        refreshTokenHash,
+        refreshTokenExpiresAt: expiresAt,
+        previousRefreshTokenHash: null,
+        refreshTokenRotatedAt: null,
+      },
+    });
+  }
+
+  async rotateRefreshToken(
+    id: number,
+    currentHash: string,
+    newHash: string,
+    expiresAt: Date | null
+  ): Promise<boolean> {
+    const { count } = await this.prisma.account.updateMany({
+      where: { id, refreshTokenHash: currentHash },
+      data: {
+        refreshTokenHash: newHash,
+        refreshTokenExpiresAt: expiresAt,
+        previousRefreshTokenHash: currentHash,
+        refreshTokenRotatedAt: new Date(),
+      },
+    });
+    return count === 1;
+  }
+
+  async loadAccountByEmail(email: string): Promise<AccountModel> {
+    const accountById = await this.prisma.account.findUnique({
+      where: { email },
+    });
+    return accountById;
+  }
+
+  async deleteById(id: number): Promise<string> {
+    try {
+      await this.prisma.account.delete({
+        where: { id },
+      });
+    } catch (error) {
+      if (isForeignKeyViolation(error)) {
+        throw new AccountInUseError();
+      }
+      rethrowDeleteError(error);
+    }
+    return "Conta deletada com sucesso!";
+  }
+
+  async loadAll(filter?: LoadAccountsFilter): Promise<PublicAccountModel[]> {
+    const accounts = await this.prisma.account.findMany({
+      where: {
+        role: filter?.role,
+        ...(filter?.q
+          ? {
+              OR: [
+                { name: { contains: filter.q, mode: "insensitive" } },
+                { email: { contains: filter.q, mode: "insensitive" } },
+              ],
+            }
+          : {}),
+      },
+      select: PUBLIC_ACCOUNT_SELECT,
+      orderBy: { name: "asc" },
+    });
+
+    return accounts;
+  }
+
+  async loadById(id: number): Promise<PublicAccountModel | null> {
+    const account = await this.prisma.account.findUnique({
+      where: { id },
+      select: PUBLIC_ACCOUNT_SELECT,
+    });
+    return account;
+  }
+
+  async countActiveAdmins(): Promise<number> {
+    return await this.prisma.account.count({
+      where: { role: "admin", active: true },
+    });
+  }
+
+  async updateById(
+    id: number,
+    data: UpdateAccountModel,
+  ): Promise<PublicAccountModel> {
+    const account = await this.prisma.account.update({
+      where: { id },
+      data: {
+        name: data.name,
+        email: data.email,
+        role: data.role,
+        active: data.active,
+        password: data.password,
+      },
+      select: PUBLIC_ACCOUNT_SELECT,
+    });
+    return account;
+  }
+}

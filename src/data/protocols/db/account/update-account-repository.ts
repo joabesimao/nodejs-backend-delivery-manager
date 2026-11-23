@@ -1,5 +1,5 @@
 import { PublicAccountModel } from "../../../../domain/models/account/public-account-model";
-import { UpdateAccountModel } from "../../../../domain/usescases/account/update-account";
+import { UpdateAccountModel } from "../../../../domain/usecases/account/update-account";
 
 export interface UpdateAccountRepository {
   updateById(

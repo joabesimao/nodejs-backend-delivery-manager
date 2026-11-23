@@ -4,7 +4,7 @@ import { Address } from "../../../../domain/models/register/address-model";
 import {
   UpdateAddress,
   UpdateAddressModel,
-} from "../../../../domain/usescases/address/update-address";
+} from "../../../../domain/usecases/address/update-address";
 import { HttpRequest } from "../../../protocols/http";
 
 const makeFakeAddress = (): Address => ({

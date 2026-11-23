@@ -1,5 +1,5 @@
 import { InvalidChatMessageError } from "../../../domain/errors";
-import { UpdateChatMessage } from "../../../domain/usescases/chat/update-chat-message";
+import { UpdateChatMessage } from "../../../domain/usecases/chat/update-chat-message";
 import { makeFakeChatMessage } from "../../../test/chat-fixtures";
 import { UpdateChatMessageController } from "./update-chat-message-controller";
 import { makeFakeActor } from "../../../test/actor-fixtures";

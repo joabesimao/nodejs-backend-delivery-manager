@@ -1,4 +1,4 @@
-import { AddOrderDelivery } from "../../../../domain/usescases/order-delivery/add-order-delivery";
+import { AddOrderDelivery } from "../../../../domain/usecases/order-delivery/add-order-delivery";
 import { badRequest, ok, serverError } from "../../../helpers/http/http-helper";
 import { InvalidParamError } from "../../../errors/invalid-params-error";
 import { Controller } from "../../../protocols/controller";

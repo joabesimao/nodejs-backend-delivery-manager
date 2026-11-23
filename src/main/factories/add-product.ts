@@ -1,4 +1,4 @@
-import { DbAddProduct } from "../../data/usescases/product-usecases/add-product-usecase/add-product";
+import { DbAddProduct } from "../../data/usecases/product-usecases/add-product-usecase/add-product";
 import { AddProductController } from "../../presentation/controllers/product-controllers/add-product/add-product";
 import { Controller } from "../../presentation/protocols/controller";
 import { makeAddProductValidation } from "./add-product-validation";

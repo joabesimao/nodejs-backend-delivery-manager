@@ -1,4 +1,4 @@
-import { LoadDeliveryman } from "../../../../domain/usescases/deliveryman/load-deliveryman";
+import { LoadDeliveryman } from "../../../../domain/usecases/deliveryman/load-deliveryman";
 import { ok, serverError } from "../../../helpers/http/http-helper";
 import { Controller } from "../../../protocols/controller";
 import { HttpRequest, HttpResponse } from "../../../protocols/http";

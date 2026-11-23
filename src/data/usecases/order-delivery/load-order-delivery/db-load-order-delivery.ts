@@ -1,0 +1,15 @@
+import { OrderDeliveryModel } from "../../../../domain/models/order-delivery/order-delivery";
+import { LoadOrderDelivery } from "../../../../domain/usecases/order-delivery/load-order-delivery";
+import { LoadOrderDeliveryRepository } from "../../../protocols/db/order-delivery/load-order-delivery";
+
+export class DbLoadOrderDelivery implements LoadOrderDelivery {
+  constructor(
+    private readonly loadOrderDeliveryRepository: LoadOrderDeliveryRepository,
+  ) {}
+
+  async loadAll(accountId?: number): Promise<OrderDeliveryModel[]> {
+    const orders =
+      await this.loadOrderDeliveryRepository.getAllOrderOfDelivery(accountId);
+    return orders;
+  }
+}

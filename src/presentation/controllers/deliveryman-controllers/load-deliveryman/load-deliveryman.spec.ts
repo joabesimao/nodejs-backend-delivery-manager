@@ -1,7 +1,7 @@
 import { LoadDeliverymanController } from "./load-deliveryman";
 import { ok, serverError } from "../../../helpers/http/http-helper";
 import { Deliveryman } from "../../../../domain/models/deliveryman/deliveryman-model";
-import { LoadDeliveryman } from "../../../../domain/usescases/deliveryman/load-deliveryman";
+import { LoadDeliveryman } from "../../../../domain/usecases/deliveryman/load-deliveryman";
 
 const makeFakeDeliverymanList = (): Deliveryman[] => [
   {

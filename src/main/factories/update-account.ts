@@ -1,4 +1,4 @@
-import { DbUpdateAccount } from "../../data/usescases/account-usecases/update-account/db-update-account";
+import { DbUpdateAccount } from "../../data/usecases/account-usecases/update-account/db-update-account";
 import { BcryptAdapter } from "../../infra/cryptography/bcrypt-adapter/bcrypt-adapter";
 import { UpdateAccountController } from "../../presentation/controllers/account-controllers/update-account/update-account";
 import { Controller } from "../../presentation/protocols/controller";

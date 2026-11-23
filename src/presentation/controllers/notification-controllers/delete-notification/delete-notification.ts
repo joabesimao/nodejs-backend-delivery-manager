@@ -1,4 +1,4 @@
-import { DeleteNotification } from "../../../../domain/usescases/notification/delete-notification";
+import { DeleteNotification } from "../../../../domain/usecases/notification/delete-notification";
 import { InvalidParamError } from "../../../errors";
 import { badRequest, noContent, noExists, serverError, unauthorized } from "../../../helpers/http/http-helper";
 import { Controller } from "../../../protocols/controller";

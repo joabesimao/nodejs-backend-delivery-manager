@@ -1,5 +1,5 @@
 import { ChatMessageNotFoundError } from "../../../domain/errors";
-import { LoadChatMessageById } from "../../../domain/usescases/chat/load-chat-message-by-id";
+import { LoadChatMessageById } from "../../../domain/usecases/chat/load-chat-message-by-id";
 import { makeFakeChatMessage } from "../../../test/chat-fixtures";
 import { LoadChatMessageByIdController } from "./load-chat-message-by-id-controller";
 import { makeFakeActor } from "../../../test/actor-fixtures";

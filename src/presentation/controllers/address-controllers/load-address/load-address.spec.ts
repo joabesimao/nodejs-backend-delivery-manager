@@ -1,6 +1,6 @@
 import { LoadAddressController } from "./load-address";
 import { noContent, ok, serverError } from "../../../helpers/http/http-helper";
-import { LoadAddress } from "../../../../domain/usescases/address/load-address";
+import { LoadAddress } from "../../../../domain/usecases/address/load-address";
 import { Address } from "../../../../domain/models/register/address-model";
 
 const makeFakeAddressList = (): Address[] => {

@@ -1,4 +1,4 @@
-import { MarkNotificationRead } from "../../../../domain/usescases/notification/mark-notification-read";
+import { MarkNotificationRead } from "../../../../domain/usecases/notification/mark-notification-read";
 import { InvalidParamError } from "../../../errors";
 import { badRequest, noExists, ok, serverError, unauthorized } from "../../../helpers/http/http-helper";
 import { Controller } from "../../../protocols/controller";

@@ -1,4 +1,4 @@
-import { DbUpdateChatMessage } from "../../data/usescases/chat-usecases";
+import { DbUpdateChatMessage } from "../../data/usecases/chat-usecases";
 import { UpdateChatMessageController } from "../../presentation/controllers/chat-controllers";
 import { makeAccountScopeRepository, makeChatMessageRepository } from "./repositories";
 

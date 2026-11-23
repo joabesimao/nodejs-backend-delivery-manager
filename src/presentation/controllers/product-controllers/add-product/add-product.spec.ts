@@ -1,7 +1,7 @@
 import {
   AddProduct,
   AddProductModel,
-} from "../../../../domain/usescases/product/add-product/add-product";
+} from "../../../../domain/usecases/product/add-product/add-product";
 import { Product } from "../../../../domain/models/product/product";
 import { AddProductController } from "./add-product";
 import { HttpRequest } from "../../../protocols/http";

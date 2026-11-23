@@ -1,4 +1,4 @@
-import { CountUnreadNotifications } from "../../../../domain/usescases/notification/count-unread-notifications";
+import { CountUnreadNotifications } from "../../../../domain/usecases/notification/count-unread-notifications";
 import { ok, serverError, unauthorized } from "../../../helpers/http/http-helper";
 import { Controller } from "../../../protocols/controller";
 import { HttpRequest, HttpResponse } from "../../../protocols/http";

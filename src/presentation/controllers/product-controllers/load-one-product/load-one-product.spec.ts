@@ -1,4 +1,4 @@
-import { LoadProductById } from "../../../../domain/usescases/product/load-product/load-product";
+import { LoadProductById } from "../../../../domain/usecases/product/load-product/load-product";
 import { Product } from "../../../../domain/models/product/product";
 import { LoadOneProductController } from "./load-one-product";
 import { HttpRequest } from "../../../protocols/http";

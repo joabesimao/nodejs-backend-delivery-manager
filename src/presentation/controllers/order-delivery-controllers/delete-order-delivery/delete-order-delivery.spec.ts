@@ -1,5 +1,5 @@
 import { DeleteOrderDeliveryController } from "./delete-order-delivery";
-import { DeleteOrderDelivery } from "../../../../domain/usescases/order-delivery/delete-order-delivery";
+import { DeleteOrderDelivery } from "../../../../domain/usecases/order-delivery/delete-order-delivery";
 import { conflict, noExists, ok, serverError } from "../../../helpers/http/http-helper";
 import { NotFoundError } from "../../../../domain/errors/not-found-error";
 import { ResourceInUseError } from "../../../../domain/errors/resource-in-use-error";

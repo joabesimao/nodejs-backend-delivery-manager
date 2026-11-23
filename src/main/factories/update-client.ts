@@ -1,4 +1,4 @@
-import { DbUpdateClient } from "../../data/usescases/client-usecases/update-client/db-update-client";
+import { DbUpdateClient } from "../../data/usecases/client-usecases/update-client/db-update-client";
 import { UpdateClientController } from "../../presentation/controllers/client-controllers/update-client/update-client-controller";
 import { Controller } from "../../presentation/protocols/controller";
 import { makeClientRepository } from "./repositories";

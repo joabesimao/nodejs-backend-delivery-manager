@@ -1,4 +1,4 @@
-import { DeleteOilChangeLog } from "../../../../domain/usescases/oil-change/delete-oil-change-log";
+import { DeleteOilChangeLog } from "../../../../domain/usecases/oil-change/delete-oil-change-log";
 import { noExists, ok, serverError } from "../../../helpers/http/http-helper";
 import { Controller } from "../../../protocols/controller";
 import { HttpRequest, HttpResponse } from "../../../protocols/http";

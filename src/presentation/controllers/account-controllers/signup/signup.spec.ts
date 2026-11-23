@@ -2,7 +2,7 @@ import { SignupController } from "./signup";
 import {
   AddAccount,
   AddAccountModel,
-} from "../../../../domain/usescases/signup/add-account";
+} from "../../../../domain/usecases/signup/add-account";
 import { HttpRequest } from "../../../protocols/http";
 import { MissingParamError } from "../../../errors";
 import { EmailInUseError } from "../../../../domain/errors";
@@ -18,7 +18,7 @@ import {
   Authentication,
   AuthenticationModel,
   AuthenticationResult,
-} from "../../../../domain/usescases/authentication/authentication";
+} from "../../../../domain/usecases/authentication/authentication";
 
 const makeFakeAccountModel = (): AccountModel => ({
   id: 1,

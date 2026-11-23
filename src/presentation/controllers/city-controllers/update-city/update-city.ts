@@ -1,4 +1,4 @@
-import { UpdateCity } from "../../../../domain/usescases/city/update-city";
+import { UpdateCity } from "../../../../domain/usecases/city/update-city";
 import { ok, serverError } from "../../../helpers/http/http-helper";
 import { Controller } from "../../../protocols/controller";
 import { HttpRequest, HttpResponse } from "../../../protocols/http";

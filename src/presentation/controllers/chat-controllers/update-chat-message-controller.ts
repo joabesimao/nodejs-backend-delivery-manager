@@ -1,4 +1,4 @@
-import { UpdateChatMessage } from "../../../domain/usescases/chat/update-chat-message";
+import { UpdateChatMessage } from "../../../domain/usecases/chat/update-chat-message";
 import { mapDomainError } from "../../helpers/http/map-domain-error";
 import { ok } from "../../helpers/http/http-helper";
 import { Controller } from "../../protocols/controller";

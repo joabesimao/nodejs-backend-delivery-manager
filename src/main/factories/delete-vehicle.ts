@@ -1,5 +1,5 @@
 import { Controller } from "../../presentation/protocols/controller";
-import { DbDeleteVehicle } from "../../data/usescases/vehicle-usecases/delete-vehicle/db-delete-vehicle";
+import { DbDeleteVehicle } from "../../data/usecases/vehicle-usecases/delete-vehicle/db-delete-vehicle";
 import { DeleteVehicleController } from "../../presentation/controllers/vehicle-controllers/delete-vehicle/delete-vehicle";
 import { makeVehicleRepository } from "./repositories";
 

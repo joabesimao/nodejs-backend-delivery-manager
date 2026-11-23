@@ -1,4 +1,4 @@
-import { DeleteChatMessage } from "../../../domain/usescases/chat/delete-chat-message";
+import { DeleteChatMessage } from "../../../domain/usecases/chat/delete-chat-message";
 import { mapDomainError } from "../../helpers/http/map-domain-error";
 import { ok } from "../../helpers/http/http-helper";
 import { Controller } from "../../protocols/controller";

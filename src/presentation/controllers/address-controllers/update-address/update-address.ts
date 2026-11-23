@@ -1,4 +1,4 @@
-import { UpdateAddress } from "../../../../domain/usescases/address/update-address";
+import { UpdateAddress } from "../../../../domain/usecases/address/update-address";
 import { ok, serverError } from "../../../helpers/http/http-helper";
 import { Controller } from "../../../protocols/controller";
 import { HttpRequest, HttpResponse } from "../../../protocols/http";

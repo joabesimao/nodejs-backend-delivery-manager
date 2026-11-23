@@ -14,7 +14,7 @@ import {
   Authentication,
   AuthenticationModel,
   AuthenticationResult,
-} from "../../../../domain/usescases/authentication/authentication";
+} from "../../../../domain/usecases/authentication/authentication";
 import { Validation } from "../../../protocols/validation";
 
 interface SutTypes {

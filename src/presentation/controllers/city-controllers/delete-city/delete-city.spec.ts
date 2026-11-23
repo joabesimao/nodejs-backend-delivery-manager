@@ -1,7 +1,7 @@
 import { DeleteCityController } from "./delete-city";
 import { HttpRequest } from "../../../protocols/http";
 import { ok, serverError } from "../../../helpers/http/http-helper";
-import { DeleteCity } from "../../../../domain/usescases/city/delete-city";
+import { DeleteCity } from "../../../../domain/usecases/city/delete-city";
 
 const makeFakeRequest = (): HttpRequest => ({
   params: {

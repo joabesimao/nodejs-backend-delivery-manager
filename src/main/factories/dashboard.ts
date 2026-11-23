@@ -1,7 +1,7 @@
-import { DbLoadDashboardOverview } from "../../data/usescases/dashboard-usecases/db-load-dashboard-overview";
-import { DbLoadDashboardPerformance } from "../../data/usescases/dashboard-usecases/db-load-dashboard-performance";
-import { DbLoadDashboardReports } from "../../data/usescases/dashboard-usecases/db-load-dashboard-reports";
-import { DbGlobalSearch } from "../../data/usescases/search-usecases/db-global-search";
+import { DbLoadDashboardOverview } from "../../data/usecases/dashboard-usecases/db-load-dashboard-overview";
+import { DbLoadDashboardPerformance } from "../../data/usecases/dashboard-usecases/db-load-dashboard-performance";
+import { DbLoadDashboardReports } from "../../data/usecases/dashboard-usecases/db-load-dashboard-reports";
+import { DbGlobalSearch } from "../../data/usecases/search-usecases/db-global-search";
 import {
   LoadDashboardOverviewController,
   LoadDashboardPerformanceController,

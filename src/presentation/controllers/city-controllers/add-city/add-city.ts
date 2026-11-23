@@ -1,4 +1,4 @@
-import { AddCity } from "../../../../domain/usescases/city/add-city";
+import { AddCity } from "../../../../domain/usecases/city/add-city";
 import { ok, serverError } from "../../../helpers/http/http-helper";
 import { Controller } from "../../../protocols/controller";
 import { HttpRequest, HttpResponse } from "../../../protocols/http";

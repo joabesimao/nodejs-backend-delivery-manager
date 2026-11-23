@@ -1,4 +1,4 @@
-import { DeleteFuelRefill } from "../../../../domain/usescases/fuel-refill/delete-fuel-refill";
+import { DeleteFuelRefill } from "../../../../domain/usecases/fuel-refill/delete-fuel-refill";
 import { noExists, ok, serverError } from "../../../helpers/http/http-helper";
 import { Controller } from "../../../protocols/controller";
 import { HttpRequest, HttpResponse } from "../../../protocols/http";

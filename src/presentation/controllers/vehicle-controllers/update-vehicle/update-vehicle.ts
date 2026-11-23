@@ -1,4 +1,4 @@
-import { UpdateVehicle } from "../../../../domain/usescases/vehicle/update-vehicle";
+import { UpdateVehicle } from "../../../../domain/usecases/vehicle/update-vehicle";
 import { badRequest, ok, serverError } from "../../../helpers/http/http-helper";
 import { mapDomainError } from "../../../helpers/http/map-domain-error";
 import { Controller } from "../../../protocols/controller";

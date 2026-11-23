@@ -1,4 +1,4 @@
-import { DeleteProductById } from "../../../../domain/usescases/product/delete-product/delete-product";
+import { DeleteProductById } from "../../../../domain/usecases/product/delete-product/delete-product";
 import { ok, serverError } from "../../../helpers/http/http-helper";
 import { Controller } from "../../../protocols/controller";
 import { HttpRequest, HttpResponse } from "../../../protocols/http";

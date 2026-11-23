@@ -1,4 +1,4 @@
-import { DbLoadChatStatistics } from "../../data/usescases/chat-usecases";
+import { DbLoadChatStatistics } from "../../data/usecases/chat-usecases";
 import { GetChatStatisticsController } from "../../presentation/controllers/chat-controllers";
 import { makeAccountScopeRepository, makeChatMessageRepository } from "./repositories";
 

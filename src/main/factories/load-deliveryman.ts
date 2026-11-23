@@ -1,4 +1,4 @@
-import { DbLoadDeliveryman } from "../../data/usescases/deliveryman-usecases/load-deliveryman/db-load-deliveryman";
+import { DbLoadDeliveryman } from "../../data/usecases/deliveryman-usecases/load-deliveryman/db-load-deliveryman";
 import { LoadDeliverymanController } from "../../presentation/controllers/deliveryman-controllers/load-deliveryman/load-deliveryman";
 import { Controller } from "../../presentation/protocols/controller";
 import { makeDeliverymanRepository } from "./repositories";

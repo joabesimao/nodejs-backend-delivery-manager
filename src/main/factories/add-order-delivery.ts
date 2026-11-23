@@ -1,5 +1,5 @@
 import { Controller } from "../../presentation/protocols/controller";
-import { DbAddOrderDelivery } from "../../data/usescases/order-delivery/add-order-delivery/db-add-order-delivery";
+import { DbAddOrderDelivery } from "../../data/usecases/order-delivery/add-order-delivery/db-add-order-delivery";
 import { AddOrderDeliveryController } from "../../presentation/controllers/order-delivery-controllers/add-order-delivery/add-order-delivery";
 import { makeAddOrderDeliveryValidation } from "./add-order-delivery-validation";
 import { makeOrderDeliveryRepository } from "./repositories";

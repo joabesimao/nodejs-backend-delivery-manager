@@ -1,5 +1,5 @@
 import { ChatPermissionDeniedError } from "../../../domain/errors";
-import { DeleteChatMessage } from "../../../domain/usescases/chat/delete-chat-message";
+import { DeleteChatMessage } from "../../../domain/usecases/chat/delete-chat-message";
 import { DeleteChatMessageController } from "./delete-chat-message-controller";
 import { makeFakeActor } from "../../../test/actor-fixtures";
 

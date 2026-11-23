@@ -1,5 +1,5 @@
 import { ChatAccountNotFoundError } from "../../../domain/errors";
-import { SearchChatMessages } from "../../../domain/usescases/chat/search-chat-messages";
+import { SearchChatMessages } from "../../../domain/usecases/chat/search-chat-messages";
 import { SearchChatMessagesController } from "./search-chat-messages-controller";
 import { makeFakeActor } from "../../../test/actor-fixtures";
 

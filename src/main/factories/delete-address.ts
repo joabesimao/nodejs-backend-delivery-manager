@@ -1,6 +1,6 @@
 import { Controller } from "../../presentation/protocols/controller";
-import { DbDeleteAddress } from "../../data/usescases/address-usecases/delete-address/db-delete-address";
-import { DeleteAddressController } from "../../presentation/controllers/address-controllers/delete-address/delete-address-controlller";
+import { DbDeleteAddress } from "../../data/usecases/address-usecases/delete-address/db-delete-address";
+import { DeleteAddressController } from "../../presentation/controllers/address-controllers/delete-address/delete-address-controller";
 import { makeAddressRepository } from "./repositories";
 
 export const makeDeleteAddressController = (): Controller => {

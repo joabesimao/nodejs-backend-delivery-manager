@@ -1,4 +1,4 @@
-import { DbLoadChatMessageById } from "../../data/usescases/chat-usecases";
+import { DbLoadChatMessageById } from "../../data/usecases/chat-usecases";
 import { LoadChatMessageByIdController } from "../../presentation/controllers/chat-controllers";
 import { makeAccountScopeRepository, makeChatMessageRepository } from "./repositories";
 

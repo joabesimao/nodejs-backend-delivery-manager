@@ -1,5 +1,5 @@
 import { DeleteAccountController } from "./delete-account";
-import { DeleteAccount } from "../../../../domain/usescases/signup/delete-account";
+import { DeleteAccount } from "../../../../domain/usecases/signup/delete-account";
 import { HttpRequest } from "../../../protocols/http";
 import {
   conflict,

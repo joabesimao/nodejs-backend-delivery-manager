@@ -1,4 +1,4 @@
-import { DbUpdateProduct } from "../../data/usescases/product-usecases/update-product-usecase/db-update-product";
+import { DbUpdateProduct } from "../../data/usecases/product-usecases/update-product-usecase/db-update-product";
 import { UpdateProductController } from "../../presentation/controllers/product-controllers/update-product/update-product";
 import { Controller } from "../../presentation/protocols/controller";
 import { makeUpdateProductValidation } from "./update-product-validation";

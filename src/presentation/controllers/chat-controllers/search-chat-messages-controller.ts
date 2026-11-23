@@ -1,5 +1,5 @@
 import { parseBusinessPeriodEnd, parseBusinessPeriodStart } from "../../../data/helpers/date-time";
-import { SearchChatMessages } from "../../../domain/usescases/chat/search-chat-messages";
+import { SearchChatMessages } from "../../../domain/usecases/chat/search-chat-messages";
 import { mapDomainError } from "../../helpers/http/map-domain-error";
 import { ok } from "../../helpers/http/http-helper";
 import { Controller } from "../../protocols/controller";

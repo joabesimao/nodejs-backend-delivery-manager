@@ -1,4 +1,4 @@
-import { AddDeliveryman } from "../../../../domain/usescases/deliveryman/add-deliveryman";
+import { AddDeliveryman } from "../../../../domain/usecases/deliveryman/add-deliveryman";
 import { badRequest, ok, serverError } from "../../../helpers/http/http-helper";
 import { mapDomainError } from "../../../helpers/http/map-domain-error";
 import { Controller } from "../../../protocols/controller";

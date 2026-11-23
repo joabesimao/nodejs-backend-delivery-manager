@@ -2,7 +2,7 @@ import { LoadVehicleController } from "./load-vehicle";
 import { HttpRequest } from "../../../protocols/http";
 import { ok, serverError } from "../../../helpers/http/http-helper";
 import { Vehicle } from "../../../../domain/models/vehicle/vehicle-model";
-import { LoadVehicle } from "../../../../domain/usescases/vehicle/load-vehicle";
+import { LoadVehicle } from "../../../../domain/usecases/vehicle/load-vehicle";
 
 const makeFakeRequest = (): HttpRequest => ({});
 

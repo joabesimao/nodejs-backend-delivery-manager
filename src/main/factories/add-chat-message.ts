@@ -1,5 +1,5 @@
 import { makeNotifyChatMessage } from "./notify-chat-message";
-import { DbAddChatMessage } from "../../data/usescases/chat-usecases";
+import { DbAddChatMessage } from "../../data/usecases/chat-usecases";
 import { SocketChatEventPublisher } from "../realtime/socket-chat-event-publisher";
 import { AddChatMessageController } from "../../presentation/controllers/chat-controllers";
 import { makeAccountScopeRepository, makeChatMessageRepository } from "./repositories";

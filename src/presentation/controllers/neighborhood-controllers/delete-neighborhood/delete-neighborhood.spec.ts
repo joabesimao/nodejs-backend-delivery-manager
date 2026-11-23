@@ -1,7 +1,7 @@
 import { DeleteNeighborhoodController } from "./delete-neighborhood";
 import { HttpRequest } from "../../../protocols/http";
 import { ok, serverError } from "../../../helpers/http/http-helper";
-import { DeleteNeighborhood } from "../../../../domain/usescases/neighborhood/delete-neighborhood";
+import { DeleteNeighborhood } from "../../../../domain/usecases/neighborhood/delete-neighborhood";
 
 const makeFakeRequest = (): HttpRequest => ({
   params: {

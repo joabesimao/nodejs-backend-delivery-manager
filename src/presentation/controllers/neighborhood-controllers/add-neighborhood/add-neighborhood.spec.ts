@@ -5,7 +5,7 @@ import { Neighborhood } from "../../../../domain/models/neighborhood/neighborhoo
 import {
   AddNeighborhood,
   AddNeighborhoodModel,
-} from "../../../../domain/usescases/neighborhood/add-neighborhood";
+} from "../../../../domain/usecases/neighborhood/add-neighborhood";
 
 const makeFakeRequest = (): HttpRequest => ({
   body: {

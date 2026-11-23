@@ -1,4 +1,4 @@
-import { LoadOrderDeliveryById } from "../../../../domain/usescases/order-delivery/load-order-delivery";
+import { LoadOrderDeliveryById } from "../../../../domain/usecases/order-delivery/load-order-delivery";
 import { LoadOrderDeliveryByIdController } from "./load-order-delivery-by-id";
 import { HttpRequest } from "../../../protocols/http";
 import { ok, serverError } from "../../../helpers/http/http-helper";

@@ -1,4 +1,4 @@
-import { DbAddDeliveryman } from "../../data/usescases/deliveryman-usecases/add-deliveryman/db-add-deliveryman";
+import { DbAddDeliveryman } from "../../data/usecases/deliveryman-usecases/add-deliveryman/db-add-deliveryman";
 import { AddDeliverymanController } from "../../presentation/controllers/deliveryman-controllers/add-deliveryman/add-deliveryman";
 import { Controller } from "../../presentation/protocols/controller";
 import { makeAddDeliverymanValidation } from "./add-deliveryman-validation";

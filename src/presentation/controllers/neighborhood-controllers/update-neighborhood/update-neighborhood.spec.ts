@@ -5,7 +5,7 @@ import { Neighborhood } from "../../../../domain/models/neighborhood/neighborhoo
 import {
   UpdateNeighborhood,
   UpdateNeighborhoodModel,
-} from "../../../../domain/usescases/neighborhood/update-neighborhood";
+} from "../../../../domain/usecases/neighborhood/update-neighborhood";
 
 const makeFakeRequest = (): HttpRequest => ({
   params: {

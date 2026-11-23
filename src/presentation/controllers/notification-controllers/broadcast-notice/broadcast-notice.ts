@@ -1,5 +1,5 @@
 import { isAccountRole } from "../../../../domain/models/account/account-role";
-import { BroadcastNotice } from "../../../../domain/usescases/notification/broadcast-notice";
+import { BroadcastNotice } from "../../../../domain/usecases/notification/broadcast-notice";
 import { InvalidParamError } from "../../../errors";
 import {
   badRequest,

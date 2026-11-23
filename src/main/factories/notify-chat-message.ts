@@ -1,5 +1,5 @@
-import { NotifyChatMessage } from "../../domain/usescases/notification/notify-chat-message";
-import { DbNotifyChatMessage } from "../../data/usescases/notification-usecases/notify-chat-message/db-notify-chat-message";
+import { NotifyChatMessage } from "../../domain/usecases/notification/notify-chat-message";
+import { DbNotifyChatMessage } from "../../data/usecases/notification-usecases/notify-chat-message/db-notify-chat-message";
 import { makeNotifyAccounts } from "./notify-accounts";
 import { makeNotificationRepository } from "./repositories";
 

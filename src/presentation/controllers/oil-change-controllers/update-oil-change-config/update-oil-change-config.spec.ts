@@ -2,7 +2,7 @@ import { UpdateOilChangeConfigController } from "./update-oil-change-config";
 import { HttpRequest } from "../../../protocols/http";
 import { badRequest, ok, serverError } from "../../../helpers/http/http-helper";
 import { OilChangeConfig } from "../../../../domain/models/oil-change/oil-change-config-model";
-import { UpdateOilChangeConfig, UpdateOilChangeConfigModel } from "../../../../domain/usescases/oil-change/update-oil-change-config";
+import { UpdateOilChangeConfig, UpdateOilChangeConfigModel } from "../../../../domain/usecases/oil-change/update-oil-change-config";
 import { Validation } from "../../../protocols/validation";
 import { MissingParamError } from "../../../errors";
 

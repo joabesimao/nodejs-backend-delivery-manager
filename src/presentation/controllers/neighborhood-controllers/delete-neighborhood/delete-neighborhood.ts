@@ -1,4 +1,4 @@
-import { DeleteNeighborhood } from "../../../../domain/usescases/neighborhood/delete-neighborhood";
+import { DeleteNeighborhood } from "../../../../domain/usecases/neighborhood/delete-neighborhood";
 import { ok, serverError } from "../../../helpers/http/http-helper";
 import { Controller } from "../../../protocols/controller";
 import { HttpRequest, HttpResponse } from "../../../protocols/http";

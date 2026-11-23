@@ -7,7 +7,7 @@ import { Deliveryman } from "../../../../domain/models/deliveryman/deliveryman-m
 import {
   AddDeliveryman,
   AddDeliverymanModel,
-} from "../../../../domain/usescases/deliveryman/add-deliveryman";
+} from "../../../../domain/usecases/deliveryman/add-deliveryman";
 
 const makeFakeRequest = (): HttpRequest => ({
   body: {

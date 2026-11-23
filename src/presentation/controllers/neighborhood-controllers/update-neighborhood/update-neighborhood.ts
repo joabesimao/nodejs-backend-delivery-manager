@@ -1,4 +1,4 @@
-import { UpdateNeighborhood } from "../../../../domain/usescases/neighborhood/update-neighborhood";
+import { UpdateNeighborhood } from "../../../../domain/usecases/neighborhood/update-neighborhood";
 import { ok, serverError } from "../../../helpers/http/http-helper";
 import { Controller } from "../../../protocols/controller";
 import { HttpRequest, HttpResponse } from "../../../protocols/http";

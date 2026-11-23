@@ -1,5 +1,5 @@
 import { LoadOneRegistersController } from "./load-one-register";
-import { LoadOneRegisters } from "../../../../domain/usescases/register/load-one-register";
+import { LoadOneRegisters } from "../../../../domain/usecases/register/load-one-register";
 import { LoadRegisterModel } from "../../../../domain/models/register/register-load-model";
 import { noContent, ok, serverError } from "../../../helpers/http/http-helper";
 import { HttpRequest } from "../../../protocols/http";
