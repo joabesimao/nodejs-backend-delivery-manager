@@ -1,4 +1,4 @@
-import { DeleteClient } from "../../../../domain/usescases/client/delete-client";
+import { DeleteClient } from "../../../../domain/usecases/client/delete-client";
 import { ok, serverError } from "../../../helpers/http/http-helper";
 import { mapDomainError } from "../../../helpers/http/map-domain-error";
 import { Controller } from "../../../protocols/controller";

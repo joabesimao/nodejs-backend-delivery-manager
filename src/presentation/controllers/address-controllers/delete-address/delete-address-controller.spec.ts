@@ -1,6 +1,6 @@
-import { DeleteAddressController } from "./delete-address-controlller";
+import { DeleteAddressController } from "./delete-address-controller";
 import { conflict, noExists, ok, serverError } from "../../../helpers/http/http-helper";
-import { DeleteAddress } from "../../../../domain/usescases/address/delete-address";
+import { DeleteAddress } from "../../../../domain/usecases/address/delete-address";
 import { HttpRequest } from "../../../protocols/http";
 import { NotFoundError } from "../../../../domain/errors/not-found-error";
 import { ResourceInUseError } from "../../../../domain/errors/resource-in-use-error";

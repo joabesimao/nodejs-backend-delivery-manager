@@ -1,4 +1,4 @@
-import { UpdateRegister } from "../../../../domain/usescases/register/update-register";
+import { UpdateRegister } from "../../../../domain/usecases/register/update-register";
 import { ok, serverError } from "../../../helpers/http/http-helper";
 import { mapDomainError } from "../../../helpers/http/map-domain-error";
 import { Controller } from "../../../protocols/controller";

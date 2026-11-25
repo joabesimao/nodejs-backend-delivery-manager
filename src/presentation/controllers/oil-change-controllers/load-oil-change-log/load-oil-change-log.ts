@@ -1,4 +1,4 @@
-import { LoadOilChangeLog } from "../../../../domain/usescases/oil-change/load-oil-change-log";
+import { LoadOilChangeLog } from "../../../../domain/usecases/oil-change/load-oil-change-log";
 import { ok, serverError } from "../../../helpers/http/http-helper";
 import { Controller } from "../../../protocols/controller";
 import { HttpRequest, HttpResponse } from "../../../protocols/http";

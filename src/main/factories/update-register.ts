@@ -1,4 +1,4 @@
-import { DbUpdateRegister } from "../../data/usescases/register-usecases/update-register/db-update-register";
+import { DbUpdateRegister } from "../../data/usecases/register-usecases/update-register/db-update-register";
 import { UpdateRegisterController } from "../../presentation/controllers/register-controllers/update-register/update-register";
 import { Controller } from "../../presentation/protocols/controller";
 import { makeRegisterRepository } from "./repositories";

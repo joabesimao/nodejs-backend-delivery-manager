@@ -5,7 +5,7 @@ import { City } from "../../../../domain/models/city/city-model";
 import {
   UpdateCity,
   UpdateCityModel,
-} from "../../../../domain/usescases/city/update-city";
+} from "../../../../domain/usecases/city/update-city";
 
 const makeFakeRequest = (): HttpRequest => ({
   params: {

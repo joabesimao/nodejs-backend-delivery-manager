@@ -1,5 +1,5 @@
 import { AddClientController } from "../../presentation/controllers/client-controllers/add-client/add-client";
-import { DbAddClient } from "../../data/usescases/client-usecases/add-client/db-add-client";
+import { DbAddClient } from "../../data/usecases/client-usecases/add-client/db-add-client";
 import { Controller } from "../../presentation/protocols/controller";
 import { makeClientRepository } from "./repositories";
 

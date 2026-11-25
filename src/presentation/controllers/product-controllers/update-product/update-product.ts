@@ -1,4 +1,4 @@
-import { UpdateProduct } from "../../../../domain/usescases/product/update-product/update-product";
+import { UpdateProduct } from "../../../../domain/usecases/product/update-product/update-product";
 import { badRequest, ok, serverError } from "../../../helpers/http/http-helper";
 import { mapDomainError } from "../../../helpers/http/map-domain-error";
 import { Controller } from "../../../protocols/controller";

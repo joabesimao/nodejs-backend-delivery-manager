@@ -1,4 +1,4 @@
-import { GlobalSearch } from "../../../domain/usescases/search/global-search";
+import { GlobalSearch } from "../../../domain/usecases/search/global-search";
 import { ok, serverErrorMessage } from "../../helpers/http/http-helper";
 import { Controller } from "../../protocols/controller";
 import { HttpRequest, HttpResponse } from "../../protocols/http";

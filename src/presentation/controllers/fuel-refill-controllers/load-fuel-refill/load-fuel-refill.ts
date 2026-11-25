@@ -1,4 +1,4 @@
-import { LoadFuelRefill } from "../../../../domain/usescases/fuel-refill/load-fuel-refill";
+import { LoadFuelRefill } from "../../../../domain/usecases/fuel-refill/load-fuel-refill";
 import { ok, serverError } from "../../../helpers/http/http-helper";
 import { Controller } from "../../../protocols/controller";
 import { HttpRequest, HttpResponse } from "../../../protocols/http";

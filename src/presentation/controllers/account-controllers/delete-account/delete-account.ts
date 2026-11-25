@@ -1,6 +1,6 @@
 import { Controller } from "../../../protocols/controller";
 import { HttpRequest, HttpResponse } from "../../../protocols/http";
-import { DeleteAccount } from "../../../../domain/usescases/signup/delete-account";
+import { DeleteAccount } from "../../../../domain/usecases/signup/delete-account";
 import {
   ok,
   serverError,

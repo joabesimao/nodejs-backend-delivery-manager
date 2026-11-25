@@ -1,4 +1,4 @@
-import { Product } from "../../../usescases/product-usecases/add-product-usecase/db-add-product-protocols";
+import { Product } from "../../../usecases/product-usecases/add-product-usecase/db-add-product-protocols";
 import { LoadProductFilter, LoadProductResult } from "../../../../domain/models/product/product";
 
 export interface LoadProductRepository {

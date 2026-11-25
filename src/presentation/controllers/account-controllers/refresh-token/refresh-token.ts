@@ -1,5 +1,5 @@
 import { JwtAdapter } from "../../../../infra/cryptography/jwt-adapter/jwt-adapter";
-import { AccountMySqlRepository } from "../../../../infra/db/mysql/account-repository/account-repository";
+import { AccountMySqlRepository } from "../../../../infra/db/prisma/account-repository/account-repository";
 import { AccountModel } from "../../../../domain/models/account/account-model";
 import { hashToken } from "../../../../utils/hash-token";
 import {

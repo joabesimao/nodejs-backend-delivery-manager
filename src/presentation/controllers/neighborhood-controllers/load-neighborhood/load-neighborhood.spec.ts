@@ -1,7 +1,7 @@
 import { LoadNeighborhoodController } from "./load-neighborhood";
 import { ok, serverError } from "../../../helpers/http/http-helper";
 import { Neighborhood } from "../../../../domain/models/neighborhood/neighborhood-model";
-import { LoadNeighborhood } from "../../../../domain/usescases/neighborhood/load-neighborhood";
+import { LoadNeighborhood } from "../../../../domain/usecases/neighborhood/load-neighborhood";
 
 const makeFakeNeighborhoodList = (): Neighborhood[] => [
   {

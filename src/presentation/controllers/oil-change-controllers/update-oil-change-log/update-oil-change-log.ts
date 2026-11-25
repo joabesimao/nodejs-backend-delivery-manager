@@ -1,5 +1,5 @@
 import { parseCivilDate } from "../../../../data/helpers/date-time";
-import { UpdateOilChangeLog, UpdateOilChangeLogModel } from "../../../../domain/usescases/oil-change/update-oil-change-log";
+import { UpdateOilChangeLog, UpdateOilChangeLogModel } from "../../../../domain/usecases/oil-change/update-oil-change-log";
 import { badRequest, noExists, ok, serverError } from "../../../helpers/http/http-helper";
 import { mapDomainError } from "../../../helpers/http/map-domain-error";
 import { Controller } from "../../../protocols/controller";

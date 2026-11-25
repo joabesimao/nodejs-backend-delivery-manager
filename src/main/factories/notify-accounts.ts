@@ -1,5 +1,5 @@
-import { NotifyAccounts } from "../../domain/usescases/notification/notify-accounts";
-import { DbNotifyAccounts } from "../../data/usescases/notification-usecases/notify-accounts/db-notify-accounts";
+import { NotifyAccounts } from "../../domain/usecases/notification/notify-accounts";
+import { DbNotifyAccounts } from "../../data/usecases/notification-usecases/notify-accounts/db-notify-accounts";
 import { SocketNotificationPublisher } from "../realtime/socket-notification-publisher";
 import { KeyedLock } from "../../data/helpers/keyed-lock";
 import { makeNotificationRepository } from "./repositories";

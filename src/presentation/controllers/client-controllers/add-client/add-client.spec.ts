@@ -9,7 +9,7 @@ import {
 import {
   AddClient,
   AddClientModel,
-} from "../../../../domain/usescases/client/add-client";
+} from "../../../../domain/usecases/client/add-client";
 
 const makeFakeRequest = (): HttpRequest => ({
   body: {

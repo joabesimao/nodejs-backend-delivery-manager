@@ -1,4 +1,4 @@
-import { LoadNotificationsParams, LoadNotificationsResult } from "../../../../domain/usescases/notification/load-notifications";
+import { LoadNotificationsParams, LoadNotificationsResult } from "../../../../domain/usecases/notification/load-notifications";
 
 export interface LoadNotificationsRepository {
   load(params: LoadNotificationsParams): Promise<LoadNotificationsResult>;

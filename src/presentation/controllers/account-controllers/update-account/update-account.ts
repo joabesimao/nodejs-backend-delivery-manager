@@ -1,4 +1,4 @@
-import { UpdateAccount } from "../../../../domain/usescases/account/update-account";
+import { UpdateAccount } from "../../../../domain/usecases/account/update-account";
 import { Controller } from "../../../protocols/controller";
 import { HttpRequest, HttpResponse } from "../../../protocols/http";
 import { Validation } from "../../../protocols/validation";

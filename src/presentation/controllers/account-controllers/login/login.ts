@@ -10,7 +10,7 @@ import {
   InvalidCredentialsError,
   InvalidLoginInputError,
 } from "../../../errors";
-import { Authentication } from "../../../../domain/usescases/authentication/authentication";
+import { Authentication } from "../../../../domain/usecases/authentication/authentication";
 import { Validation } from "../../../protocols/validation";
 
 export class LoginController implements Controller {

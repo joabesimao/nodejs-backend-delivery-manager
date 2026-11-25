@@ -1,4 +1,4 @@
-import { DbLoadOrderDeliveryRanking } from "../../data/usescases/order-delivery/load-order-delivery/db-load-order-delivery-ranking";
+import { DbLoadOrderDeliveryRanking } from "../../data/usecases/order-delivery/load-order-delivery/db-load-order-delivery-ranking";
 import { LoadOrderDeliveryRankingController } from "../../presentation/controllers/order-delivery-controllers/load-order-delivery-ranking/load-order-delivery-ranking";
 import { Controller } from "../../presentation/protocols/controller";
 import { makeOrderDeliveryRepository } from "./repositories";

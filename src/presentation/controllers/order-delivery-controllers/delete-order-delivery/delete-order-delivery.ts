@@ -1,4 +1,4 @@
-import { DeleteOrderDelivery } from "../../../../domain/usescases/order-delivery/delete-order-delivery";
+import { DeleteOrderDelivery } from "../../../../domain/usecases/order-delivery/delete-order-delivery";
 import { ok, serverError } from "../../../helpers/http/http-helper";
 import { mapDomainError } from "../../../helpers/http/map-domain-error";
 import { Controller } from "../../../protocols/controller";

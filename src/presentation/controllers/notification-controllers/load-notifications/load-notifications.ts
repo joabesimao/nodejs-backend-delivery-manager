@@ -1,4 +1,4 @@
-import { LoadNotifications } from "../../../../domain/usescases/notification/load-notifications";
+import { LoadNotifications } from "../../../../domain/usecases/notification/load-notifications";
 import { ok, serverError, unauthorized } from "../../../helpers/http/http-helper";
 import { Controller } from "../../../protocols/controller";
 import { HttpRequest, HttpResponse } from "../../../protocols/http";

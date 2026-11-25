@@ -2,7 +2,7 @@ import { AccessDeniedError } from "../../domain/errors/access-denied-error";
 import { forbidden, ok, unauthorized } from "../helpers/http/http-helper";
 import { HttpRequest, HttpResponse } from "../protocols/http";
 import { Middleware } from "../protocols/middleware";
-import { LoadAccountByToken } from "../../domain/usescases/auth-middleware/load-account-by-token";
+import { LoadAccountByToken } from "../../domain/usecases/auth-middleware/load-account-by-token";
 
 export class AuthMiddleware implements Middleware {
   constructor(

@@ -1,5 +1,5 @@
 import { ChatPermissionDeniedError } from "../../../domain/errors";
-import { AddChatMessage } from "../../../domain/usescases/chat/add-chat-message";
+import { AddChatMessage } from "../../../domain/usecases/chat/add-chat-message";
 import { makeFakeChatMessage } from "../../../test/chat-fixtures";
 import { HttpRequest } from "../../protocols/http";
 import { AddChatMessageController } from "./add-chat-message-controller";

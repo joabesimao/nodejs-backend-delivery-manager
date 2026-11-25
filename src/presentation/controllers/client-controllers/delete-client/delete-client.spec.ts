@@ -1,6 +1,6 @@
 import { DeleteClientController } from "./delete-client";
 import { conflict, noExists, ok, serverError } from "../../../helpers/http/http-helper";
-import { DeleteClient } from "../../../../domain/usescases/client/delete-client";
+import { DeleteClient } from "../../../../domain/usecases/client/delete-client";
 import { HttpRequest } from "../../../protocols/http";
 import { NotFoundError } from "../../../../domain/errors/not-found-error";
 import { ResourceInUseError } from "../../../../domain/errors/resource-in-use-error";

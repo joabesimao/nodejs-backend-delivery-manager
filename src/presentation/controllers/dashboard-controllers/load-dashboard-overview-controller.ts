@@ -1,4 +1,4 @@
-import { LoadDashboardOverview } from "../../../domain/usescases/dashboard/load-dashboard-overview";
+import { LoadDashboardOverview } from "../../../domain/usecases/dashboard/load-dashboard-overview";
 import { ok, serverErrorMessage } from "../../helpers/http/http-helper";
 import { Controller } from "../../protocols/controller";
 import { HttpRequest, HttpResponse } from "../../protocols/http";

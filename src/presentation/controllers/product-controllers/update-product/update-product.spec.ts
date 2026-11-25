@@ -1,4 +1,4 @@
-import { UpdateProduct } from "../../../../domain/usescases/product/update-product/update-product";
+import { UpdateProduct } from "../../../../domain/usecases/product/update-product/update-product";
 import { Product, ProductModel } from "../../../../domain/models/product/product";
 import { UpdateProductController } from "./update-product";
 import { HttpRequest } from "../../../protocols/http";

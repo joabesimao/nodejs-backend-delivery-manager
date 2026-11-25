@@ -1,4 +1,4 @@
-import { DbDeleteProduct } from "../../data/usescases/product-usecases/delete-product-usecase/db-delete-product";
+import { DbDeleteProduct } from "../../data/usecases/product-usecases/delete-product-usecase/db-delete-product";
 import { DeleteProductController } from "../../presentation/controllers/product-controllers/delete-product/delete-product";
 import { Controller } from "../../presentation/protocols/controller";
 import { makeProductRepository } from "./repositories";

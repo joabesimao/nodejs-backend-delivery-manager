@@ -1,5 +1,5 @@
 import { Controller } from "../../presentation/protocols/controller";
-import { DbUpdateOilChangeLog } from "../../data/usescases/oil-change-usecases/update-oil-change-log/db-update-oil-change-log";
+import { DbUpdateOilChangeLog } from "../../data/usecases/oil-change-usecases/update-oil-change-log/db-update-oil-change-log";
 import { UpdateOilChangeLogController } from "../../presentation/controllers/oil-change-controllers/update-oil-change-log/update-oil-change-log";
 import { makeUpdateOilChangeLogValidation } from "./update-oil-change-log-validation";
 import { makeOilChangeRepository } from "./repositories";

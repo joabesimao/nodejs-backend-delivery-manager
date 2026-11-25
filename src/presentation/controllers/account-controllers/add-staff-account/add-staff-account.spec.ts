@@ -2,7 +2,7 @@ import { AddStaffAccountController } from "./add-staff-account";
 import {
   AddAccount,
   AddAccountModel,
-} from "../../../../domain/usescases/signup/add-account";
+} from "../../../../domain/usecases/signup/add-account";
 import { HttpRequest } from "../../../protocols/http";
 import { MissingParamError } from "../../../errors";
 import { EmailInUseError } from "../../../../domain/errors";

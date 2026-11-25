@@ -1,5 +1,5 @@
 import { Controller } from "../../presentation/protocols/controller";
-import { DbUpdateVehicle } from "../../data/usescases/vehicle-usecases/update-vehicle/db-update-vehicle";
+import { DbUpdateVehicle } from "../../data/usecases/vehicle-usecases/update-vehicle/db-update-vehicle";
 import { UpdateVehicleController } from "../../presentation/controllers/vehicle-controllers/update-vehicle/update-vehicle";
 import { makeUpdateVehicleValidation } from "./update-vehicle-validation";
 import { makeVehicleRepository } from "./repositories";

@@ -1,4 +1,4 @@
-import { UpdateOrderDelivery } from "../../../../domain/usescases/order-delivery/update-order-delivery";
+import { UpdateOrderDelivery } from "../../../../domain/usecases/order-delivery/update-order-delivery";
 import {
   badRequest,
   ok,

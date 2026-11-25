@@ -1,5 +1,5 @@
 import { Controller } from "../../presentation/protocols/controller";
-import { DbMarkNotificationRead } from "../../data/usescases/notification-usecases/mark-notification-read/db-mark-notification-read";
+import { DbMarkNotificationRead } from "../../data/usecases/notification-usecases/mark-notification-read/db-mark-notification-read";
 import { MarkNotificationReadController } from "../../presentation/controllers/notification-controllers/mark-notification-read/mark-notification-read";
 import { SocketNotificationPublisher } from "../realtime/socket-notification-publisher";
 import { makeNotificationRepository } from "./repositories";

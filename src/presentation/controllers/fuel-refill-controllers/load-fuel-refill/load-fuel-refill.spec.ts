@@ -2,7 +2,7 @@ import { LoadFuelRefillController } from "./load-fuel-refill";
 import { HttpRequest } from "../../../protocols/http";
 import { ok, serverError } from "../../../helpers/http/http-helper";
 import { FuelRefill } from "../../../../domain/models/fuel-refill/fuel-refill-model";
-import { LoadFuelRefill, LoadFuelRefillParams } from "../../../../domain/usescases/fuel-refill/load-fuel-refill";
+import { LoadFuelRefill, LoadFuelRefillParams } from "../../../../domain/usecases/fuel-refill/load-fuel-refill";
 
 const makeFakeRequest = (): HttpRequest => ({ query: { vehicleId: "1" } });
 

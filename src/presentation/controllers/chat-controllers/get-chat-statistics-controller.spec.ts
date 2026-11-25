@@ -1,5 +1,5 @@
 import { ChatAccountNotFoundError } from "../../../domain/errors";
-import { LoadChatStatistics } from "../../../domain/usescases/chat/load-chat-statistics";
+import { LoadChatStatistics } from "../../../domain/usecases/chat/load-chat-statistics";
 import { makeFakeChatStatistics } from "../../../test/chat-fixtures";
 import { GetChatStatisticsController } from "./get-chat-statistics-controller";
 import { makeFakeActor } from "../../../test/actor-fixtures";

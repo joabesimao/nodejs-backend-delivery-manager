@@ -2,7 +2,7 @@ import { DeleteVehicleController } from "./delete-vehicle";
 import { HttpRequest } from "../../../protocols/http";
 import { conflict, ok, serverError } from "../../../helpers/http/http-helper";
 import { VehicleInUseError } from "../../../../domain/errors";
-import { DeleteVehicle } from "../../../../domain/usescases/vehicle/delete-vehicle";
+import { DeleteVehicle } from "../../../../domain/usecases/vehicle/delete-vehicle";
 
 const makeFakeRequest = (): HttpRequest => ({
   params: { id: "1" },

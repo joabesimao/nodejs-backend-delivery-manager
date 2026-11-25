@@ -5,7 +5,7 @@ import { Address } from "../../../../domain/models/register/address-model";
 import {
   AddAddress,
   AddAddressModel,
-} from "../../../../domain/usescases/address/add-address";
+} from "../../../../domain/usecases/address/add-address";
 
 const makeFakeRequest = (): HttpRequest => ({
   body: {

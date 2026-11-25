@@ -1,5 +1,5 @@
 import { Controller } from "../../presentation/protocols/controller";
-import { DbBroadcastNotice } from "../../data/usescases/notification-usecases/broadcast-notice/db-broadcast-notice";
+import { DbBroadcastNotice } from "../../data/usecases/notification-usecases/broadcast-notice/db-broadcast-notice";
 import { BroadcastNoticeController } from "../../presentation/controllers/notification-controllers/broadcast-notice/broadcast-notice";
 import { makeNotifyAccounts } from "./notify-accounts";
 import { makeNotificationRepository } from "./repositories";

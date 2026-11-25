@@ -1,7 +1,7 @@
 import { LoadCityController } from "./load-city";
 import { ok, serverError } from "../../../helpers/http/http-helper";
 import { City } from "../../../../domain/models/city/city-model";
-import { LoadCity } from "../../../../domain/usescases/city/load-city";
+import { LoadCity } from "../../../../domain/usecases/city/load-city";
 
 const makeFakeCityList = (): City[] => [
   {

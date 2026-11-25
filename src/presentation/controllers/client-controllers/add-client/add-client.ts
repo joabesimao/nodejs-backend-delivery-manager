@@ -1,4 +1,4 @@
-import { AddClient } from "../../../../domain/usescases/client/add-client";
+import { AddClient } from "../../../../domain/usecases/client/add-client";
 import { ok, serverError } from "../../../helpers/http/http-helper";
 import { mapDomainError } from "../../../helpers/http/map-domain-error";
 import { Controller } from "../../../protocols/controller";

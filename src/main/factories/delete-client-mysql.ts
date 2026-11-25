@@ -1,5 +1,5 @@
 import { DeleteClientController } from "../../presentation/controllers/client-controllers/delete-client/delete-client";
-import { DbDeleteClient } from "../../data/usescases/client-usecases/delete-client/db-delete-client";
+import { DbDeleteClient } from "../../data/usecases/client-usecases/delete-client/db-delete-client";
 import { Controller } from "../../presentation/protocols/controller";
 import { makeClientRepository } from "./repositories";
 

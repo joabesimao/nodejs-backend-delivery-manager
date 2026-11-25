@@ -1,4 +1,4 @@
-import { LoadOilChangeConfig } from "../../../../domain/usescases/oil-change/load-oil-change-config";
+import { LoadOilChangeConfig } from "../../../../domain/usecases/oil-change/load-oil-change-config";
 import { ok, serverError } from "../../../helpers/http/http-helper";
 import { Controller } from "../../../protocols/controller";
 import { HttpRequest, HttpResponse } from "../../../protocols/http";

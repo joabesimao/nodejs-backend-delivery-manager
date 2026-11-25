@@ -1,4 +1,4 @@
-import { DbSearchChatMessages } from "../../data/usescases/chat-usecases";
+import { DbSearchChatMessages } from "../../data/usecases/chat-usecases";
 import { SearchChatMessagesController } from "../../presentation/controllers/chat-controllers";
 import { makeAccountScopeRepository, makeChatMessageRepository } from "./repositories";
 

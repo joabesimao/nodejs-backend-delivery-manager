@@ -1,4 +1,4 @@
-import { LoadCity } from "../../../../domain/usescases/city/load-city";
+import { LoadCity } from "../../../../domain/usecases/city/load-city";
 import { ok, serverError } from "../../../helpers/http/http-helper";
 import { Controller } from "../../../protocols/controller";
 import { HttpRequest, HttpResponse } from "../../../protocols/http";

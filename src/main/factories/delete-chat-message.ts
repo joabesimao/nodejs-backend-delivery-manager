@@ -1,4 +1,4 @@
-import { DbDeleteChatMessage } from "../../data/usescases/chat-usecases";
+import { DbDeleteChatMessage } from "../../data/usecases/chat-usecases";
 import { SocketChatEventPublisher } from "../realtime/socket-chat-event-publisher";
 import { DeleteChatMessageController } from "../../presentation/controllers/chat-controllers";
 import { makeAccountScopeRepository, makeChatMessageRepository } from "./repositories";

@@ -1,4 +1,4 @@
-import { DbLoadOneClient } from "../../data/usescases/client-usecases/load-client/db-load-one-client";
+import { DbLoadOneClient } from "../../data/usecases/client-usecases/load-client/db-load-one-client";
 import { LoadOneClientController } from "../../presentation/controllers/client-controllers/load-one-client/load-one-client";
 import { Controller } from "../../presentation/protocols/controller";
 import { makeClientRepository } from "./repositories";

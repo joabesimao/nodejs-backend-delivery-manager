@@ -1,5 +1,5 @@
 import { Controller } from "../../presentation/protocols/controller";
-import { DbDeleteCity } from "../../data/usescases/city-usecases/delete-city/db-delete-city";
+import { DbDeleteCity } from "../../data/usecases/city-usecases/delete-city/db-delete-city";
 import { DeleteCityController } from "../../presentation/controllers/city-controllers/delete-city/delete-city";
 import { makeCityRepository } from "./repositories";
 

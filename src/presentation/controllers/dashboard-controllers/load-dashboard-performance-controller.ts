@@ -1,4 +1,4 @@
-import { LoadDashboardPerformance } from "../../../domain/usescases/dashboard/load-dashboard-performance";
+import { LoadDashboardPerformance } from "../../../domain/usecases/dashboard/load-dashboard-performance";
 import { ok, serverErrorMessage } from "../../helpers/http/http-helper";
 import { Controller } from "../../protocols/controller";
 import { HttpRequest, HttpResponse } from "../../protocols/http";

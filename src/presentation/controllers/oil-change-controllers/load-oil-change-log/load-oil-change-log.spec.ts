@@ -2,7 +2,7 @@ import { LoadOilChangeLogController } from "./load-oil-change-log";
 import { HttpRequest } from "../../../protocols/http";
 import { ok, serverError } from "../../../helpers/http/http-helper";
 import { OilChangeLog } from "../../../../domain/models/oil-change/oil-change-log-model";
-import { LoadOilChangeLog, LoadOilChangeLogParams } from "../../../../domain/usescases/oil-change/load-oil-change-log";
+import { LoadOilChangeLog, LoadOilChangeLogParams } from "../../../../domain/usecases/oil-change/load-oil-change-log";
 
 const makeFakeRequest = (): HttpRequest => ({ query: { vehicleId: "1" } });
 

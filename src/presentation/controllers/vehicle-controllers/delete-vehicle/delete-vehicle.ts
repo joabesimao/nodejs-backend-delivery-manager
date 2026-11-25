@@ -1,4 +1,4 @@
-import { DeleteVehicle } from "../../../../domain/usescases/vehicle/delete-vehicle";
+import { DeleteVehicle } from "../../../../domain/usecases/vehicle/delete-vehicle";
 import { ok, serverError } from "../../../helpers/http/http-helper";
 import { mapDomainError } from "../../../helpers/http/map-domain-error";
 import { Controller } from "../../../protocols/controller";

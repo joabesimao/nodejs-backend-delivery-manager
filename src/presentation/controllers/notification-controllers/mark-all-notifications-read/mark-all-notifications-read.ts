@@ -1,5 +1,5 @@
 import { NOTIFICATION_TYPES, NotificationType } from "../../../../domain/models/notification/notification-model";
-import { MarkAllNotificationsRead } from "../../../../domain/usescases/notification/mark-notification-read";
+import { MarkAllNotificationsRead } from "../../../../domain/usecases/notification/mark-notification-read";
 import { InvalidParamError } from "../../../errors";
 import { badRequest, ok, serverError, unauthorized } from "../../../helpers/http/http-helper";
 import { Controller } from "../../../protocols/controller";

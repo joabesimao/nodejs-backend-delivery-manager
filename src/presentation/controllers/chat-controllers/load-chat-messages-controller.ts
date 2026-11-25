@@ -1,4 +1,4 @@
-import { LoadChatMessages } from "../../../domain/usescases/chat/load-chat-messages";
+import { LoadChatMessages } from "../../../domain/usecases/chat/load-chat-messages";
 import { mapDomainError } from "../../helpers/http/map-domain-error";
 import { ok } from "../../helpers/http/http-helper";
 import { Controller } from "../../protocols/controller";

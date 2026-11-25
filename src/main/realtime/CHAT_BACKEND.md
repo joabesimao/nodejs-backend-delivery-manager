@@ -213,7 +213,7 @@ src/
 │           ├── get-chat-statistics-controller.ts
 │           └── index.ts
 ├── data/
-│   └── usescases/
+│   └── usecases/
 │       └── chat-usecases/
 │           ├── save-chat-message-usecase.ts
 │           ├── load-chat-messages-usecase.ts

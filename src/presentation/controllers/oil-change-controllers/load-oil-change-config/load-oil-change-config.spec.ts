@@ -2,7 +2,7 @@ import { LoadOilChangeConfigController } from "./load-oil-change-config";
 import { HttpRequest } from "../../../protocols/http";
 import { ok, serverError } from "../../../helpers/http/http-helper";
 import { OilChangeConfig } from "../../../../domain/models/oil-change/oil-change-config-model";
-import { LoadOilChangeConfig } from "../../../../domain/usescases/oil-change/load-oil-change-config";
+import { LoadOilChangeConfig } from "../../../../domain/usecases/oil-change/load-oil-change-config";
 
 const makeFakeRequest = (): HttpRequest => ({});
 

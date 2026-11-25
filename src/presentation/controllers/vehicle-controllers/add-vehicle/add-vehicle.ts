@@ -1,4 +1,4 @@
-import { AddVehicle } from "../../../../domain/usescases/vehicle/add-vehicle";
+import { AddVehicle } from "../../../../domain/usecases/vehicle/add-vehicle";
 import { badRequest, ok, serverError } from "../../../helpers/http/http-helper";
 import { mapDomainError } from "../../../helpers/http/map-domain-error";
 import { Controller } from "../../../protocols/controller";

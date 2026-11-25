@@ -1,7 +1,7 @@
 import { LoadClientController } from "./load-client";
 import { noContent, ok, serverError } from "../../../helpers/http/http-helper";
 import { ClientModel } from "../../../../domain/models/client/client-model";
-import { LoadClients } from "../../../../domain/usescases/client/load-client";
+import { LoadClients } from "../../../../domain/usecases/client/load-client";
 
 const makeFakeClientList = (): ClientModel[] => {
   return [

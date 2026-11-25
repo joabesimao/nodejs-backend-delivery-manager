@@ -1,5 +1,5 @@
 import { parseCivilDate } from "../../../../data/helpers/date-time";
-import { UpdateFuelRefill, UpdateFuelRefillModel } from "../../../../domain/usescases/fuel-refill/update-fuel-refill";
+import { UpdateFuelRefill, UpdateFuelRefillModel } from "../../../../domain/usecases/fuel-refill/update-fuel-refill";
 import { badRequest, noExists, ok, serverError } from "../../../helpers/http/http-helper";
 import { mapDomainError } from "../../../helpers/http/map-domain-error";
 import { Controller } from "../../../protocols/controller";

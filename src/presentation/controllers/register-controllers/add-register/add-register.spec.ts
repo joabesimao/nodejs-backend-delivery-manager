@@ -1,7 +1,7 @@
 import {
   AddRegister,
   AddRegisterModel,
-} from "../../../../domain/usescases/register/add-register";
+} from "../../../../domain/usecases/register/add-register";
 import { AddRegisterController } from "./add-register";
 import { HttpRequest } from "../../../protocols/http";
 import { badRequest, ok, serverError } from "../../../helpers/http/http-helper";

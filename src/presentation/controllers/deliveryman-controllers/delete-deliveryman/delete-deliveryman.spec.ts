@@ -1,7 +1,7 @@
 import { DeleteDeliverymanController } from "./delete-deliveryman";
 import { HttpRequest } from "../../../protocols/http";
 import { ok, serverError } from "../../../helpers/http/http-helper";
-import { DeleteDeliveryman } from "../../../../domain/usescases/deliveryman/delete-deliveryman";
+import { DeleteDeliveryman } from "../../../../domain/usecases/deliveryman/delete-deliveryman";
 
 const makeFakeRequest = (): HttpRequest => ({
   params: {
