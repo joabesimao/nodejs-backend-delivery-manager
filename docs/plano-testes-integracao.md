@@ -17,7 +17,7 @@ Projeto: `nodejs-backend-delivery-manager`.
    → Criar `.env.test` (versionado, só com valores fake) e um `setupFiles` do jest que carrega esse arquivo antes de qualquer import. O `dotenv` não sobrescreve variáveis já definidas.
 4. **Os hooks do husky vão exigir banco.** O `pre-push` roda `test:ci`, que roda todos os testes, e o `test:staged` usa `--findRelatedTests`, que pode puxar arquivos `*.test.ts`.
    → Os dois passam a rodar só os unitários (`-c jest-unit-config.js`).
-5. **Preset `@shelf/jest-mongodb`.** Ele só é necessário para `LogMongoRepository`, usado em `delete-account`. Vou manter o preset só no config de integração, para a rota `DELETE /account` funcionar, e tirar do config unitário para acelerar.
+5. **Preset `@shelf/jest-mongodb`.** Resolvido: o Mongo legado foi removido e o `delete-account` passou a logar com `ConsoleLogErrorRepository`. Nenhum config do jest usa mais o preset.
 
 ## Estrutura de testes
 - Convenção atual: `*.spec.ts` para unitários e `*.test.ts` para integração.
